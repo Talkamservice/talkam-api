@@ -1,0 +1,187 @@
+<?php
+
+namespace App\Services\User;
+
+use App\Constants\Account\User\UserConstants;
+use App\Constants\General\AppConstants;
+use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
+use App\Exceptions\General\ModelNotFoundException;
+use App\Helpers\MethodsHelper;
+use App\Models\AccountDeactivation;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+
+class UserService
+{
+    public User $user;
+
+    public static function init(): self
+    {
+        return app()->make(self::class);
+    }
+
+    public static function getById($id): User
+    {
+        $model = User::where("id", $id)->first();
+        if (empty($model)) {
+            throw new ModelNotFoundException("User not found");
+        }
+        return $model;
+    }
+
+
+    public function validate(array $data, $id = null): array
+    {
+        $validator = Validator::make($data, [
+            'fcm_token' => 'nullable|string',
+            "avatar" => "nullable|numeric",
+            "name" => "nullable|string",
+            "role" => "required|" . Rule::in(UserConstants::ROLES),
+            "email" => "required|email|unique:users,email,$id|" . Rule::requiredIf(empty($id)),
+            "username" => "required|string|unique:users,username,$id|" . Rule::requiredIf(empty($id)),
+            "status" => "nullable|string",
+            'password' => [Rule::requiredIf(empty($id))],
+            "phone_number" => "nullable",
+            "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
+        ], [
+            'email.unique' => "The email address has already been used by another user",
+            'username.unique' => "The email address has already been used by another user",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return $validator->validated();
+    }
+
+
+    public function create(array $data): User
+    {
+        $data = self::validate($data);
+        $username = $data["username"] ?? self::generateUsername();
+
+        $data = array_merge([
+            'name' => str_replace("-", " ", $username),
+            'username' => $username,
+            'status' => StatusConstants::ACTIVE,
+            'email_verified_at' => now()
+        ], $data);
+
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
+
+        if (!empty($avatar = $data["avatar"] ?? null)) {
+            (new AvatarService)->setUser($user)->update([
+                "avatar" => $avatar
+            ]);
+        }
+
+        return $user;
+    }
+
+    private static function generateUsername()
+    {
+        $username = MethodsHelper::getRandomToken(10);
+        $username = ucfirst(strtolower($username));
+
+        $check = User::where("username", $username)->count();
+
+        if ($check > 0) {
+            return self::generateUsername();
+        }
+
+        return $username;
+    }
+
+    public function update(array $data, $id = null)
+    {
+        $validator = Validator::make($data, [
+            "name" => "required|string",
+            "avatar" => "nullable|string",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $data = $validator->validated();
+
+        $user = !empty($id) ? $this->getById($id) : auth()->user();
+        $user->update($data);
+        return $user->refresh();
+    }
+
+    public function eraseData()
+    {
+        DB::beginTransaction();
+        try {
+            $user = auth()->user();
+            $this->clearUserData($user);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function deleteAccount(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $user = auth()->user();
+            $this->clearUserData($user);
+
+            AccountDeactivation::create([
+                "user_id" => $user->id,
+                "email" => $user->email,
+                "reason" => $data["reason"] ?? null,
+                "status" => StatusConstants::CONFIRMED
+            ]);
+
+            $user->forceDelete();
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function delete($id)
+    {
+        DB::beginTransaction();
+        try {
+            $user = $this->getById($id);
+            $this->clearUserData($user);
+            $user->forceDelete();
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function clearUserData($user)
+    {
+        optional($user->notifications())->delete();
+    }
+
+    public function suspend($status, $id)
+    {
+        if (!in_array($status, [StatusConstants::ACTIVE, StatusConstants::INACTIVE])) {
+            throw new InvalidRequestException("Invalid status provided");
+        }
+
+        $user = $this->getById($id);
+        $user->update([
+            "status" => $status
+        ]);
+        return $user;
+    }
+
+}

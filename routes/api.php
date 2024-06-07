@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +19,25 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::prefix("auth")->as("auth.")->group(function () {
+    Route::post("/register", [RegisterController::class, "register"])->name("register");
+    Route::post("/login/preview", [LoginController::class, "loginPreview"])->name("login_preview");
+    Route::post("/oauth-login", [LoginController::class, "oauthLogin"]);
+    Route::post("/login", [LoginController::class, "login"])->name("login");
+});
+
+Route::middleware(["auth:sanctum"])->group(function () {
+    Route::prefix("user")->as("user.")->group(function () {
+        Route::get("/me", [UserController::class,  "me"])->name("me");
+
+        Route::prefix("profile")->as("profile.")->group(function () {
+            Route::post("/upload-avatar", [UserController::class,  "uploadAvatar"])->name("upload.avatar");
+            Route::post("/update", [UserController::class,  "update"])->name("update");
+
+            Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
+            Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");
+        });
+    });
 });
