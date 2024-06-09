@@ -40,7 +40,9 @@ class UserService
         $validator = Validator::make($data, [
             'fcm_token' => 'nullable|string',
             "avatar" => "nullable|numeric",
-            "name" => "nullable|string",
+            "first_name" => "nullable|string",
+            "middle_name" => "nullable|string",
+            "last_name" => "nullable|string",
             "role" => "required|" . Rule::in(UserConstants::ROLES),
             "email" => "required|email|unique:users,email,$id|" . Rule::requiredIf(empty($id)),
             "username" => "required|string|unique:users,username,$id|" . Rule::requiredIf(empty($id)),
@@ -67,13 +69,13 @@ class UserService
         $username = $data["username"] ?? self::generateUsername();
 
         $data = array_merge([
-            'name' => str_replace("-", " ", $username),
+            'first_name' => str_replace("-", " ", $username),
             'username' => $username,
             'status' => StatusConstants::ACTIVE,
             'email_verified_at' => now()
         ], $data);
 
-        $data['password'] = Hash::make($data['password']);
+        $data['password'] = !empty($data['password'] ?? null) ? Hash::make($data['password']) : null;
         $user = User::create($data);
 
         if (!empty($avatar = $data["avatar"] ?? null)) {

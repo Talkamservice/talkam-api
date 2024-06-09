@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Constants\Account\User\UserConstants;
 use App\Constants\General\ApiConstants;
 use App\Exceptions\Auth\AuthException;
 use App\Helpers\ApiHelper;
@@ -11,13 +12,21 @@ use App\Http\Resources\Users\UserResource;
 use App\Models\User;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\OAuthLoginService;
-use App\Services\Streak\BadgeService;
+use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Exception;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
+    public $user_service;
+
+    public function __construct()
+    {
+        $this->user_service = new UserService;
+    }
     public function loginPreview(Request $request)
     {
         try {
@@ -68,23 +77,32 @@ class LoginController extends Controller
             }
 
             $email = $payload["email"];
+            $full_name = explode(" ", $payload["name"]);
             $user = User::where('email', $email)->first();
 
-            $data = [
-                "email" => $email,
-                "new_user" => true,
-            ];
+            if (empty($user)) {
+                $user = $this->user_service->create([
+                    'first_name' => $full_name[0],
+                    'last_name' => $full_name[1] ?? $full_name[0],
+                    "email" => $email,
+                    "role" => UserConstants::USER,
+                    'password' => Hash::make(Str::random(64)),
+                    'registration_platform' => $request->provider,
+                    'fcm_token' => $request->fcm_token,
+                    "social_id" => isset($payload['social_id']) ? $payload['social_id'] :  null
+                ]);
+            }
 
+            $data["user"] =  UserResource::make($user)->toArray($request);
+            $data["token"] = $user->createToken('api')->plainTextToken;
+            LoginService::newLogin($user);
             return ApiHelper::validResponse("Logged in successfully", $data);
         } catch (ValidationException $e) {
-            $message = "The given data was invalid.";
-            return ApiHelper::inputErrorResponse($message, ApiConstants::VALIDATION_ERR_CODE, $request, $e);
+            return ApiHelper::inputErrorResponse("The given data was invalid.", ApiConstants::VALIDATION_ERR_CODE, $request, $e);
         } catch (AuthException $e) {
-            $message = $e->getMessage();
-            return ApiHelper::problemResponse($message, ApiConstants::BAD_REQ_ERR_CODE, $request, $e);
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, $request, $e);
         } catch (Exception $e) {
-            $message = 'Something went wrong while processing your request.';
-            return ApiHelper::problemResponse($message, ApiConstants::SERVER_ERR_CODE, $request, $e);
+            return ApiHelper::problemResponse('Something went wrong while processing your request.', ApiConstants::SERVER_ERR_CODE, $request, $e);
         }
     }
 }

@@ -48,9 +48,9 @@ class OAuthLoginService
     public function withGoogle()
     {
         try {
-            $client_id = env('GOOGLE_CLIENT_ID');
             $token = $this->token;
-
+            $client_id = env('GOOGLE_CLIENT_ID');
+            
             $response = (new GuzzleService)
                 ->getWithQuery("https://oauth2.googleapis.com/tokeninfo?id_token=$token", [
                     "id_token" => $token
@@ -68,6 +68,11 @@ class OAuthLoginService
 
             if ($payload == false) {
                 throw new AuthException("The token has expired or is invalid.");
+            }
+
+            $check_same_app = (explode("-", $client_id)[0] ?? null) == (explode("-", $payload["aud"] ?? null)[0] ?? null);
+            if (!$check_same_app) {
+                throw new AuthException("The token is not for this app.");
             }
 
             return $payload;

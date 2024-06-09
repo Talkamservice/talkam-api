@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,16 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
             Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
             Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");
+        });
+
+        Route::prefix("post-categories")->as("post-categories.")->group(function () {
+            Route::get("/", [PostCategoryController::class, "index"])->name("index");
+            Route::get("{id}/show", [PostCategoryController::class, "show"])->name("show");
+        });
+
+        Route::prefix("posts")->as("posts.")->group(function () {
+            Route::get("/", [PostCategoryController::class, "index"])->name("index");
+            Route::get("{id}/show", [PostCategoryController::class, "show"])->name("show");
         });
     });
 });
