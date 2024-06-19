@@ -40,7 +40,6 @@ Route::prefix("auth")->as("auth.")->group(function () {
         Route::post("/reset", [PasswordController::class,  "resetPassword"])->name("reset_password");
     });
     Route::prefix("otp")->as("otp.")->group(function () {
-        // Route::post('/request', [VerificationController::class, 'request'])->name("request");
         Route::post("/verify", [VerificationController::class,  "verify"])->name("verify");
     });
 });
@@ -63,6 +62,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("{id}/show", [PostCategoryController::class, "show"])->name("show");
         });
 
+        Route::prefix("blocked-users")->as("blocked-users.")->group(function () {
+            Route::get("/", [UserController::class, "blockUserLists"])->name("index");
+            Route::post("/add", [UserController::class, "blockUser"])->name("blocked-users.add");
+        });
+
         Route::apiResources([
             "posts" => PostController::class,
             "post-attachments" => PostAttachmentController::class,
@@ -72,6 +76,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("posts")->as("posts.")->group(function () {
             Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
+            Route::post("report", [PostReactionController::class, "report"])->name("report");
         });
     });
 });

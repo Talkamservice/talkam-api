@@ -34,7 +34,7 @@ class UserResource extends JsonResource
         return [
             "id" => (int) $model->id,
             "avatar" => $model->avatar,
-            "name" => $model->name,
+            "name" => $model->full_name,
             "email" => (string) $model->email,
         ];
     }

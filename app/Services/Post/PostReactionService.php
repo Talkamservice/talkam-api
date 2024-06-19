@@ -4,6 +4,8 @@ namespace App\Services\Post;
 
 use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Models\BlockedUser;
+use App\Models\PostReport;
 use App\Models\UserPostReaction;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -33,7 +35,6 @@ class PostReactionService
 
         return $validator->validated();
     }
-
     public static function create(array $data)
     {
         $data = self::validate($data);
@@ -114,5 +115,44 @@ class PostReactionService
     {
         $posts = UserPostReaction::where("post_id", $post_id)->latest();
         return $posts;
+    }
+
+    public static function report($data)
+    {
+        $validator = Validator::make($data, [
+            "post_id" => "required|numeric|exists:posts,id",
+            "reason" => "required|string",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $data = $validator->validated();
+
+        $data["user_id"] = auth()->id();
+        $report = PostReport::create($data);
+
+        return $report;
+    }
+
+    public static function block($data)
+    {
+        $validator = Validator::make($data, [
+            "post_id" => "nullable|numeric|exists:posts,id",
+            "blocked_user_id" => "required|numeric|exists:users,id",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $data = $validator->validated();
+        $data["blocker_id"] = auth()->id();
+
+        return BlockedUser::firstOrCreate([
+            "blocker_id" => $data["blocker_id"],
+            "blocked_user_id" => $data["blocked_user_id"]
+        ]);
     }
 }

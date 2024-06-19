@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Constants\General\ApiConstants;
 use App\Exceptions\General\InvalidRequestException;
+use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Users\BlockedUserResource;
 use App\Http\Resources\Users\UserResource;
 use App\Services\User\AvatarService;
+use App\Services\User\BlockUserService;
 use App\Services\User\InterestService;
 use App\Services\User\UserService;
 use Exception;
@@ -18,6 +21,7 @@ class UserController extends Controller
 {
     public $user_service;
     public $interest_service;
+    public $blocked_user_service;
     public $avatar_service;
 
     public function __construct()
@@ -25,6 +29,7 @@ class UserController extends Controller
         $this->user_service = new UserService;
         $this->interest_service = new InterestService;
         $this->avatar_service = new AvatarService;
+        $this->blocked_user_service = new BlockUserService;
     }
 
     public function me()
@@ -102,6 +107,36 @@ class UserController extends Controller
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function blockUser(Request $request)
+    {
+        try {
+            $response = $this->blocked_user_service->create($request->all());
+            $data = ["is_blocked" => $response];
+            return ApiHelper::validResponse("Block list updated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function blockUserLists(Request $request)
+    {
+        try {
+            $response = $this->blocked_user_service->list(auth()->id())->get();
+            $data = BlockedUserResource::collection($response);
+            return ApiHelper::validResponse("Blocked list returned successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
 }

@@ -5,23 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserPollChoice extends Model
+class PostReport extends Model
 {
     use HasFactory;
     protected $guarded = [];
 
-    public function user()
-    {
+    public function user() {
         return $this->belongsTo(User::class, "user_id");
     }
 
-    public function post()
-    {
+    public function post() {
         return $this->belongsTo(Post::class, "post_id");
-    }
-
-    public function poll()
-    {
-        return $this->belongsTo(PostPoll::class, "poll_id");
     }
 }
