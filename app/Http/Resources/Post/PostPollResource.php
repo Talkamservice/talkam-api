@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Models\UserPollChoice;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostPollResource extends JsonResource
@@ -16,10 +17,16 @@ class PostPollResource extends JsonResource
 
     public function toArray($request)
     {
+        $choice = UserPollChoice::where([
+            "poll_id" => $this->id,
+            "user_id" => auth()->id(),
+        ])->exists();
+
         return [
             "id" => $this->id,
             "option" => $this->option,
             "type" => $this->type,
+            "selected" => $choice,
             "created_at" => formatDate($this->created_at),
         ];
     }

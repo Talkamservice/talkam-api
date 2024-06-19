@@ -117,13 +117,21 @@ class PostService
     {
         $data = self::validate($data, $id);
         $post = self::getById($id);
-        $post->update($data);
 
         if (isset($data["attachments"])) {
-            $this->post_attachment_service->create(array_merge([
-                "post_id" => $post->id,
-                "user_id" => $post->user_id,
-            ], $data["attachments"]));
+            $attachments = $data["attachments"];
+            unset($data["attachments"]);
+        }
+
+        $post->update($data);
+
+        if (isset($attachments)) {
+            foreach ($attachments ?? [] as $key => $attachment) {
+                $this->post_attachment_service->create(array_merge([
+                    "post_id" => $post->id,
+                    "user_id" => $post->user_id,
+                ], $attachment));
+            }
         }
 
         return $post->refresh();

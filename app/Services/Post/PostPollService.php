@@ -4,6 +4,7 @@ namespace App\Services\Post;
 
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostPoll;
+use App\Models\UserPollChoice;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -11,11 +12,11 @@ class PostPollService
 {
     public static function getById($id): PostPoll
     {
-        $post_attachment = PostPoll::find($id);
-        if (empty($post_attachment)) {
+        $post_poll = PostPoll::find($id);
+        if (empty($post_poll)) {
             throw new ModelNotFoundException("Post poll not found");
         }
-        return $post_attachment;
+        return $post_poll;
     }
 
     public static function validate($data, $id = null)
@@ -66,5 +67,29 @@ class PostPollService
     {
         $posts = PostPoll::where("post_id", $post_id)->latest();
         return $posts;
+    }
+
+    public static function select(array $data)
+    {
+        $validator = Validator::make($data, [
+            
+            "poll_id" => "required|numeric|exists:post_polls,id",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $data = $validator->validated();
+        $poll = self::getById($data["poll_id"]);
+
+        UserPollChoice::updateOrCreate([
+            "post_id" => $poll->post_id,
+            "user_id" => auth()->id(),
+        ], [
+            "poll_id" => $poll->id,
+        ]);
+
+        return $poll;
     }
 }

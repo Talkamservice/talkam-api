@@ -21,6 +21,8 @@ class PostCommentResource extends JsonResource
             "id" => $this->id,
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "comment" => $this->comment,
+            "attachment" => $this->attachment,
+            "children" => self::collection($this->whenLoaded("children", $this->children)),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

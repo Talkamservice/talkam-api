@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('post_id')->nullable()->constrained("posts")->cascadeOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained("post_comments")->cascadeOnDelete();
             $table->text('comment')->nullable();
+            $table->string('attachment')->nullable();
             $table->string('status')->nullable()->default(StatusConstants::ACTIVE);
             $table->timestamps();
         });

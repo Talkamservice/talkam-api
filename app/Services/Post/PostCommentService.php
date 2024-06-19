@@ -22,7 +22,7 @@ class PostCommentService
     {
         $validator = Validator::make($data, [
             "comment" => "required|string",
-            "user_id" => "required|exists:users,id",
+            "attachment" => "nullable|string",
             "post_id" => "required|exists:posts,id",
             "parent_id" => "nullable|exists:post_comments,id",
         ]);
@@ -37,6 +37,7 @@ class PostCommentService
     public static function create(array $data)
     {
         $data = self::validate($data);
+        $data["user_id"] = auth()->id();
         $post = PostComment::create($data);
         return $post;
     }

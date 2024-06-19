@@ -3,7 +3,9 @@
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
+use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
+use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
@@ -51,6 +53,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::apiResources([
             "posts" => PostController::class,
             "post-attachments" => PostAttachmentController::class,
+            "post-polls" => PostPollController::class,
+            "post-comments" => PostCommentController::class,
         ]);
     });
 });
