@@ -78,5 +78,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
             Route::post("report", [PostReactionController::class, "report"])->name("report");
         });
+
+        Route::prefix("post-comments")->as("post-comments.")->group(function () {
+            Route::post("reaction", [PostCommentController::class, "reaction"])->name("reaction");
+        });
     });
 });
