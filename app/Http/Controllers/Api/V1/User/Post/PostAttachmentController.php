@@ -8,7 +8,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Post\PostAttachmentResource;
-use App\Services\PostAttachment\PostAttachmentService;
+use App\Services\Post\PostAttachmentService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;

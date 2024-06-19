@@ -3,13 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Models\User;
-use App\Services\Communication\Mesibo\MesiboService;
-use App\Services\Finance\PaymentGateways\Stripe\StripeService;
-use App\Services\Notifications\AppMailerService;
-use App\Services\Provider\HubspotService;
 use App\Services\User\UserService;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class RegistrationService
 {

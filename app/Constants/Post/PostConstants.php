@@ -10,9 +10,17 @@ class PostConstants
     const POLL = "Poll";
     const FILE = "File";
 
+    const LIKE = "Like";
+    const DISLIKE = "Dislike";
+
     const TYPES = [
         self::TEXT => self::TEXT,
         self::POLL => self::POLL,
         self::FILE => self::FILE,
+    ];
+
+    const REACTIONS = [
+        self::LIKE => self::LIKE,
+        self::DISLIKE => self::DISLIKE,
     ];
 }

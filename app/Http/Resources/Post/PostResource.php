@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Post;
 
 use App\Http\Resources\Users\UserResource;
+use App\Models\UserPostReaction;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostResource extends JsonResource
@@ -17,6 +18,8 @@ class PostResource extends JsonResource
 
     public function toArray($request)
     {
+        $user_reaction = UserPostReaction::where(["post_id" => $this->id, "user_id" => auth()->id()])->first();
+
         return [
             "id" => $this->id,
             "title" => $this->title,
@@ -31,6 +34,7 @@ class PostResource extends JsonResource
             "publish_at" => $this->publish_at,
             "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
             "polls" => PostPollResource::collection($this->whenLoaded("polls", $this->polls)),
+            "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

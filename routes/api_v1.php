@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
 use App\Http\Controllers\Api\V1\User\Post\PostPollController;
+use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
@@ -56,5 +57,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "post-polls" => PostPollController::class,
             "post-comments" => PostCommentController::class,
         ]);
+
+        Route::prefix("posts")->as("posts.")->group(function () {
+            Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
+        });
     });
 });
