@@ -20,8 +20,10 @@ class UserResource extends JsonResource
             "name" => $this->full_name,
             "email" => (string) $this->email,
             "role" => $this->role,
+            "age" => $this->age,
             "username" => (string) $this->username,
             "status" => (string) $this->status,
+            "interests" => InterestResource::collection($this->whenLoaded("interests", $this->interests)),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

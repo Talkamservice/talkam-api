@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\Auth\VerificationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
@@ -32,6 +34,15 @@ Route::prefix("auth")->as("auth.")->group(function () {
     Route::post("/login/preview", [LoginController::class, "loginPreview"])->name("login_preview");
     Route::post("/oauth-login", [LoginController::class, "oauthLogin"]);
     Route::post("/login", [LoginController::class, "login"])->name("login");
+
+    Route::prefix("password")->as("password.")->group(function () {
+        Route::post('/forgot', [PasswordController::class, 'forgotPassword'])->name("forgot_password");
+        Route::post("/reset", [PasswordController::class,  "resetPassword"])->name("reset_password");
+    });
+    Route::prefix("otp")->as("otp.")->group(function () {
+        // Route::post('/request', [VerificationController::class, 'request'])->name("request");
+        Route::post("/verify", [VerificationController::class,  "verify"])->name("verify");
+    });
 });
 
 Route::middleware(["auth:sanctum"])->group(function () {
@@ -41,6 +52,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("profile")->as("profile.")->group(function () {
             Route::post("/upload-avatar", [UserController::class,  "uploadAvatar"])->name("upload.avatar");
             Route::post("/update", [UserController::class,  "update"])->name("update");
+            Route::post("interests/add-remove", [UserController::class,  "saveInterest"])->name("save-interest");
 
             Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
             Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");

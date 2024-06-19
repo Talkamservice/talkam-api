@@ -19,6 +19,12 @@ use Illuminate\Validation\ValidationException;
 class UserService
 {
     public User $user;
+    public $interest_service;
+
+    public function __construct()
+    {
+        $this->interest_service = new InterestService;
+    }
 
     public static function init(): self
     {
@@ -107,6 +113,12 @@ class UserService
         $validator = Validator::make($data, [
             "name" => "required|string",
             "avatar" => "nullable|string",
+            "interests" => "nullable|array",
+            "interests.*" => "required|exists:post_categories,id",
+            "username" => "required|unique:users,username,$id",
+            "age" => "nullable|numeric",
+        ], [
+            "username.unique" => "The username has already been taken"
         ]);
 
         if ($validator->fails()) {
@@ -115,10 +127,23 @@ class UserService
 
         $data = $validator->validated();
 
-        $data = self::getNames($data["name"]);
-        
+
+        $names = self::getNames($data["name"]);
         $user = !empty($id) ? $this->getById($id) : auth()->user();
-        $user->update($data);
+
+        if (isset($data["interests"])) {
+            $interests = $data["interests"];
+            foreach ($interests ?? [] as $key => $category_id) {
+                $this->interest_service->save([
+                    "user_id" => $user->id,
+                    "category_id" => $category_id
+                ]);
+            }
+
+            unset($data["interests"]);
+        }
+
+        $user->update(array_merge($data, $names));
         return $user->refresh();
     }
 

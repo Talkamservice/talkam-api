@@ -44,11 +44,10 @@ class PasswordService
     {
         $validator = Validator::make($data, [
             "code" => "required|string",
-            'password' => ['required', 'regex:/^\d{4}$/'],
+            'password' => 'required',
             "type" => "nullable"
-        ], [
-            'password.regex' => 'The password must be a 4-digit number.'
         ]);
+        
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }

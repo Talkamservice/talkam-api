@@ -47,7 +47,7 @@ class PinService
                 "expires_at" => Carbon::parse($data["expires_at"])->diffForHumans()
             ],
             "to" => $user->email,
-            "template" => "emails.template.v1.auth.pin." . $data["type"],
+            "template" => "emails.auth.pin." . $data["type"],
             "subject" => PinConstants::TITLES[$data["type"]],
         ]);
     }
@@ -63,8 +63,7 @@ class PinService
             throw new ValidationException($validator);
         }
         $data = $validator->validated();
-        $pin = Pin::where($data)->whereHas("user")->with("user")
-            ->first();
+        $pin = Pin::where($data)->first();
 
         if (empty($pin)) {
             throw new PinException("The code is invalid. Kindly request a new code.");
