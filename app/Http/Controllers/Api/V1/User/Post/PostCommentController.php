@@ -8,26 +8,32 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Post\PostResource;
+use App\Services\Post\PostCommentService;
 use App\Services\Post\PostService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class PostController extends Controller
+class PostCommentController extends Controller
 {
     protected $post_service;
+    protected $post_comment_service;
 
     public function __construct()
     {
         $this->post_service = new PostService;
+        $this->post_comment_service = new PostCommentService;
     }
 
     public function index(Request $request)
     {
         try {
-            $categories = $this->post_service->list()->get();
-            $data = PostResource::collection($categories);
-            return ApiHelper::validResponse("Posts returned successfully", $data);
+            $post = $this->post_service->getById($request->post_id);
+            $comments = $this->post_comment_service->list($post->id, $request->comment_id)->get();
+            $data = PostResource::collection($comments);
+            return ApiHelper::validResponse("Post comments returned successfully", $data);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
@@ -36,9 +42,9 @@ class PostController extends Controller
     public function show($id)
     {
         try {
-            $post = $this->post_service->getById($id);
-            $data = PostResource::make($post);
-            return ApiHelper::validResponse("Post details returned successfully", $data);
+            $user = $this->post_comment_service->getById($id);
+            $data = PostResource::make($user);
+            return ApiHelper::validResponse("Post comments returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
@@ -49,9 +55,9 @@ class PostController extends Controller
     public function store(Request $request)
     {
         try {
-            $post = $this->post_service->create($request->all());
-            $data = PostResource::make($post);
-            return ApiHelper::validResponse("Post created successfully", $data);
+            $user = $this->post_comment_service->create($request->all());
+            $data = PostResource::make($user);
+            return ApiHelper::validResponse("Post comment created successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
@@ -64,9 +70,9 @@ class PostController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $post = $this->post_service->update($request->all(), $id);
-            $data = PostResource::make($post);
-            return ApiHelper::validResponse("Post updated successfully", $data);
+            $user = $this->post_comment_service->update($request->all(), $id);
+            $data = PostResource::make($user);
+            return ApiHelper::validResponse("Post comment updated successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
@@ -79,8 +85,8 @@ class PostController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            $this->post_service->delete($id);
-            return ApiHelper::validResponse("Post deleted successfully");
+            $this->post_comment_service->delete($id);
+            return ApiHelper::validResponse("Post comment deleted successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (InvalidRequestException $e) {

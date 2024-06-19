@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Users;
+namespace App\Http\Resources\Post;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PreviewResource extends JsonResource
+class PostPollResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -12,14 +12,15 @@ class PreviewResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
+    public $resource;
+
     public function toArray($request)
     {
         return [
-            "avatar" => $this->avatar,
-            "name" => $this->full_name,
-            "username" => $this->username,
-            "role" => $this->role,
-            "email" => (string) $this->email,
+            "id" => $this->id,
+            "option" => $this->option,
+            "type" => $this->type,
+            "created_at" => formatDate($this->created_at),
         ];
     }
 }

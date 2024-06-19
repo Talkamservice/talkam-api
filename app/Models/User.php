@@ -39,4 +39,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function names()
+    {
+        return implode(' ', array_filter([$this->first_name, $this->middle_name, $this->last_name]));
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->names();
+    }
 }

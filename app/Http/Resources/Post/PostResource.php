@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Http\Resources\Users\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostResource extends JsonResource
@@ -18,9 +19,18 @@ class PostResource extends JsonResource
     {
         return [
             "id" => $this->id,
-            "name" => $this->name,
-            "description" => $this->description,
-            "image" => $this->image,
+            "title" => $this->title,
+            "body" => $this->body,
+            "type" => $this->type,
+            "uuid" => $this->uuid,
+            "user" => UserResource::make($this->whenLoaded("user", $this->user)),
+            "can_comment" => $this->can_comment,
+            "is_anonymous" => $this->is_anonymous,
+            "views_count" => $this->views_count,
+            "status" => $this->status,
+            "publish_at" => $this->publish_at,
+            "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
+            "polls" => PostPollResource::collection($this->whenLoaded("polls", $this->polls)),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

@@ -12,13 +12,11 @@ use Illuminate\Validation\ValidationException;
 class AvatarService
 {
     public ?User $user;
-    public $file_service;
     public array $files = [];
 
     function __construct()
     {
         $this->user = auth()->user();
-        $this->file_service = new FileService;
     }
 
     function setUser(User $user)

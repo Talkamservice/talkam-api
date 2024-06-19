@@ -43,7 +43,7 @@ class UserService
             "first_name" => "nullable|string",
             "middle_name" => "nullable|string",
             "last_name" => "nullable|string",
-            "role" => "required|" . Rule::in(UserConstants::ROLES),
+            "role" => "nullable|" . Rule::in(UserConstants::ROLES),
             "email" => "required|email|unique:users,email,$id|" . Rule::requiredIf(empty($id)),
             "username" => "required|string|unique:users,username,$id|" . Rule::requiredIf(empty($id)),
             "status" => "nullable|string",
@@ -72,7 +72,8 @@ class UserService
             'first_name' => str_replace("-", " ", $username),
             'username' => $username,
             'status' => StatusConstants::ACTIVE,
-            'email_verified_at' => now()
+            'email_verified_at' => now(),
+            'role' => $data["role"] ?? UserConstants::USER
         ], $data);
 
         $data['password'] = !empty($data['password'] ?? null) ? Hash::make($data['password']) : null;
@@ -114,6 +115,8 @@ class UserService
 
         $data = $validator->validated();
 
+        $data = self::getNames($data["name"]);
+        
         $user = !empty($id) ? $this->getById($id) : auth()->user();
         $user->update($data);
         return $user->refresh();
@@ -186,4 +189,26 @@ class UserService
         return $user;
     }
 
+    public static function getNames($fullName)
+    {
+        // Split the full name into an array of words
+        $nameParts = explode(' ', $fullName);
+
+        // Extract first name, middle name (if present), and last name
+        $firstName = array_shift($nameParts);
+        $lastName = array_pop($nameParts);
+        $middleName = implode(' ', $nameParts);
+
+        // Create an array based on the presence of the middle name
+        $result = [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+        ];
+
+        if (!empty($middleName)) {
+            $result['middle_name'] = $middleName;
+        }
+
+        return $result;
+    }
 }

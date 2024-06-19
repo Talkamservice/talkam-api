@@ -42,26 +42,4 @@ class RegisterController extends Controller
             );
         }
     }
-
-    public function steps(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-            $message = $this->register_service->steps($request->all());
-            DB::commit();
-            return ApiHelper::validResponse($message);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-            return ApiHelper::problemResponse(
-                $this->serverErrorMessage,
-                ApiConstants::SERVER_ERR_CODE,
-                null,
-                $e
-            );
-        }
-    }
 }
