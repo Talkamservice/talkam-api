@@ -51,7 +51,7 @@ class UserService
             "last_name" => "nullable|string",
             "role" => "nullable|" . Rule::in(UserConstants::ROLES),
             "email" => "required|email|unique:users,email,$id|" . Rule::requiredIf(empty($id)),
-            "username" => "required|string|unique:users,username,$id|" . Rule::requiredIf(empty($id)),
+            "username" => "nullable|string|unique:users,username,$id|" . Rule::requiredIf(empty($id)),
             "status" => "nullable|string",
             'password' => [Rule::requiredIf(empty($id))],
             "phone_number" => "nullable",
@@ -72,11 +72,8 @@ class UserService
     public function create(array $data): User
     {
         $data = self::validate($data);
-        $username = $data["username"] ?? self::generateUsername();
 
         $data = array_merge([
-            'first_name' => str_replace("-", " ", $username),
-            'username' => $username,
             'status' => StatusConstants::ACTIVE,
             'email_verified_at' => now(),
             'role' => $data["role"] ?? UserConstants::USER
@@ -115,7 +112,7 @@ class UserService
             "avatar" => "nullable|string",
             "interests" => "nullable|array",
             "interests.*" => "required|exists:post_categories,id",
-            "username" => "required|unique:users,username,$id",
+            "username" => "nullable|unique:users,username,$id",
             "age" => "nullable|numeric",
         ], [
             "username.unique" => "The username has already been taken"
