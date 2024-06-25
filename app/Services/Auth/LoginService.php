@@ -54,6 +54,10 @@ class LoginService
             ]);
         }
 
+        if (empty($user->email_verified_at)) {
+            (new VerifyService())->sendPin($user);
+        }
+
         return $user->refresh();
     }
 

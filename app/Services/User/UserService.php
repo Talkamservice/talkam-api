@@ -75,7 +75,6 @@ class UserService
 
         $data = array_merge([
             'status' => StatusConstants::ACTIVE,
-            'email_verified_at' => now(),
             'role' => $data["role"] ?? UserConstants::USER
         ], $data);
 

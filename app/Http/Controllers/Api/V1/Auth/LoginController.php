@@ -12,6 +12,7 @@ use App\Http\Resources\Users\UserResource;
 use App\Models\User;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\OAuthLoginService;
+use App\Services\Auth\VerifyService;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -22,10 +23,12 @@ use Illuminate\Support\Facades\Hash;
 class LoginController extends Controller
 {
     public $user_service;
+    public $verify_service;
 
     public function __construct()
     {
         $this->user_service = new UserService;
+        $this->verify_service = new VerifyService;
     }
     public function loginPreview(Request $request)
     {

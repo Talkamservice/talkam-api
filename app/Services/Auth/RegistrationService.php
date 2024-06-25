@@ -9,15 +9,18 @@ class RegistrationService
 {
 
     public $user_service;
+    public $verify_service;
 
     public function __construct()
     {
         $this->user_service = new UserService;
+        $this->verify_service = new VerifyService;
     }
 
     public function create(array $data): User
     {
         $user = $this->user_service->create($data);
+        $this->verify_service->sendPin($user);
         return $user;
     }
 

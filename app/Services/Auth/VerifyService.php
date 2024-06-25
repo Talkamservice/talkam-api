@@ -46,8 +46,9 @@ class VerifyService
             $data["type"] = $data["type"] ?? PinConstants::TYPE_VERIFY_EMAIL;
             $check = $this->pin_service->verify($data);
             $pin = $check["pin"];
+            $user = $check["user"] ?? null;
 
-            if (auth()->check() && !empty($user = $check["user"])) {
+            if (auth()->check() && !empty($user)) {
                 if ($user->id != auth()->id()) {
                     throw new PinException("The code is invalid. Kindly request a new code.");
                 }
@@ -56,6 +57,13 @@ class VerifyService
                     throw new PinException("The email address does not match the code. Kindly request a new code.");
                 }
             }
+
+            if ($data["type"] == PinConstants::TYPE_VERIFY_EMAIL) {
+                $user?->update([
+                    "email_verified_at" => now(),
+                ]);
+            }
+
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
