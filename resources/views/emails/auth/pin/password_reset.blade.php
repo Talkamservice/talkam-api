@@ -128,7 +128,7 @@
                                                             <tr>
                                                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                                                     <div style="font-family:Muli, Arial, sans-serif;font-size:20px;font-weight:400;line-height:30px;text-align:left;color:#333333;">
-                                                                        <h1 style="margin: 0; font-size: 24px; line-height: normal; font-weight: bold;">Hello {{ $user->username }},</h1>
+                                                                        <h1 style="margin: 0; font-size: 24px; line-height: normal; font-weight: bold;">Hello{{ !empty($username = $user->username) ? " $username" : "" }},</h1>
                                                                     </div>
                                                                 </td>
                                                             </tr>
