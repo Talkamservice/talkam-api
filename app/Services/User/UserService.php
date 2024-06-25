@@ -51,7 +51,7 @@ class UserService
             "last_name" => "nullable|string",
             "role" => "nullable|" . Rule::in(UserConstants::ROLES),
             "email" => "required|email|unique:users,email,$id|" . Rule::requiredIf(empty($id)),
-            "username" => "nullable|string|unique:users,username,$id|" . Rule::requiredIf(empty($id)),
+            "username" => "nullable|string|unique:users,username,$id",
             "status" => "nullable|string",
             'password' => [Rule::requiredIf(empty($id))],
             "phone_number" => "nullable",
