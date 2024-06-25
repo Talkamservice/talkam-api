@@ -17,35 +17,37 @@ class CategoryTableSeeder extends Seeder
     {
         $data = [
             [
-                "name" => "Caterers",
-                "description" => "Browse and book chefs for your events",
-                "image" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDWj9w21gJI5mcQ4yTwg6cG1fgI9YGmMqSKA&usqp=CAU",
+                "name" => "Entertainments",
+                "description" => "Explore and enjoy various forms of entertainment.",
+                "image" => "https://images.pexels.com/photos/1059078/pexels-photo-1059078.jpeg", // Entertainment image
             ],
             [
-                "name" => "Djs",
-                "description" => "Browse and book DJs in your neighbourhood",
-                "image" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDWj9w21gJI5mcQ4yTwg6cG1fgI9YGmMqSKA&usqp=CAU",
+                "name" => "Movies",
+                "description" => "Find and watch the latest movies and classic films.",
+                "image" => "https://images.pexels.com/photos/1117132/pexels-photo-1117132.jpeg", // Movies image
             ],
             [
-                "name" => "Event planners",
-                "description" => "Browse and book event planners for your events",
-                "image" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDWj9w21gJI5mcQ4yTwg6cG1fgI9YGmMqSKA&usqp=CAU",
+                "name" => "Sports",
+                "description" => "Stay updated with live sports events and news.",
+                "image" => "https://images.pexels.com/photos/47730/the-ball-stadion-football-the-pitch-47730.jpeg", // Sports image
             ],
             [
-                "name" => "Hair Stylists",
-                "description" => "Browse and book hair stylists in your neighbourhood",
-                "image" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDWj9w21gJI5mcQ4yTwg6cG1fgI9YGmMqSKA&usqp=CAU",
+                "name" => "Lifestyles",
+                "description" => "Discover lifestyle tips and trends for better living.",
+                "image" => "https://images.pexels.com/photos/934718/pexels-photo-934718.jpeg", // Lifestyles image
             ],
             [
-                "name" => "Photographers",
-                "description" => "Browse and book photographers in your neighbourhood",
-                "image" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDWj9w21gJI5mcQ4yTwg6cG1fgI9YGmMqSKA&usqp=CAU",
+                "name" => "Literature",
+                "description" => "Browse and read a wide range of literary works.",
+                "image" => "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg", // Literature image
             ],
         ];
 
         foreach ($data as $d) {
             $d["status"] = StatusConstants::ACTIVE;
-            PostCategory::create($d);
+            PostCategory::firstOrCreate([
+                "name" => $d["name"]
+            ], $d);
         }
     }
 }
