@@ -158,7 +158,7 @@ class OAuthLoginService
 
             $data = [
                 "name" => $userData->name,
-                "email" => $userData->email . "@tiktok.com",
+                "email" => $userData->email ??  "$userData->name@tiktok.com",
                 "social_id" => $userData->id,
             ];
 
