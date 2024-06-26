@@ -142,7 +142,11 @@ class OAuthLoginService
                 ]);
 
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new AuthException($response["message"]["error"] ?? "Request failed");
+                throw new AuthException($response["message"]["error"] ?? $response["data"]["data"]["description"] ??  "Request failed");
+            }
+
+            if (in_array($response["data"]["message"], ["error"])) {
+                throw new AuthException($response["data"]["data"]["description"] ??  "Request failed");
             }
 
             $token = $response["data"]["data"]["access_token"] ?? null;
@@ -154,7 +158,7 @@ class OAuthLoginService
 
             $data = [
                 "name" => $userData->name,
-                "email" => $userData->email,
+                "email" => $userData->email . "@tiktok.com",
                 "social_id" => $userData->id,
             ];
 
