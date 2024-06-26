@@ -105,9 +105,9 @@ class OAuthLoginService
         try {
             $token = $this->token;
 
-            $userData = Socialite::driver($this->provider)->userFromToken($token);
+            $userData = Socialite::driver($this->provider)->stateless()->userFromToken($token);
 
-            if (empty($payload)) {
+            if (empty($userData)) {
                 throw new AuthException("Unable to validate token");
             }
 
