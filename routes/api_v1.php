@@ -4,11 +4,13 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
+use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
 use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
+use App\Http\Controllers\Api\V1\User\PostCategory\MessagingController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
@@ -56,6 +58,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
             Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
             Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");
+
+            Route::get("fetch", [UserController::class,  "getProfile"])->name("get-profile");
         });
 
         Route::prefix("post-categories")->as("post-categories.")->group(function () {
@@ -82,6 +86,15 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("post-comments")->as("post-comments.")->group(function () {
             Route::post("reaction", [PostCommentController::class, "reaction"])->name("reaction");
+        });
+
+        Route::prefix("messaging")->as("messaging.")->group(function () {
+            Route::resource("conversations", ConversationController::class);
+
+            Route::prefix("conversations")->as("conversations.")->group(function () {
+                Route::post("update-status", [ConversationController::class, "updateStatus"])->name("update-status");
+                Route::post("report", [ConversationController::class, "report"])->name("report");
+            });
         });
     });
 });

@@ -139,4 +139,19 @@ class UserController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
+
+    public function getProfile(Request $request)
+    {
+        try {
+            $response = $this->user_service->getById($request->user_id);
+            $data = UserResource::make($response);
+            return ApiHelper::validResponse("Profile returned successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
 }

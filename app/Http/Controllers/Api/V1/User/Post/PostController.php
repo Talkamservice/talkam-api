@@ -25,7 +25,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $categories = $this->post_service->list()->get();
+            $categories = $this->post_service->list()->schedule()->unblocked()->get();
             $data = PostResource::collection($categories);
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {

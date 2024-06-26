@@ -49,31 +49,21 @@ class OAuthLoginService
     {
         try {
             $token = $this->token;
-            $client_id = env('GOOGLE_CLIENT_ID');
-            
-            $response = (new GuzzleService)
-                ->getWithQuery("https://oauth2.googleapis.com/tokeninfo?id_token=$token", [
-                    "id_token" => $token
-                ]);
 
-            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new AuthException($response["message"]["error"] ?? "Request failed");
-            }
+            $userData = Socialite::driver($this->provider)->userFromToken($token);
 
-            $payload = $response["data"];
-
-            if (empty($payload)) {
+            if (empty($userData)) {
                 throw new AuthException("Unable to validate token");
             }
 
-            if ($payload == false) {
+            if ($userData == false) {
                 throw new AuthException("The token has expired or is invalid.");
             }
 
-            $check_same_app = (explode("-", $client_id)[0] ?? null) == (explode("-", $payload["aud"] ?? null)[0] ?? null);
-            if (!$check_same_app) {
-                throw new AuthException("The token is not for this app.");
-            }
+            $payload = [
+                "email" => $userData->email,
+                "name" => $userData->user['given_name'] . " " . $userData->user['family_name'],
+            ];
 
             return $payload;
         } catch (Throwable $e) {

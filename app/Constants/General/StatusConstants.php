@@ -6,6 +6,7 @@ class StatusConstants
 {
     const ACTIVE = "Active";
     const AWAITING_APPROVAL = "Awaiting_Approval";
+    const AWAITING_RESPONSE = "Awaiting_Response";
     const REVIEWING = "Reviewing";
     const INACTIVE = "Inactive";
     const CREATED = "Created";
@@ -35,6 +36,7 @@ class StatusConstants
     const REJECTED = "Rejected";
     const USED = "Used";
     const UNUSED = "Unused";
+    const ACCEPTED = "Accepted";
     const ACTIVE_OPTIONS = [
         self::ACTIVE => "Active",
         self::INACTIVE => "Inactive",
