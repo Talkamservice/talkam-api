@@ -131,11 +131,24 @@ class OAuthLoginService
     public function withTiktok()
     {
         try {
-            $token = $this->token;
+            $auth_code = $this->token;
 
+            $response = (new GuzzleService)
+                ->post("https://open-api.tiktok.com/oauth/access_token/", [
+                    "client_key" => config("services.tiktok.client_id"),
+                    "client_secret" => config("services.tiktok.client_secret"),
+                    "code" => $auth_code,
+                    "grant_type" => "authorization_code",
+                ]);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new AuthException($response["message"]["error"] ?? "Request failed");
+            }
+
+            $token = $response["data"]["data"]["access_token"] ?? null;
             $userData = Socialite::driver($this->provider)->userFromToken($token);
 
-            if (empty($payload)) {
+            if (empty($userData)) {
                 throw new AuthException("Unable to validate token");
             }
 
