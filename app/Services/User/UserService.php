@@ -107,7 +107,7 @@ class UserService
     public function update(array $data, $id = null)
     {
         $validator = Validator::make($data, [
-            "name" => "required|string",
+            "name" => "nullable|string",
             "avatar" => "nullable|string",
             "interests" => "nullable|array",
             "interests.*" => "required|exists:post_categories,id",

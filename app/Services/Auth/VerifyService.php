@@ -7,6 +7,8 @@ use App\Exceptions\Auth\PinException;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\RequiredIf;
 use Illuminate\Validation\ValidationException;
 
 class VerifyService
@@ -29,6 +31,38 @@ class VerifyService
     }
 
 
+    public function request(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "type" => "required|string|" . Rule::in(array_keys(PinConstants::TITLES)),
+                "email" => "required|email",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $user = User::where("email", $data["email"])->first();
+
+            $pin_expiry = now()->addSeconds(config("system.configuration.pin_expiry"));
+
+            $this->pin_service->create($user, [
+                "type" => $data["type"],
+                "expires_at" => $pin_expiry,
+                "length" => 4,
+                "code_type" => "int",
+            ]);
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
     public function verify(array $data)
     {
         DB::beginTransaction();
@@ -38,6 +72,7 @@ class VerifyService
                 "email" => [auth()->check() ? "nullable" : "required", "email"],
                 "type" => "nullable"
             ]);
+
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }

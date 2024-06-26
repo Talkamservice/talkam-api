@@ -50,6 +50,8 @@ class PinService
             "template" => "emails.auth.pin." . $data["type"],
             "subject" => PinConstants::TITLES[$data["type"]],
         ]);
+
+        return $pin;
     }
 
 

@@ -40,6 +40,7 @@ Route::prefix("auth")->as("auth.")->group(function () {
         Route::post("/reset", [PasswordController::class,  "resetPassword"])->name("reset_password");
     });
     Route::prefix("otp")->as("otp.")->group(function () {
+        Route::post('/request', [VerificationController::class, 'request'])->name("request");
         Route::post("/verify", [VerificationController::class,  "verify"])->name("verify");
     });
 });
