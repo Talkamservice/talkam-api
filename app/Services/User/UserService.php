@@ -106,41 +106,49 @@ class UserService
 
     public function update(array $data, $id = null)
     {
-        $validator = Validator::make($data, [
-            "name" => "nullable|string",
-            "avatar" => "nullable|string",
-            "interests" => "nullable|array",
-            "interests.*" => "required|exists:post_categories,id",
-            "username" => "nullable|unique:users,username,$id",
-            "age" => "nullable|numeric",
-        ], [
-            "username.unique" => "The username has already been taken"
-        ]);
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "name" => "nullable|string",
+                "avatar" => "nullable|string",
+                "interests" => "nullable|array",
+                "interests.*" => "required|exists:post_categories,id",
+                "username" => "nullable|unique:users,username,$id",
+                "age" => "nullable|numeric",
+            ], [
+                "username.unique" => "The username has already been taken"
+            ]);
 
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        $data = $validator->validated();
-
-
-        $names = isset($data["name"]) ? self::getNames($data["name"]) : [];
-        $user = !empty($id) ? $this->getById($id) : auth()->user();
-
-        if (isset($data["interests"])) {
-            $interests = $data["interests"];
-            foreach ($interests ?? [] as $key => $category_id) {
-                $this->interest_service->save([
-                    "user_id" => $user->id,
-                    "category_id" => $category_id
-                ]);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
             }
 
-            unset($data["interests"]);
-        }
+            $data = $validator->validated();
 
-        $user->update(array_merge($data, $names));
-        return $user->refresh();
+
+            $names = isset($data["name"]) ? self::getNames($data["name"]) : [];
+            $user = !empty($id) ? $this->getById($id) : auth()->user();
+
+            if (isset($data["interests"])) {
+                $interests = $data["interests"];
+                foreach ($interests ?? [] as $key => $category_id) {
+                    $this->interest_service->save([
+                        "user_id" => $user->id,
+                        "category_id" => $category_id
+                    ]);
+                }
+
+                unset($data["interests"]);
+            }
+
+            $user->update(array_merge($data, $names));
+            
+            DB::commit();
+            return $user->refresh();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
     public function eraseData()
