@@ -14,6 +14,7 @@
         "laravel/socialite": "^5.14",
         "laravel/telescope": "^5.1",
         "laravel/tinker": "^2.8",
+        "laravel/ui": "^4.5",
         "socialiteproviders/tiktok": "^5.2"
     },
     "require-dev": {

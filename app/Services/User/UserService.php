@@ -124,7 +124,7 @@ class UserService
         $data = $validator->validated();
 
 
-        $names = self::getNames($data["name"]);
+        $names = isset($data["name"]) ? self::getNames($data["name"]) : [];
         $user = !empty($id) ? $this->getById($id) : auth()->user();
 
         if (isset($data["interests"])) {
