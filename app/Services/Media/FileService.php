@@ -5,9 +5,7 @@ namespace App\Services\Media;
 use App\Constants\Media\FileConstants;
 use App\Helpers\MethodsHelper;
 use App\Models\File as FileModel;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class FileService
 {

@@ -7,6 +7,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Avatar\AvatarResource;
 use App\Http\Resources\Users\BlockedUserResource;
 use App\Http\Resources\Users\UserResource;
 use App\Services\User\AvatarService;
@@ -37,6 +38,16 @@ class UserController extends Controller
         try {
             $user = auth()->user();
             return ApiHelper::validResponse("User data retrieved successfully", UserResource::make($user));
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function listAvatars(Request $request)
+    {
+        try {
+            $avatars = $this->avatar_service->list()->get();
+            return ApiHelper::validResponse("Avatars returned successfully", AvatarResource::collection($avatars));
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
