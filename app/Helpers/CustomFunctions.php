@@ -27,7 +27,7 @@ function slugify($value)
 
 function sudo()
 {
-    return User::where("email", env("SUDO_EMAIL", "sudo@yourmentra.com"))->first();
+    return User::where("email", env("SUDO_EMAIL", "sudo@talkam.com"))->first();
 }
 
 

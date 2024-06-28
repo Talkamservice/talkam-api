@@ -3,15 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Constants\Account\User\UserConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -55,6 +58,17 @@ class User extends Authenticatable
         return $this->hasMany(UserInterest::class, "user_id");
     }
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class, "user_id");
+    }
+
+    public function pins()
+    {
+        return $this->hasMany(Pin::class, "user_id");
+    }
+
+
     public function blockedUsers()
     {
         return $this->hasMany(BlockedUser::class, "blocker_id");
@@ -69,5 +83,36 @@ class User extends Authenticatable
                 ->orWhere("phone_number", "LIKE", "%$key%")
                 ->orWhere("username", "LIKE", "%$key%");
         });
+    }
+
+    public function isUser()
+    {
+        return $this->role == UserConstants::USER;
+    }
+
+    public function scopeRole($query, $role = UserConstants::USER)
+    {
+        return $query->where("role", $role);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role == UserConstants::ADMIN;
+    }
+
+    public function avatar()
+    {
+        return $this->belongsTo(Avatar::class, 'avatar_id');
+    }
+
+    public function avatarUrl($type = null)
+    {
+        if (!empty($this->avatar)) {
+            return $this->avatar;
+        } elseif ($type == "white") {
+            return asset("admin_assets/images/authentication/logo_white.svg");
+        } else {
+            return asset("admin_assets/images/authentication/logo.png");
+        }
     }
 }

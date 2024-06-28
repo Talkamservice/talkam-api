@@ -142,7 +142,7 @@ class UserService
             }
 
             $user->update(array_merge($data, $names));
-            
+
             DB::commit();
             return $user->refresh();
         } catch (\Throwable $th) {
@@ -203,6 +203,7 @@ class UserService
     public function clearUserData($user)
     {
         optional($user->notifications())->delete();
+        optional($user->pins())->delete();
     }
 
     public function suspend($status, $id)

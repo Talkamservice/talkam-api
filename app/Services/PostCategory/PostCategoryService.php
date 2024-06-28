@@ -28,7 +28,8 @@ class PostCategoryService
             "name" => "bail|required|string",
             "description" => "bail|nullable|string",
             "status" => "bail|required|string|" . Rule::in(StatusConstants::ACTIVE_OPTIONS),
-            "image" => "bail|nullable|string|" . Rule::requiredIf(empty($id)),
+            "image" => "bail|nullable|string",
+            // "image" => "bail|nullable|string|" . Rule::requiredIf(empty($id)),
         ]);
 
         if ($validator->fails()) {
@@ -64,9 +65,14 @@ class PostCategoryService
     }
 
 
-    public static function list()
+    public static function list(array $data = [])
     {
-        $categories = PostCategory::orderBy("category_id");
+        $categories = PostCategory::latest();
+
+        if (!empty($key = $data["search"] ?? null)) {
+            $categories = $categories->where("name", "LIKE", "%$key%");
+        }
+
         return $categories;
     }
 

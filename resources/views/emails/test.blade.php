@@ -12,6 +12,6 @@ To join the session as a user, log in to the app with the following credentials:
 After logging in, proceed to the active session to get connected with the therapist.
 
 Thank you,<br>
-The Mentra Team
+The Talkam Team
 
 @endcomponent

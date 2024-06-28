@@ -38,6 +38,16 @@ class AuthorizationService
         return $user->hasAnyPermission($permissions);
     }
 
+    public static function enableLoginPermission($role, $user = null)
+    {
+        $permissions = Permission::where("name", "can_login_into_admin_dashboard")->pluck("name")->toArray();
+        $role->syncPermissions($permissions);
+
+        if (!empty($user)) {
+            $user->syncRoles([$role]);
+        }
+    }
+    
     public static function syncSudoRoles($role = null)
     {
         if (!empty($sudo = sudo())) {
