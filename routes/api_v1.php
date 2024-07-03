@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
+use App\Http\Controllers\Api\V1\User\Post\PostDraftController;
 use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
@@ -78,9 +79,10 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::apiResources([
             "posts" => PostController::class,
             "post-attachments" => PostAttachmentController::class,
-            "post-schedules" => PostScheduleController::class,
             "post-polls" => PostPollController::class,
             "post-comments" => PostCommentController::class,
+            "post-schedules" => PostScheduleController::class,
+            "post-drafts" => PostDraftController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {

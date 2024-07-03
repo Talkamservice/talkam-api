@@ -78,5 +78,12 @@ class StatusConstants
         self::RESOLVED => "Resolved",
         self::UNRESOLVED => "Unresolved"
     ];
+
+    const POST_STATUS_OPTIONS = [
+        self::ACTIVE => "Active",
+        self::SCHEDULED => "Scheduled",
+        self::DRAFTED => "Drafted",
+        self::INACTIVE => "Inactive",
+    ];
 }
 

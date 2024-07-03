@@ -41,9 +41,9 @@ class PostService
         $validator = Validator::make($data, [
             "category_id" => "required|numeric|exists:post_categories,id",
             "type" => "required|string|" . Rule::in(PostConstants::TYPES),
-            "title" => "required|string",
+            "title" => "nullable|string",
             "body" => "nullable|string",
-            "status" => "required|string|" . Rule::in(StatusConstants::ACTIVE_OPTIONS),
+            "status" => "nullable|string|" . Rule::in(StatusConstants::POST_STATUS_OPTIONS),
             "cover" => "string|nullable",
             "publish_at" => "nullable",
             "is_anonymous" => "nullable|in:0,1|" . Rule::in(array_keys(StatusConstants::BOOL_OPTIONS)),
@@ -76,39 +76,35 @@ class PostService
             $data = array_merge([
                 "uuid" => self::getUuid(),
                 "user_id" => $user->id,
-                "status" => StatusConstants::ACTIVE,
+                "status" => $data["status"] ?? StatusConstants::ACTIVE,
                 "type" => $data["type"]
             ], $data);
 
-            if (isset($data["attachments"])) {
-                $attachments = $data["attachments"];
-                unset($data["attachments"]);
-            }
-
-            if (isset($data["poll"])) {
-                $poll = $data["poll"];
-                unset($data["poll"]);
-            }
+            $attachments = $data["attachments"] ?? null;
+            $poll = $data["poll"] ?? null;
+            unset($data["poll"], $data["attachments"]);
 
             $post = Post::create($data);
 
             if (isset($attachments)) {
-                foreach ($attachments ?? [] as $key => $attachment) {
-                    $this->post_attachment_service->create(array_merge([
-                        "post_id" => $post->id,
-                        "user_id" => $user->id,
-                    ], $attachment));
+                foreach ($attachments as $key => $attachment) {
+                    $this->post_attachment_service->create([
+                        'post_id' => $post->id,
+                        'user_id' => $user->id,
+                        ...$attachment
+                    ]);
                 }
             }
 
-            if (!empty($post->publish_at)) {
-                $this->post_schedule_service->addToSchedule($post);
+            if (isset($poll)) {
+                $this->post_poll_service->create([
+                    "post_id" => $post->id,
+                    ...$poll
+                ]);
             }
 
-            if (isset($poll)) {
-                $this->post_poll_service->create(array_merge([
-                    "post_id" => $post->id,
-                ], $poll));
+            if (!empty($post->publish_at) && !in_array($post->status, [StatusConstants::DRAFTED])) {
+                $this->post_schedule_service->addToSchedule($post);
             }
 
             DB::commit();
@@ -124,35 +120,29 @@ class PostService
         $data = self::validate($data, $id);
         $post = self::getById($id);
 
-        if (isset($data["attachments"])) {
-            $attachments = $data["attachments"];
-            unset($data["attachments"]);
-        }
-
-
-        if (isset($data["poll"])) {
-            $poll = $data["poll"];
-            unset($data["poll"]);
-        }
-
+        $attachments = $data["attachments"] ?? null;
+        $poll = $data["poll"] ?? null;
+        unset($data["poll"], $data["attachments"]);
         $post->update($data);
 
         if (isset($attachments)) {
             $post->attachments()->delete();
-            foreach ($attachments ?? [] as $key => $attachment) {
-                $this->post_attachment_service->create(array_merge([
+            foreach ($attachments as $key => $attachment) {
+                $this->post_attachment_service->create([
                     "post_id" => $post->id,
                     "user_id" => $post->user_id,
-                ], $attachment));
+                    ...$attachment
+                ]);
             }
         }
 
 
         if (isset($poll)) {
             $post->polls()->delete();
-            $this->post_poll_service->create(array_merge([
+            $this->post_poll_service->create([
                 "post_id" => $post->id,
-            ], $poll));
+                ...$poll
+            ]);
         }
 
         return $post->refresh();
