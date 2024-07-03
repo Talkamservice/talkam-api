@@ -72,8 +72,8 @@ class PostPollService
     public static function select(array $data)
     {
         $validator = Validator::make($data, [
-            
             "poll_id" => "required|numeric|exists:post_polls,id",
+            "anonymous" => "nullable"
         ]);
 
         if ($validator->fails()) {
@@ -86,10 +86,20 @@ class PostPollService
         UserPollChoice::updateOrCreate([
             "post_id" => $poll->post_id,
             "user_id" => auth()->id(),
-        ], [
-            "poll_id" => $poll->id,
-        ]);
+        ], $data);
 
         return $poll;
+    }
+
+    public function pollPercentage($poll_id)
+    {
+        $poll = $this->getById($poll_id);
+        $post = $poll->post;
+
+        $poll_choices_count = $poll->pollChoices->count();
+        $post_choices_count = $post->pollChoices->count();
+
+        $percent = ($poll_choices_count / $post_choices_count) * 100;
+        return $percent;
     }
 }

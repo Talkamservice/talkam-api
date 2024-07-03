@@ -43,6 +43,11 @@ class Post extends Model
         return $this->hasMany(PostPoll::class, "post_id");
     }
 
+    public function pollChoices()
+    {
+        return $this->hasMany(UserPollChoice::class, "post_id");
+    }
+
     public function scopeSearch($query, $key)
     {
         $query->where(function ($query) use ($key) {

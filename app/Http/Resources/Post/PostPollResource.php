@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Post;
 
 use App\Models\UserPollChoice;
+use App\Services\Post\PostPollService;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostPollResource extends JsonResource
@@ -20,13 +21,20 @@ class PostPollResource extends JsonResource
         $choice = UserPollChoice::where([
             "poll_id" => $this->id,
             "user_id" => auth()->id(),
-        ])->exists();
+        ])->first();
+
+        $count = UserPollChoice::where([
+            "poll_id" => $this->id,
+        ])->count();
 
         return [
             "id" => $this->id,
             "option" => $this->option,
             "type" => $this->type,
-            "selected" => $choice,
+            "selected" => !empty($choice),
+            "count" => $count,
+            "percentage" => (new PostPollService)->pollPercentage($this->id),
+            "anonymous" => $choice?->anonymous,
             "created_at" => formatDate($this->created_at),
         ];
     }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained("users")->cascadeOnDelete();
             $table->foreignId('poll_id')->nullable()->constrained("post_polls")->cascadeOnDelete();
             $table->foreignId('post_id')->nullable()->constrained("posts")->cascadeOnDelete();
+            $table->tinyInteger('anonymous')->nullable()->default(0);
             $table->timestamps();
         });
     }
