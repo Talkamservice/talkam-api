@@ -3,7 +3,10 @@
 namespace App\Services\Post;
 
 use App\Constants\General\StatusConstants;
+use App\Constants\Post\PostConstants;
 use App\Models\Post;
+use App\Models\PostCategory;
+use App\Models\TrendingTag;
 use App\Notifications\Post\SchedulePostPublishedNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -19,8 +22,132 @@ class PostEventService
             $post->update([
                 "status" => StatusConstants::ACTIVE
             ]);
-            
+
             Notification::send($post->user, new SchedulePostPublishedNotification($post));
+        }
+    }
+
+    public static function generalTrendingTags()
+    {
+        $stop_words = PostConstants::STOP_WORDS;
+        $word_frequency = [];
+
+        Post::status()->whereBetween('created_at', [now()->subDays(3)->toDateTimeString(), now()->toDateTimeString()])
+            ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
+                foreach ($posts as $post) {
+
+                    $content = $post->title . ' ' . $post->body;
+
+                    // Tokenize the content into words
+                    $words = preg_split('/[\s,]+/', $content);
+
+                    // Remove stop words and punctuation, and convert to lowercase
+                    $filtered_words = array_filter($words, function ($word) use ($stop_words) {
+                        $word = strtolower($word);
+                        $word = preg_replace('/[^\w\s]/', '', $word);
+                        return !in_array($word, $stop_words) && !empty($word);
+                    });
+
+                    // Generate unigrams, bigrams, and trigrams
+                    $phrases = [];
+                    $count = count($filtered_words);
+                    for ($i = 0; $i < $count; $i++) {
+                        $phrases[] = $filtered_words[$i]; // unigram
+                        if ($i + 1 < $count) {
+                            $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1]; // bigram
+                        }
+                        if ($i + 2 < $count) {
+                            $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1] . ' ' . $filtered_words[$i + 2]; // trigram
+                        }
+                    }
+
+                    // Count the frequency of each phrase
+                    foreach ($phrases as $phrase) {
+                        if (isset($word_frequency[$phrase])) {
+                            $word_frequency[$phrase]++;
+                        } else {
+                            $word_frequency[$phrase] = 1;
+                        }
+                    }
+                }
+            });
+
+        // Sort the array by frequency
+        arsort($word_frequency);
+
+        // Get the top trending words (e.g., top 10)
+        $top_trending_words = array_slice($word_frequency, 0, 10, true);
+
+        TrendingTag::whereNull("category_id")->delete();
+        foreach ($top_trending_words as $word => $count) {
+            TrendingTag::create([
+                'tag' => ucwords($word),
+                'count' => $count,
+            ]);
+        }
+    }
+
+    public static function categoryTrendingTags()
+    {
+        $categories = PostCategory::status()->get();
+        $stop_words = PostConstants::STOP_WORDS;
+        $word_frequency = [];
+
+        foreach ($categories as $key => $category) {
+            $category->posts()->status()->whereBetween("created_at", [now()->subDays(3)->toDateTimeString(), now()->toDateTimeString()])
+                ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
+                    foreach ($posts as $post) {
+
+                        $content = $post->title . ' ' . $post->body;
+
+                        // Tokenize the content into words
+                        $words = preg_split('/[\s,]+/', $content);
+
+                        // Remove stop words and punctuation, and convert to lowercase
+                        $filtered_words = array_filter($words, function ($word) use ($stop_words) {
+                            $word = strtolower($word);
+                            $word = preg_replace('/[^\w\s]/', '', $word);
+                            return !in_array($word, $stop_words) && !empty($word);
+                        });
+
+                        // Generate unigrams, bigrams, and trigrams
+                        $phrases = [];
+                        $count = count($filtered_words);
+                        for ($i = 0; $i < $count; $i++) {
+                            $phrases[] = $filtered_words[$i]; // unigram
+                            if ($i + 1 < $count) {
+                                $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1]; // bigram
+                            }
+                            if ($i + 2 < $count) {
+                                $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1] . ' ' . $filtered_words[$i + 2]; // trigram
+                            }
+                        }
+
+                        // Count the frequency of each phrase
+                        foreach ($phrases as $phrase) {
+                            if (isset($word_frequency[$phrase])) {
+                                $word_frequency[$phrase]++;
+                            } else {
+                                $word_frequency[$phrase] = 1;
+                            }
+                        }
+                    }
+
+                    // Sort the array by frequency
+                    arsort($word_frequency);
+
+                    // Get the top trending words (e.g., top 10)
+                    $top_trending_words = array_slice($word_frequency, 0, 10, true);
+
+                    $category->trendingTags()->delete();
+                    foreach ($top_trending_words as $word => $count) {
+                        TrendingTag::create([
+                            "category_id" => $category->id,
+                            "tag" => $word,
+                            "count" => $count,
+                        ]);
+                    }
+                });
         }
     }
 }

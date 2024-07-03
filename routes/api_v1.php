@@ -51,7 +51,7 @@ Route::prefix("auth")->as("auth.")->group(function () {
 
 Route::get("profile/avatars", [UserController::class,  "listAvatars"])->name("avatars.list");
 
-Route::middleware(["auth:sanctum"])->group(function () {
+// Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
         Route::get("/me", [UserController::class,  "me"])->name("me");
 
@@ -88,6 +88,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("posts")->as("posts.")->group(function () {
             Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
             Route::post("report", [PostReactionController::class, "report"])->name("report");
+            Route::get("filter", [PostController::class, "filter"])->name("filter");
+        });
+
+        Route::prefix("trendings")->as("trendings")->group(function () {
+            Route::get("fetch", [PostController::class, "trending"])->name("fetch");
         });
 
         Route::prefix("post-comments")->as("post-comments.")->group(function () {
@@ -103,4 +108,4 @@ Route::middleware(["auth:sanctum"])->group(function () {
             });
         });
     });
-});
+// });

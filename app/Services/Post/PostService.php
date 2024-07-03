@@ -7,6 +7,7 @@ use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Post;
+use App\Models\TrendingTag;
 use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostPollService;
 use Illuminate\Support\Facades\DB;
@@ -163,9 +164,50 @@ class PostService
         return $code;
     }
 
-    public static function list()
+    public static function list(array $data = [])
     {
-        $posts = Post::latest();
-        return $posts;
+        $builder = Post::with("user");
+
+        if (!empty($key = $data["search"] ?? null)) {
+            $builder = $builder->search($key);
+        }
+
+        if (!empty($key = $data["category_id"] ?? null)) {
+            $builder = $builder->where("category_id", $key);
+        }
+
+        if (!empty($key = $data["tab"] ?? null)) {
+            $tags = TrendingTag::orderByDesc("count")->pluck("tag")->toArray();
+
+            if ($key == "latest") {
+                $builder = $builder->latest();
+            }
+
+            if ($key == "trending") {
+                $builder = $builder->where(function ($query) use ($tags) {
+                    foreach ($tags as $tag) {
+                        $query->orWhere('title', 'like', "%{$tag}%")
+                            ->orWhere('body', 'like', "%{$tag}%");
+                    }
+                });
+            }
+
+            if ($key == "featured") {
+                $builder = $builder->where(function ($query) use ($tags) {
+                    foreach ($tags as $tag) {
+                        $query->orWhere('title', 'like', "%{$tag}%")
+                            ->orWhere('body', 'like', "%{$tag}%");
+                    }
+                })->limit(10);
+            }
+        }
+
+        return $builder;
+    }
+
+    public static function trends(array $data = [])
+    {
+        $builder = TrendingTag::latest();
+        return $builder;
     }
 }

@@ -4,6 +4,7 @@ use App\Constants\General\AppConstants;
 use App\Helpers\MethodsHelper;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 function pillClasses($value)
@@ -119,4 +120,22 @@ function divideNumber($numerator, $denominator, $format = false)
     }
 
     return $number;
+}
+
+function collectPagination(LengthAwarePaginator $pagination, $appendQuery = true)
+{
+    $request = request();
+    unset($request["token"]);
+    if ($appendQuery) {
+        $pagination->appends($request->query());
+    }
+    $all_pg_data = $pagination->toArray();
+    unset($all_pg_data["links"]); // remove links
+    unset($all_pg_data["data"]); // remove old data mapping
+
+    $buildResponse["pagination_meta"] = $all_pg_data;
+    $buildResponse["pagination_meta"]["can_load_more"] = $all_pg_data["to"] < $all_pg_data["total"];
+    // $buildResponse["pagination_meta"]["query"] = $request->query();
+    $buildResponse["data"] = $pagination->getCollection();
+    return $buildResponse;
 }

@@ -33,7 +33,7 @@ class PostPollResource extends JsonResource
             "type" => $this->type,
             "selected" => !empty($choice),
             "count" => $count,
-            "percentage" => round((new PostPollService)->pollPercentage($this->id)),
+            "percentage" => (new PostPollService)->pollPercentage($this->id),
             "anonymous" => $choice?->anonymous,
             "created_at" => formatDate($this->created_at),
         ];

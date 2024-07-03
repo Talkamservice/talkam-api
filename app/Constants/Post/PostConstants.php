@@ -23,4 +23,8 @@ class PostConstants
         self::LIKE => self::LIKE,
         self::DISLIKE => self::DISLIKE,
     ];
+
+    const STOP_WORDS = [
+        'the', 'is', 'in', 'and', 'or', 'an', 'a', 'of', 'to', 'with', 'on', 'for', 'at', 'by', 'it', 'this', 'that'
+    ];
 }

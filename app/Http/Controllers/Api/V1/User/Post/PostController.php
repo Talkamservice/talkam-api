@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Post\PostResource;
+use App\Http\Resources\Post\TrendingResource;
 use App\Services\Post\PostService;
 use Exception;
 use Illuminate\Http\Request;
@@ -25,8 +27,9 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $categories = $this->post_service->list()->status()->unblocked()->get();
-            $data = PostResource::collection($categories);
+            $posts = $this->post_service->list($request->all())->status()->unblocked()->paginate(AppConstants::API_PAGINATION_SIZE);
+            $data = collectPagination($posts);
+            $data["data"] = PostResource::collection($data["data"]);
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
@@ -85,6 +88,17 @@ class PostController extends Controller
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (InvalidRequestException $e) {
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function trending(Request $request)
+    {
+        try {
+            $trends = $this->post_service->trends($request->all())->whereNull("category_id")->status()->orderByDesc("count")->get();
+            $data = TrendingResource::collection($trends);
+            return ApiHelper::validResponse("Trends returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

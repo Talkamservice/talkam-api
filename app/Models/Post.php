@@ -27,7 +27,6 @@ class Post extends Model
         return $query->where("status", $status);
     }
 
-
     public function category()
     {
         return $this->belongsTo(PostCategory::class, "category_id");

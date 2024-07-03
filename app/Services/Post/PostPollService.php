@@ -99,7 +99,7 @@ class PostPollService
         $poll_choices_count = $poll->pollChoices->count();
         $post_choices_count = $post->pollChoices->count();
 
-        $percent = ($poll_choices_count / $post_choices_count) * 100;
-        return $percent;
+        $percent = divideNumber($poll_choices_count, $post_choices_count) * 100;
+        return round($percent);
     }
 }

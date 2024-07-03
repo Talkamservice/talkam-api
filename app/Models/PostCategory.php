@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,9 +16,9 @@ class PostCategory extends Model
         return $this->belongsTo(User::class, "user_id");
     }
 
-    public function post()
+    public function posts()
     {
-        return $this->belongsTo(Post::class, "post_id");
+        return $this->hasMany(Post::class, "category_id");
     }
 
     public function imageUrl()
@@ -31,5 +32,15 @@ class PostCategory extends Model
             $query->where("name", "LIKE", "%$key%")
                 ->orWhere("description", "LIKE", "%$key%");
         });
+    }
+
+    public function scopeStatus($query, $status = StatusConstants::ACTIVE)
+    {
+        return $query->where("status", $status);
+    }
+
+    public function trendingTags()
+    {
+        return $this->hasMany(TrendingTag::class, "category_id");
     }
 }
