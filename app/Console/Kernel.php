@@ -2,16 +2,30 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Post\PostCommand;
+use App\Console\Commands\TestCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+
+    /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        TestCommand::class,
+        PostCommand::class,
+    ];
+
     /**
      * Define the application's command schedule.
      */
     protected function schedule(Schedule $schedule): void
     {
+        // $schedule->command("process:post_handle")->everyMinute();
         // $schedule->command('inspire')->hourly();
     }
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
 use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
+use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\PostCategory\MessagingController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
@@ -77,6 +78,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::apiResources([
             "posts" => PostController::class,
             "post-attachments" => PostAttachmentController::class,
+            "post-schedules" => PostScheduleController::class,
             "post-polls" => PostPollController::class,
             "post-comments" => PostCommentController::class,
         ]);

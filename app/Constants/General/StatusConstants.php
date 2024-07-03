@@ -26,6 +26,7 @@ class StatusConstants
     const DELETED = "Deleted";
     const ARCHIVED = "Archived";
     const DRAFTED = "Drafted";
+    const SCHEDULED = "Scheduled";
     const PUBLISHED = "Published";
     const SUCCESSFUL = "Successful";
     const FAILED = "Failed";

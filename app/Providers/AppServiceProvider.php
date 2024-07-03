@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Channels\FirebaseChannel;
 use App\Models\User;
+use Illuminate\Notifications\ChannelManager;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;

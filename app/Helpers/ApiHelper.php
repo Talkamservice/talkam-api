@@ -27,7 +27,7 @@ class ApiHelper
             "code" => $code,
             "success" => false,
             "error_code" => $error_code,
-            "error_debug" => $trace_msg ?? null
+            "error_debug" => app()->environment(['local']) ? $trace->getTrace() : $trace_msg ?? null
 
         ];
 

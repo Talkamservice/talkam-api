@@ -18,11 +18,13 @@ class PostService
 {
     public $post_attachment_service;
     public $post_poll_service;
+    public $post_schedule_service;
 
     public function __construct()
     {
-        $this->post_attachment_service = new PostAttachmentService;
         $this->post_poll_service = new PostPollService;
+        $this->post_schedule_service = new PostScheduleService;
+        $this->post_attachment_service = new PostAttachmentService;
     }
 
     public static function getById($id): Post
@@ -37,7 +39,7 @@ class PostService
     public static function validate($data, $id = null)
     {
         $validator = Validator::make($data, [
-            "category_id" => "required|string|exists:post_categories,id",
+            "category_id" => "required|numeric|exists:post_categories,id",
             "type" => "required|string|" . Rule::in(PostConstants::TYPES),
             "title" => "required|string",
             "body" => "nullable|string",
@@ -46,13 +48,13 @@ class PostService
             "publish_at" => "nullable",
             "is_anonymous" => "nullable|in:0,1|" . Rule::in(array_keys(StatusConstants::BOOL_OPTIONS)),
             "can_comment" => "nullable|in:0,1|" . Rule::in(array_keys(StatusConstants::BOOL_OPTIONS)),
-            "attachments" => "nullable|array",
-            "attachments*.url" => "required|string",
-            "attachments*.type" => "required|string",
-            "poll" => "nullable|array",
-            "poll.type" => "required|string",
-            "poll.options" => "required|array",
-            'poll.options.*' => 'required|string',
+            "attachments" => "nullable|array|" . Rule::requiredIf($data["type"] == PostConstants::FILE),
+            "attachments*.url" => "nullable|string|" . Rule::requiredIf($data["type"] == PostConstants::FILE),
+            "attachments*.type" => "nullable|string|" . Rule::requiredIf($data["type"] == PostConstants::FILE),
+            "poll" => "nullable|array|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
+            "poll.type" => "nullable|string|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
+            "poll.options" => "nullable|array|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
+            'poll.options.*' => "nullable|string|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
         ], [
             "cover.required" => "The cover image url is required",
         ]);
@@ -99,6 +101,10 @@ class PostService
                 }
             }
 
+            if (!empty($post->publish_at)) {
+                $this->post_schedule_service->addToSchedule($post);
+            }
+
             if (isset($poll)) {
                 $this->post_poll_service->create(array_merge([
                     "post_id" => $post->id,
@@ -123,15 +129,30 @@ class PostService
             unset($data["attachments"]);
         }
 
+
+        if (isset($data["poll"])) {
+            $poll = $data["poll"];
+            unset($data["poll"]);
+        }
+
         $post->update($data);
 
         if (isset($attachments)) {
+            $post->attachments()->delete();
             foreach ($attachments ?? [] as $key => $attachment) {
                 $this->post_attachment_service->create(array_merge([
                     "post_id" => $post->id,
                     "user_id" => $post->user_id,
                 ], $attachment));
             }
+        }
+
+
+        if (isset($poll)) {
+            $post->polls()->delete();
+            $this->post_poll_service->create(array_merge([
+                "post_id" => $post->id,
+            ], $poll));
         }
 
         return $post->refresh();

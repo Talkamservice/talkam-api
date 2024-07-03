@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,6 +22,12 @@ class Post extends Model
         return $this->belongsTo(User::class, "user_id");
     }
 
+    public function scopeStatus($query, $status = StatusConstants::ACTIVE)
+    {
+        return $query->where("status", $status);
+    }
+
+
     public function category()
     {
         return $this->belongsTo(PostCategory::class, "category_id");
@@ -36,31 +43,25 @@ class Post extends Model
         return $this->hasMany(PostPoll::class, "post_id");
     }
 
-    public function scopeSchedule($query, $action = "current")
+    public function scopeSearch($query, $key)
     {
-        if ($action == "current") {
-            $query->where(function ($post) {
-                $post->whereNull("publish_at")
-                    ->orWhere("publish_at", "=<", now()->format("Y-m-d H:i:s"));
-            });
-        } else {
-            $query->where(function ($post) {
-                $post->whereNotNull("publish_at")
-                    ->orWhere("publish_at", ">", now()->format("Y-m-d H:i:s"));
-            });
-        }
-
-        return $query;
+        $query->where(function ($query) use ($key) {
+            $query->where("title", "LIKE", "%$key%")
+                ->orWhere("body", "LIKE", "%$key%")
+                ->orWhere("type", "LIKE", "%$key%")
+                ->orWhere("uuid", "LIKE", "%$key%")
+                ->orWhereHas("user", function ($user) use ($key) {
+                    $user->search($key);
+                })->orWhereHas("category", function ($category) use ($key) {
+                    $category->search($key);
+                });
+        });
     }
 
-    public function scopeUnblocked($query, $user_id = null)
+    public function scopeUnblocked($query)
     {
-        $user_id = $user_id ?? auth()->user()->id;
-        $query->user()->where(function ($q) use ($user_id) {
-            $q->whereHasNot("blockedUsers")
-                ->orWhereHas("blockedUsers", function ($user) use ($user_id) {
-                    $user->whereNot("blocked_user_id", $user_id);
-                });
+        $query->whereDoesntHave('user.blockedUsers', function ($q) {
+            $q->where('blocked_user_id', auth()->id());
         });
 
         return $query;
