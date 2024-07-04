@@ -78,7 +78,7 @@ class AvatarController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $this->avatar_service->update($request->all());
+            $this->avatar_service->updateCrud($request->all(), $id);
             return redirect()->route("admin.avatars.index")->with(NotificationConstants::SUCCESS_MSG, "Avatar updated successfully.");
         } catch (ValidationException $th) {
             throw $th;

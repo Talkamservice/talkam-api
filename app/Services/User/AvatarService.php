@@ -84,7 +84,7 @@ class AvatarService
         $validator = Validator::make($data, [
             "name" => 'required|string',
             "description" => 'nullable|string',
-            "avatar" => "nullable|image|" . Rule::requiredIf(empty($id)),
+            "image" => "nullable|image|" . Rule::requiredIf(empty($id)),
             "status" => 'required|string|' . Rule::in(StatusConstants::ACTIVE_OPTIONS),
         ]);
 
@@ -100,12 +100,23 @@ class AvatarService
     {
         $data = self::validateCrud($data);
 
-        if (!empty($image = $data["avatar"] ?? null)) {
-            $data["image_id"] = $this->file_service->saveFromFile($image, FileConstants::AVATAR_PATH, null, auth()->id())->id;
-            unset($data["avatar"]);
+        if (!empty($image = $data["image"] ?? null)) {
+            $data["image"] = $this->file_service->saveFromFileIntoStorage($image, FileConstants::AVATAR_PATH, null, auth()->id());
         }
 
         return Avatar::create($data);
+    }
+
+    public function updateCrud(array $data, $id)
+    {
+        $data = self::validateCrud($data, $id);
+
+        if (!empty($image = $data["image"] ?? null)) {
+            $data["image"] = $this->file_service->saveFromFileIntoStorage($image, FileConstants::AVATAR_PATH, null, auth()->id());
+        }
+
+        $avatar = self::getById($id);
+        return $avatar->update($data);
     }
 
     public function delete($avatar_id)

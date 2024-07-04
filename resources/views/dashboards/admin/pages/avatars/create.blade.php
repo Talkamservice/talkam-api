@@ -29,7 +29,7 @@
                                 <div class="row col-xl-9 col-sm-12 mb-3">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Image</label>
                                     <div class="col-xl- col-lg-8 col-md-8 col-sm-12">
-                                        <input type="file" class="form-control" name="avatar" id="input-placeholder" {{ !isset($avatar) ? "required" : "" }}>
+                                        <input type="file" class="form-control" name="image" id="input-placeholder" {{ !isset($avatar) ? "required" : "" }}>
                                     </div>
                                 </div>
                                 <div class="row col-xl-9 col-sm-12 mb-3">

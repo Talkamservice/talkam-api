@@ -25,7 +25,7 @@ class AvatarTableSeeder extends Seeder
                 (new AvatarService)->create([
                     "name" => "Avatar " . $key,
                     "description" => "Avatar " . $key,
-                    "avatar" => $this->createImage($avatar_file->getFilename(), $avatar_file->getPathname()),
+                    "image" => $this->createImage($avatar_file->getFilename(), $avatar_file->getPathname()),
                     "status" => StatusConstants::ACTIVE
                 ]);
             } catch (\Throwable $th) {

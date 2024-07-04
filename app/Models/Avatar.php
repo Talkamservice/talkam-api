@@ -20,12 +20,7 @@ class Avatar extends Model
 
     public function imageUrl()
     {
-        $image = $this->image;
-        if(!empty($image)){
-            return $image->url();
-        }else{
-            return null;
-        }
+        return $this->image ?? null;
     }
 
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)

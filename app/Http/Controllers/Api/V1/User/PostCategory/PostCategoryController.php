@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\User\PostCategory;
 
 use App\Constants\General\ApiConstants;
-use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -11,7 +10,6 @@ use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Services\PostCategory\PostCategoryService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 class PostCategoryController extends Controller
 {
@@ -25,7 +23,7 @@ class PostCategoryController extends Controller
     public function index(Request $request)
     {
         try {
-            $categories = $this->post_category_service->list()->get();
+            $categories = $this->post_category_service->list($request->all())->get();
             $data = PostCategoryResource::collection($categories);
             return ApiHelper::validResponse("Categories returned successfully", $data);
         } catch (Exception $e) {

@@ -51,7 +51,7 @@ Route::prefix("auth")->as("auth.")->group(function () {
 
 Route::get("profile/avatars", [UserController::class,  "listAvatars"])->name("avatars.list");
 
-// Route::middleware(["auth:sanctum"])->group(function () {
+Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
         Route::get("/me", [UserController::class,  "me"])->name("me");
 
@@ -108,4 +108,4 @@ Route::get("profile/avatars", [UserController::class,  "listAvatars"])->name("av
             });
         });
     });
-// });
+});

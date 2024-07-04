@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('avatars', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("image_id")->nullable()->constrained("files");
+            $table->string("image")->nullable();
             $table->string("name")->nullable();
             $table->string("description")->nullable();
             $table->string("status")->default(StatusConstants::ACTIVE);

@@ -20,7 +20,7 @@ class AvatarResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             "status" => $this->status,
-            "image" => FileResource::make($this->whenLoaded("image", $this->image)),
+            "image" => $this->image,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

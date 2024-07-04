@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("description")->nullable();
+            $table->string("background_image")->nullable();
+            $table->string("icon_image")->nullable();
             $table->string("image")->nullable();
             $table->string("status");
-            $table->foreignId("category_id")->nullable()->constrained("post_categories")->nullOnDelete();
+            $table->foreignId("category_id")->nullable()->constrained("post_categories")->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

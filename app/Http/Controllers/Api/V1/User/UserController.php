@@ -43,7 +43,7 @@ class UserController extends Controller
         }
     }
 
-    public function listAvatars(Request $request)
+public function listAvatars(Request $request)
     {
         try {
             $avatars = $this->avatar_service->list()->get();

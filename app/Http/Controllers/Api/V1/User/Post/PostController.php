@@ -27,7 +27,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $posts = $this->post_service->list($request->all())->status()->unblocked()->paginate(AppConstants::API_PAGINATION_SIZE);
+            $posts = $this->post_service->list($request->all())->status()->unblocked()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
             $data = collectPagination($posts);
             $data["data"] = PostResource::collection($data["data"]);
             return ApiHelper::validResponse("Posts returned successfully", $data);

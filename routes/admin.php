@@ -32,6 +32,16 @@ Route::middleware(["auth"])->group(
             Route::post('{id}/suspend', [UserController::class, "suspend"])->name("suspend");
         });
 
+        Route::prefix("post-categories/{category}")->as("categories.sub-categories.")->group(function () {
+            Route::get('index', [PostCategoryController::class, "subCategories"])->name("index");
+            Route::get('create', [PostCategoryController::class, "createCategory"])->name("create-sub-category");
+            Route::post('store', [PostCategoryController::class, "saveSubCategory"])->name("save-sub-category");
+            Route::get('edit/{id}', [PostCategoryController::class, "editSubCategory"])->name("edit-sub-category");
+            Route::patch('update/{id}', [PostCategoryController::class, "updateSubCategory"])->name("update-sub-category");
+            Route::delete('delete/{id}', [PostCategoryController::class, "deleteSubCategory"])->name("delete-sub-category");
+        });
+
+
         Route::prefix("account-deactivation-requests")->as("account-deactivation-requests.")->group(function () {
             Route::get('/', [AccountStatusController::class, "deactivationRequestLists"])->name("index");
             Route::post('/submit', [AccountStatusController::class, "submitDeactivationRequest"])->name("submit");
