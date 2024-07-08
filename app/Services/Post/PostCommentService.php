@@ -28,6 +28,7 @@ class PostCommentService
             "attachment" => "nullable|string",
             "post_id" => "required|exists:posts,id",
             "parent_id" => "nullable|exists:post_comments,id",
+            "reply_comment_id" => "nullable|exists:post_comments,id",
         ]);
 
         if ($validator->fails()) {

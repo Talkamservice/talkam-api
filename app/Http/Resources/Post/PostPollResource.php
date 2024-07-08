@@ -31,6 +31,7 @@ class PostPollResource extends JsonResource
             "id" => $this->id,
             "option" => $this->option,
             "type" => $this->type,
+            "duration" => $this->duration,
             "selected" => !empty($choice),
             "count" => $count,
             "percentage" => (new PostPollService)->pollPercentage($this->id),

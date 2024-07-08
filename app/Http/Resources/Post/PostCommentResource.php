@@ -19,11 +19,12 @@ class PostCommentResource extends JsonResource
     public function toArray($request)
     {
         $user_reaction = UserCommentReaction::where(["comment_id" => $this->id, "user_id" => auth()->id()])->first();
-        
+
         return [
             "id" => $this->id,
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "comment" => $this->comment,
+            "reply_to" => !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null,
             "attachment" => $this->attachment,
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
             "children" => self::collection($this->whenLoaded("children", $this->children)),

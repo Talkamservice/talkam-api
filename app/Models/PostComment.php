@@ -29,4 +29,10 @@ class PostComment extends Model
     {
         return $this->hasMany(self::class, "parent_id");
     }
+
+    public function repliedComment()
+    {
+        return $this->belongsTo(self::class, "reply_comment_id");
+    }
+
 }
