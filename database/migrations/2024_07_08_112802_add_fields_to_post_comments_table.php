@@ -22,6 +22,12 @@ return new class extends Migration
                 $table->bigInteger("duration")->nullable()->after("type"); // In minutes
             }
         });
+
+        Schema::table('posts', function (Blueprint $table) {
+            if (!Schema::hasColumn("posts", "tags")) {
+                $table->json("tags")->nullable()->after("views_count");
+            }
+        });
     }
 
     /**
@@ -38,6 +44,12 @@ return new class extends Migration
         Schema::table('post_polls', function (Blueprint $table) {
             if (Schema::hasColumn("post_polls", "duration")) {
                 $table->dropColumn("duration");
+            }
+        });
+
+        Schema::table('posts', function (Blueprint $table) {
+            if (Schema::hasColumn("posts", "tags")) {
+                $table->dropColumn("tags");
             }
         });
     }

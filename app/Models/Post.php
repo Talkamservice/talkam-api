@@ -14,7 +14,8 @@ class Post extends Model
     protected $casts = [
         "views_count" => "integer",
         "can_comment" => "integer",
-        "is_anonymous" => "integer"
+        "is_anonymous" => "integer",
+        "tags" => "array"
     ];
 
     public function user()

@@ -29,6 +29,7 @@ class PostResource extends JsonResource
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
+            "tags" => $this->tags,
             "views_count" => $this->views_count,
             "status" => $this->status,
             "publish_at" => $this->publish_at,

@@ -47,6 +47,7 @@ class PostService
             "status" => "nullable|string|" . Rule::in(StatusConstants::POST_STATUS_OPTIONS),
             "cover" => "string|nullable",
             "publish_at" => "nullable",
+            "tags" => "nullable",
             "is_anonymous" => "nullable|in:0,1|" . Rule::in(array_keys(StatusConstants::BOOL_OPTIONS)),
             "can_comment" => "nullable|in:0,1|" . Rule::in(array_keys(StatusConstants::BOOL_OPTIONS)),
             "attachments" => "nullable|array|" . Rule::requiredIf($data["type"] == PostConstants::FILE),
