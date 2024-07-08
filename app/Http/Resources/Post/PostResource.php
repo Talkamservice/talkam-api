@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\UserPostReaction;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -26,11 +27,13 @@ class PostResource extends JsonResource
             "body" => $this->body,
             "type" => $this->type,
             "uuid" => $this->uuid,
+            "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
             "tags" => $this->tags,
             "views_count" => $this->views_count,
+            "comments_count" => $this->comments?->count(),
             "status" => $this->status,
             "publish_at" => $this->publish_at,
             "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
