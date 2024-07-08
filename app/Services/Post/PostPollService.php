@@ -23,7 +23,7 @@ class PostPollService
     {
         $validator = Validator::make($data, [
             "type" => "required|string|in:Image,Text",
-            "duration" => "nullable",
+            "duration" => "required|numeric",
             "options" => "required|array",
             "options.*" => "required|string",
             "post_id" => "required|numeric|exists:posts,id",

@@ -19,7 +19,7 @@ return new class extends Migration
 
         Schema::table('post_polls', function (Blueprint $table) {
             if (!Schema::hasColumn("post_polls", "duration")) {
-                $table->dateTime("duration")->nullable()->after("type");
+                $table->bigInteger("duration")->nullable()->after("type"); // In minutes
             }
         });
     }
@@ -37,7 +37,7 @@ return new class extends Migration
 
         Schema::table('post_polls', function (Blueprint $table) {
             if (Schema::hasColumn("post_polls", "duration")) {
-                $table->dropConstrainedForeignId("duration");
+                $table->dropColumn("duration");
             }
         });
     }

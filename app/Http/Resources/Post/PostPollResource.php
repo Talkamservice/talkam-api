@@ -4,6 +4,7 @@ namespace App\Http\Resources\Post;
 
 use App\Models\UserPollChoice;
 use App\Services\Post\PostPollService;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostPollResource extends JsonResource
@@ -27,6 +28,8 @@ class PostPollResource extends JsonResource
             "poll_id" => $this->id,
         ])->count();
 
+        $expires_at = Carbon::parse($this->post?->publish_at ?? $this->created_at)->addMinutes($this->duration)->format("Y-m-d H:i:s");
+        
         return [
             "id" => $this->id,
             "option" => $this->option,
@@ -36,6 +39,7 @@ class PostPollResource extends JsonResource
             "count" => $count,
             "percentage" => (new PostPollService)->pollPercentage($this->id),
             "anonymous" => $choice?->anonymous,
+            "expires_at" => formatDate($expires_at),
             "created_at" => formatDate($this->created_at),
         ];
     }

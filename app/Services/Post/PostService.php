@@ -54,6 +54,7 @@ class PostService
             "attachments*.type" => "nullable|string|" . Rule::requiredIf($data["type"] == PostConstants::FILE),
             "poll" => "nullable|array|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
             "poll.type" => "nullable|string|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
+            "poll.duration" => "nullable|numeric|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
             "poll.options" => "nullable|array|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
             'poll.options.*' => "nullable|string|" . Rule::requiredIf($data["type"] == PostConstants::POLL),
         ], [
