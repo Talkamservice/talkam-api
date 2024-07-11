@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 'admin_assets' => url('/') . env('RESOURCE_PATH') . '/admin_assets',
             ]);
-        });
+        }); 
 
         view()->composer([
             "dashboards.admin.layout.includes.header"
