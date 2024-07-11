@@ -24,13 +24,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Schema::defaultStringLength(1500);
+        Schema::defaultStringLength(500);
 
         view()->composer('*', function ($view) {
             $view->with([
                 'admin_assets' => url('/') . env('RESOURCE_PATH') . '/admin_assets',
             ]);
-        }); 
+        });
 
         view()->composer([
             "dashboards.admin.layout.includes.header"
