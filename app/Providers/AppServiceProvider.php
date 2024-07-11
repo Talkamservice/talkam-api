@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Schema::defaultStringLength(500);
+        Schema::defaultStringLength(1500);
 
         view()->composer('*', function ($view) {
             $view->with([
