@@ -24,22 +24,22 @@ class DashboardController extends Controller
                     "url" => route("admin.users.index")
                 ],
                 [
-                    "icon" => "users",
-                    "title" => "Total Therapists",
+                    "icon" => "books",
+                    "title" => "Total Categories",
                     "value" => 0,
                     "class" => "info",
                     "url" => ""
                 ],
                 [
-                    "icon" => "users",
-                    "title" => "Pending Applications",
+                    "icon" => "books",
+                    "title" => "Total Posts",
                     "value" => 0,
                     "class" => "warning",
                     "url" => ""
                 ],
                 [
                     "icon" => "books",
-                    "title" => "Wellness Library",
+                    "title" => "Total Groups",
                     "value" =>  0,
                     "class" => "primary",
                     "url" => ""
