@@ -10,6 +10,10 @@ class PostComment extends Model
     use HasFactory;
     protected $guarded = [];
 
+    protected $casts = [
+        "is_anonymous" => "integer",
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, "user_id");

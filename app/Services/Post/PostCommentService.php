@@ -2,6 +2,7 @@
 
 namespace App\Services\Post;
 
+use App\Constants\General\StatusConstants;
 use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostComment;
@@ -29,6 +30,7 @@ class PostCommentService
             "post_id" => "required|exists:posts,id",
             "parent_id" => "nullable|exists:post_comments,id",
             "reply_comment_id" => "nullable|exists:post_comments,id",
+            "is_anonymous" => "nullable|in:0,1|" . Rule::in(array_keys(StatusConstants::BOOL_OPTIONS)),
         ]);
 
         if ($validator->fails()) {

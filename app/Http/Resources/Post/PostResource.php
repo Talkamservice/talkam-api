@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Constants\Post\PostConstants;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\UserPostReaction;
@@ -20,6 +21,7 @@ class PostResource extends JsonResource
     public function toArray($request)
     {
         $user_reaction = UserPostReaction::where(["post_id" => $this->id, "user_id" => auth()->id()])->first();
+        $likes = UserPostReaction::where(["post_id" => $this->id, "action" => PostConstants::LIKE])->count();
 
         return [
             "id" => $this->id,
@@ -34,7 +36,7 @@ class PostResource extends JsonResource
             "tags" => $this->tags,
             "views_count" => $this->views_count,
             "comments_count" => $this->comments?->count(),
-            "likes_count" => $this->comments?->count(),
+            "likes_count" => $likes,
             "status" => $this->status,
             "publish_at" => $this->publish_at,
             "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
