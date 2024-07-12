@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
 use App\Http\Controllers\Controller;
+use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Therapist;
 use App\Models\User;
 use App\Models\WellnessCourse;
@@ -26,14 +28,14 @@ class DashboardController extends Controller
                 [
                     "icon" => "books",
                     "title" => "Total Categories",
-                    "value" => 0,
+                    "value" => PostCategory::status()->count(),
                     "class" => "info",
                     "url" => ""
                 ],
                 [
                     "icon" => "books",
                     "title" => "Total Posts",
-                    "value" => 0,
+                    "value" => Post::status()->count(),
                     "class" => "warning",
                     "url" => ""
                 ],
