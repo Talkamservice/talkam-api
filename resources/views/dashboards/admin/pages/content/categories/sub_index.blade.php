@@ -53,9 +53,9 @@
                                 @forelse ($categories as $subcategory)
                                     <tr>
                                         <td class="d-flex justify-content-center">
-                                            <img src="{{ $subcategory->image }}" alt="" style="width: 50px; height:50px: border-radius:10px">
+                                            <img src="{{ $subcategory->image }}" alt="" style="border-radius:10px">
                                         </td>
-                                        <td><img src="{{ $subcategory->icon_image }}" alt="" style="width: 50px; height:50px: border-radius:10px"></td>
+                                        <td><img src="{{ $subcategory->icon_image }}" alt="" style="border-radius:10px"></td>
                                         <td>{{ $subcategory->name }}</td>
                                         <td>{{ $subcategory->description }}</td>
                                         <td>
