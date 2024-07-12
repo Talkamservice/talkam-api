@@ -97,8 +97,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("fetch", [PostController::class, "trending"])->name("fetch");
         });
 
-        Route::prefix("recent-views")->as("trendings")->group(function () {
-            Route::post("add", [PostController::class, "trending"])->name("fetch");
+        Route::prefix("recents")->as("recents")->group(function () {
+            Route::get("fetch", [RecentViewController::class, "index"])->name("fetch");
         });
 
         Route::prefix("post-comments")->as("post-comments.")->group(function () {

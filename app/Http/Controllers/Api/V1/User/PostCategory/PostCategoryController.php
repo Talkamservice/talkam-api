@@ -7,6 +7,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostCategory\PostCategoryResource;
+use App\Services\Post\RecentViewService;
 use App\Services\PostCategory\PostCategoryService;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,10 +15,12 @@ use Illuminate\Http\Request;
 class PostCategoryController extends Controller
 {
     protected $post_category_service;
+    protected $recent_view_service;
 
     public function __construct()
     {
         $this->post_category_service = new PostCategoryService;
+        $this->recent_view_service = new RecentViewService;
     }
 
     public function index(Request $request)
@@ -34,8 +37,9 @@ class PostCategoryController extends Controller
     public function show($id)
     {
         try {
-            $user = $this->post_category_service->getById($id);
-            $data = PostCategoryResource::make($user);
+            $category = $this->post_category_service->getById($id);
+            $this->recent_view_service->create(["category_id" => $category->id]);
+            $data = PostCategoryResource::make($category);
             return ApiHelper::validResponse("Category details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);

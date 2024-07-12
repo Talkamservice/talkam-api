@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Post\TrendingResource;
 use App\Services\Post\PostService;
+use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -18,10 +19,12 @@ use Illuminate\Validation\ValidationException;
 class PostController extends Controller
 {
     protected $post_service;
+    protected $recent_view_service;
 
     public function __construct()
     {
         $this->post_service = new PostService;
+        $this->recent_view_service = new RecentViewService;
     }
 
     public function index(Request $request)
@@ -40,6 +43,7 @@ class PostController extends Controller
     {
         try {
             $post = $this->post_service->getById($id);
+            $this->recent_view_service->create(["post_id" => $post->id]);
             $data = PostResource::make($post);
             return ApiHelper::validResponse("Post details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
