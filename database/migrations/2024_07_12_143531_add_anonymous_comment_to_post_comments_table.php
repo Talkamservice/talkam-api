@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('post_comments', function (Blueprint $table) {
             if (!Schema::hasColumn("post_comments", "is_anonymous")) {
-                $table->tinyInteger('is_anonymous')->nullable()->default("0");
+                $table->tinyInteger('is_anonymous')->default("0")->after("attachment");
             }
         });
     }
