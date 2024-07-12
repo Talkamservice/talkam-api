@@ -34,6 +34,7 @@ class PostResource extends JsonResource
             "tags" => $this->tags,
             "views_count" => $this->views_count,
             "comments_count" => $this->comments?->count(),
+            "likes_count" => $this->comments?->count(),
             "status" => $this->status,
             "publish_at" => $this->publish_at,
             "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
