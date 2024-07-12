@@ -59,7 +59,7 @@
                                         </td>
                                         <td><img src="{{ $category->icon_image }}" alt="" style="width: 50px; height:50px: border-radius:10px"></td>
                                         <td>{{ $category->name }}</td>
-                                        <td>{{ $category->description }}</td>
+                                        <td>{{ str_limit($category->description, 30) }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($category->status) }}-transparent">
                                                 {{ $category->status }}
