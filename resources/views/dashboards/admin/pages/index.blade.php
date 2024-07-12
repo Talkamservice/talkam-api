@@ -109,7 +109,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xxl-3 col-xl-12">
+            {{-- <div class="col-xxl-3 col-xl-12">
                 <div class="row">
                     <div class="col-xxl-12 col-xl-12">
                         <div class="row">
@@ -159,7 +159,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
         <!-- End::row-1 -->
         {{-- <input type="hidden" id="therapist_chart_data" value="{{ json_encode($chart_data) }}"> --}}
