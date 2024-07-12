@@ -48,10 +48,10 @@
                                 <p class="fs-15 mb-2 me-4 fw-semibold">Category Information :</p>
                                 <div class="text-muted">
                                     <p class="mb-2">
-                                        Name: {{ $category->name ?? 'N/A' }}
+                                        <b>Name:</b> {{ $category->name ?? 'N/A' }}
                                     </p>
                                     <p class="mb-2">
-                                        Description: {{ $category->description ?? 'N/A' }}
+                                        <b>Description:</b> {{ $category->description ?? 'N/A' }}
                                     </p>
                                 </div>
                             </div>

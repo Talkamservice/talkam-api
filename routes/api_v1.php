@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\User\Post\PostDraftController;
 use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
+use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
 use App\Http\Controllers\Api\V1\User\PostCategory\MessagingController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
@@ -83,6 +84,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "post-comments" => PostCommentController::class,
             "post-schedules" => PostScheduleController::class,
             "post-drafts" => PostDraftController::class,
+            "recent-views" => RecentViewController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {
@@ -93,6 +95,10 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("trendings")->as("trendings")->group(function () {
             Route::get("fetch", [PostController::class, "trending"])->name("fetch");
+        });
+
+        Route::prefix("recent-views")->as("trendings")->group(function () {
+            Route::post("add", [PostController::class, "trending"])->name("fetch");
         });
 
         Route::prefix("post-comments")->as("post-comments.")->group(function () {

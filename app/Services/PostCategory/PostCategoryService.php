@@ -93,7 +93,7 @@ class PostCategoryService
 
     public static function list(array $data = [])
     {
-        $categories = PostCategory::latest();
+        $categories = PostCategory::with(["user"]);
 
         if (!empty($key = $data["search"] ?? null)) {
             $categories = $categories->where("name", "LIKE", "%$key%");
@@ -101,6 +101,12 @@ class PostCategoryService
 
         if (!empty($key = $data["category_id"] ?? null)) {
             $categories = $categories->where("category_id", "%$key%");
+        }
+
+        if (!empty($key = $data["sort"] ?? null)) {
+            if ($key == "popular") {
+                $categories = $categories->withCount('posts')->orderBy('posts_count', 'desc');
+            }
         }
 
         return $categories;
