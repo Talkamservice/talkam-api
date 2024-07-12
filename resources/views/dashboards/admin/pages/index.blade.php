@@ -22,7 +22,7 @@
 
         <!-- Start::row-1 -->
         <div class="row">
-            <div class="col-xxl-9 col-xl-12">
+            <div class="col-xxl-12 col-xl-12">
                 <div class="row">
                     @foreach ($cards as $card)
                         <div class="col-xxl-6 col-lg-6 col-md-6">
