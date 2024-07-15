@@ -45,7 +45,7 @@ class LoginService
 
         $data = $validator->validated();
 
-        $user = User::where($type, $type)->first();
+        $user = User::where($type, $data["input"])->first();
 
         if (!Hash::check($data["password"], $user->password)) {
             throw new AuthException("Incorrect password provided.");
