@@ -36,7 +36,7 @@ class LoginService
             "input" => "required|exists:users,$type",
             'password' => ['required', 'string'],
         ], [
-            "$type.exists" => "The $type does not exist in our records.",
+            "input.exists" => "The $type does not exist in our records.",
         ]);
 
         if ($validator->fails()) {
