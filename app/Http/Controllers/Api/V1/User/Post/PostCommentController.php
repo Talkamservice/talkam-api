@@ -30,7 +30,7 @@ class PostCommentController extends Controller
     {
         try {
             $post = $this->post_service->getById($request->post_id);
-            $comments = $this->post_comment_service->list($post->id, $request->comment_id)->whereNull("parent_id")->get();
+            $comments = $this->post_comment_service->list($post->id, $request->comment_id)->whereNull("parent_id")->latest("id")->get();
             $data = PostCommentResource::collection($comments);
             return ApiHelper::validResponse("Post comments returned successfully", $data);
         } catch (ModelNotFoundException $th) {
