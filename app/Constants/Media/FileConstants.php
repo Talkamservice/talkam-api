@@ -2,7 +2,6 @@
 
 namespace App\Constants\Media;
 
-use App\Constants\Social\RoomConstants;
 
 class FileConstants
 {

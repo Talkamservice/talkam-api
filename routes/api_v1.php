@@ -85,6 +85,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "post-schedules" => PostScheduleController::class,
             "post-drafts" => PostDraftController::class,
             "recent-views" => RecentViewController::class,
+            "groups" => PostController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {
