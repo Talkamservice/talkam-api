@@ -83,6 +83,7 @@ class LoginController extends Controller
             $full_name = explode(" ", $payload["name"]);
             $user = User::where('email', $email)->first();
 
+            $data["new_user"] = false;
             if (empty($user)) {
                 $user = $this->user_service->create([
                     'first_name' => $full_name[0],
@@ -94,6 +95,7 @@ class LoginController extends Controller
                     'fcm_token' => $request->fcm_token,
                     "social_id" => isset($payload['social_id']) ? $payload['social_id'] :  null
                 ]);
+                $data["new_user"] = true;
             }
 
             $data["user"] =  UserResource::make($user)->toArray($request);
