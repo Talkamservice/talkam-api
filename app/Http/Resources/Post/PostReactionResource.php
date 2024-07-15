@@ -21,7 +21,7 @@ class PostReactionResource extends JsonResource
         return [
             "id" => $this->id,
             "action" => $this->action,
-            "status" => $this->status,
+            "status" => $status,
             "created_at" => formatDate($this->created_at),
         ];
     }
