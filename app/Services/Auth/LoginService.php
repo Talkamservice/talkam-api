@@ -29,11 +29,11 @@ class LoginService
 
     public static function authenticate($data)
     {
-        $type = filter_var($data["email"], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $type = filter_var($data["input"], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $validator = Validator::make($data, [
             'fcm_token' => 'nullable|string',
-            $type => "required|email|exists:users,$type",
+            "input" => "required|exists:users,$type",
             'password' => ['required', 'string'],
         ], [
             "$type.exists" => "The $type address does not exist in our records.",
@@ -45,7 +45,7 @@ class LoginService
 
         $data = $validator->validated();
 
-        $user = User::where($type, $data[$type])->first();
+        $user = User::where($type, $type)->first();
 
         if (!Hash::check($data["password"], $user->password)) {
             throw new AuthException("Incorrect password provided.");
