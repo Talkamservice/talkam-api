@@ -9,31 +9,33 @@ use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Group\GroupMemberResource;
 use App\Http\Resources\Group\GroupResource;
+use App\Services\Group\GroupMemberService;
 use App\Services\Group\GroupService;
-use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
 
-class GroupController extends Controller
+class GroupMemberController extends Controller
 {
     protected $group_service;
-    protected $recent_view_service;
+    protected $group_member_service;
 
     public function __construct()
     {
         $this->group_service = new GroupService;
-        $this->recent_view_service = new RecentViewService;
+        $this->group_member_service = new GroupMemberService;
     }
 
-    public function index(Request $request)
+    public function index(Request $request, $id)
     {
         try {
-            $groups = $this->group_service->list($request->all())->status()->inRandomOrder()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
-            $data = collectPagination($groups);
-            $data["data"] = GroupResource::collection($data["data"]);
-            return ApiHelper::validResponse("Groups returned successfully", $data);
-        } catch (Exception $e) {
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+            $group = $this->group_service->getById($id);
+            $members = $this->group_member_service->list($group->id, $request->all())->status()->latest("name")->appends($request->query());
+            $data = GroupMemberResource::make($members);
+            return ApiHelper::validResponse("Group members returned successfully", $data);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
 
@@ -41,7 +43,6 @@ class GroupController extends Controller
     {
         try {
             $group = $this->group_service->getById($id);
-            $this->recent_view_service->create(["group_id" => $group->id]);
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
@@ -53,15 +54,7 @@ class GroupController extends Controller
 
     public function members($id)
     {
-        try {
-            $group = $this->group_service->getById($id);
-            $data = GroupMemberResource::make($group->members);
-            return ApiHelper::validResponse("Group members returned successfully", $data);
-        } catch (ModelNotFoundException $th) {
-            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
-        } catch (Exception $th) {
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
-        }
+
     }
     public function store(Request $request)
     {

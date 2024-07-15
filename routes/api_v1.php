@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
+use App\Http\Controllers\Api\V1\User\Group\GroupController;
+use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
@@ -85,7 +87,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "post-schedules" => PostScheduleController::class,
             "post-drafts" => PostDraftController::class,
             "recent-views" => RecentViewController::class,
-            "groups" => PostController::class,
+            "groups" => GroupController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {
@@ -96,6 +98,12 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("trendings")->as("trendings")->group(function () {
             Route::get("fetch", [PostController::class, "trending"])->name("fetch");
+        });
+
+        Route::prefix("groups")->as("groups.")->group(function () {
+            Route::prefix("{group}")->group(function () {
+                Route::resource("members", GroupMemberController::class);
+            });
         });
 
         Route::prefix("recents")->as("recents")->group(function () {

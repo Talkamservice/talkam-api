@@ -3,6 +3,7 @@
 namespace App\Services\Post;
 
 use App\Exceptions\General\ModelNotFoundException;
+use App\Models\Group;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\RecentView;
@@ -27,6 +28,7 @@ class RecentViewService
             "post_id" => "nullable|exists:posts,id",
             "category_id" => "nullable|exists:post_categories,id",
             "tag_id" => "nullable|exists:trending_tags,id",
+            "group_id" => "nullable|exists:groups,id",
         ]);
 
         if ($validator->fails()) {
@@ -46,10 +48,11 @@ class RecentViewService
             "post_id" => $data["post_id"] ?? null,
             "category_id" => $data["category_id"] ?? null,
             "tag_id" => $data["tag_id"] ?? null,
+            "group_id" => $data["group_id"] ?? null,
         ], [
             "created_at" => now()
         ]);
-        
+
         return $recent_view;
     }
 
@@ -75,6 +78,7 @@ class RecentViewService
         $records = match ($sort_key) {
             'category' => PostCategory::status()->whereIn("id", $record_ids),
             'post' => Post::status()->whereIn("id", $record_ids),
+            'group' => Group::status()->whereIn("id", $record_ids),
             'tag' => TrendingTag::status()->whereIn("id", $record_ids),
             default => collect([]),
         };

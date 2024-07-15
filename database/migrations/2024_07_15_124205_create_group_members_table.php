@@ -12,13 +12,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('group_executives', function (Blueprint $table) {
+        Schema::create('group_members', function (Blueprint $table) {
             $table->id();
             $table->foreignId("group_id")->constrained("groups")->cascadeOnDelete();
             $table->foreignId("user_id")->nullable()->constrained("users")->cascadeOnDelete();
             $table->string("role")->nullable();
             $table->string("status")->default(StatusConstants::ACTIVE);
             $table->timestamps();
+        });
+
+        Schema::table('recent_views', function (Blueprint $table) {
+            if (!Schema::hasColumn("recent_views", "group_id")) {
+                $table->foreignId('group_id')->nullable()->constrained("groups")->cascadeOnDelete();
+            }
         });
     }
 
@@ -27,6 +33,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('group_executives');
+        Schema::dropIfExists('group_members');
+
+        Schema::table('recent_views', function (Blueprint $table) {
+            if (Schema::hasColumn("recent_views", "group_id")) {
+                $table->dropConstrainedForeignId('group_id');
+            }
+        });
     }
 };

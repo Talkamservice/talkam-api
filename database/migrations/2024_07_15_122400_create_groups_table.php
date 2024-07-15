@@ -19,8 +19,10 @@ return new class extends Migration
             $table->string("uuid")->unique();
             $table->string("description")->nullable();
             $table->string("image")->nullable();
-            $table->string("rules")->nullable();
+            $table->longText("rules")->nullable();
+            $table->json("tags")->nullable();
             $table->string("status")->nullable()->default(StatusConstants::ACTIVE);
+            $table->integer("can_post")->default(1);
             $table->foreignId("created_by")->nullable()->constrained("users")->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

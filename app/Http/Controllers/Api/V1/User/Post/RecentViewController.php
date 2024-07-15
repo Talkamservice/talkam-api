@@ -7,6 +7,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Post\TrendingResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
@@ -28,10 +29,11 @@ class RecentViewController extends Controller
         try {
             $data = $this->recent_view_service->list(auth()->id(), $request->all());
             $records = $data["records"]->get();
-            
+
             $data = match ($data["key"]) {
                 "post" => PostResource::collection($records),
                 "tag" => TrendingResource::collection($records),
+                "group" => GroupResource::collection($records),
                 "category" => PostCategoryResource::collection($records),
             };
 
@@ -45,7 +47,7 @@ class RecentViewController extends Controller
     {
         try {
             $this->recent_view_service->delete($id);
-            return ApiHelper::validResponse("Post deleted successfully");
+            return ApiHelper::validResponse("Item deleted successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (InvalidRequestException $e) {

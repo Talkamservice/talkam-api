@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources\Group;
 
-use App\Http\Resources\User\UserResource;
-use App\Http\Resources\Coperate\Group\GroupResource;
+use App\Http\Resources\Users\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GroupExecutiveResource extends JsonResource
+class GroupMemberResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,10 +18,10 @@ class GroupExecutiveResource extends JsonResource
     {
         return [
             "id" => $this->id,
-            "group" => GroupResource::make($this->whenLoaded("group", $this->group)),
-            "user" => UserResource::make($this->whenLoaded("user", $this->user)),
             "role" => $this->role,
             "status" => $this->status,
+            "group" => GroupResource::custom($this->group),
+            "user" => UserResource::custom($this->user),
         ];
     }
 }

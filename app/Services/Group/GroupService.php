@@ -7,7 +7,7 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Group;
-use App\Models\GroupExecutive;
+use App\Models\GroupMember;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +26,7 @@ class GroupService
 
     public static function getExecutiveById($key, $column = "id")
     {
-        $group_executive = GroupExecutive::where($column, $key)->first();
+        $group_executive = GroupMember::where($column, $key)->first();
         if (empty($group_executive)) {
             throw new ModelNotFoundException("Group not found");
         }
@@ -37,7 +37,7 @@ class GroupService
     public static function getGroupAdmins($group_id)
     {
         $group = self::getById($group_id);
-        $group_admins = GroupExecutive::where([
+        $group_admins = GroupMember::where([
             "group_id" => $group->id,
             "role" => UserConstants::ADMIN
         ])->get();
@@ -48,11 +48,15 @@ class GroupService
     public static function validate(array $data, $id = null)
     {
         $validator = Validator::make($data, [
+            "category_id" => "required|exists:post_categories,id",
             "name" => "required|string",
             "description" => "nullable|string",
             "status" => "nullable|string",
             "rules" => "nullable|string",
-            "category_id" => "required|exists:categories,id",
+            "image" => "nullable|string",
+            "tags" => "nullable|array",
+            "tags.*" => "string",
+            "can_post" => "nullable|numeric",
         ]);
 
         if ($validator->fails()) {
@@ -69,11 +73,12 @@ class GroupService
         try {
             $data = $this->validate($data);
 
-            $data["user_id"] = auth()->id();
+            $data["created_by"] = auth()->id();
             $data["uuid"] = self::generateUniqueId();
-            $group = Group::create();
 
-            (new GroupExecutiveService)->create([
+            $group = Group::create($data);
+
+            (new GroupMemberService)->create([
                 "group_id" => $group->id,
                 "user_id" => auth()->id(),
                 "role" => UserConstants::OWNER,
@@ -90,6 +95,22 @@ class GroupService
         }
     }
 
+    public function update(array $data, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $data = $this->validate($data, $id);
+
+            $group = self::getById($id);
+            $group->update($data);
+
+            DB::commit();
+            return $group->refresh();
+        } catch (Exception $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
     public function notify($group)
     {
     }

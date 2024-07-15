@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class GroupExecutive extends Model
+class GroupMember extends Model
 {
     use HasFactory;
     protected $guarded = [];
@@ -18,6 +19,11 @@ class GroupExecutive extends Model
     public function user()
     {
         return $this->belongsTo(User::class, "user_id");
+    }
+
+    public function scopeStatus($query, $status = StatusConstants::ACTIVE)
+    {
+        return $query->where("status", $status);
     }
 
     public function scopeSearch($query, $key)

@@ -2,12 +2,7 @@
 
 namespace App\Http\Resources\Group;
 
-use App\Constants\Account\User\UserConstants;
-use App\Http\Resources\General\FileResource;
-use App\Http\Resources\Location\CountryResource;
-use App\Http\Resources\Location\LgaResource;
-use App\Http\Resources\Location\StateResource;
-use App\Http\Resources\Location\TownResource;
+use App\Http\Resources\PostCategory\PostCategoryResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class GroupResource extends JsonResource
@@ -25,12 +20,23 @@ class GroupResource extends JsonResource
             "id" => $this->id,
             "name" => $this->name,
             "uuid" => $this->uuid,
-            "category" => $this->category,
             "status" => $this->status,
             "image" => $this->image,
+            "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
             "description" => $this->description,
             "rules" => $this->rules,
             "followers" => $this->followers
+        ];
+    }
+
+    public static function custom($model)
+    {
+        return [
+            "id" => $model->id,
+            "name" => $model->name,
+            "uuid" => $model->uuid,
+            "status" => $model->status,
+            "image" => $model->image,
         ];
     }
 }

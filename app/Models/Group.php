@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +10,10 @@ class Group extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+    protected $casts = [
+        "tags" => "array"
+    ];
 
     public function category()
     {
@@ -24,18 +27,12 @@ class Group extends Model
 
     public function executives()
     {
-        return $this->hasMany(GroupExecutive::class, "group_id");
+        return $this->hasMany(GroupMember::class, "group_id");
     }
 
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
         return $query->where("status", $status);
-    }
-
-    public function currentAdmin()
-    {
-        return $this->hasOne(GroupExecutive::class, "group_id")
-            ->where("role", UserConstants::ADMIN);
     }
 
     public function scopeSearch($query, $key)

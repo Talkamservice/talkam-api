@@ -4,7 +4,7 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
-use App\Models\GroupExecutive;
+use App\Models\GroupMember;
 use App\Models\User;
 use App\Services\Group\GroupService;
 use App\Services\User\UserService;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class GroupExecutiveService
+class GroupMemberService
 {
     protected $group_service;
 
@@ -40,7 +40,7 @@ class GroupExecutiveService
     public static function create(array $data)
     {
         $data = self::validate($data);
-        return GroupExecutive::create($data);
+        return GroupMember::create($data);
     }
 
     public static function addNewAdmin(array $data)
@@ -94,7 +94,7 @@ class GroupExecutiveService
             }
 
             $data = $validator->validated();
-        $executive = $this->group_service->getExecutiveById($id);
+            $executive = $this->group_service->getExecutiveById($id);
 
             $names = (new UserService)->getNames($data["name"]);
             $executive->user()->update($names);
@@ -107,5 +107,16 @@ class GroupExecutiveService
             DB::rollback();
             throw $th;
         }
+    }
+
+    public static function list($group_id, array $data = [])
+    {
+        $builder = GroupMember::where("group_id", $group_id);
+
+        if (!empty($key = $data["search"] ?? null)) {
+            $builder = $builder->search($key);
+        }
+
+        return $builder;
     }
 }
