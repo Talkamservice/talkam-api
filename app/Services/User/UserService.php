@@ -175,7 +175,7 @@ class UserService
                 "user_id" => $user->id,
                 "email" => $user->email,
                 "reason" => $data["reason"] ?? null,
-                "status" => StatusConstants::CONFIRMED
+                "status" => StatusConstants::APPROVED
             ]);
 
             $user->forceDelete();
