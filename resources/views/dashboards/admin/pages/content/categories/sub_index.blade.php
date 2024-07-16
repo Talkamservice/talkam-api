@@ -95,7 +95,7 @@
                                             <td class="d-flex justify-content-center">
                                                 <img src="{{ $subcategory->image }}" alt="" style="width: 50px; height:50px; border-radius:10px">
                                             </td>
-                                            <td><img src="{{ $subcategory->icon_image }}" alt="" style="width: 50px; height:50px; border-radius:10px"></td>
+                                            <td><img src="{{ $subcategory->icon_image }}" alt="" style="width: 30px; height:30px; border-radius:10px"></td>
                                             <td>{{ $subcategory->name }}</td>
                                             <td><span class="fw-normal"><a data-bs-toggle="modal" data-bs-target="#responseModal_{{ $subcategory->id }}" class="btn btn-primary btn-sm">Description</a></span></td>
                                             <td>
