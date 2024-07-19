@@ -178,6 +178,10 @@ class PostService
             $builder = $builder->where("category_id", $key);
         }
 
+        if (!empty($key = $data["user_id"] ?? null)) {
+            $builder = $builder->where("user_id", $key);
+        }
+
         if (!empty($key = $data["tab"] ?? null)) {
             $tags = TrendingTag::orderByDesc("count")->pluck("tag")->toArray();
 
@@ -210,6 +214,33 @@ class PostService
     public static function trends(array $data = [])
     {
         $builder = TrendingTag::latest();
+        return $builder;
+    }
+
+    public static function getWithComments(array $data)
+    {
+        $user = auth()->user();
+        $builder = self::list($data);
+
+        $builder->whereHas("comments", function ($query) use ($user) {
+            $query->where("user_id", $user->id);
+        });
+
+        return $builder;
+    }
+
+    public static function getWithLikes(array $data)
+    {
+        $user = auth()->user();
+        $builder = self::list($data);
+
+        $builder->whereHas("reactions", function ($query) use ($user) {
+            $query->where([
+                "user_id" => $user->id,
+                "action" => PostConstants::LIKE
+            ]);
+        });
+
         return $builder;
     }
 }

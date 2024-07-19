@@ -107,4 +107,28 @@ class PostController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
+    public function postWithComments(Request $request)
+    {
+        try {
+            $posts = $this->post_service->getWithComments($request->all())->status()->unblocked()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $data = collectPagination($posts);
+            $data["data"] = PostResource::collection($data["data"]);
+            return ApiHelper::validResponse("Posts returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function postWithLikes(Request $request)
+    {
+        try {
+            $posts = $this->post_service->getWithLikes($request->all())->status()->unblocked()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $data = collectPagination($posts);
+            $data["data"] = PostResource::collection($data["data"]);
+            return ApiHelper::validResponse("Posts returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
 }
