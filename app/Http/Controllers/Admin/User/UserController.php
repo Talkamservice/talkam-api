@@ -123,4 +123,19 @@ class UserController extends Controller
                 ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
         }
     }
+
+    public function strike(Request $request, string $id)
+    {
+        try {
+            $this->user_service->strike($request->status, $id);
+            return back()->with(NotificationConstants::SUCCESS_MSG, "Strike issued successfully");
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return back()
+                ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            // throw $th;
+            return back()->withInput($request->all())
+                ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
+        }
+    }
 }
