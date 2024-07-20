@@ -107,10 +107,10 @@ public function listAvatars(Request $request)
     {
         try {
             $data = $request->validate([
-                "reason" => "required|string",
+                "reason" => "nullable|string",
             ]);
 
-            $this->user_service->deleteAccount($data);
+            $this->user_service->delete($data);
             return ApiHelper::validResponse("Account deleted successfully");
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);

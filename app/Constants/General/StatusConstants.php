@@ -38,6 +38,8 @@ class StatusConstants
     const USED = "Used";
     const UNUSED = "Unused";
     const ACCEPTED = "Accepted";
+    const OPENED = "Opened";
+    const CLOSED = "Closed";
     const ACTIVE_OPTIONS = [
         self::ACTIVE => "Active",
         self::INACTIVE => "Inactive",

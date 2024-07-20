@@ -28,7 +28,7 @@ class GroupController extends Controller
     public function index(Request $request)
     {
         try {
-            $groups = $this->group_service->list($request->all())->status()->inRandomOrder()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $groups = $this->group_service->list($request->all())->status()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
             $data = collectPagination($groups);
             $data["data"] = GroupResource::collection($data["data"]);
             return ApiHelper::validResponse("Groups returned successfully", $data);

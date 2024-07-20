@@ -43,6 +43,11 @@ class Post extends Model
         return $this->hasMany(PostComment::class, "post_id");
     }
 
+    public function reactions()
+    {
+        return $this->hasMany(UserPostReaction::class, "post_id");
+    }
+
     public function polls()
     {
         return $this->hasMany(PostPoll::class, "post_id");

@@ -8,9 +8,13 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Notifications\Group\JoinGroupRequestNotification;
+use App\Notifications\Group\JoinGroupRequestStatusNotification;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class GroupService
@@ -24,16 +28,6 @@ class GroupService
         return $group;
     }
 
-    public static function getExecutiveById($key, $column = "id")
-    {
-        $group_executive = GroupMember::where($column, $key)->first();
-        if (empty($group_executive)) {
-            throw new ModelNotFoundException("Group not found");
-        }
-        return $group_executive;
-    }
-
-
     public static function getGroupAdmins($group_id)
     {
         $group = self::getById($group_id);
@@ -45,6 +39,17 @@ class GroupService
         return $group_admins;
     }
 
+    public static function getGroupOwner($group_id)
+    {
+        $group = self::getById($group_id);
+        $group_owner = GroupMember::where([
+            "group_id" => $group->id,
+            "role" => UserConstants::OWNER
+        ])->first();
+
+        return $group_owner;
+    }
+
     public static function validate(array $data, $id = null)
     {
         $validator = Validator::make($data, [
@@ -52,11 +57,12 @@ class GroupService
             "name" => "required|string",
             "description" => "nullable|string",
             "status" => "nullable|string",
-            "rules" => "nullable|string",
+            "about" => "nullable|string",
             "image" => "nullable|string",
             "tags" => "nullable|array",
             "tags.*" => "string",
             "can_post" => "nullable|numeric",
+            "group_access" => "nullable|string",
         ]);
 
         if ($validator->fails()) {
@@ -133,16 +139,81 @@ class GroupService
             $builder = $builder->search($key);
         }
 
+        if (!empty($key = $data["status"] ?? null)) {
+            $builder = $builder->where("status", $key);
+        }
+
         if (!empty($key = $data["category_id"] ?? null)) {
             $builder = $builder->where("category_id", $key);
         }
 
         if (!empty($key = $data["tab"] ?? null)) {
-            if ($key == "latest") {
-                $builder = $builder->latest();
-            }
+            $builder = match ($key) {
+                "latest" => $builder->latest(),
+                "popular" => $builder->withCount("members")->orderBy("members_count", "desc"),
+                default => $builder->inRandomOrder()
+            };
         }
 
         return $builder;
+    }
+
+    public function requestAccess($id)
+    {
+        DB::beginTransaction();
+        try {
+            $member = (new GroupMemberService)->create([
+                "group_id" => $id,
+                "user_id" => auth()->id(),
+                "role" => UserConstants::MEMBER,
+                "status" => StatusConstants::PENDING
+            ]);
+
+            $admin = $this->getGroupOwner($id);
+            Notification::send($admin->user, new JoinGroupRequestNotification($member));
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function updateAccessRequest(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "member_id" => "required|exists:group_members,id",
+                "action" => "required|string|" . Rule::in([StatusConstants::APPROVED, StatusConstants::DECLINED]),
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $member = (new GroupMemberService())->getById($data["member_id"]);
+
+            if ($data["action"] == StatusConstants::APPROVED) {
+                Notification::send($member->user, new JoinGroupRequestStatusNotification($member, StatusConstants::APPROVED));
+                $member->update([
+                    "status" => StatusConstants::ACTIVE
+                ]);
+            }
+
+
+            if ($data["action"] == StatusConstants::DECLINED) {
+                Notification::send($member->user, new JoinGroupRequestStatusNotification($member, StatusConstants::DECLINED));
+                $member->update([
+                    "status" => StatusConstants::DECLINED
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }

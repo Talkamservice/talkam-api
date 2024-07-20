@@ -4,6 +4,7 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\ModelNotFoundException;
 use App\Models\GroupMember;
 use App\Models\User;
 use App\Services\Group\GroupService;
@@ -20,13 +21,23 @@ class GroupMemberService
     {
         $this->group_service = new GroupService;
     }
+
+    public static function getById($key, $column = "id")
+    {
+        $group_member = GroupMember::where($column, $key)->first();
+        if (empty($group_member)) {
+            throw new ModelNotFoundException("Group member not found");
+        }
+        return $group_member;
+    }
+
     public static function validate(array $data, $id = null)
     {
         $validator = Validator::make($data, [
-            'group_id' => 'nullable|exists:groups,id',
-            'user_id' => 'nullable|exists:users,id',
-            "role" => "required|string",
-            "status" => "required|string",
+            'group_id' => 'required|exists:groups,id',
+            'user_id' => 'required|exists:users,id',
+            "role" => "nullable|string",
+            "status" => "nullable|string",
         ]);
 
         if ($validator->fails()) {
@@ -40,6 +51,7 @@ class GroupMemberService
     public static function create(array $data)
     {
         $data = self::validate($data);
+        $data["role"] = $data["role"] ?? UserConstants::MEMBER;
         return GroupMember::create($data);
     }
 
@@ -48,9 +60,8 @@ class GroupMemberService
         DB::beginTransaction();
         try {
             $validator = Validator::make($data, [
-                'group_id' => 'nullable|exists:groups,id',
-                'user_id' => 'nullable|exists:users,id',
-                'name' => 'required|string',
+                'group_id' => 'required|exists:groups,id',
+                'user_id' => 'required|exists:users,id',
                 "role" => "nullable|string",
             ]);
 
@@ -60,18 +71,16 @@ class GroupMemberService
 
             $data = $validator->validated();
 
-            $user = User::where("email", $data["email"])->first();
-
-            $executive = self::create([
-                "user_id" => $user->id,
+            $member = self::create([
+                "user_id" => $data["user_id"],
                 "group_id" => $data["group_id"],
                 "role" => $data["role"] ?? UserConstants::MEMBER,
                 "status" => StatusConstants::ACTIVE,
             ]);
 
-            // Notification::send($user, new NewGroupAdminNotification($executive, $password));
+            // Notification::send($user, new NewGroupAdminNotification($member, $password));
             DB::commit();
-            return $executive;
+            return $member;
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
@@ -82,27 +91,11 @@ class GroupMemberService
     {
         DB::beginTransaction();
         try {
-            $validator = Validator::make($data, [
-                'group_id' => 'nullable|exists:groups,id',
-                'name' => 'required|string',
-                "role" => "nullable|string",
-                "status" => "nullable|string"
-            ]);
-
-            if ($validator->fails()) {
-                throw new ValidationException($validator);
-            }
-
-            $data = $validator->validated();
-            $executive = $this->group_service->getExecutiveById($id);
-
-            $names = (new UserService)->getNames($data["name"]);
-            $executive->user()->update($names);
-
-            unset($data["name"]);
-            $executive->update($data);
+            $data = self::validate($data);
+            $member = $this->getById($id);
+            $member->update($data);
             DB::commit();
-            return $executive;
+            return $member;
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
@@ -115,6 +108,14 @@ class GroupMemberService
 
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
+        }
+
+        if (!empty($key = $data["role"] ?? null)) {
+            $builder = $builder->where("role", $key);
+        }
+
+        if (!empty($key = $data["status"] ?? null)) {
+            $builder = $builder->where("status", $key);
         }
 
         return $builder;

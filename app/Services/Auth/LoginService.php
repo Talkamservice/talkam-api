@@ -36,7 +36,7 @@ class LoginService
             "input" => "required|exists:users,$type",
             'password' => ['required', 'string'],
         ], [
-            "$type.exists" => "The $type address does not exist in our records.",
+            "input.exists" => "The $type does not exist in our records.",
         ]);
 
         if ($validator->fails()) {
@@ -45,7 +45,7 @@ class LoginService
 
         $data = $validator->validated();
 
-        $user = User::where($type, $type)->first();
+        $user = User::where($type, $data["input"])->first();
 
         if (!Hash::check($data["password"], $user->password)) {
             throw new AuthException("Incorrect password provided.");

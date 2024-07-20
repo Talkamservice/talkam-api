@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
+use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
@@ -88,12 +89,16 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "post-drafts" => PostDraftController::class,
             "recent-views" => RecentViewController::class,
             "groups" => GroupController::class,
+            "group-members" => GroupMemberController::class,
+            "guildlines" => GuildlineController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {
             Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
             Route::post("report", [PostReactionController::class, "report"])->name("report");
             Route::get("filter", [PostController::class, "filter"])->name("filter");
+            Route::get("posts/get-comment-posts", [PostController::class, "postWithComments"])->name("get-comment-posts");
+            Route::get("posts/get-like-posts", [PostController::class, "postWithLikes"])->name("get-liked-posts");
         });
 
         Route::prefix("trendings")->as("trendings")->group(function () {
@@ -101,9 +106,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
 
         Route::prefix("groups")->as("groups.")->group(function () {
-            Route::prefix("{group}")->group(function () {
-                Route::resource("members", GroupMemberController::class);
-            });
+            Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
+            Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
         });
 
         Route::prefix("recents")->as("recents")->group(function () {

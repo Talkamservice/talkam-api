@@ -10,8 +10,10 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\AccountDeactivation;
 use App\Models\User;
+use App\Notifications\User\StrikeUserNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -175,7 +177,7 @@ class UserService
                 "user_id" => $user->id,
                 "email" => $user->email,
                 "reason" => $data["reason"] ?? null,
-                "status" => StatusConstants::CONFIRMED
+                "status" => StatusConstants::APPROVED
             ]);
 
             $user->forceDelete();
@@ -217,6 +219,15 @@ class UserService
             "status" => $status
         ]);
         return $user;
+    }
+
+    public function strike($status, $id)
+    {
+        $user = $this->getById($id);
+        $user->increment("strike");
+
+        Notification::send($user, new StrikeUserNotification($user));
+        return $user->refresh();
     }
 
     public static function getNames($fullName)

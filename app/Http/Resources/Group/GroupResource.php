@@ -21,11 +21,12 @@ class GroupResource extends JsonResource
             "name" => $this->name,
             "uuid" => $this->uuid,
             "status" => $this->status,
+            "group_access" => $this->group_access,
             "image" => $this->image,
+            "total_members" => $this->members?->count(),
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
             "description" => $this->description,
-            "rules" => $this->rules,
-            "followers" => $this->followers
+            "about" => $this->about,
         ];
     }
 

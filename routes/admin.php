@@ -30,6 +30,7 @@ Route::middleware(["auth"])->group(
 
         Route::prefix("users")->as("users.")->group(function () {
             Route::post('{id}/suspend', [UserController::class, "suspend"])->name("suspend");
+            Route::post('{id}/strike', [UserController::class, "strike"])->name("strike");
         });
 
         Route::prefix("post-categories/{category}")->as("categories.sub-categories.")->group(function () {
