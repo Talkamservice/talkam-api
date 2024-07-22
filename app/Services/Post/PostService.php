@@ -238,8 +238,8 @@ class PostService
 
     public static function getWithLikes(array $data)
     {
-        $data["user_id"] ??= auth()->id();
         $builder = self::list($data);
+        $data["user_id"] ??= auth()->id();
 
         $builder->whereHas("reactions", function ($query) use ($data) {
             $query->where([

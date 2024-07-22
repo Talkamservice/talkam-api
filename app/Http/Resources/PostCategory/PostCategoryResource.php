@@ -22,6 +22,7 @@ class PostCategoryResource extends JsonResource
             "description" => $this->description,
             "background_image" => $this->image,
             "icon_image" => $this->icon_image,
+            "followers_count" => $this->interests->count(),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

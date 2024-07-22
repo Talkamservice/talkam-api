@@ -117,6 +117,7 @@ class UserService
                 "interests.*" => "required|exists:post_categories,id",
                 "username" => "nullable|unique:users,username,$id",
                 "age" => "nullable|numeric",
+                "password" => "nullable|string|confirmed",
             ], [
                 "username.unique" => "The username has already been taken"
             ]);
@@ -130,6 +131,10 @@ class UserService
 
             $names = isset($data["name"]) ? self::getNames($data["name"]) : [];
             $user = !empty($id) ? $this->getById($id) : auth()->user();
+
+            if (isset($data["password"])) {
+                $data["password"] = Hash::make($data["password"]);
+            }
 
             if (isset($data["interests"])) {
                 $interests = $data["interests"];

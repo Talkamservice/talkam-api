@@ -62,11 +62,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("/upload-avatar", [UserController::class,  "uploadAvatar"])->name("upload.avatar");
             Route::post("/update", [UserController::class,  "update"])->name("update");
             Route::post("interests/add-remove", [UserController::class,  "saveInterest"])->name("save-interest");
-
             Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
             Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");
-
             Route::get("fetch", [UserController::class,  "getProfile"])->name("get-profile");
+            Route::post("link-social-account", [UserController::class,  "linkSocialAccount"])->name("link-social-account");
+            Route::post("unlink-social-account", [UserController::class,  "unlinkSocialAccount"])->name("unlink-social-account");
         });
 
         Route::prefix("post-categories")->as("post-categories.")->group(function () {
