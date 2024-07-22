@@ -238,7 +238,7 @@ class PostService
 
     public static function getWithLikes(array $data)
     {
-        $data["user_id"] ??= auth()->user();
+        $data["user_id"] ??= auth()->id();
 
         $builder = self::list($data);
 
