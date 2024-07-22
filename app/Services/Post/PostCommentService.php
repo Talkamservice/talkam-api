@@ -85,17 +85,6 @@ class PostCommentService
         return $builder;
     }
 
-    public static function getOnlyComments(array $data)
-    {
-        $data["user_id"] ??= auth()->id();
-
-        $builder = self::list($data);
-
-
-
-        return $builder;
-    }
-
     public static function handleReaction(array $data)
     {
         $validator = Validator::make($data, [

@@ -110,16 +110,4 @@ class PostCommentController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
-
-    public function getComments(Request $request)
-    {
-        try {
-            $posts = $this->post_comment_service->getOnlyComments($request->all())->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
-            $data = collectPagination($posts);
-            $data["data"] = PostCommentResource::collection($data["data"]);
-            return ApiHelper::validResponse("Comments returned successfully", $data);
-        } catch (Exception $e) {
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
-        }
-    }
 }
