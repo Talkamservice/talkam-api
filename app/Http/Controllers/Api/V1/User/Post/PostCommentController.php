@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -29,8 +30,7 @@ class PostCommentController extends Controller
     public function index(Request $request)
     {
         try {
-            $post = $this->post_service->getById($request->post_id);
-            $comments = $this->post_comment_service->list($post->id, $request->comment_id)->whereNull("parent_id")->latest("id")->get();
+            $comments = $this->post_comment_service->list($request->all())->whereNull("parent_id")->latest("id")->get();
             $data = PostCommentResource::collection($comments);
             return ApiHelper::validResponse("Post comments returned successfully", $data);
         } catch (ModelNotFoundException $th) {
@@ -108,6 +108,18 @@ class PostCommentController extends Controller
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function getComments(Request $request)
+    {
+        try {
+            $posts = $this->post_comment_service->getOnlyComments($request->all())->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $data = collectPagination($posts);
+            $data["data"] = PostCommentResource::collection($data["data"]);
+            return ApiHelper::validResponse("Comments returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 }

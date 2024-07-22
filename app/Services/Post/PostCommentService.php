@@ -62,12 +62,37 @@ class PostCommentService
         $post->delete();
     }
 
-    public static function list($post_id, $comment_id = null)
+    public static function list(array $data = [])
     {
-        $builder = PostComment::where("post_id", $post_id)->latest();
-        if (!empty($comment_id)) {
-            $builder = $builder->where("parent_id", $comment_id);
+        $builder = PostComment::latest();
+
+        if (!empty($key = $data["post_id"] ?? null)) {
+            $builder = $builder->where("post_id", $key);
         }
+
+        if (!empty($key = $data["comment_id"] ?? null)) {
+            $builder = $builder->where("parent_id", $key);
+        }
+
+        if (!empty($key = $data["user_id"] ?? null)) {
+            $builder = $builder->where("user_id", $key);
+        }
+
+        if (!empty($key = $data["exclude_anonymous"] ?? null)) {
+            $builder = $builder->where("is_anonymous", 0);
+        }
+
+        return $builder;
+    }
+
+    public static function getOnlyComments(array $data)
+    {
+        $data["user_id"] ??= auth()->id();
+
+        $builder = self::list($data);
+
+
+
         return $builder;
     }
 

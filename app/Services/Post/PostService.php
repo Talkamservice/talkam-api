@@ -188,7 +188,7 @@ class PostService
         }
 
         if (!empty($key = $data["tab"] ?? null)) {
-            $tags = TrendingTag::orderByDesc("count")->pluck("tag")->toArray();
+            $tags = TrendingTag::orderByDesc("count")->limit(20)->pluck("tag")->toArray();
 
             if ($key == "latest") {
                 $builder = $builder->latest();
@@ -224,11 +224,13 @@ class PostService
 
     public static function getWithComments(array $data)
     {
-        $user = auth()->user();
         $builder = self::list($data);
+        $user_id = $data["user_id"] ?? auth()->id();
+        $include_anonymuos = $data["include_anonymous"] ?? "0";
 
-        $builder->whereHas("comments", function ($query) use ($user) {
-            $query->where("user_id", $user->id);
+        $builder->whereHas("comments", function ($query) use ($user_id, $include_anonymuos) {
+            $query->where("user_id", $user_id)
+                ->where("is_anonymous", $include_anonymuos);
         });
 
         return $builder;
@@ -236,12 +238,13 @@ class PostService
 
     public static function getWithLikes(array $data)
     {
-        $user = auth()->user();
+        $data["user_id"] ??= auth()->user();
+
         $builder = self::list($data);
 
-        $builder->whereHas("reactions", function ($query) use ($user) {
+        $builder->whereHas("reactions", function ($query) use ($data) {
             $query->where([
-                "user_id" => $user->id,
+                "user_id" => $data["user_id"],
                 "action" => PostConstants::LIKE
             ]);
         });

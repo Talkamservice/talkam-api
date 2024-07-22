@@ -8,6 +8,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Post\TrendingResource;
 use App\Services\Post\PostService;
@@ -113,7 +114,7 @@ class PostController extends Controller
         try {
             $posts = $this->post_service->getWithComments($request->all())->status()->unblocked()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
             $data = collectPagination($posts);
-            $data["data"] = PostResource::collection($data["data"]);
+            $data["data"] = PostCommentResource::collection($data["data"]);
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);

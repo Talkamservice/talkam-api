@@ -97,8 +97,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
             Route::post("report", [PostReactionController::class, "report"])->name("report");
             Route::get("filter", [PostController::class, "filter"])->name("filter");
-            Route::get("posts/get-comment-posts", [PostController::class, "postWithComments"])->name("get-comment-posts");
-            Route::get("posts/get-like-posts", [PostController::class, "postWithLikes"])->name("get-liked-posts");
+            Route::get("actions/get-comment-posts", [PostController::class, "postWithComments"])->name("get-comment-posts");
+            Route::get("actions/get-comments", [PostCommentController::class, "getComments"])->name("get-comments");
+            Route::get("actions/get-upvotes", [PostController::class, "postWithLikes"])->name("get-liked-posts");
         });
 
         Route::prefix("trendings")->as("trendings")->group(function () {
