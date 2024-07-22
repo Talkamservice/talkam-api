@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
+use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
@@ -124,6 +125,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::post("update-status", [ConversationController::class, "updateStatus"])->name("update-status");
                 Route::post("report", [ConversationController::class, "report"])->name("report");
             });
+        });
+
+        Route::prefix("notifications")->as("notifications.")->group(function () {
+            Route::get("preference/fetch", [NotificationController::class, "notificationPerference"])->name("notification-perference");
+            Route::post("preference/save", [NotificationController::class, "saveNotificationPerference"])->name("save-notification-perference");
         });
     });
 });
