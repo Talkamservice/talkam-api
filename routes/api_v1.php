@@ -16,7 +16,6 @@ use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
-use App\Http\Controllers\Api\V1\User\PostCategory\MessagingController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
