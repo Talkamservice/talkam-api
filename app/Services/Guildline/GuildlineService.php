@@ -21,9 +21,8 @@ class GuildlineService
 
     public static function validate($data, $id = null)
     {
-        $isAdmin = sudo();
         $validator = Validator::make($data, [
-            "group_id" => "nullable|exists:groups,id|" . Rule::requiredIf(!$isAdmin && empty($id)),
+            "group_id" => "nullable|exists:groups,id",
             "title" => "required|string",
             "description" => "nullable|string",
         ]);
