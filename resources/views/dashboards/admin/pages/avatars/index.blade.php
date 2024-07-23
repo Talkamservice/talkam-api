@@ -41,7 +41,7 @@
                             <thead>
                                 <tr>
                                     <th scope="text-center">Avatar</th>
-                                    <th scope="col">Title</th>
+                                    <th scope="col">Name</th>
                                     <th scope="col">Description</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
@@ -53,7 +53,7 @@
                                     <tr>
                                         <td class="">
                                             <span>
-                                                <img src="{{ $avatar->imageUrl() }}" alt="" style="width: 25px; height:25px: border-radius:10px">
+                                                <img src="{{ $avatar->imageUrl() }}" alt="" style="width: 45px; height:45px: border-radius:10px">
                                             </span>
                                         </td>
                                         <td>{{ $avatar->name }}</td>
