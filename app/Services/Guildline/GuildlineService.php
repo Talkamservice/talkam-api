@@ -22,7 +22,7 @@ class GuildlineService
     public static function validate($data, $id = null)
     {
         $validator = Validator::make($data, [
-            "group_id" => "nullable|exists:groups,id|" . Rule::requiredIf(empty($id)),
+            "group_id" => "nullable|exists:groups,id",
             "title" => "required|string",
             "description" => "nullable|string",
         ]);

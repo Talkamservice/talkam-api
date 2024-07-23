@@ -78,6 +78,13 @@
                  <li class="slide__category list-head-cont"><span class="category-name list-head">SYSTEM MANAGEMENT</span></li>
                  <!-- End::slide__category -->
 
+                  <li class="slide">
+                     <a href="{{ route('admin.guidelines.index') }}" class="side-menu__item list-item">
+                         <i class="bx bx-folder-open side-menu__icon list-item-icon"></i>
+                         <span class="side-menu__label list-item-label">Rule</span>
+                     </a>
+                 </li>
+
                  <!-- Start::slide -->
                  <li class="slide has-sub">
                      <a href="javascript:void(0);" class="side-menu__item list-item">
