@@ -32,9 +32,9 @@ class PostReportController extends Controller
 
     public function show($id)
     {
-        $post_report_list = PostReport::findOrFail($id);
-        return view('dashboards.admin.pages.report.post.index', [
-            'post_report_list' => $post_report_list,
+        $post_report = PostReport::findOrFail($id);
+        return view('dashboards.admin.pages.report.post.show', [
+            'post_report' => $post_report,
         ]);
     }
 

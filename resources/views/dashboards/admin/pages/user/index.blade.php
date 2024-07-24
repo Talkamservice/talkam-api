@@ -73,7 +73,7 @@
                         </thead>
                         <tbody>
                             @foreach ($users as $user)
-                                <tr class="user-{{ $user->id }}">
+                                <tr  class="highlight-user-{{ $user->id }}">
                                     <td>
                                         <div class="d-flex align-items-center fw-semibold">
                                             <span class="avatar avatar-sm me-2 avatar-rounded">
@@ -95,7 +95,7 @@
                                             </a>
                                             <ul class="dropdown-menu">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.users.index') }}?highlight_user_id={{ $user->id }}">
+                                                    <a class="dropdown-item" href="{{ route('admin.users.show', $user->id ) }}">
                                                         <i class="ri-eye-line"></i> | View
                                                     </a>
                                                 </li>
@@ -157,7 +157,7 @@
         // If a user ID is provided, apply highlighting and scroll to the specific user's row
         if (highlightUserId) {
             // Add highlighting to the specific user's row
-            var userRowToHighlight = document.querySelector('.user-' + highlightUserId);
+            var userRowToHighlight = document.querySelector('.highlight-user-' + highlightUserId);
             if (userRowToHighlight) {
                 userRowToHighlight.classList.add('highlighted-column');
 

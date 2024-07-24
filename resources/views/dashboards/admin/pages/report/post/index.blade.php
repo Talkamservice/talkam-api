@@ -39,7 +39,7 @@
                             <tbody>
                                 @forelse ($post_report_lists as $post_report_list)
                                     <tr>
-                                        <td>{{ $post_report_list->user->full_name }}</td>
+                                        <td><a href="{{ route('admin.users.index', $post_report_list->user->id) }}?highlight_user_id={{ $post_report_list->user->id }}">{{ $post_report_list->user->full_name }}</a></td>
                                         <td>{{ str_limit($post_report_list->post->title, 50) }}</td>
                                         <td>{{ str_limit($post_report_list->reason, 60) }}</td>
                                         <td>
@@ -55,7 +55,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <a class="dropdown-item" href="{{ route('admin.users.index', $post_report_list->user->id) }}?highlight_user_id={{ $post_report_list->user->id }}">
+                                                        <a class="dropdown-item" href="{{ route('admin.reports.post.show', $post_report_list->id) }}">
                                                             <i class="ri-eye-line"></i> | View
                                                         </a>
                                                     </li>
