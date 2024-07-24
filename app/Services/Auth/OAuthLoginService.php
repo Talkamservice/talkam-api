@@ -20,7 +20,11 @@ class OAuthLoginService
         return $this;
     }
 
-     
+    public function setProvider(string $provider)
+    {
+        $this->provider = $provider;
+        return $this;
+    }
 
     public function byProvider()
     {
