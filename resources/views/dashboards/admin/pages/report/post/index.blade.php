@@ -28,6 +28,7 @@
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
                                 <tr>
+                                    <th scope="col">Post Author</th>
                                     <th scope="col">Post</th>
                                     <th scope="col">Reason</th>
                                     <th scope="col">Status</th>
@@ -38,6 +39,15 @@
                             <tbody>
                                 @forelse ($post_report_lists as $post_report_list)
                                     <tr>
+                                        <td>
+                                            <a href="{{ route('admin.users.show', $post_report_list->user_id) }}">
+                                                <div class="d-flex align-items-center fw-semibold">
+                                                    <span class="avatar avatar-sm me-2 avatar-rounded">
+                                                        <img src="{{ $post_report_list->user->avatarUrl() }}" alt="img">
+                                                    </span>{{ $post_report_list->user->username }}
+                                                </div>
+                                            </a>
+                                        </td>
                                         <td>{{ str_limit($post_report_list->post->title, 50) }}</td>
                                         <td>{{ str_limit($post_report_list->reason, 60) }}</td>
                                         <td>
@@ -52,21 +62,32 @@
                                                     Action
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    {{-- <li>
+                                                    <li>
                                                         <a class="dropdown-item" href="{{ route('admin.reports.post.show', $post_report_list->id) }}">
                                                             <i class="ri-eye-line"></i> | View
                                                         </a>
-                                                    </li> --}}
+                                                    </li>
                                                     <li>
                                                         <form id="deleteUser_{{ $post_report_list->id }}" action="{{ route('admin.reports.post.delete', $post_report_list->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <a class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $post_report_list->id }}').submit()" href="#">
-                                                                <i class="ri-delete-bin-line"></i> | Mark As Resolved
+                                                            <a class="dropdown-item text-success" onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $post_report_list->id }}').submit()" href="#">
+                                                                <i class="ri-check-line"></i> | Mark As Resolved
                                                             </a>
                                                         </form>
                                                     </li>
                                                     <li>
+                                                        <form id="suspendUser_{{ $post_report_list->id }}" action="{{ route('admin.users.suspend', $post_report_list->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf
+                                                            @if ($post_report_list->status == 'Active')
+                                                                <input type="hidden" name="status" value="Inactive">
+                                                                <a class="dropdown-item text-warning" href="#" onclick="$('#suspendUser_{{ $post_report_list->id }}').submit()"><i class="ri-close-line"></i> | Suspend </a>
+                                                            @else
+                                                                <input type="hidden" name="status" value="Active">
+                                                                <a class="dropdown-item text-warning" href="#" onclick="$('#suspendUser_{{ $post_report_list->id }}').submit()"><i class="ri-check-line"></i> | Activate</a>
+                                                            @endif
+                                                        </form>
+                                                    </li>
+                                                    {{-- <li>
                                                         <form id="deleteUser_{{ $post_report_list->id }}" action="{{ route('admin.reports.post.delete', $post_report_list->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
                                                             @method('DELETE')
@@ -74,7 +95,7 @@
                                                                 <i class="ri-delete-bin-line"></i> | Delete
                                                             </a>
                                                         </form>
-                                                    </li>
+                                                    </li> --}}
                                                 </ul>
                                             </div>
                                         </td>

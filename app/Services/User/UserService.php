@@ -11,6 +11,7 @@ use App\Helpers\MethodsHelper;
 use App\Models\AccountDeactivation;
 use App\Models\User;
 use App\Notifications\User\StrikeUserNotification;
+use App\Notifications\User\SuspendUserNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -218,6 +219,8 @@ class UserService
         $user->update([
             "status" => $status
         ]);
+
+        Notification::send($user, new SuspendUserNotification($user, $user->status));
         return $user;
     }
 
