@@ -24,11 +24,10 @@
             <div class="card custom-card">
 
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="min-height: 250px">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
                                 <tr>
-                                    <th scope="col">User</th>
                                     <th scope="col">Post</th>
                                     <th scope="col">Reason</th>
                                     <th scope="col">Status</th>
@@ -39,7 +38,6 @@
                             <tbody>
                                 @forelse ($post_report_lists as $post_report_list)
                                     <tr>
-                                        <td><a href="{{ route('admin.users.index', $post_report_list->user->id) }}?highlight_user_id={{ $post_report_list->user->id }}">{{ $post_report_list->user->full_name }}</a></td>
                                         <td>{{ str_limit($post_report_list->post->title, 50) }}</td>
                                         <td>{{ str_limit($post_report_list->reason, 60) }}</td>
                                         <td>
@@ -54,29 +52,18 @@
                                                     Action
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
+                                                    {{-- <li>
                                                         <a class="dropdown-item" href="{{ route('admin.reports.post.show', $post_report_list->id) }}">
                                                             <i class="ri-eye-line"></i> | View
                                                         </a>
-                                                    </li>
+                                                    </li> --}}
                                                     <li>
-                                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report_list->id }}-approved').submit();">
-                                                            <i class="ri-check-line"></i> | Approve
-                                                        </a>
-                                                        <form id="status-form-{{ $post_report_list->id }}-approved" action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}" method="POST" style="display: none;">
+                                                        <form id="deleteUser_{{ $post_report_list->id }}" action="{{ route('admin.reports.post.delete', $post_report_list->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
-                                                            @method('PUT')
-                                                            <input type="hidden" name="status" value="Approved">
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report_list->id }}-suspended').submit();">
-                                                            <i class="ri-close-line"></i> | Suspend
-                                                        </a>
-                                                        <form id="status-form-{{ $post_report_list->id }}-suspended" action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}" method="POST" style="display: none;">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <input type="hidden" name="status" value="Suspended">
+                                                            @method('DELETE')
+                                                            <a class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $post_report_list->id }}').submit()" href="#">
+                                                                <i class="ri-delete-bin-line"></i> | Mark As Resolved
+                                                            </a>
                                                         </form>
                                                     </li>
                                                     <li>
@@ -91,7 +78,7 @@
                                                 </ul>
                                             </div>
                                         </td>
-                                       
+
                                     </tr>
                                 @empty
                                     <div class="alert alert-info text-center">
@@ -113,5 +100,5 @@
             </div>
         </div>
     </div>
-  
+
 @endsection

@@ -17,12 +17,6 @@ class PostReportService
         return $report;
     }
 
-    public static function delete($report_id)
-    {
-        $report = self::getById($report_id);
-        $report->delete();
-    }
-
     public static function changeStatus(Request $request, $report_id)
     {
         // Find the report by ID
@@ -35,5 +29,11 @@ class PostReportService
         $report->update(['status' => $request->input('status')]);
         // Return a response
         return $report;
+    }
+
+    public static function delete($report_id)
+    {
+        $report = self::getById($report_id);
+        $report->delete();
     }
 }
