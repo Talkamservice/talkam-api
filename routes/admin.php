@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
+use App\Http\Controllers\Admin\Report\PostReportController;
 use App\Http\Controllers\Admin\User\AccountStatusController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Web\InviteController;
@@ -70,6 +71,13 @@ Route::middleware(["auth"])->group(
             Route::get("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
             Route::get("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
             Route::get("{notification}/delete", [NotificationController::class, "destroy"])->name("destroy");
+        });
+
+        Route::prefix("reports")->as("reports.")->group(function () {
+            Route::get('post/lists', [PostReportController::class, "reportList"])->name("post.lists");
+            Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
+            Route::put('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
+            Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
         });
     }
 );
