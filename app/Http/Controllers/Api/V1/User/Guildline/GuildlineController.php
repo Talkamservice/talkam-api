@@ -25,7 +25,7 @@ class GuildlineController extends Controller
     public function index(Request $request)
     {
         try {
-            $guildlines = $this->guildline_service->list($request->group_id)->get();
+            $guildlines = $this->guildline_service->list($request->all())->get();
             $data = GuildlineResource::collection($guildlines);
             return ApiHelper::validResponse("Guildlines returned successfully", $data);
         } catch (ModelNotFoundException $th) {

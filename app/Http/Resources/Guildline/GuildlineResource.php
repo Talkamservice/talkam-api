@@ -23,7 +23,7 @@ class GuildlineResource extends JsonResource
             "title" => $this->title,
             "description" => $this->description,
             "status" => $this->status,
-            "group" => GroupResource::custom($this->group),
+            "group" => !empty($this->group) ? GroupResource::custom($this->group) : null,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

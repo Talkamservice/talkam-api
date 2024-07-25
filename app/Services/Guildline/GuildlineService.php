@@ -55,11 +55,13 @@ class GuildlineService
         $guildline->delete();
     }
 
-    public static function list($group_id = null)
+    public static function list(array $data = [])
     {
         $builder = Guildline::latest();
-        if (!empty($group_id)) {
-            $builder = $builder->where("group_id", $group_id);
+        if (!empty($key = $data["group_id"] ?? null)) {
+            $builder = $builder->where("group_id", $key);
+        } else {
+            $builder = $builder->whereNull("group_id");
         }
         return $builder;
     }
