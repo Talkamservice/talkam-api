@@ -61,7 +61,7 @@ class PostResource extends JsonResource
             "status" => $model->status,
             "publish_at" => $model->publish_at,
             "created_at" => formatDate($model->created_at),
-            "user" => ($model->is_anonymous == 1) ? UserResource::custom($model->user) : null,
+            "user" => ($model->is_anonymous != 1) ? UserResource::custom($model->user) : null,
         ];
     }
 }
