@@ -61,6 +61,7 @@ class PostResource extends JsonResource
             "status" => $model->status,
             "publish_at" => $model->publish_at,
             "created_at" => formatDate($model->created_at),
+            "user" => !empty($model->user) ? UserResource::custom($model->user) : null,
         ];
     }
 }
