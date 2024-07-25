@@ -109,6 +109,10 @@ class PostCategoryService
             }
         }
 
+        if (($data["type"] ?? null) != "all") {
+            $categories = $categories->whereNull("category_id");
+        }
+
         return $categories;
     }
 
