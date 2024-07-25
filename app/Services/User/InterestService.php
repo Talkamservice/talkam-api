@@ -76,43 +76,17 @@ class InterestService
 
         $data = $validator->validated();
 
-        if (empty($this->user)) {
-            $this->user = User::find($data["user_id"]);
-        }
-
-        $category_id  = $data["category_id"];
-        $user_id = $this->user->id;
-
-        if (self::isInterestPresent($category_id, $user_id)) {
-            self::removeInterest($category_id, $user_id);
+        if (self::isInterestPresent($data)) {
+            UserInterest::where($data)->delete();
         } else {
-            self::addInterest($category_id, $user_id);
+            UserInterest::create($data);
         }
 
-        return self::isInterestPresent($category_id, $user_id);
+        return self::isInterestPresent($data);
     }
 
-    public static function isInterestPresent($category_id, $user_id)
+    public static function isInterestPresent(array $data)
     {
-        return UserInterest::where([
-            "category_id" => $category_id,
-            "user_id" => $user_id,
-        ])->exists();
-    }
-
-    public static function removeInterest($category_id, $user_id)
-    {
-        UserInterest::where([
-            "category_id" => $category_id,
-            "user_id" => $user_id,
-        ])->delete();
-    }
-
-    public static function addInterest($category_id, $user_id)
-    {
-        UserInterest::create([
-            "category_id" => $category_id,
-            "user_id" => $user_id,
-        ]);
+        return UserInterest::where($data)->exists();
     }
 }
