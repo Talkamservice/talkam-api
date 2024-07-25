@@ -5,8 +5,10 @@ namespace App\Services\Post;
 use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\BlockedUser;
+use App\Models\CommentReport;
 use App\Models\PostReport;
 use App\Models\UserPostReaction;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -119,40 +121,83 @@ class PostReactionService
 
     public static function report($data)
     {
-        $validator = Validator::make($data, [
-            "post_id" => "required|numeric|exists:posts,id",
-            "reason" => "required|string",
-        ]);
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "post_id" => "required|numeric|exists:posts,id",
+                "reason" => "required|string",
+            ]);
 
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $data["user_id"] = auth()->id();
+            $report = PostReport::create($data);
+
+            DB::commit();
+            return $report;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
-
-        $data = $validator->validated();
-
-        $data["user_id"] = auth()->id();
-        $report = PostReport::create($data);
-
-        return $report;
     }
 
     public static function block($data)
     {
-        $validator = Validator::make($data, [
-            "post_id" => "nullable|numeric|exists:posts,id",
-            "blocked_user_id" => "required|numeric|exists:users,id",
-        ]);
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "post_id" => "nullable|numeric|exists:posts,id",
+                "blocked_user_id" => "required|numeric|exists:users,id",
+            ]);
 
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $data["blocker_id"] = auth()->id();
+
+            $blocked_user = BlockedUser::firstOrCreate([
+                "blocker_id" => $data["blocker_id"],
+                "blocked_user_id" => $data["blocked_user_id"]
+            ]);
+
+            DB::commit();
+            return $blocked_user;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
+    }
 
-        $data = $validator->validated();
-        $data["blocker_id"] = auth()->id();
+    public static function reportComent($data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "comment_id" => "required|numeric|exists:post_comments,id",
+                "post_id" => "required|numeric|exists:posts,id",
+                "reason" => "required|string",
+            ]);
 
-        return BlockedUser::firstOrCreate([
-            "blocker_id" => $data["blocker_id"],
-            "blocked_user_id" => $data["blocked_user_id"]
-        ]);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $data["user_id"] = auth()->id();
+            $report = CommentReport::create($data);
+
+            DB::commit();
+            return $report;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }
