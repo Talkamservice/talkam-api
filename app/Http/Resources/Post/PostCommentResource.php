@@ -25,7 +25,7 @@ class PostCommentResource extends JsonResource
 
         return [
             "id" => $this->id,
-            "post_id" => $this->post_id,
+            "post" => PostResource::custom($this->post),
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "comment" => $this->comment,
             "is_anonymous" => $this->is_anonymous,
