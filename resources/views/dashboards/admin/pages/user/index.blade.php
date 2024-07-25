@@ -1,14 +1,35 @@
 @extends('dashboards.admin.layout.app')
+
 @section('content')
 <style>
-   .highlighted-column {
-    background-color: rgba(42, 5, 179, 0.959);
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 10px;
-}
+    .highlighted-column {
+        background-color: rgba(179, 5, 86, 0.959);
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 10px;
+    }
+     /* Ensuring the highlighted column is always visible */
+     @media (max-width: 767.98px) {
+        .highlighted-column {
+            padding: 5px;
+            font-size: 12px;
+        }
+    }
 
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .highlighted-column {
+            padding: 8px;
+            font-size: 14px;
+        }
+    }
+    @media (min-width: 992px) {
+        .highlighted-column {
+            padding: 10px;
+            font-size: 16px;
+        }
+    }
 </style>
+
 <div class="container-fluid">
 
     <!-- Page Header -->
@@ -21,8 +42,7 @@
                     <li class="breadcrumb-item active" aria-current="page">Index</li>
                 </ol>
             </nav>
-            <div class="">
-            </div>
+            <div class=""></div>
         </div>
     </div>
     <!-- Page Header Close -->
@@ -73,7 +93,7 @@
                         </thead>
                         <tbody>
                             @foreach ($users as $user)
-                                <tr  class="highlight-user-{{ $user->id }}">
+                                <tr class="highlight-user-{{ $user->id }}">
                                     <td>
                                         <div class="d-flex align-items-center fw-semibold">
                                             <span class="avatar avatar-sm me-2 avatar-rounded">
@@ -141,6 +161,7 @@
         </div>
     </div>
 </div>
+
 <script>
     // Function to get URL parameters by name
     function getUrlParameter(name) {

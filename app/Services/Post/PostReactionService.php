@@ -5,6 +5,7 @@ namespace App\Services\Post;
 use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\BlockedUser;
+use App\Models\CommentReport;
 use App\Models\PostReport;
 use App\Models\UserPostReaction;
 use Illuminate\Support\Facades\Validator;
@@ -154,5 +155,25 @@ class PostReactionService
             "blocker_id" => $data["blocker_id"],
             "blocked_user_id" => $data["blocked_user_id"]
         ]);
+    }
+
+    public static function reportComent($data)
+    {
+        $validator = Validator::make($data, [
+            "comment_id" => "required|numeric|exists:post_comments,id",
+            "post_id" => "required|numeric|exists:posts,id",
+            "reason" => "required|string",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $data = $validator->validated();
+
+        $data["user_id"] = auth()->id();
+        $report = CommentReport::create($data);
+
+        return $report;
     }
 }

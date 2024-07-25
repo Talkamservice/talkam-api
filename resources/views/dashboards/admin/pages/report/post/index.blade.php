@@ -39,7 +39,9 @@
                             <tbody>
                                 @forelse ($post_report_lists as $post_report_list)
                                     <tr>
-                                        <td><a href="{{ route('admin.users.index', $post_report_list->user->id) }}?highlight_user_id={{ $post_report_list->user->id }}">{{ $post_report_list->user->full_name }}</a></td>
+                                        <td><a
+                                                href="{{ route('admin.users.index', $post_report_list->user->id) }}?highlight_user_id={{ $post_report_list->user->id }}">{{ $post_report_list->user->full_name }}</a>
+                                        </td>
                                         <td>{{ str_limit($post_report_list->post->title, 50) }}</td>
                                         <td>{{ str_limit($post_report_list->reason, 60) }}</td>
                                         <td>
@@ -50,40 +52,54 @@
                                         <td>{{ $post_report_list->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="dropdown">
-                                                <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <a class="btn btn-outline-primary dropdown-toggle" href="#"
+                                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                     Action
                                                 </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                <ul class="dropdown-menu">
                                                     <li>
-                                                        <a class="dropdown-item" href="{{ route('admin.reports.post.show', $post_report_list->id) }}">
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('admin.reports.post.show', $post_report_list->id) }}">
                                                             <i class="ri-eye-line"></i> | View
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report_list->id }}-approved').submit();">
-                                                            <i class="ri-check-line"></i> | Approve
-                                                        </a>
-                                                        <form id="status-form-{{ $post_report_list->id }}-approved" action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}" method="POST" style="display: none;">
+                                                        <form id="status-form-{{ $post_report_list->id }}-approved"
+                                                            action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}"
+                                                            method="post"
+                                                            onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
                                                             @method('PUT')
                                                             <input type="hidden" name="status" value="Approved">
+                                                            <a class="dropdown-item text-warning" href="#"
+                                                                onclick="$('#status-form-{{ $post_report_list->id }}-approved').submit()">
+                                                                <i class="ri-check-line"></i> | Approve
+                                                            </a>
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report_list->id }}-suspended').submit();">
-                                                            <i class="ri-close-line"></i> | Suspend
-                                                        </a>
-                                                        <form id="status-form-{{ $post_report_list->id }}-suspended" action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}" method="POST" style="display: none;">
+                                                        <form id="status-form-{{ $post_report_list->id }}-suspended"
+                                                            action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}"
+                                                            method="post"
+                                                            onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
                                                             @method('PUT')
                                                             <input type="hidden" name="status" value="Suspended">
+                                                            <a class="dropdown-item text-warning" href="#"
+                                                                onclick="$('#status-form-{{ $post_report_list->id }}-suspended').submit()">
+                                                                <i class="ri-close-line"></i> | Suspend
+                                                            </a>
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <form id="deleteUser_{{ $post_report_list->id }}" action="{{ route('admin.reports.post.delete', $post_report_list->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
+                                                        <form id="deleteUser_{{ $post_report_list->id }}"
+                                                            action="{{ route('admin.reports.post.delete', $post_report_list->id) }}"
+                                                            method="post"
+                                                            onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
-                                                            @method('DELETE')
-                                                            <a class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $post_report_list->id }}').submit()" href="#">
+                                                            @method('delete')
+                                                            <a class="dropdown-item text-danger" href="#"
+                                                                onclick="$('#deleteUser_{{ $post_report_list->id }}').submit()">
                                                                 <i class="ri-delete-bin-line"></i> | Delete
                                                             </a>
                                                         </form>
@@ -91,7 +107,8 @@
                                                 </ul>
                                             </div>
                                         </td>
-                                       
+
+
                                     </tr>
                                 @empty
                                     <div class="alert alert-info text-center">
@@ -113,5 +130,4 @@
             </div>
         </div>
     </div>
-  
 @endsection
