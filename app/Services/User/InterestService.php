@@ -76,6 +76,8 @@ class InterestService
 
         $data = $validator->validated();
 
+        $data["user_id"] ??= auth()->id();
+        
         if (self::isInterestPresent($data)) {
             UserInterest::where($data)->delete();
         } else {
