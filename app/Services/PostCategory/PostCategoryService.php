@@ -101,16 +101,15 @@ class PostCategoryService
 
         if (!empty($key = $data["category_id"] ?? null)) {
             $categories = $categories->where("category_id", $key);
+        }else {
+            $categories = $categories->whereNull("category_id");
+
         }
 
         if (!empty($key = $data["sort"] ?? null)) {
             if ($key == "popular") {
                 $categories = $categories->withCount('posts')->orderBy('posts_count', 'desc');
             }
-        }
-
-        if (($data["type"] ?? null) != "all") {
-            $categories = $categories->whereNull("category_id");
         }
 
         return $categories;
