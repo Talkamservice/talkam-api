@@ -34,8 +34,16 @@
                     <div class="">
                         <a href="{{ route('admin.post-categories.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
+                   
                 </div>
+               
                 <div class="card-body">
+                    <div class="mt-2  p-2">
+                        <p class="text-danger text-center fw-bold">
+                            <span class="fw-bold">Disclaimer!!!</span>: Categories cannot be deleted once they are active and have posts added to them.
+                        </p>
+                    </div>
+                    
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
