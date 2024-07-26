@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('gender')->nullable();
             $table->string('registration_platform')->nullable();
             $table->string('social_id')->nullable();
+            $table->string('timezone')->nullable();
             $table->string('fcm_token', 500)->nullable();
             $table->string('password')->nullable();
             $table->string('status')->default(StatusConstants::ACTIVE);
