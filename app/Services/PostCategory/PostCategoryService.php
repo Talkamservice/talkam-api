@@ -8,6 +8,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostCategory;
 use App\Services\Media\FileService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -81,8 +82,15 @@ class PostCategoryService
 
     public static function delete($category_id)
     {
-        $category = self::getById($category_id);
-        $category->delete();
+        DB::beginTransaction();
+        try {
+            $category = self::getById($category_id);
+            $category->delete();
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
 
@@ -96,9 +104,8 @@ class PostCategoryService
 
         if (!empty($key = $data["category_id"] ?? null)) {
             $categories = $categories->where("category_id", $key);
-        }else {
+        } else {
             $categories = $categories->whereNull("category_id");
-
         }
 
         if (!empty($key = $data["sort"] ?? null)) {
