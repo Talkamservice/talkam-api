@@ -41,7 +41,7 @@ class PostReportController extends Controller
     public function updateStatus(Request $request, $post_report_id)
     {
         try {
-            $this->post_report_service->changeStatus($request, $post_report_id);
+            $this->post_report_service->changeStatus($request->all(), $post_report_id);
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Post report updated successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());

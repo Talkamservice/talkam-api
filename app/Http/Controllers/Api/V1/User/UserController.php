@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Avatar\AvatarResource;
 use App\Http\Resources\Users\BlockedUserResource;
 use App\Http\Resources\Users\UserResource;
+use App\Services\Auth\SocialAuthLinkService;
 use App\Services\User\AvatarService;
 use App\Services\User\BlockUserService;
 use App\Services\User\InterestService;
@@ -24,6 +25,7 @@ class UserController extends Controller
     public $interest_service;
     public $blocked_user_service;
     public $avatar_service;
+    public $social_auth_link_service;
 
     public function __construct()
     {
@@ -31,6 +33,7 @@ class UserController extends Controller
         $this->interest_service = new InterestService;
         $this->avatar_service = new AvatarService;
         $this->blocked_user_service = new BlockUserService;
+        $this->social_auth_link_service = new SocialAuthLinkService(auth()->user());
     }
 
     public function me()
@@ -43,7 +46,7 @@ class UserController extends Controller
         }
     }
 
-public function listAvatars(Request $request)
+    public function listAvatars(Request $request)
     {
         try {
             $avatars = $this->avatar_service->list()->get();
@@ -68,7 +71,7 @@ public function listAvatars(Request $request)
     {
         try {
             $user = $this->user_service->update($request->all(), auth()->id());
-            return ApiHelper::validResponse("User data retrieved successfully", UserResource::make($user));
+            return ApiHelper::validResponse("User data updated successfully", UserResource::make($user));
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
         } catch (Exception $e) {
@@ -163,6 +166,34 @@ public function listAvatars(Request $request)
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function linkSocialAccount(Request $request)
+    {
+        try {
+            $this->social_auth_link_service->setProvider($request->provider)->link($request->token);
+            return ApiHelper::validResponse("Account linked successfully");
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (InvalidRequestException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function unlinkSocialAccount(Request $request)
+    {
+        try {
+            $this->social_auth_link_service->unlink($request->provider);
+            return ApiHelper::validResponse("Account unlinked successfully");
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (InvalidRequestException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 }

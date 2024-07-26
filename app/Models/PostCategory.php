@@ -43,4 +43,9 @@ class PostCategory extends Model
     {
         return $this->hasMany(TrendingTag::class, "category_id");
     }
+
+    public function interests()
+    {
+        return $this->hasMany(UserInterest::class, "category_id");
+    }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            $table->string('body')->nullable();
+            $table->longText('body')->nullable();
             $table->string('type')->nullable(); // Text, File or Poll
             $table->string('uuid')->unique();
             $table->foreignId('user_id')->nullable()->constrained("users")->cascadeOnDelete();

@@ -81,13 +81,13 @@
                   <li class="slide">
                      <a href="{{ route('admin.guidelines.index') }}" class="side-menu__item list-item">
                          <i class="bx bx-folder-open side-menu__icon list-item-icon"></i>
-                         <span class="side-menu__label list-item-label">Rule</span>
+                         <span class="side-menu__label list-item-label">Community Guildlines</span>
                      </a>
                  </li>
 
                  <li class="slide has-sub">
                     <a href="javascript:void(0);" class="side-menu__item list-item">
-                        <i class="bx bx-lock-alt side-menu__icon list-item-icon"></i>
+                        <i class="bx bx-message-dots side-menu__icon list-item-icon"></i>
                         <span class="side-menu__label list-item-label">Report</span>
                         <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                     </a>

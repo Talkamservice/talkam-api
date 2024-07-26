@@ -82,6 +82,10 @@ class PostCommentService
             $builder = $builder->where("is_anonymous", 0);
         }
 
+        if (($data["type"] ?? null) != "all") {
+            $builder = $builder->whereNull("parent_id");
+        }
+
         return $builder;
     }
 

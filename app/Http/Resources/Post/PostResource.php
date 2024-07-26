@@ -46,4 +46,22 @@ class PostResource extends JsonResource
             "updated_at" => formatDate($this->updated_at)
         ];
     }
+
+    public static function custom($model)
+    {
+        return [
+            "id" => $model->id,
+            "title" => $model->title,
+            "type" => $model->type,
+            "uuid" => $model->uuid,
+            "can_comment" => $model->can_comment,
+            "is_anonymous" => $model->is_anonymous,
+            "tags" => $model->tags,
+            "views_count" => $model->views_count,
+            "status" => $model->status,
+            "publish_at" => $model->publish_at,
+            "created_at" => formatDate($model->created_at),
+            "user" => ($model->is_anonymous != 1) ? UserResource::custom($model->user) : null,
+        ];
+    }
 }

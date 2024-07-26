@@ -100,7 +100,10 @@ class PostCategoryService
         }
 
         if (!empty($key = $data["category_id"] ?? null)) {
-            $categories = $categories->where("category_id", "%$key%");
+            $categories = $categories->where("category_id", $key);
+        }else {
+            $categories = $categories->whereNull("category_id");
+
         }
 
         if (!empty($key = $data["sort"] ?? null)) {

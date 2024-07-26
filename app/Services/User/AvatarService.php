@@ -35,7 +35,7 @@ class AvatarService
     }
 
 
-    function setUser(User $user)
+    function setUser($user)
     {
         $this->user = $user;
         return $this;

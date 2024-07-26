@@ -11,6 +11,7 @@ use App\Helpers\MethodsHelper;
 use App\Models\AccountDeactivation;
 use App\Models\User;
 use App\Notifications\User\StrikeUserNotification;
+use App\Notifications\User\SuspendUserNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -117,6 +118,7 @@ class UserService
                 "interests.*" => "required|exists:post_categories,id",
                 "username" => "nullable|unique:users,username,$id",
                 "age" => "nullable|numeric",
+                "password" => "nullable|string|confirmed",
             ], [
                 "username.unique" => "The username has already been taken"
             ]);
@@ -130,6 +132,10 @@ class UserService
 
             $names = isset($data["name"]) ? self::getNames($data["name"]) : [];
             $user = !empty($id) ? $this->getById($id) : auth()->user();
+
+            if (isset($data["password"])) {
+                $data["password"] = Hash::make($data["password"]);
+            }
 
             if (isset($data["interests"])) {
                 $interests = $data["interests"];
@@ -218,6 +224,8 @@ class UserService
         $user->update([
             "status" => $status
         ]);
+
+        Notification::send($user, new SuspendUserNotification($user, $user->status));
         return $user;
     }
 

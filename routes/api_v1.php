@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
+use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
@@ -16,7 +17,6 @@ use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
-use App\Http\Controllers\Api\V1\User\PostCategory\MessagingController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
@@ -63,11 +63,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("/upload-avatar", [UserController::class,  "uploadAvatar"])->name("upload.avatar");
             Route::post("/update", [UserController::class,  "update"])->name("update");
             Route::post("interests/add-remove", [UserController::class,  "saveInterest"])->name("save-interest");
-
             Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
             Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");
-
             Route::get("fetch", [UserController::class,  "getProfile"])->name("get-profile");
+            Route::post("link-social-account", [UserController::class,  "linkSocialAccount"])->name("link-social-account");
+            Route::post("unlink-social-account", [UserController::class,  "unlinkSocialAccount"])->name("unlink-social-account");
         });
 
         Route::prefix("post-categories")->as("post-categories.")->group(function () {
@@ -95,8 +95,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("posts")->as("posts.")->group(function () {
             Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
-            Route::post("report", [PostReactionController::class, "reportComment"])->name("report-comment");
-            Route::post("report-comment", [PostReactionController::class, "report"])->name("report");
+            Route::post("report", [PostReactionController::class, "report"])->name("report");
+            Route::post("report-comment", [PostReactionController::class, "reportComment"])->name("report-comment");
             Route::get("filter", [PostController::class, "filter"])->name("filter");
             Route::get("actions/get-comment-posts", [PostController::class, "postWithComments"])->name("get-comment-posts");
             Route::get("actions/get-upvotes", [PostController::class, "postWithLikes"])->name("get-liked-posts");
@@ -126,6 +126,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::post("update-status", [ConversationController::class, "updateStatus"])->name("update-status");
                 Route::post("report", [ConversationController::class, "report"])->name("report");
             });
+        });
+
+        Route::prefix("notifications")->as("notifications.")->group(function () {
+            Route::get("preference/fetch", [NotificationController::class, "notificationPerference"])->name("notification-perference");
+            Route::post("preference/save", [NotificationController::class, "saveNotificationPerference"])->name("save-notification-perference");
         });
     });
 });
