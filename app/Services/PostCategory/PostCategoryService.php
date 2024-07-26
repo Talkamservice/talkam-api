@@ -82,11 +82,6 @@ class PostCategoryService
     public static function delete($category_id)
     {
         $category = self::getById($category_id);
-
-        if ($category->posts->isNotEmpty()) {
-            throw new InvalidRequestException("Category cannot be deleted because it has some posts in it");
-        }
-
         $category->delete();
     }
 
