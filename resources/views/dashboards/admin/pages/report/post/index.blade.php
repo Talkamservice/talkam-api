@@ -63,13 +63,13 @@
                                                     Action
                                                 </a>
                                                 <ul class="dropdown-menu">
-                                                    <li>
+                                                    {{-- <li>
                                                         <a class="dropdown-item"
                                                             href="{{ route('admin.reports.post.show', $post_report_list->id) }}">
                                                             <i class="ri-eye-line"></i> | View
                                                         </a>
                                                     </li>
-                                                    <li>
+                                                    <li> --}}
                                                         <form id="deleteUser_{{ $post_report_list->id }}" action="{{ route('admin.reports.post.delete', $post_report_list->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
                                                             @method('DELETE')
