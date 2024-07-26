@@ -70,29 +70,15 @@
                                                         </a>
                                                     </li>
                                                     <li>
-<<<<<<< HEAD
                                                         <form id="deleteUser_{{ $post_report_list->id }}" action="{{ route('admin.reports.post.delete', $post_report_list->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
                                                             @method('DELETE')
                                                             <a class="dropdown-item text-success" onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $post_report_list->id }}').submit()" href="#">
                                                                 <i class="ri-check-line"></i> | Mark As Resolved
-=======
-                                                        <form id="status-form-{{ $post_report_list->id }}-approved"
-                                                            action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}"
-                                                            method="post"
-                                                            onsubmit="return confirm('Are you sure of this action?')">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <input type="hidden" name="status" value="Approved">
-                                                            <a class="dropdown-item text-warning" href="#"
-                                                                onclick="$('#status-form-{{ $post_report_list->id }}-approved').submit()">
-                                                                <i class="ri-check-line"></i> | Approve
->>>>>>> 0730b4b1dbc949ed2d3fd38657cb135d1eb8fb66
                                                             </a>
                                                         </form>
                                                     </li>
                                                     <li>
-<<<<<<< HEAD
                                                         <form id="suspendUser_{{ $post_report_list->id }}" action="{{ route('admin.users.suspend', $post_report_list->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf
                                                             @if ($post_report_list->status == 'Active')
                                                                 <input type="hidden" name="status" value="Inactive">
@@ -105,26 +91,6 @@
                                                     </li>
                                                     {{-- <li>
                                                         <form id="deleteUser_{{ $post_report_list->id }}" action="{{ route('admin.reports.post.delete', $post_report_list->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
-=======
-                                                        <form id="status-form-{{ $post_report_list->id }}-suspended"
-                                                            action="{{ route('admin.reports.post.update-status', $post_report_list->id) }}"
-                                                            method="post"
-                                                            onsubmit="return confirm('Are you sure of this action?')">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <input type="hidden" name="status" value="Suspended">
-                                                            <a class="dropdown-item text-warning" href="#"
-                                                                onclick="$('#status-form-{{ $post_report_list->id }}-suspended').submit()">
-                                                                <i class="ri-close-line"></i> | Suspend
-                                                            </a>
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <form id="deleteUser_{{ $post_report_list->id }}"
-                                                            action="{{ route('admin.reports.post.delete', $post_report_list->id) }}"
-                                                            method="post"
-                                                            onsubmit="return confirm('Are you sure of this action?')">
->>>>>>> 0730b4b1dbc949ed2d3fd38657cb135d1eb8fb66
                                                             @csrf
                                                             @method('delete')
                                                             <a class="dropdown-item text-danger" href="#"
@@ -136,11 +102,6 @@
                                                 </ul>
                                             </div>
                                         </td>
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 0730b4b1dbc949ed2d3fd38657cb135d1eb8fb66
                                     </tr>
                                 @empty
                                     <div class="alert alert-info text-center">

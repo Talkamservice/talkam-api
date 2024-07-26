@@ -41,7 +41,7 @@ class PostReportService
         return $validator->validated();
     }
 
-    public function ochangeStatus(array $data, $report_id)
+    public function changeStatus(array $data, $report_id)
     {
         DB::beginTransaction();
         try {
