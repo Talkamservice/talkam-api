@@ -94,8 +94,11 @@
                     <ul class="slide-menu child1">
                         <li class="slide">
                             <a href="{{route('admin.reports.post.lists')}}" class="side-menu__item list-item list-item-sub">Post</a>
+                            <a href="{{route('admin.reports.comment.lists')}}" class="side-menu__item list-item list-item-sub">Comment</a>
+
                         </li>
                     </ul>
+                  
                 </li>
 
 

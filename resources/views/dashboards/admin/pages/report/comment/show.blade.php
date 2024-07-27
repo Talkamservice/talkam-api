@@ -5,12 +5,12 @@
 
   <!-- Page Header -->
   <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-    <h1 class="page-title fw-semibold fs-18 mb-0">Post Report Information</h1>
+    <h1 class="page-title fw-semibold fs-18 mb-0">Comment Report Information</h1>
     <div class="ms-md-1 ms-0">
       <nav>
         <ol class="breadcrumb mb-0">
           <li class="breadcrumb-item"><a href="{{ route('admin.reports.post.lists') }}">List</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Post Report Information</li>
+          <li class="breadcrumb-item active" aria-current="page">Comment Report Information</li>
         </ol>
       </nav>
     </div>
@@ -25,13 +25,13 @@
             <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
               <div>
                 <span class="avatar avatar-xxl avatar-rounded online me-3">
-                  <img src="{{ $post_report->post->cover }}" alt="">
+                  <img src="{{ $comment_report->post->cover }}" alt="">
                 </span>
               </div>
               <div class="flex-fill main-profile-info">
                 <div class="d-flex align-items-center justify-content-end">
-                  <button class="btn bg-white btn-outline-{{ pillClasses($post_report->status) }} btn-sm btn-wave">
-                    {{ $post_report->status }}
+                  <button class="btn bg-white btn-outline-{{ pillClasses($comment_report->status) }} btn-sm btn-wave">
+                    {{ $comment_report->status }}
                   </button>
                 </div>
                 <div class="d-flex mb-0">
@@ -43,13 +43,19 @@
               </div>
             </div>
             <div class="p-4 border-bottom border-block-end-dashed">
-              <p class="fs-15 mb-2 me-4 fw-semibold">Post Information :</p>
+              <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
               <div class="text-muted">
                 <p class="mb-2">
-                  <b>Name:</b> {{ $post_report->post->title ?? 'N/A' }}
+                  <b>Name:</b> {{ $comment_report->comment->comment ?? 'N/A' }}
                 </p>
                 <p class="mb-2">
-                  <b>Description:</b> {{ $post_report->post->body ?? 'N/A' }}
+                  <b>Attachment:</b> {{ $comment_report->comment->attachment ?? 'N/A' }}
+                </p>
+                <p class="mb-2">
+                  <b>Post Title:</b> {{ $comment_report->comment->post->title ?? 'N/A' }}
+                </p>
+                <p class="mb-2">
+                  <b>Post Body:</b> {{ Str::limit($comment_report->comment->post->body, 100) ?? 'N/A' }}
                 </p>
               </div>
             </div>
@@ -81,7 +87,7 @@
                 </tr>
               </thead>
               <tbody>
-                @forelse ($post_report_lists as $report)
+                @forelse ($comment_report_lists as $report)
                   <tr>
                     <td>{{ $report->user->full_name }}</td>
                     <td>{{ $report->reason }}</td>
@@ -99,7 +105,7 @@
         <div class="card-footer">
           <div class="d-flex align-items-center">
             <div>
-              {{ $post_report_lists->links('pagination::bootstrap-4') }}
+              {{ $comment_report_lists->links('pagination::bootstrap-4') }}
             </div>
           </div>
         </div>
