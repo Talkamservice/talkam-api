@@ -19,10 +19,10 @@ class PostPollResource extends JsonResource
 
     public function toArray($request)
     {
-        $choice = auth("sanctum")->check() ? UserPollChoice::where([
+        $choice = UserPollChoice::where([
             "poll_id" => $this->id,
             "user_id" => auth()->id(),
-        ])->first() : null;
+        ])->first();
 
         $count = UserPollChoice::where([
             "poll_id" => $this->id,
