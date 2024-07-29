@@ -81,4 +81,22 @@ class Post extends Model
 
         return $query;
     }
+
+    // Post.php
+    public function postType($type)
+    {
+        switch ($type) {
+            case 'Poll':
+                return $this->polls;
+            case 'Text':
+                return ['title' => $this->title, 'body' => $this->body];
+            case 'File':
+                return [
+                    'title' => $this->title,
+                    'attachments' => $this->attachments
+                ];
+            default:
+                return ['title' => $this->title, 'body' => $this->body];
+        }
+    }
 }

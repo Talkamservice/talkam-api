@@ -20,15 +20,14 @@ class CommentReportController extends Controller
         $this->comment_report_service = new CommentReportService;
     }
 
-    // PostReportController.php
-public function reportList()
-{
-    $comment_report_lists = CommentReport::with(['comment', 'user'])->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-    return view('dashboards.admin.pages.report.comment.index', [
-        "sn" => $comment_report_lists->firstItem(),
-        'comment_report_lists' => $comment_report_lists,
-    ]);
-}
+    public function reportList()
+    {
+        $comment_report_lists = CommentReport::with(['comment', 'user'])->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        return view('dashboards.admin.pages.report.comment.index', [
+            "sn" => $comment_report_lists->firstItem(),
+            'comment_report_lists' => $comment_report_lists,
+        ]);
+    }
 
 
     public function show($id)

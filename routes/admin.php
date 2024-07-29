@@ -82,8 +82,6 @@ Route::middleware(["auth"])->group(
 
             Route::get('comment/lists', [CommentReportController::class, "reportList"])->name("comment.lists");
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
-            Route::put('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
-            Route::delete('comment/delete/{id}', [CommentReportController::class, "deleteReport"])->name('comment.delete');
         });
     }
 );
