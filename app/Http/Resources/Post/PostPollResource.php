@@ -19,17 +19,17 @@ class PostPollResource extends JsonResource
 
     public function toArray($request)
     {
-        $choice = UserPollChoice::where([
+        $choice = auth("sanctum")->check() ? UserPollChoice::where([
             "poll_id" => $this->id,
             "user_id" => auth()->id(),
-        ])->first();
+        ])->first() : null;
 
         $count = UserPollChoice::where([
             "poll_id" => $this->id,
         ])->count();
 
         $expires_at = Carbon::parse($this->post?->publish_at ?? $this->created_at)->addMinutes($this->duration)->format("Y-m-d H:i:s");
-        
+
         return [
             "id" => $this->id,
             "option" => $this->option,

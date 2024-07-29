@@ -20,7 +20,7 @@ class PostResource extends JsonResource
 
     public function toArray($request)
     {
-        $user_reaction = UserPostReaction::where(["post_id" => $this->id, "user_id" => auth()->id()])->first();
+        $user_reaction = auth("sanctum")->check() ? UserPostReaction::where(["post_id" => $this->id, "user_id" => auth()->id()])->first() : null;
         $likes = UserPostReaction::where(["post_id" => $this->id, "action" => PostConstants::LIKE])->count();
 
         return [

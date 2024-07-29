@@ -75,9 +75,11 @@ class Post extends Model
 
     public function scopeUnblocked($query)
     {
-        $query->whereDoesntHave('user.blockedUsers', function ($q) {
-            $q->where('blocked_user_id', auth()->id());
-        });
+        if (auth("sanctum")->check()) {
+            $query->whereDoesntHave('user.blockedUsers', function ($q) {
+                $q->where('blocked_user_id', auth()->id());
+            });
+        }
 
         return $query;
     }
