@@ -41,19 +41,21 @@ class RecentViewService
     public static function create(array $data)
     {
         $data = self::validate($data);
-        $data["user_id"] = auth()->id();
+        $data["user_id"] = auth("sanctum")->id();
 
-        $recent_view = RecentView::updateOrCreate([
-            "user_id" => $data["user_id"],
-            "post_id" => $data["post_id"] ?? null,
-            "category_id" => $data["category_id"] ?? null,
-            "tag_id" => $data["tag_id"] ?? null,
-            "group_id" => $data["group_id"] ?? null,
-        ], [
-            "created_at" => now()
-        ]);
+        if (!empty($data["user_id"])) {
+            $recent_view = RecentView::updateOrCreate([
+                "user_id" => $data["user_id"],
+                "post_id" => $data["post_id"] ?? null,
+                "category_id" => $data["category_id"] ?? null,
+                "tag_id" => $data["tag_id"] ?? null,
+                "group_id" => $data["group_id"] ?? null,
+            ], [
+                "created_at" => now()
+            ]);
+        }
 
-        return $recent_view;
+        return $recent_view ?? null;
     }
 
     public static function delete($recent_view_id)
