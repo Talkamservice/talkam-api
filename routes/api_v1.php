@@ -141,3 +141,21 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
     });
 });
+
+Route::prefix('user')->as('user.')->group(function () {
+    Route::prefix('post-categories')->as('post-categories.')->group(function () {
+        Route::get('/', [PostCategoryController::class, 'index'])->name('index');
+        Route::get('{id}/show', [PostCategoryController::class, 'show'])->name('show');
+    });
+
+    Route::prefix('posts')->as('posts.')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('index');
+        Route::get('{id}', [PostController::class, 'show'])->name('show');
+    });
+
+    Route::prefix('post-comments')->as('post-comments.')->group(function () {
+        Route::get('/', [PostCommentController::class, 'index'])->name('index');
+        Route::get('{id}', [PostCommentController::class, 'show'])->name('show');
+    });
+});
+
