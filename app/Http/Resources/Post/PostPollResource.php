@@ -21,7 +21,7 @@ class PostPollResource extends JsonResource
     {
         $choice = UserPollChoice::where([
             "poll_id" => $this->id,
-            "user_id" => auth()->id(),
+            "user_id" => auth("sanctum")->id(),
         ])->first();
 
         $count = UserPollChoice::where([
