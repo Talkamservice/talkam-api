@@ -113,7 +113,7 @@ class UserController extends Controller
                 "reason" => "nullable|string",
             ]);
 
-            $this->user_service->delete($data);
+            $this->user_service->deleteAccount($data);
             return ApiHelper::validResponse("Account deleted successfully");
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
