@@ -39,4 +39,9 @@ class PostComment extends Model
         return $this->belongsTo(self::class, "reply_comment_id");
     }
 
+    public function reportedComment()
+    {
+        return $this->hasMany(self::class, "comment_report_id");
+    }
+
 }

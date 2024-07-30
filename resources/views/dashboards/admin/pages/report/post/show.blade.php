@@ -1,173 +1,176 @@
 @extends('dashboards.admin.layout.app')
+
 @section('content')
     <div class="container-fluid">
-
-      <!-- Page Header -->
-      <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-        <h1 class="page-title fw-semibold fs-18 mb-0">Post Report Information</h1>
-        <div class="ms-md-1 ms-0">
-            <nav>
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('admin.reports.post.lists') }}">List</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Post Report Information</li>
-                </ol>
-            </nav>
+        <!-- Page Header -->
+        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+            <h1 class="page-title fw-semibold fs-18 mb-0">Post Report Information</h1>
+            <div class="ms-md-1 ms-0">
+                <nav>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.reports.post.lists') }}">List</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Post Report Information</li>
+                    </ol>
+                </nav>
+            </div>
         </div>
-    </div>
-    <!-- Page Header Close -->
+        <!-- Page Header Close -->
 
-        <!-- Start::row-1 -->
         <div class="row">
-            <div class="col-xxl-4 col-xl-12">
-                <div class="card custom-card overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
-                          
-                           
+            <div class="col-xxl-4 col-xl-4">
+                <div class="col-xxl-12 col-xl-12">
+                    <div class="card custom-card overflow-hidden">
+                        <div class="card-body p-0">
+                            <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
+                                <div>
+                                    <span class="avatar avatar-xxl avatar-rounded ">
+                                        <img src="{{ $post_report->post->cover }}" alt="">
+                                    </span>
+                                </div>
+                                <div class="flex-fill main-profile-info">
+                                    <div class="d-flex align-items-center justify-content-end">
+                                        <button
+                                            class="btn bg-white btn-outline-{{ pillClasses($post_report->status) }} btn-sm btn-wave">
+                                            {{ $post_report->status }}
+                                        </button>
+                                    </div>
+                                    <div class="d-flex mb-0">
+                                        <div class="me-4">
+                                            <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">{{ $reasons_count }}
+                                            </p>
+                                            <p class="mb-0 fs-14 text-fixed-white">Reports</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border-bottom border-block-end-dashed">
+                                <p class="fs-15 mb-2 me-4 fw-semibold">Post Information :</p>
+                                <div class="text-muted">
+                                    @if ($post_report->post->type == 'Poll')
+                                        <p class="mb-2">
+                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                        </p>
+                                        <p class="mb-2">
+                                            <b>Poll Options:</b>
+                                            @if (isset($polls) && $polls->isNotEmpty())
+                                                @foreach ($polls as $pollResource)
+                                                    @php
+                                                        $poll = $pollResource->toArray(request());
+                                                    @endphp
+                                                    @if ($poll['type'] === 'Image')
+                                                        <div>
+                                                            <img src="{{ $poll['option'] }}" alt="Poll Image"
+                                                                style="max-width: 100%; height: auto;">
+                                                            <p>{{ $poll['percentage'] ?? '0' }}%</p>
+                                                        </div>
+                                                    @elseif ($poll['type'] === 'Text')
+                                                        <p>{{ $poll['option'] }} ({{ $poll['percentage'] ?? '0' }}%)</p>
+                                                    @else
+                                                        <p>Unknown poll type</p>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <p>No poll options available.</p>
+                                            @endif
+
+                                        </p>
+                                    @elseif ($post_report->post->type == 'Text')
+                                        <p class="mb-2">
+                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                        </p>
+                                        <p class="mb-2">
+                                            <b>Body:</b> {{ $post_report->post->body ?? 'N/A' }}
+                                        </p>
+                                    @elseif ($post_report->post->type == 'File')
+                                        <p class="mb-2">
+                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                        </p>
+                                        <p class="mb-2">
+                                            <b>Attachments:</b>
+                                            @if ($post_report->post->attachments && $post_report->post->attachments->isNotEmpty())
+                                                @foreach ($post_report->post->attachments as $attachment)
+                                                    <div>
+                                                        <a href="{{ $attachment->url }}" target="_blank">
+                                                            <img src="{{ $attachment->url }}" alt="Attachment Image"
+                                                                style="max-width: 100%; height: auto;">
+                                                        </a>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <p>No attachments available.</p>
+                                            @endif
+                                        </p>
+                                    @else
+                                        <p class="mb-2">
+                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                        </p>
+                                        <p class="mb-2">
+                                            <b>Description:</b> {{ $post_report->post->body ?? 'N/A' }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+
                         </div>
-                      
                     </div>
                 </div>
             </div>
-            <div class="col-xxl-8 col-xl-12">
+            <div class="col-xxl-8 col-xl-8">
                 <div class="card custom-card">
-                    
-                    <div class="card-body p-4">
-                        <div class="form-group mt-2">
-                            <label for="postTitle">Post Title</label>
-                            <input type="text" class="form-control mt-2" id="postTitle" value="{{ $post_report->post->title }}" disabled>
+                    <div class="card-header d-flex justify-content-between">
+                        <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
+                            <div class="form-group me-2">
+                                <label for="">Search</label>
+                                <input class="form-control" type="text" placeholder="Search...." name="search">
+                            </div>
+                            <div class="form-group me-2" style="margin-top: 20px;">
+                                <button class="btn btn-sm btn-success p-2">Filter</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table text-nowrap table-hover border table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Reporter</th>
+                                        <th scope="col">Reason</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($post_report_lists as $report)
+                                        <tr>
+                                            <td>
+                                                <a href="{{ route('admin.users.show', $report->user_id) }}">
+                                                    <div class="d-flex align-items-center fw-semibold">
+                                                        <span class="avatar avatar-sm me-2 avatar-rounded">
+                                                            <img src="{{ $report->user->avatarUrl() }}" alt="img">
+                                                        </span>{{ $report->user->full_name }}
+                                                    </div>
+                                                </a>
+                                            </td>
+                                            <td>{{ $report->reason }}</td>
+                                            <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center">No record found</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="form-group mt-3">
-                            <label for="reasonForReport">Reason For Report</label>
-                            <textarea class="form-control mt-2" id="reasonForReport" disabled>{{ $post_report->reason }}</textarea>
-                        </div>
-                        <div class="mt-4 d-flex justify-content-end">
-                            <div class="dropdown">
-                                <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Action
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('admin.users.index', $post_report->user->id) }}?highlight_user_id={{ $post_report->user->id }}">
-                                            <i class="ri-eye-line"></i> | View User
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report->id }}-approved').submit();">
-                                            <i class="ri-check-line"></i> | Approve
-                                        </a>
-                                        <form id="status-form-{{ $post_report->id }}-approved" action="{{ route('admin.reports.post.update-status', $post_report->id) }}" method="POST" style="display: none;">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="Approved">
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report->id }}-suspended').submit();">
-                                            <i class="ri-close-line"></i> | Suspend
-                                        </a>
-                                        <form id="status-form-{{ $post_report->id }}-suspended" action="{{ route('admin.reports.post.update-status', $post_report->id) }}" method="POST" style="display: none;">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="Suspended">
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <form id="deleteUser_{{ $post_report->id }}" action="{{ route('admin.reports.post.delete', $post_report->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <a class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $post_report->id }}').submit()" href="#">
-                                                <i class="ri-delete-bin-line"></i> | Delete
-                                            </a>
-                                        </form>
-                                    </li>
-                                </ul>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                {{ $post_report_lists->links('pagination::bootstrap-4') }}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!--End::row-1 -->
     </div>
 @endsection
-
-
-
-
-
-{{-- @extends('dashboards.admin.layout.app')
-
-@section('content')
-    <div class="container-fluid">
-
-       
-
-        <!-- Start::row-1 -->
-        <div class="row justify-content-center">
-            <div class="col-xxl-8 col-xl-10">
-                <div class="card custom-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            Post Report Details
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="form-group mt-2">
-                            <label for="postTitle">Post Title</label>
-                            <input type="text" class="form-control mt-2" id="postTitle" value="{{ $post_report->post->title }}" disabled>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="reasonForReport">Reason For Report</label>
-                            <textarea class="form-control mt-2" id="reasonForReport" disabled>{{ $post_report->reason }}</textarea>
-                        </div>
-                        <div class="mt-4 d-flex justify-content-end">
-                            <div class="dropdown">
-                                <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Action
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('admin.users.index', $post_report->user->id) }}?highlight_user_id={{ $post_report->user->id }}">
-                                            <i class="ri-eye-line"></i> | View User
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report->id }}-approved').submit();">
-                                            <i class="ri-check-line"></i> | Approve
-                                        </a>
-                                        <form id="status-form-{{ $post_report->id }}-approved" action="{{ route('admin.reports.post.update-status', $post_report->id) }}" method="POST" style="display: none;">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="Approved">
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('status-form-{{ $post_report->id }}-suspended').submit();">
-                                            <i class="ri-close-line"></i> | Suspend
-                                        </a>
-                                        <form id="status-form-{{ $post_report->id }}-suspended" action="{{ route('admin.reports.post.update-status', $post_report->id) }}" method="POST" style="display: none;">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="Suspended">
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <form id="deleteUser_{{ $post_report->id }}" action="{{ route('admin.reports.post.delete', $post_report->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <a class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $post_report->id }}').submit()" href="#">
-                                                <i class="ri-delete-bin-line"></i> | Delete
-                                            </a>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--End::row-1 -->
-    </div>
-@endsection --}}

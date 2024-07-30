@@ -8,6 +8,7 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Post\PostPollResource;
 use App\Models\PostReport;
 use App\Services\Report\Post\PostReportService;
 use Illuminate\Http\Request;
@@ -23,7 +24,8 @@ class PostReportController extends Controller
 
     public function reportList()
     {
-        $post_report_lists = PostReport::latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $post_report_lists = PostReport::with('post', 'user')->latest()
+            ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view('dashboards.admin.pages.report.post.index', [
             "sn" => $post_report_lists->firstItem(),
             'post_report_lists' => $post_report_lists,
@@ -32,11 +34,34 @@ class PostReportController extends Controller
 
     public function show($id)
     {
-        $post_report = PostReport::findOrFail($id);
+        // Fetch the specific post report with associated post
+        $post_report = PostReport::with('post.polls')->findOrFail($id);
+
+        // If the post type is Poll, fetch the poll details using the resource
+        $polls = $post_report->post->type == 'Poll'
+            ? PostPollResource::collection($post_report->post->polls)
+            : null;
+
+        // Count the number of reports for the specific post
+        $reasons_count = PostReport::where('post_id', $post_report->post_id)->count();
+
+        // Fetch all reports related to the specific post for pagination
+        $post_report_lists = PostReport::where('post_id', $post_report->post_id)
+            ->latest()
+            ->with('user')
+            ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+
         return view('dashboards.admin.pages.report.post.show', [
             'post_report' => $post_report,
+            'polls' => $polls,
+            'reasons_count' => $reasons_count,
+            'post_report_lists' => $post_report_lists,
         ]);
     }
+
+
+
+
 
     public function updateStatus(Request $request, $post_report_id)
     {
@@ -67,5 +92,4 @@ class PostReportController extends Controller
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
-
 }

@@ -77,10 +77,28 @@ class Post extends Model
     {
         if (auth("sanctum")->check()) {
             $query->whereDoesntHave('user.blockedUsers', function ($q) {
-                $q->where('blocked_user_id', auth()->id());
+                $q->where('blocked_user_id', auth("sanctum")->id());
             });
         }
 
         return $query;
+    }
+
+
+    public function postType($type)
+    {
+        switch ($type) {
+            case 'Poll':
+                return $this->polls;
+            case 'Text':
+                return ['title' => $this->title, 'body' => $this->body];
+            case 'File':
+                return [
+                    'title' => $this->title,
+                    'attachments' => $this->attachments
+                ];
+            default:
+                return ['title' => $this->title, 'body' => $this->body];
+        }
     }
 }
