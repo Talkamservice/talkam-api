@@ -98,6 +98,12 @@ class LoginController extends Controller
                 $data["new_user"] = true;
             }
 
+            if (empty($user->email_verified_at)) {
+                $user->update([
+                    "email_verified_at" => now()
+                ]);
+            }
+            
             $data["user"] =  UserResource::make($user)->toArray($request);
             $data["token"] = $user->createToken('api')->plainTextToken;
             LoginService::newLogin($user);
