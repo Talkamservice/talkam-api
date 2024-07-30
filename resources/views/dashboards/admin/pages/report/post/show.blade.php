@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container-fluid">
-
         <!-- Page Header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
             <h1 class="page-title fw-semibold fs-18 mb-0">Post Report Information</h1>
@@ -49,40 +48,58 @@
                                 <div class="text-muted">
                                     @if ($post_report->post->type == 'Poll')
                                         <p class="mb-2">
+                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                        </p>
+                                        <p class="mb-2">
                                             <b>Poll Options:</b>
-                                            @foreach ($post_report->post->postType('Poll') as $poll)
-                                                <p>{{ $poll->option }} ({{ $poll->type }})</p>
-                                            @endforeach
+                                            @if (isset($polls) && $polls->isNotEmpty())
+                                                @foreach ($polls as $pollResource)
+                                                    @php
+                                                        $poll = $pollResource->toArray(request());
+                                                    @endphp
+                                                    @if ($poll['type'] === 'Image')
+                                                        <div>
+                                                            <img src="{{ $poll['option'] }}" alt="Poll Image"
+                                                                style="max-width: 100%; height: auto;">
+                                                            <p>{{ $poll['percentage'] ?? '0' }}%</p>
+                                                        </div>
+                                                    @elseif ($poll['type'] === 'Text')
+                                                        <p>{{ $poll['option'] }} ({{ $poll['percentage'] ?? '0' }}%)</p>
+                                                    @else
+                                                        <p>Unknown poll type</p>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <p>No poll options available.</p>
+                                            @endif
+
                                         </p>
                                     @elseif ($post_report->post->type == 'Text')
                                         <p class="mb-2">
-                                            <b>Title:</b> {{ $post_report->post->postType('Text')['title'] ?? 'N/A' }}
+                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
                                         </p>
                                         <p class="mb-2">
-                                            <b>Body:</b> {{ $post_report->post->postType('Text')['body'] ?? 'N/A' }}
+                                            <b>Body:</b> {{ $post_report->post->body ?? 'N/A' }}
                                         </p>
                                     @elseif ($post_report->post->type == 'File')
                                         <p class="mb-2">
-                                            <b>Title:</b> {{ $post_report->post->postType('File')['title'] ?? 'N/A' }}
+                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
                                         </p>
                                         <p class="mb-2">
-                                          <b>Attachments:</b>
-                                          @if (isset($post_report->post->postType('File')['attachments']) && $post_report->post->postType('File')['attachments']->isNotEmpty())
-                                              @foreach ($post_report->post->postType('File')['attachments'] as $attachment)
-                                                  <div>
-                                                      <a href="{{ $attachment->url }}" target="_blank">
-                                                          <img src="{{ $attachment->url }}" alt="Attachment Image" style="max-width: 100%; height: auto;">
-                                                      </a>
-                                                     
-                                                  </div>
-                                              @endforeach
-                                          @else
-                                              N/A
-                                          @endif
-                                      </p>
-                                      
-                                      </p>
-                                      
+                                            <b>Attachments:</b>
+                                            @if ($post_report->post->attachments && $post_report->post->attachments->isNotEmpty())
+                                                @foreach ($post_report->post->attachments as $attachment)
+                                                    <div>
+                                                        <a href="{{ $attachment->url }}" target="_blank">
+                                                            <img src="{{ $attachment->url }}" alt="Attachment Image"
+                                                                style="max-width: 100%; height: auto;">
+                                                        </a>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <p>No attachments available.</p>
+                                            @endif
+                                        </p>
                                     @else
                                         <p class="mb-2">
                                             <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
@@ -129,10 +146,9 @@
                                                     <div class="d-flex align-items-center fw-semibold">
                                                         <span class="avatar avatar-sm me-2 avatar-rounded">
                                                             <img src="{{ $report->user->avatarUrl() }}" alt="img">
-                                                        </span>{{ $report->post->user->full_name }}
+                                                        </span>{{ $report->user->full_name }}
                                                     </div>
                                                 </a>
-
                                             </td>
                                             <td>{{ $report->reason }}</td>
                                             <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>

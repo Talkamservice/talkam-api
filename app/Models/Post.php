@@ -82,7 +82,7 @@ class Post extends Model
         return $query;
     }
 
-    // Post.php
+    
     public function postType($type)
     {
         switch ($type) {
