@@ -4,6 +4,7 @@ namespace App\Http\Resources\Post;
 
 use App\Constants\Post\PostConstants;
 use App\Http\Resources\Users\UserResource;
+use App\Models\CommentReport;
 use App\Models\UserCommentReaction;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,6 +23,12 @@ class PostCommentResource extends JsonResource
         $user_reaction = UserCommentReaction::where(["comment_id" => $this->id, "user_id" => auth()->id()])->first();
         $likes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::LIKE])->count();
         $unlikes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::DISLIKE])->count();
+        
+        $is_reported = CommentReport::where([
+            "user_id" => auth("sanctum")->id(),
+            "comment_id" => $this->id,
+            "post_id" => $this->post_id,
+        ])->exists();
 
         return [
             "id" => $this->id,
@@ -31,6 +38,7 @@ class PostCommentResource extends JsonResource
             "is_anonymous" => $this->is_anonymous,
             "likes" => $likes,
             "unlikes" => $unlikes,
+            "is_reported" => $is_reported,
             "reply_to" => !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null,
             "attachment" => $this->attachment,
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
