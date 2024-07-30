@@ -33,7 +33,7 @@ class UserController extends Controller
         $this->interest_service = new InterestService;
         $this->avatar_service = new AvatarService;
         $this->blocked_user_service = new BlockUserService;
-        $this->social_auth_link_service = new SocialAuthLinkService(auth()->user());
+        $this->social_auth_link_service = new SocialAuthLinkService(auth("sanctum")->user());
     }
 
     public function me()
