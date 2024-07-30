@@ -5,6 +5,7 @@ namespace App\Http\Resources\Post;
 use App\Constants\Post\PostConstants;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
+use App\Models\PostReport;
 use App\Models\UserPostReaction;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,6 +24,11 @@ class PostResource extends JsonResource
         $user_reaction = UserPostReaction::where(["post_id" => $this->id, "user_id" => auth()->id()])->first();
         $likes = UserPostReaction::where(["post_id" => $this->id, "action" => PostConstants::LIKE])->count();
 
+        $is_reported = PostReport::where([
+            "user_id" => auth("sanctum")->id(),
+            "post_id" => $this->id,
+        ])->exists();
+
         return [
             "id" => $this->id,
             "title" => $this->title,
@@ -34,6 +40,7 @@ class PostResource extends JsonResource
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
             "tags" => $this->tags,
+            "is_reported" => $is_reported,
             "views_count" => $this->views_count,
             "comments_count" => $this->comments?->count(),
             "likes_count" => $likes,
