@@ -17,9 +17,9 @@ return new class extends Migration
             $table->foreignId("category_id")->nullable()->constrained("post_categories")->cascadeOnDelete();
             $table->string("name");
             $table->string("uuid")->unique();
-            $table->string("description")->nullable();
+            $table->string("description")->nullable(); // Purpose
             $table->string("image")->nullable();
-            $table->longText("about")->nullable();
+            $table->longText("about")->nullable(); // Information
             $table->json("tags")->nullable();
             $table->string("status")->nullable()->default(StatusConstants::ACTIVE);
             $table->integer("can_post")->default(1);
