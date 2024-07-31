@@ -92,7 +92,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "recent-views" => RecentViewController::class,
             "groups" => GroupController::class,
             "group-members" => GroupMemberController::class,
-            "guildlines" => GuildlineController::class,
+            "guidelines" => GuildlineController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {
