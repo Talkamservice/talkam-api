@@ -26,7 +26,7 @@
                                 <tr>
                                     <th scope="col">Commented User</th>
                                     <th scope="col">Comment</th>
-                                    <th scope="col">Attachment</th>
+                                    {{-- <th scope="col">Attachment</th> --}}
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
@@ -52,8 +52,8 @@
                                         </td>
                                         <td title="{{ $first_report->comment->comment }}">
                                             {{ Str::limit($first_report->comment->comment ?? 'N/A', 30) }}</td>
-                                        <td title="{{ $first_report->comment->attachment }}">
-                                            {{ Str::limit($first_report->comment->attachment ?? 'N/A', 30) }}</td>
+                                        {{-- <td title="{{ $first_report->comment->attachment }}">
+                                            {{ Str::limit($first_report->comment->attachment ?? 'N/A', 30) }}</td> --}}
                                         <td>
                                             <span class="badge bg-{{ pillClasses($first_report->status) }}-transparent">
                                                 {{ $first_report->status }}
