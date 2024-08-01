@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('guildlines', function (Blueprint $table) {
+        Schema::create('guidelines', function (Blueprint $table) {
             $table->id();
             $table->foreignId("group_id")->nullable()->constrained("groups")->cascadeOnUpdate()->cascadeOnDelete();
             $table->string("title");
