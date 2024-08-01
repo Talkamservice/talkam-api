@@ -102,7 +102,7 @@ class GroupService
                 foreach ($guidelines as $key => $guideline) {
                     (new GuidelineService)->create([
                         "group_id" => $group->id,
-                        ...$guideline
+                        ...(array)$guideline
                     ]);
                 }
             }
