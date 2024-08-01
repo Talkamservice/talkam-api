@@ -60,6 +60,7 @@ class GroupService
             "status" => "nullable|string",
             "about" => "nullable|string",
             "image" => "nullable|string",
+            "rules_summary" => "nullable|string",
             "tags" => "nullable|array",
             "tags.*" => "string",
             "can_post" => "nullable|numeric",
