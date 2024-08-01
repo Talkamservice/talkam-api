@@ -48,7 +48,7 @@
                                 <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
                                 <div class="text-muted">
                                     <p class="mb-2">
-                                        <b>Name:</b> {{ $comment_report->comment->comment ?? 'N/A' }}
+                                        <b>Comment:</b> {{ $comment_report->comment->comment ?? 'N/A' }}
                                     </p>
                                     <p class="mb-2">
                                       <b>Attachment:</b>
