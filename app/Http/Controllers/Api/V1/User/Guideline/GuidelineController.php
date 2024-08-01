@@ -19,13 +19,13 @@ class GuidelineController extends Controller
 
     public function __construct()
     {
-        $this->guildline_service = new GuidelineService;
+        $this->guideline_service = new GuidelineService;
     }
 
     public function index(Request $request)
     {
         try {
-            $guidelines = $this->guildline_service->list($request->all())->get();
+            $guidelines = $this->guideline_service->list($request->all())->get();
             $data = GuidelineResource::collection($guidelines);
             return ApiHelper::validResponse("Guidelines returned successfully", $data);
         } catch (ModelNotFoundException $th) {
@@ -38,7 +38,7 @@ class GuidelineController extends Controller
     public function show($id)
     {
         try {
-            $guideline = $this->guildline_service->getById($id);
+            $guideline = $this->guideline_service->getById($id);
             $data = GuidelineResource::make($guideline);
             return ApiHelper::validResponse("Guideline returned successfully", $data);
         } catch (ModelNotFoundException $th) {
@@ -51,7 +51,7 @@ class GuidelineController extends Controller
     public function store(Request $request)
     {
         try {
-            $guideline = $this->guildline_service->create($request->all());
+            $guideline = $this->guideline_service->create($request->all());
             $data = GuidelineResource::make($guideline);
             return ApiHelper::validResponse("Guideline created successfully", $data);
         } catch (ValidationException $th) {
@@ -66,7 +66,7 @@ class GuidelineController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $guideline = $this->guildline_service->update($request->all(), $id);
+            $guideline = $this->guideline_service->update($request->all(), $id);
             $data = GuidelineResource::make($guideline);
             return ApiHelper::validResponse("Guideline updated successfully", $data);
         } catch (ValidationException $th) {
@@ -81,7 +81,7 @@ class GuidelineController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            $this->guildline_service->delete($id);
+            $this->guideline_service->delete($id);
             return ApiHelper::validResponse("Guideline deleted successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
