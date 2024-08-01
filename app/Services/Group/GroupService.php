@@ -10,6 +10,7 @@ use App\Models\Group;
 use App\Models\GroupMember;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
+use App\Services\Guideline\GuidelineService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -62,7 +63,10 @@ class GroupService
             "tags" => "nullable|array",
             "tags.*" => "string",
             "can_post" => "nullable|numeric",
-            "group_access" => "nullable|string",
+            "group_access" => "nullable|string|in:Opened,Closed,Approval",
+            "guidelines" => "nullable|array",
+            "guidelines.*.title" => "required|string",
+            "guidelines.*.description" => "required|string",
         ]);
 
         if ($validator->fails()) {
@@ -82,6 +86,9 @@ class GroupService
             $data["created_by"] = auth()->id();
             $data["uuid"] = self::generateUniqueId();
 
+            $guidelines = $data["guidelines"] ?? [];
+            unset($data["guidelines"]);
+
             $group = Group::create($data);
 
             (new GroupMemberService)->create([
@@ -90,6 +97,15 @@ class GroupService
                 "role" => UserConstants::OWNER,
                 "status" => StatusConstants::ACTIVE
             ]);
+
+            if (isset($guidelines)) {
+                foreach ($guidelines as $key => $guideline) {
+                    (new GuidelineService)->create([
+                        "group_id" => $group->id,
+                        ...$guideline
+                    ]);
+                }
+            }
 
             $this->notify($group);
 

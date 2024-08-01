@@ -6,7 +6,7 @@ use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Guildline extends Model
+class Guideline extends Model
 {
     use HasFactory;
     protected $guarded = [];

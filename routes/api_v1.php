@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
-use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
+use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
@@ -91,7 +91,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "recent-views" => RecentViewController::class,
             "groups" => GroupController::class,
             "group-members" => GroupMemberController::class,
-            "guidelines" => GuildlineController::class,
+            "guidelines" => GuidelineController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {

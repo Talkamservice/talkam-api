@@ -1,22 +1,21 @@
 <?php
 
-namespace App\Services\Guildline;
+namespace App\Services\Guideline;
 
 use App\Exceptions\General\ModelNotFoundException;
-use App\Models\Guildline;
+use App\Models\Guideline;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class GuildlineService
+class GuidelineService
 {
-    public static function getById($id): Guildline
+    public static function getById($id): Guideline
     {
-        $guildline = Guildline::find($id);
-        if (empty($guildline)) {
-            throw new ModelNotFoundException("Guildline not found");
+        $guideline = Guideline::find($id);
+        if (empty($guideline)) {
+            throw new ModelNotFoundException("Guideline not found");
         }
-        return $guildline;
+        return $guideline;
     }
 
     public static function validate($data, $id = null)
@@ -37,27 +36,27 @@ class GuildlineService
     public static function create(array $data)
     {
         $data = self::validate($data);
-        $guildline = Guildline::create($data);
-        return $guildline;
+        $guideline = Guideline::create($data);
+        return $guideline;
     }
 
     public static function update(array $data, $id)
     {
         $data = self::validate($data, $id);
-        $guildline = self::getById($id);
-        $guildline->update($data);
-        return $guildline->refresh();
+        $guideline = self::getById($id);
+        $guideline->update($data);
+        return $guideline->refresh();
     }
 
-    public static function delete($guildline_id)
+    public static function delete($guideline_id)
     {
-        $guildline = self::getById($guildline_id);
-        $guildline->delete();
+        $guideline = self::getById($guideline_id);
+        $guideline->delete();
     }
 
     public static function list(array $data = [])
     {
-        $builder = Guildline::latest();
+        $builder = Guideline::latest();
         if (!empty($key = $data["group_id"] ?? null)) {
             $builder = $builder->where("group_id", $key);
         } else {

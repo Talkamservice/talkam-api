@@ -61,9 +61,9 @@ class NotificationPreferenceService
         $notification_preference->delete();
     }
 
-    public static function list($user_id)
+    public static function fetch($user_id)
     {
-        $builder = NotificationPreference::where("user_id", $user_id)->latest();
-        return $builder;
+        $model = NotificationPreference::firstOrCreate(["user_id" => $user_id]);
+        return $model;
     }
 }
