@@ -45,6 +45,7 @@ class PostCommentService
         $data = self::validate($data);
         $data["user_id"] = auth()->id();
         $post = PostComment::create($data);
+        
         return $post;
     }
 
