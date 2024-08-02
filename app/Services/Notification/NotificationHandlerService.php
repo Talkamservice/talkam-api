@@ -19,4 +19,14 @@ class NotificationHandlerService
         $this->can_send_push_notification = $this->canSendNotification("Push notifications");
         $this->can_send_sms = $this->canSendNotification("SMS");
     }
+
+    private function canSendNotification($path)
+    {
+        $notification = $this->user->userNotificationPreference()->status()
+            ->whereHas("notificationPreference", function ($notification_preference) use ($path) {
+                $notification_preference->where("path", $path);
+            })->first();
+
+        return !empty($notification);
+    }
 }
