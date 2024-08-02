@@ -13,6 +13,7 @@ use App\Models\User;
 use App\QueryBuilders\User\UserQueryBuilder;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -129,6 +130,53 @@ class UserController extends Controller
         try {
             $this->user_service->strike($request->status, $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "Strike issued successfully");
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return back()
+                ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            // throw $th;
+            return back()->withInput($request->all())
+                ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
+        }
+    }
+
+    public function hideUserPost(Request $request, string $id)
+    {
+        try {
+            $this->user_service->hidePost($request, $id);
+            return back()->with(NotificationConstants::SUCCESS_MSG, "User post hidden successfully");
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return back()
+                ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+        Log::error('InvalidRequestException: ' . $th->getMessage() . ' for user ID: ' . $id);
+
+            // throw $th;
+            return back()->withInput($request->all())
+                ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
+        }
+    }
+
+    public function restoreUserPost(Request $request, string $id)
+    {
+        try {
+            $this->user_service->restorePost($request, $id);
+            return back()->with(NotificationConstants::SUCCESS_MSG, "User posts restored successfully");
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return back()
+                ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            // throw $th;
+            return back()->withInput($request->all())
+                ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
+        }
+    }
+
+    public function removeUserPosts(Request $request, string $id)
+    {
+        try {
+            $this->user_service->deleteUserPostsPermanently($request, $id);
+            return back()->with(NotificationConstants::SUCCESS_MSG, "User posts permanently removed successfully");
         } catch (ModelNotFoundException | InvalidRequestException $th) {
             return back()
                 ->with(NotificationConstants::ERROR_MSG, $th->getMessage());

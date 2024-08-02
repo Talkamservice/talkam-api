@@ -35,8 +35,12 @@ Route::middleware(["auth"])->group(
         Route::prefix("users")->as("users.")->group(function () {
             Route::post('{id}/suspend', [UserController::class, "suspend"])->name("suspend");
             Route::post('{id}/strike', [UserController::class, "strike"])->name("strike");
-        });
+            Route::post('{id}/hide-posts', [UserController::class, 'hideUserPost'])->name('hide-posts');
+            Route::post('{id}/restore-posts', [UserController::class, 'restoreUserPost'])->name('restore-posts');
+            Route::delete('{id}/remove-posts', [UserController::class, 'removeUserPosts'])->name('remove-posts');
 
+        });
+       
         Route::prefix("post-categories/{category}")->as("categories.sub-categories.")->group(function () {
             Route::get('index', [PostCategoryController::class, "subCategories"])->name("index");
             Route::get('create', [PostCategoryController::class, "createCategory"])->name("create-sub-category");
