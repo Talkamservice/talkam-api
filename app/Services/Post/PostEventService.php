@@ -82,7 +82,7 @@ class PostEventService
 
         $filtered_array = array_filter($top_trending_words, function ($key) {
             $trimmedKey = trim($key);
-            return !empty($trimmedKey) && strlen($trimmedKey) > 2;
+            return !empty($trimmedKey) && strlen($trimmedKey) > 3;
         }, ARRAY_FILTER_USE_KEY);
 
         foreach ($filtered_array as $word => $count) {
@@ -149,7 +149,7 @@ class PostEventService
 
                     $filtered_array = array_filter($top_trending_words, function ($key) {
                         $trimmedKey = trim($key);
-                        return !empty($trimmedKey) && strlen($trimmedKey) > 2;
+                        return !empty($trimmedKey) && strlen($trimmedKey) > 3;
                     }, ARRAY_FILTER_USE_KEY);
 
                     foreach ($filtered_array as $word => $count) {
