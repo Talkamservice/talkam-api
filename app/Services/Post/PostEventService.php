@@ -52,12 +52,12 @@ class PostEventService
                     $phrases = [];
                     $count = count($filtered_words);
                     for ($i = 0; $i < $count; $i++) {
-                        $phrases[] = $filtered_words[$i]; // unigram
+                        $phrases[] = $filtered_words[$i] ?? null; // unigram
                         if ($i + 1 < $count) {
-                            $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1]; // bigram
+                            $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null); // bigram
                         }
                         if ($i + 2 < $count) {
-                            $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1] . ' ' . $filtered_words[$i + 2]; // trigram
+                            $phrases[] =( $filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null) . ' ' . ($filtered_words[$i + 2] ?? null); // trigram
                         }
                     }
 
@@ -114,12 +114,12 @@ class PostEventService
                         $phrases = [];
                         $count = count($filtered_words);
                         for ($i = 0; $i < $count; $i++) {
-                            $phrases[] = $filtered_words[$i]; // unigram
+                            $phrases[] = $filtered_words[$i] ?? null; // unigram
                             if ($i + 1 < $count) {
-                                $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1]; // bigram
+                                $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null); // bigram
                             }
                             if ($i + 2 < $count) {
-                                $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1] . ' ' . $filtered_words[$i + 2]; // trigram
+                                $phrases[] =( $filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null) . ' ' . ($filtered_words[$i + 2] ?? null); // trigram
                             }
                         }
 
