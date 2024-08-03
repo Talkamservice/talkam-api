@@ -81,7 +81,8 @@ class PostEventService
         TrendingTag::whereNull("category_id")->delete();
 
         $filtered_array = array_filter($top_trending_words, function ($key) {
-            return trim($key) !== '';
+            $trimmedKey = trim($key);
+            return !empty($trimmedKey) && strlen($trimmedKey) > 2;
         }, ARRAY_FILTER_USE_KEY);
 
         foreach ($filtered_array as $word => $count) {
@@ -147,7 +148,8 @@ class PostEventService
                     $category->trendingTags()->delete();
 
                     $filtered_array = array_filter($top_trending_words, function ($key) {
-                        return trim($key) !== '';
+                        $trimmedKey = trim($key);
+                        return !empty($trimmedKey) && strlen($trimmedKey) > 2;
                     }, ARRAY_FILTER_USE_KEY);
 
                     foreach ($filtered_array as $word => $count) {
