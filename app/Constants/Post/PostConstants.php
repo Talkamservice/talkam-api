@@ -25,6 +25,6 @@ class PostConstants
     ];
 
     const STOP_WORDS = [
-        'the', 'is', 'in', 'and', 'or', 'an', 'a', 'of', 'to', 'with', 'on', 'for', 'at', 'by', 'it', 'this', 'that'
+        'i', 'the', 'is', 'in', 'you', 'and', 'or', 'an', 'as', 'a', 'of', 'to', 'with', 'on', 'for', 'at', 'by', 'it', 'this', 'that'
     ];
 }
