@@ -27,8 +27,7 @@ class GroupMemberController extends Controller
     {
         try {
             $group = $this->group_service->getById($request->group_id);
-            $members = $this->group_member_service->list($group->id, $request->all())->with("user")->status()->get()->sortByDesc("name");
-            $data = GroupMemberResource::collection($members);
+            $data = $this->group_member_service->listByGroup($group->id, $request->all());
             return ApiHelper::validResponse("Group members returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);

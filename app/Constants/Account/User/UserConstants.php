@@ -48,4 +48,10 @@ class UserConstants
         self::LEVEL_TWO => self::LEVEL_TWO,
         self::LEVEL_THREE => self::LEVEL_THREE,
     ];
+
+    const GROUP_ROLES = [
+        self::OWNER => self::OWNER,
+        self::ADMIN => self::ADMIN,
+        self::MEMBER => self::MEMBER,
+    ];
 }
