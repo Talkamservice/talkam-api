@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use App\Constants\General\StatusConstants;
 use Illuminate\Database\Migrations\Migration;
