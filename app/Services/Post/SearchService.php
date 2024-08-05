@@ -57,8 +57,8 @@ class SearchService
 
     public static function delete($search_id)
     {
-        $post = self::getById($search_id);
-        $post->delete();
+        $search = self::getById($search_id);
+        $search->delete();
     }
 
     public static function trending()
