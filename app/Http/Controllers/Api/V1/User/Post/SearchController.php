@@ -84,7 +84,7 @@ class SearchController extends Controller
         try {
             $this->search_service->delete($id);
             return ApiHelper::validResponse("Item deleted successfully");
-        } catch (ModelNotFoundException | InvalidRequestException $th) {
+        } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);

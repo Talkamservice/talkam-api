@@ -165,6 +165,7 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get("recent", [SearchController::class, "recent"])->name("recent");
         Route::get("trending", [SearchController::class, "trending"])->name("trending");
         Route::get("suggestions", [SearchController::class, "suggestions"])->name("suggestions");
+        Route::delete("{id}/delete", [SearchController::class, "destroy"])->name("destroy");
     });
 });
 
