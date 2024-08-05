@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Post\PostCategoryController;
 use App\Http\Controllers\Admin\Post\PostController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\Report\CommentReportController;
+use App\Http\Controllers\Admin\Report\GroupReportController;
 use App\Http\Controllers\Admin\Report\PostReportController;
 use App\Http\Controllers\Admin\User\AccountStatusController;
 use App\Http\Controllers\Admin\User\UserController;
@@ -81,6 +82,9 @@ Route::middleware(["auth"])->group(
             Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
             Route::post('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
             Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
+
+            Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");
+            Route::get('group/show/{id}', [GroupReportController::class, "show"])->name("group.show");
 
             Route::get('comment/lists', [CommentReportController::class, "reportList"])->name("comment.lists");
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
