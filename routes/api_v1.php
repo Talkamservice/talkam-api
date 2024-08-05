@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
+use App\Http\Controllers\Api\V1\General\AuthController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
@@ -168,4 +169,6 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::delete("{id}/delete", [SearchController::class, "destroy"])->name("destroy");
     });
 });
+
+Route::post('/broadcasting/auth', [AuthController::class, "authenticate"])->middleware('auth:sanctum');
 
