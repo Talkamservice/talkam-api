@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Group;
 
+use App\Http\Resources\Guideline\GuidelineResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,6 +26,7 @@ class GroupResource extends JsonResource
             "image" => $this->image,
             "total_members" => $this->members?->count(),
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
+            "guidelines" => GuidelineResource::collection($this->whenLoaded("guidelines", $this->guidelines)),
             "description" => $this->description,
             "about" => $this->about,
         ];
