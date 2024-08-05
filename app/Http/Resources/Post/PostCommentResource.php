@@ -40,7 +40,7 @@ class PostCommentResource extends JsonResource
             "likes" => $likes,
             "unlikes" => $unlikes,
             "is_reported" => $is_reported,
-            "reply_to" => ($this->is_anonymous != 1) ? $reply_to : null,
+            "reply_to" => ($this->repliedComment?->is_anonymous != 1) ? $reply_to : null,
             "attachment" => $this->attachment,
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
             "children" => self::collection($this->whenLoaded("children", $this->children)),
