@@ -23,13 +23,14 @@ class PostCommentResource extends JsonResource
         $user_reaction = UserCommentReaction::where(["comment_id" => $this->id, "user_id" => auth()->id()])->first();
         $likes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::LIKE])->count();
         $unlikes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::DISLIKE])->count();
-        
+
         $is_reported = CommentReport::where([
             "user_id" => auth("sanctum")->id(),
             "comment_id" => $this->id,
             "post_id" => $this->post_id,
         ])->exists();
 
+        $reply_to = !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null;
         return [
             "id" => $this->id,
             "post" => PostResource::custom($this->post),
@@ -39,7 +40,7 @@ class PostCommentResource extends JsonResource
             "likes" => $likes,
             "unlikes" => $unlikes,
             "is_reported" => $is_reported,
-            "reply_to" => !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null,
+            "reply_to" => ($this->is_anonymous != 1) ? $reply_to : null,
             "attachment" => $this->attachment,
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
             "children" => self::collection($this->whenLoaded("children", $this->children)),
