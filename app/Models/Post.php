@@ -78,7 +78,7 @@ class Post extends Model
         if (auth("sanctum")->check()) {
             $query->whereDoesntHave('user', function ($q) {
                 $q->whereDoesntHave("blockedUsers", function ($blocked_user) {
-                    $blocked_user->where("user_id", auth("sanctum")->user()->id);
+                    $blocked_user->where("user_id", auth("sanctum")->id());
                 });
             });
         }
