@@ -89,7 +89,7 @@ class SearchService
     {
         $validator = Validator::make($data, [
             "sort" => "required|string|in:post,group,media",
-            "search" => "required|string",
+            "search" => "nullable|string",
         ]);
 
         if ($validator->fails()) {
@@ -98,6 +98,10 @@ class SearchService
 
         $data = $validator->validated();
 
+        if (empty($data["search"])) {
+            return self::handleEmptySearch($data);
+        }
+
         self::create([
             "user_id" => $data["user_id"] ?? auth("sanctum")->id(),
             "category_id" => $data["category_id"] ?? null,
@@ -105,9 +109,34 @@ class SearchService
         ]);
 
         $records = match ($data["sort"]) {
-            'post' => Post::status()->search($data["search"]),
-            'group' => Group::status()->search($data["search"]),
-            'media' => Post::status()->search($data["search"])->where("type", PostConstants::FILE),
+            'post' => Post::status()->search($data["search"])->unblocked(),
+            'group' => Group::status()->search($data["search"])->unblocked(),
+            'media' => Post::status()->search($data["search"])->where("type", PostConstants::FILE)->unblocked(),
+            default => collect([]),
+        };
+
+        return [
+            "key" => $data["sort"],
+            "records" => $records,
+        ];
+    }
+
+    public static function handleEmptySearch(array $data)
+    {
+        $validator = Validator::make($data, [
+            "sort" => "required|string|in:post,group,media",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $data = $validator->validated();
+
+        $records = match ($data["sort"]) {
+            'post' => Post::status()->unblocked()->inRandomOrder(),
+            'group' => Group::status()->unblocked()->inRandomOrder(),
+            'media' => Post::status()->unblocked()->inRandomOrder()->where("type", PostConstants::FILE),
             default => collect([]),
         };
 
