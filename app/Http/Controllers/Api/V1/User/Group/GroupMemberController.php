@@ -11,6 +11,7 @@ use App\Services\Group\GroupMemberService;
 use App\Services\Group\GroupService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class GroupMemberController extends Controller
 {
@@ -55,6 +56,8 @@ class GroupMemberController extends Controller
             $group = $this->group_member_service->create($request->all());
             $data = GroupMemberResource::make($group);
             return ApiHelper::validResponse("Group created successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null , $th);
         } catch (Exception $th) {
@@ -68,6 +71,8 @@ class GroupMemberController extends Controller
             $group = $this->group_member_service->update($request->all(), $id);
             $data = GroupMemberResource::make($group);
             return ApiHelper::validResponse("Group updated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
@@ -80,6 +85,8 @@ class GroupMemberController extends Controller
         try {
             $group = $this->group_member_service->removeByUserId($request->all());
             return ApiHelper::validResponse("Group destroyed successfully");
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
@@ -105,6 +112,8 @@ class GroupMemberController extends Controller
         try {
              $this->group_service->requestAccess($id);
             return ApiHelper::validResponse("Request sent successfully");
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
@@ -117,6 +126,8 @@ class GroupMemberController extends Controller
         try {
             $this->group_service->updateAccessRequest($request->all());
             return ApiHelper::validResponse("Request updated successfully");
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
