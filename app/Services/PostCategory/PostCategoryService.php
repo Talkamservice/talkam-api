@@ -122,4 +122,10 @@ class PostCategoryService
         $categories = PostCategory::whereNull("category_id")->orderBy("category_id");
         return $categories;
     }
+
+    public static function subCategoryList(array $data = [])
+    {
+        $categories = self::list($data)->whereNotNull("category_id");
+        return $categories;
+    }
 }

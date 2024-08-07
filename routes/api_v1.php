@@ -77,6 +77,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("/", [PostCategoryController::class, "index"])->name("index");
             Route::get("{id}/show", [PostCategoryController::class, "show"])->name("show");
             Route::post("follow", [PostCategoryController::class, "follow"])->name("follow");
+            Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
         });
 
         Route::prefix("blocked-users")->as("blocked-users.")->group(function () {

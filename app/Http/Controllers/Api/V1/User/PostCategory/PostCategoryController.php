@@ -47,4 +47,16 @@ class PostCategoryController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
+
+    public function subCategories(Request $request)
+    {
+        try {
+            $categories = $this->post_category_service->subCategoryList($request->all())->get();
+            $data = PostCategoryResource::collection($categories);
+            return ApiHelper::validResponse("Sub categories returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
 }
