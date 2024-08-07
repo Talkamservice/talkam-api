@@ -20,7 +20,7 @@ class GroupResource extends JsonResource
     public function toArray($request)
     {
         $is_following = GroupMember::where([
-            "id" => $this->id,
+            "group_id" => $this->id,
             "user_id" => auth("sanctum")->id(),
         ])->exists();
 
