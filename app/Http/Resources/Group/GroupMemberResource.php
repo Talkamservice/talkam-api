@@ -22,7 +22,8 @@ class GroupMemberResource extends JsonResource
             "status" => $this->status,
             "group" => GroupResource::custom($this->group),
             "user" => UserResource::custom($this->user),
-            "created_at" => $this->created_at,
+            "created_at" => formatDate($this->created_at),
+            "updated_at" => formatDate($this->updated_at)
         ];
     }
 }
