@@ -84,7 +84,7 @@ class GroupMemberController extends Controller
     {
         try {
             $group = $this->group_member_service->removeByUserId($request->all());
-            return ApiHelper::validResponse("Group destroyed successfully");
+            return ApiHelper::validResponse("Group unfollowed successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
@@ -99,7 +99,7 @@ class GroupMemberController extends Controller
         try {
             $group = $this->group_member_service->getById($id);
             $group->delete();
-            return ApiHelper::validResponse("Group destroyed successfully");
+            return ApiHelper::validResponse("Group deleted successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
