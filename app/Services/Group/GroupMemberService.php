@@ -53,7 +53,10 @@ class GroupMemberService
     {
         $data = self::validate($data);
         $data["role"] = $data["role"] ?? UserConstants::MEMBER;
-        return GroupMember::create($data);
+        return GroupMember::firstOrCreate([
+            "user_id"=> $data["user_id"],
+            "group_id" => $data["group_id"],
+        ], $data);
     }
 
     public static function addNewAdmin(array $data)
