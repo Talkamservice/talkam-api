@@ -75,6 +75,18 @@ class GroupMemberController extends Controller
         }
     }
 
+    public function unfollow(Request $request)
+    {
+        try {
+            $group = $this->group_member_service->removeByUserId($request->all());
+            return ApiHelper::validResponse("Group destroyed successfully");
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
     public function destroy($id)
     {
         try {

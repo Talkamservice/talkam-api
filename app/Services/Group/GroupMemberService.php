@@ -4,6 +4,7 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Resources\Group\GroupMemberResource;
 use App\Models\GroupMember;
@@ -80,6 +81,36 @@ class GroupMemberService
             ]);
 
             // Notification::send($user, new NewGroupAdminNotification($member, $password));
+            DB::commit();
+            return $member;
+        } catch (\Throwable $th) {
+            DB::rollback();
+            throw $th;
+        }
+    }
+
+    public static function removeByUserId(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                'group_id' => 'required|exists:groups,id',
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $member = GroupMember::where($data)->first();
+
+            if (empty($member)) {
+                throw new InvalidRequestException("You are not a member of the group");
+            }
+
+            $member->delete();
             DB::commit();
             return $member;
         } catch (\Throwable $th) {

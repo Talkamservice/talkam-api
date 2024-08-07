@@ -125,7 +125,19 @@ class PostCategoryService
 
     public static function subCategoryList(array $data = [])
     {
-        $categories = self::list($data)->whereNotNull("category_id");
+        $categories = PostCategory::with(["user"]);
+
+        if (!empty($key = $data["search"] ?? null)) {
+            $categories = $categories->where("name", "LIKE", "%$key%");
+        }
+
+        if (!empty($key = $data["sort"] ?? null)) {
+            if ($key == "popular") {
+                $categories = $categories->withCount('posts')->orderBy('posts_count', 'desc');
+            }
+        }
+
+        $categories = $categories->whereNotNull("category_id");
         return $categories;
     }
 }

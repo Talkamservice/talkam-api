@@ -5,6 +5,7 @@ namespace App\Http\Resources\Group;
 use App\Http\Resources\Guideline\GuidelineResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
+use App\Models\GroupMember;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class GroupResource extends JsonResource
@@ -18,6 +19,11 @@ class GroupResource extends JsonResource
 
     public function toArray($request)
     {
+        $is_following = GroupMember::where([
+            "id", $this->id,    
+            "user_id" => auth("sanctum")->id(),
+        ])->exists();
+
         return [
             "id" => $this->id,
             "name" => $this->name,
@@ -25,6 +31,7 @@ class GroupResource extends JsonResource
             "status" => $this->status,
             "group_access" => $this->group_access,
             "image" => $this->image,
+            "is_following" => $is_following,
             "total_members" => $this->members?->count(),
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
             "guidelines" => GuidelineResource::collection($this->whenLoaded("guidelines", $this->guidelines)),
