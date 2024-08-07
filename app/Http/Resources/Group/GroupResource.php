@@ -31,6 +31,8 @@ class GroupResource extends JsonResource
             "description" => $this->description,
             "owner" => !empty($this->creator) ? UserResource::custom($this->creator) : null,
             "about" => $this->about,
+            "created_at" => formatDate($this->created_at),
+            "updated_at" => formatDate($this->updated_at)
         ];
     }
 
