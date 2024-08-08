@@ -77,7 +77,7 @@ class SearchService
         $builder = TrendingSearch::query();
 
         if (!empty($key = $data["user_id"] ?? null)) {
-            $builder->where("user_id", $key);
+           $builder = $builder->where("user_id", $key);
         }
 
         $builder = $builder->latest();
@@ -151,7 +151,7 @@ class SearchService
         $builder = TrendingSearch::query();
 
         if (!empty($key = $data["search"] ?? null)) {
-            $builder->search($key);
+           $builder = $builder->search($key);
         }
 
         $builder = $builder->latest();
