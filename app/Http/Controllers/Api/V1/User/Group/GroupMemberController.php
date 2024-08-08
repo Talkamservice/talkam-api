@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1\User\Group;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Group\GroupMemberResource;
+use App\Http\Resources\Group\GroupResource;
 use App\Services\Group\GroupMemberService;
 use App\Services\Group\GroupService;
 use Exception;
@@ -59,7 +61,7 @@ class GroupMemberController extends Controller
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
-            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null , $th);
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
@@ -94,6 +96,20 @@ class GroupMemberController extends Controller
         }
     }
 
+    public function following(Request $request)
+    {
+        try {
+            $groups = $this->group_service->list($request->all())->whereRelation("members", "user_id", auth()->id())
+                ->status()->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
+            $data = collectPagination($groups);
+            $data["data"] = GroupResource::collection($data["data"]);
+            return ApiHelper::validResponse("Groups returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
     public function destroy($id)
     {
         try {
@@ -110,7 +126,7 @@ class GroupMemberController extends Controller
     public function requestAccess($id)
     {
         try {
-             $this->group_service->requestAccess($id);
+            $this->group_service->requestAccess($id);
             return ApiHelper::validResponse("Request sent successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);

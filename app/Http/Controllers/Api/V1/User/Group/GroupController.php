@@ -64,6 +64,7 @@ class GroupController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
+
     public function store(Request $request)
     {
         try {

@@ -76,7 +76,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("/", [PostCategoryController::class, "index"])->name("index");
             Route::get("{id}/show", [PostCategoryController::class, "show"])->name("show");
             Route::post("follow", [PostCategoryController::class, "follow"])->name("follow");
+            Route::get("following", [PostCategoryController::class, "following"])->name("following");
             Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
+            Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
         });
 
         Route::prefix("blocked-users")->as("blocked-users.")->group(function () {
@@ -119,6 +121,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
+            Route::post("/following", [GroupMemberController::class, "following"])->name("members.following");
             Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
         });
 
