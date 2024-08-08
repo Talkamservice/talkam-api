@@ -121,7 +121,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
-            Route::post("/following", [GroupMemberController::class, "following"])->name("members.following");
+            Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
             Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
         });
 
