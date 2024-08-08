@@ -71,7 +71,7 @@ class SearchController extends Controller
     public function suggestions(Request $request)
     {
         try {
-            $trendings = $this->search_service->recent($request->all())->limit(10)->get();
+            $trendings = $this->search_service->suggestions($request->all())->limit(10)->get();
             $data = TrendingSearchResource::collection($trendings);
             return ApiHelper::validResponse("Recent search returned successfully", $data);
         } catch (Exception $e) {
