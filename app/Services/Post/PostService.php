@@ -183,6 +183,12 @@ class PostService
             $builder = $builder->where("group_id", $key);
         }
 
+        if (!empty($key = $data["target"] ?? null)) {
+            if ($key == "group") {
+                $builder = $builder->whereNotNull("group_id");
+            }
+        }
+
         if (!empty($key = $data["user_id"] ?? null)) {
             $builder = $builder->where("user_id", $key);
         }
