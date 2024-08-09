@@ -28,14 +28,13 @@ class PostCategoryResource extends JsonResource
             "icon_image" => $this->icon_image,
             "is_following" => $is_following,
             "followers_count" => $this->interests->count(),
-            // "parent_category" => !empty($this->parentCategory) ? [
-            //     "name" => $this->parentCategory?->name,
-            //     "description" => $this->parentCategory?->description,
-            // ] : null,
+            "parent_category" => !empty($this->parentCategory) ? [
+                "name" => $this->parentCategory?->name,
+                "description" => $this->parentCategory?->description,
+            ] : null,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];
     }
 
-    public 
 }
