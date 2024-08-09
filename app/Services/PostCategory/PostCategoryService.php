@@ -9,6 +9,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Group;
 use App\Models\MergeCategory;
 use App\Models\PostCategory;
+use App\Models\UserInterest;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\Media\FileService;
 use Illuminate\Support\Facades\DB;
@@ -146,7 +147,8 @@ class PostCategoryService
 
     public static function following()
     {
-        $categories = PostCategory::whereRelation("interests", "user_id", auth()->user()->id)->orderBy("category_id");
+        $interests = UserInterest::where("user_id", auth("sanctum")->id())->pluck("category_id")->toArray();
+        $categories = PostCategory::whereIn("id", $interests)->orderBy("category_id");
         return $categories;
     }
 
