@@ -20,7 +20,7 @@ class PostCommentResource extends JsonResource
 
     public function toArray($request)
     {
-        $user_reaction = UserCommentReaction::where(["comment_id" => $this->id, "user_id" => auth()->id()])->first();
+        $user_reaction = UserCommentReaction::where(["comment_id" => $this->id, "user_id" => auth("sanctum")->id()])->first();
         $likes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::LIKE])->count();
         $unlikes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::DISLIKE])->count();
 
