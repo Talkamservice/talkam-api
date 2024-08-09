@@ -126,7 +126,16 @@ class GroupMemberService
     {
         DB::beginTransaction();
         try {
-            $data = self::validate($data);
+            $validator = Validator::make($data, [
+                "role" => "nullable|string",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            
             $member = $this->getById($id);
             $member->update($data);
             DB::commit();
