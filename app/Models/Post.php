@@ -48,6 +48,11 @@ class Post extends Model
         return $this->hasMany(UserPostReaction::class, "post_id");
     }
 
+    public function group()
+    {
+        return $this->belongsTo(Group::class, "group_id");
+    }
+
     public function polls()
     {
         return $this->hasMany(PostPoll::class, "post_id");

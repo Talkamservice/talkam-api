@@ -185,7 +185,7 @@ class PostService
 
         if (!empty($key = $data["target"] ?? null)) {
             if ($key == "group") {
-                $builder = $builder->whereNotNull("group_id");
+                $builder = $builder->whereRelation("group", "group_access", StatusConstants::OPENED);
             }
         }
 
