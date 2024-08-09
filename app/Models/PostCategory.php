@@ -51,6 +51,6 @@ class PostCategory extends Model
 
     public function parentCategory()
     {
-        return $this->belongsTo(PostCategory::class, "category_id");
+        return $this->belongsTo(self::class, "category_id");
     }
 }
