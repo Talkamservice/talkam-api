@@ -72,7 +72,7 @@ class GroupMemberController extends Controller
         try {
             $group = $this->group_member_service->update($request->all(), $id);
             $data = GroupMemberResource::make($group);
-            return ApiHelper::validResponse("Group updated successfully", $data);
+            return ApiHelper::validResponse("Member updated successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {

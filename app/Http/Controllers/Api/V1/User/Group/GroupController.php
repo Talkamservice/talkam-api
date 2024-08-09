@@ -86,6 +86,8 @@ class GroupController extends Controller
             $group = $this->group_service->update($request->all(), $id);
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group updated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data is invalid", ApiConstants::VALIDATION_ERR_CODE, null , $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {

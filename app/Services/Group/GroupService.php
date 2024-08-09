@@ -54,7 +54,7 @@ class GroupService
     public static function validate(array $data, $id = null)
     {
         $validator = Validator::make($data, [
-            "category_id" => "required|exists:post_categories,id",
+            "category_id" => "nullable|exists:post_categories,id|" . Rule::requiredIf(empty($id)),
             "name" => "required|string",
             "description" => "nullable|string",
             "status" => "nullable|string",
