@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
+use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
 use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
@@ -110,6 +111,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
+
+            Route::prefix("reports")->as("reports.")->group(function () {
+                Route::post("create", [GroupReportController::class, "report"])->name("report");
+                        
+            });
         });
 
         Route::prefix("recents")->as("recents")->group(function () {
