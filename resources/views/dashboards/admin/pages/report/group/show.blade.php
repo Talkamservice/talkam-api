@@ -27,8 +27,8 @@
                                         <img src="{{ $group_report->group->image }}" alt="">
                                     </span>
                                 </div>
-                                <div class="flex-fill main-profile-info">
-                                    <div class="d-flex align-items-center justify-content-end">
+                                <div class="flex-fill main-profile-info" style="margin-left: 15px;">
+                                    <div class="d-flex align-items-center justify-content-between">
                                         <h6 class="fw-semibold mb-1 text-fixed-white">{{ $group_report->group?->name }}</h6>
                                         <button class="btn bg-white btn-outline-{{ pillClasses($group_report->status) }} btn-sm btn-wave">
                                             {{ $group_report->status }}
