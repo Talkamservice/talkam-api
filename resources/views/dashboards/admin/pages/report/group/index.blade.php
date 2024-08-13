@@ -45,9 +45,9 @@
                                             <a href="{{ route('admin.users.show', $first_report->id) }}">
                                                 <div class="d-flex align-items-center fw-semibold">
                                                     <span class="avatar avatar-sm me-2 avatar-rounded">
-                                                        <img src="{{ $first_report->image }}" alt="img">
-                                                    </span><a href="{{ url('https://web.talkam.prodevs.io/group/' . $first_report->group->id . '/featured') }}" target="_blank" rel="noopener noreferrer">{{ $first_report->group->name }}</a>
-
+                                                        <img src="{{ $first_report->group->image }}" alt="img">
+                                                    </span>
+                                                    <a class="text-primary" href="{{ url('https://web.talkam.prodevs.io/group/' . $first_report->group->id . '/featured') }}" target="_blank" rel="noopener noreferrer">{{ $first_report->group->name }}</a>
                                                 </div>
                                             </a>
                                         </td>

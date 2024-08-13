@@ -35,7 +35,7 @@
                                         </button>
                                     </div>
                                     <div class="d-flex mb-0">
-                                        <div class="me-4">
+                                        <div class="me-2">
                                             <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">{{ $reasons_count }}
                                             </p>
                                             <p class="mb-0 fs-14 text-fixed-white">Reports</p>
