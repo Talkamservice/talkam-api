@@ -18,7 +18,7 @@ class GroupReportController extends Controller
 
     public function reportList()
     {
-        $group_report_lists = GroupReport::with('group', 'user')->latest()
+        $group_report_lists = GroupReport::with(['group', 'user'])->latest()
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view('dashboards.admin.pages.report.group.index', [
             "sn" => $group_report_lists->firstItem(),
