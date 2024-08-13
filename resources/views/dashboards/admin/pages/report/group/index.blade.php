@@ -46,7 +46,8 @@
                                                 <div class="d-flex align-items-center fw-semibold">
                                                     <span class="avatar avatar-sm me-2 avatar-rounded">
                                                         <img src="{{ $first_report->image }}" alt="img">
-                                                    </span>{{ $first_report->group->name }}
+                                                    </span><a href="{{ url('https://web.talkam.prodevs.io/group/' . $first_report->group->id . '/featured') }}" target="_blank" rel="noopener noreferrer">{{ $first_report->group->name }}</a>
+
                                                 </div>
                                             </a>
                                         </td>

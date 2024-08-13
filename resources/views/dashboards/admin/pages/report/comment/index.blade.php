@@ -51,7 +51,11 @@
 
                                         </td>
                                         <td title="{{ $first_report->comment->comment }}">
-                                            {{ Str::limit($first_report->comment->comment ?? 'N/A', 30) }}</td>
+                                            <a href="{{ url('https://web.talkam.prodevs.io/comment/' . $first_report->comment->id) }}" target="_blank" rel="noopener noreferrer">
+                                                {{ Str::limit($first_report->comment->comment ?? 'N/A', 30) }}
+                                            </a>
+                                        </td>
+                                        
                                         <td title="{{ $first_report->comment->attachment }}">
                                             {{ Str::limit($first_report->comment->attachment ?? 'N/A', 30) }}</td>
                                         <td>

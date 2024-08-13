@@ -50,7 +50,9 @@
                                                 </div>
                                             </a>
                                         </td>
-                                        <td>{{ Str::limit($first_report->post->title, 50) }}</td>
+                                        <td><a href="{{ url('https://web.talkam.prodevs.io/comment/' . $first_report->post->id) }}" target="_blank" rel="noopener noreferrer">
+                                            {{ Str::limit($first_report->post->title ?? 'N/A', 30) }}
+                                        </a></td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($first_report->status) }}-transparent">
                                                 {{ $first_report->status }}
