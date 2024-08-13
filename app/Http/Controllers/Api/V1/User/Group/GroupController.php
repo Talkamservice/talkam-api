@@ -13,6 +13,7 @@ use App\Services\Group\GroupService;
 use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class GroupController extends Controller
 {
@@ -63,12 +64,15 @@ class GroupController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
+
     public function store(Request $request)
     {
         try {
             $group = $this->group_service->create($request->all());
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group created successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data is invalid", ApiConstants::VALIDATION_ERR_CODE, null , $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null , $th);
         } catch (Exception $th) {
@@ -82,6 +86,8 @@ class GroupController extends Controller
             $group = $this->group_service->update($request->all(), $id);
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group updated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data is invalid", ApiConstants::VALIDATION_ERR_CODE, null , $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {

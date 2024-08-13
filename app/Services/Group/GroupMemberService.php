@@ -4,7 +4,9 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Http\Resources\Group\GroupMemberResource;
 use App\Models\GroupMember;
 use App\Models\User;
 use App\Services\Group\GroupService;
@@ -52,7 +54,10 @@ class GroupMemberService
     {
         $data = self::validate($data);
         $data["role"] = $data["role"] ?? UserConstants::MEMBER;
-        return GroupMember::create($data);
+        return GroupMember::firstOrCreate([
+            "user_id"=> $data["user_id"],
+            "group_id" => $data["group_id"],
+        ], $data);
     }
 
     public static function addNewAdmin(array $data)
@@ -87,11 +92,50 @@ class GroupMemberService
         }
     }
 
+    public static function removeByUserId(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                'group_id' => 'required|exists:groups,id',
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $member = GroupMember::where($data)->first();
+
+            if (empty($member)) {
+                throw new InvalidRequestException("You are not a member of the group");
+            }
+
+            $member->delete();
+            DB::commit();
+            return $member;
+        } catch (\Throwable $th) {
+            DB::rollback();
+            throw $th;
+        }
+    }
+
     public function update(array $data, $id)
     {
         DB::beginTransaction();
         try {
-            $data = self::validate($data);
+            $validator = Validator::make($data, [
+                "role" => "nullable|string",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            
             $member = $this->getById($id);
             $member->update($data);
             DB::commit();
@@ -119,5 +163,17 @@ class GroupMemberService
         }
 
         return $builder;
+    }
+
+    public static function listByGroup($group_id, array $data = [])
+    {
+        $builder = GroupMember::where("group_id", $group_id);
+
+        $data = array_map(function ($role) use ($builder) {
+            $group_members = $builder->clone()->where("role", $role)->with("user")->status()->get()->sortByDesc("name");
+            return GroupMemberResource::collection($group_members);
+        }, UserConstants::GROUP_ROLES);
+
+        return $data;
     }
 }

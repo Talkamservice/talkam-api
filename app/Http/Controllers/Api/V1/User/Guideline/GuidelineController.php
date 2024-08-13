@@ -1,33 +1,33 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\User\Guildline;
+namespace App\Http\Controllers\Api\V1\User\Guideline;
 
 use App\Constants\General\ApiConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Guildline\GuildlineResource;
-use App\Services\Guildline\GuildlineService;
+use App\Http\Resources\Guideline\GuidelineResource;
+use App\Services\Guideline\GuidelineService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class GuildlineController extends Controller
+class GuidelineController extends Controller
 {
-    protected $guildline_service;
+    protected $guideline_service;
 
     public function __construct()
     {
-        $this->guildline_service = new GuildlineService;
+        $this->guideline_service = new GuidelineService;
     }
 
     public function index(Request $request)
     {
         try {
-            $guildlines = $this->guildline_service->list($request->all())->get();
-            $data = GuildlineResource::collection($guildlines);
-            return ApiHelper::validResponse("Guildlines returned successfully", $data);
+            $guidelines = $this->guideline_service->list($request->all())->get();
+            $data = GuidelineResource::collection($guidelines);
+            return ApiHelper::validResponse("Guidelines returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $e) {
@@ -38,9 +38,9 @@ class GuildlineController extends Controller
     public function show($id)
     {
         try {
-            $guildline = $this->guildline_service->getById($id);
-            $data = GuildlineResource::make($guildline);
-            return ApiHelper::validResponse("Guildline returned successfully", $data);
+            $guideline = $this->guideline_service->getById($id);
+            $data = GuidelineResource::make($guideline);
+            return ApiHelper::validResponse("Guideline returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
@@ -51,9 +51,9 @@ class GuildlineController extends Controller
     public function store(Request $request)
     {
         try {
-            $guildline = $this->guildline_service->create($request->all());
-            $data = GuildlineResource::make($guildline);
-            return ApiHelper::validResponse("Guildline created successfully", $data);
+            $guideline = $this->guideline_service->create($request->all());
+            $data = GuidelineResource::make($guideline);
+            return ApiHelper::validResponse("Guideline created successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
@@ -66,9 +66,9 @@ class GuildlineController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $guildline = $this->guildline_service->update($request->all(), $id);
-            $data = GuildlineResource::make($guildline);
-            return ApiHelper::validResponse("Guildline updated successfully", $data);
+            $guideline = $this->guideline_service->update($request->all(), $id);
+            $data = GuidelineResource::make($guideline);
+            return ApiHelper::validResponse("Guideline updated successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
@@ -81,8 +81,8 @@ class GuildlineController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            $this->guildline_service->delete($id);
-            return ApiHelper::validResponse("Guildline deleted successfully");
+            $this->guideline_service->delete($id);
+            return ApiHelper::validResponse("Guideline deleted successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (InvalidRequestException $e) {

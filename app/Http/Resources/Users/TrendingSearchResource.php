@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Group;
+namespace App\Http\Resources\Users;
 
-use App\Http\Resources\Users\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GroupMemberResource extends JsonResource
+class TrendingSearchResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -13,15 +12,11 @@ class GroupMemberResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-
     public function toArray($request)
     {
         return [
             "id" => $this->id,
-            "role" => $this->role,
-            "status" => $this->status,
-            "group" => GroupResource::custom($this->group),
-            "user" => UserResource::custom($this->user),
+            "word" => ucwords($this->word),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

@@ -73,15 +73,30 @@ class PostReportController extends Controller
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
+            throw $th;
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+        }
+    }
+
+    public function deleteReport(Request $request, $post_report_id)
+    {
+        try {
+            $this->post_report_service->delete($post_report_id);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Post report deleted successfully");
+        } catch (ModelNotFoundException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (InvalidRequestException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
             // throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
 
-    public function  deleteReport(Request $request, $post_report_id)
+    public function deletePost(Request $request, $post_id)
     {
         try {
-            $this->post_report_service->delete($post_report_id);
+            $this->post_report_service->delete($post_id);
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Post report deleted successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());

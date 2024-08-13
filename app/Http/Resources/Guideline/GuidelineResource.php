@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Guildline;
+namespace App\Http\Resources\Guideline;
 
 use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Users\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GuildlineResource extends JsonResource
+class GuidelineResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

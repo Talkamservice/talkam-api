@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
+use App\Http\Controllers\Admin\Post\PostController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\Report\CommentReportController;
 use App\Http\Controllers\Admin\Report\GroupReportController;
@@ -30,6 +31,7 @@ Route::middleware(["auth"])->group(
             'users' => UserController::class,
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
+            'posts' => PostController::class,
             'guidelines'=> GuidelineController::class,
         ]);
 
@@ -82,7 +84,7 @@ Route::middleware(["auth"])->group(
         Route::prefix("reports")->as("reports.")->group(function () {
             Route::get('post/lists', [PostReportController::class, "reportList"])->name("post.lists");
             Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
-            Route::put('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
+            Route::post('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
             Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
 
             Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");

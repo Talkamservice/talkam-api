@@ -8,7 +8,7 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="#">Guildline</a></li>
+                        <li class="breadcrumb-item"><a href="#">Guideline</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Index</li>
                     </ol>
                 </nav>
@@ -61,7 +61,7 @@
                                         <td>{{ $guideline->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                               
+
                                                 <a data-bs-toggle="tooltip" title="Edit guideline" aria-label="anchor"
                                                     href="{{ route('admin.guidelines.edit', $guideline->id) }}"
                                                     class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i

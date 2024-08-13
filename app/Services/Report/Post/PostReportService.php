@@ -52,11 +52,11 @@ class PostReportService
                 throw new InvalidRequestException("You cannot make changes you a resolved report");
             }
 
-            if ($data["status"] == StatusConstants::SUSPENDED) {
+            if ($data["action"] == StatusConstants::SUSPENDED) {
                 $this->user_service->suspend(StatusConstants::INACTIVE, $report->post->user_id);
             }
 
-            if ($data["status"] == StatusConstants::ACTIVATED) {
+            if ($data["action"] == StatusConstants::ACTIVATED) {
                 $this->user_service->suspend(StatusConstants::ACTIVE, $report->post->user_id);
             }
 

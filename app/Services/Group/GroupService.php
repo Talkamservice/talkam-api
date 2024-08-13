@@ -10,6 +10,7 @@ use App\Models\Group;
 use App\Models\GroupMember;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
+use App\Services\Guideline\GuidelineService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -53,16 +54,20 @@ class GroupService
     public static function validate(array $data, $id = null)
     {
         $validator = Validator::make($data, [
-            "category_id" => "required|exists:post_categories,id",
+            "category_id" => "nullable|exists:post_categories,id|" . Rule::requiredIf(empty($id)),
             "name" => "required|string",
             "description" => "nullable|string",
             "status" => "nullable|string",
             "about" => "nullable|string",
             "image" => "nullable|string",
+            "rules_summary" => "nullable|string",
             "tags" => "nullable|array",
             "tags.*" => "string",
             "can_post" => "nullable|numeric",
-            "group_access" => "nullable|string",
+            "group_access" => "nullable|string|in:Opened,Closed,Approval",
+            "guidelines" => "nullable|array",
+            "guidelines.*.title" => "required|string",
+            "guidelines.*.description" => "required|string",
         ]);
 
         if ($validator->fails()) {
@@ -82,6 +87,9 @@ class GroupService
             $data["created_by"] = auth()->id();
             $data["uuid"] = self::generateUniqueId();
 
+            $guidelines = $data["guidelines"] ?? [];
+            unset($data["guidelines"]);
+
             $group = Group::create($data);
 
             (new GroupMemberService)->create([
@@ -90,6 +98,15 @@ class GroupService
                 "role" => UserConstants::OWNER,
                 "status" => StatusConstants::ACTIVE
             ]);
+
+            if (isset($guidelines)) {
+                foreach ($guidelines as $key => $guideline) {
+                    (new GuidelineService)->create([
+                        "group_id" => $group->id,
+                        ...(array) $guideline
+                    ]);
+                }
+            }
 
             $this->notify($group);
 
@@ -141,6 +158,17 @@ class GroupService
 
         if (!empty($key = $data["status"] ?? null)) {
             $builder = $builder->where("status", $key);
+        }
+
+        if (!empty($key = $data["recommend"] ?? null)) {
+            if (auth("sanctum")->check()) {
+                $category_ids = auth("sanctum")->user()->interests()->pluck("category_id")->toArray();
+                if (count($category_ids) > 0) {
+                    $builder = $builder->whereIn("id", $category_ids ?? []);
+                } else {
+                    $builder = $builder->withCount("members")->orderBy("members_count", "desc");
+                }
+            }
         }
 
         if (!empty($key = $data["category_id"] ?? null)) {

@@ -24,7 +24,7 @@ class NotificationController extends Controller
     public function notificationPerference(Request $request)
     {
         try {
-            $notification_preference = $this->notification_preference_service->list(auth()->id())->first();
+            $notification_preference = $this->notification_preference_service->fetch(auth()->id());
             $data = NotificationPreferenceResource::make($notification_preference);
             return ApiHelper::validResponse("Notification preference returned successfully", $data);
         } catch (ModelNotFoundException $th) {

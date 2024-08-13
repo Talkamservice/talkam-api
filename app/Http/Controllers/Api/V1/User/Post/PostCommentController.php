@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
-use App\Constants\General\AppConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -43,8 +42,8 @@ class PostCommentController extends Controller
     public function show($id)
     {
         try {
-            $user = $this->post_comment_service->getById($id);
-            $data = PostCommentResource::make($user);
+            $comment = $this->post_comment_service->getById($id);
+            $data = PostCommentResource::make($comment);
             return ApiHelper::validResponse("Post comment returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
@@ -56,8 +55,8 @@ class PostCommentController extends Controller
     public function store(Request $request)
     {
         try {
-            $user = $this->post_comment_service->create($request->all());
-            $data = PostCommentResource::make($user);
+            $comment = $this->post_comment_service->create($request->all());
+            $data = PostCommentResource::make($comment);
             return ApiHelper::validResponse("Post comment created successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
@@ -71,8 +70,8 @@ class PostCommentController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $user = $this->post_comment_service->update($request->all(), $id);
-            $data = PostResource::make($user);
+            $comment = $this->post_comment_service->update($request->all(), $id);
+            $data = PostResource::make($comment);
             return ApiHelper::validResponse("Post comment updated successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);

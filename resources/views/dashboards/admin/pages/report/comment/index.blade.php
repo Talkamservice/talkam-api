@@ -26,7 +26,7 @@
                                 <tr>
                                     <th scope="col">Commented User</th>
                                     <th scope="col">Comment</th>
-                                    <th scope="col">Attachment</th>
+                                    {{-- <th scope="col">Attachment</th> --}}
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
