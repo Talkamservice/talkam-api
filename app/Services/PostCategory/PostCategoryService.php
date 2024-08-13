@@ -63,7 +63,7 @@ class PostCategoryService
             $data["icon_image"] = $this->file_service->saveFromFileIntoStorage($icon_image, FileConstants::CATEGORY_PATH, null, auth()->id());
         }
 
-        $category =  PostCategory::create($data);
+        $category = PostCategory::create($data);
         return $category;
     }
 
@@ -141,6 +141,11 @@ class PostCategoryService
             }
         }
 
+        if (!empty($key = $data["following"] ?? null)) {
+            $interests = UserInterest::where("user_id", auth("sanctum")->id())->pluck("category_id")->toArray();
+            $categories = $categories->whereIn("id", $interests)->orderBy("category_id");
+        }
+
         $categories = $categories->whereNotNull("category_id");
         return $categories;
     }
@@ -168,9 +173,9 @@ class PostCategoryService
 
         $categoriesCollection = collect($categories);
         $groupsCollection = collect($groups);
-    
+
         $merged_category = $categoriesCollection->merge($groupsCollection);
-        
+
         return $merged_category->map(function ($item) {
             return new MergeCategory($item);
         });
@@ -180,7 +185,7 @@ class PostCategoryService
     {
         $categories = PostCategory::where("category_id", $parent_category->id)->withCount("interests")->status()->get();
 
-        return $categories->map(function ($category) use ($parent_category){
+        return $categories->map(function ($category) use ($parent_category) {
             return [
                 "name" => $category->name,
                 "parent_category" => [
