@@ -36,7 +36,7 @@ class PostEventService
             ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
                 foreach ($posts as $post) {
 
-                    $content = $post->title . ' ' . $post->body;
+                    $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
 
                     // Tokenize the content into words
                     $words = preg_split('/[\s,]+/', $content);
@@ -104,7 +104,7 @@ class PostEventService
                 ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
                     foreach ($posts as $post) {
 
-                        $content = $post->title . ' ' . $post->body;
+                        $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
 
                         // Tokenize the content into words
                         $words = preg_split('/[\s,]+/', $content);
