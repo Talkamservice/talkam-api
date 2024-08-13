@@ -139,3 +139,17 @@ function collectPagination(LengthAwarePaginator $pagination, $appendQuery = true
     $buildResponse["data"] = $pagination->getCollection();
     return $buildResponse;
 }
+
+function ensureUniqueKeys(array $array) {
+    $uniqueArray = [];
+    
+    foreach ($array as $key => $value) {
+        // If the key doesn't exist in the uniqueArray, add it
+        if (!array_key_exists($key, $uniqueArray)) {
+            $uniqueArray[$key] = $value;
+        }
+    }
+    
+    return $uniqueArray;
+}
+
