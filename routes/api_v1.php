@@ -4,8 +4,11 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
+use App\Http\Controllers\Api\V1\General\AuthController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
+use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
+use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
 use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
@@ -17,6 +20,7 @@ use App\Http\Controllers\Api\V1\User\Post\PostPollController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
+use App\Http\Controllers\Api\V1\User\Post\SearchController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Http\Request;
@@ -74,6 +78,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("/", [PostCategoryController::class, "index"])->name("index");
             Route::get("{id}/show", [PostCategoryController::class, "show"])->name("show");
             Route::post("follow", [PostCategoryController::class, "follow"])->name("follow");
+            Route::get("following", [PostCategoryController::class, "following"])->name("following");
+            Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
+            Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
         });
 
         Route::prefix("blocked-users")->as("blocked-users.")->group(function () {
@@ -107,9 +114,22 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("fetch", [PostController::class, "trending"])->name("fetch");
         });
 
+        Route::prefix("search")->as("search")->group(function () {
+            Route::get("/", [SearchController::class, "index"])->name("index");
+            Route::get("recent", [SearchController::class, "recent"])->name("recent");
+            Route::get("trending", [SearchController::class, "trending"])->name("trending");
+        });
+
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
+
+            Route::prefix("reports")->as("reports.")->group(function () {
+                Route::post("create", [GroupReportController::class, "report"])->name("report");
+                        
+            });
+            Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
+            Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
         });
 
         Route::prefix("recents")->as("recents")->group(function () {
@@ -152,5 +172,15 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get('/', [PostCommentController::class, 'index'])->name('index');
         Route::get('/{post_comment}', [PostCommentController::class, 'show'])->name('show');
     });
+
+    Route::prefix("search")->as("search")->group(function () {
+        Route::get("/", [SearchController::class, "index"])->name("index");
+        Route::get("recent", [SearchController::class, "recent"])->name("recent");
+        Route::get("trending", [SearchController::class, "trending"])->name("trending");
+        Route::get("suggestions", [SearchController::class, "suggestions"])->name("suggestions");
+        Route::delete("{id}/delete", [SearchController::class, "destroy"])->name("destroy");
+    });
 });
+
+Route::post('/broadcasting/auth', [AuthController::class, "authenticate"])->middleware('auth:sanctum');
 

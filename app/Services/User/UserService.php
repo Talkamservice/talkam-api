@@ -10,10 +10,15 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\AccountDeactivation;
 use App\Models\User;
+use App\Notifications\User\PostRestorationNotification;
+use App\Notifications\User\PostsRemovedFromApplicationNotification;
+use App\Notifications\User\PostSuspensionNotification;
 use App\Notifications\User\StrikeUserNotification;
 use App\Notifications\User\SuspendUserNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -237,6 +242,44 @@ class UserService
         Notification::send($user, new StrikeUserNotification($user));
         return $user->refresh();
     }
+
+    public function hidePost(Request $request, $id)
+    {
+        $user = $this->getById($id);
+        // Check if user has posts
+        $postCount = $user->posts()->count();
+        if ($postCount > 0) {
+            // Soft delete all posts
+            $user->posts()->delete();
+            // Send notification about the post suspension
+            Notification::send($user, new PostSuspensionNotification($user));
+        }
+        return $user->refresh();
+    }
+
+
+    public function restorePost(Request $request, $id)
+    {
+        $user = $this->getById($id);
+        // Check if user has posts that are soft deleted
+        $user->posts()->onlyTrashed()->restore();
+        // Send notification about the post restoration
+        Notification::send($user, new PostRestorationNotification($user));
+        return $user->refresh();
+    }
+
+    public function deleteUserPostsPermanently(Request $request, $id)
+    {
+        $user = $this->getById($id);
+        $user->posts()->onlyTrashed()->forceDelete();
+        // Send notification about the post restoration
+        Notification::send($user, new PostsRemovedFromApplicationNotification($user));
+        return $user->refresh();
+    }
+
+
+
+
 
     public static function getNames($fullName)
     {

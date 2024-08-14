@@ -40,7 +40,7 @@ class PostService
     public static function validate($data, $id = null)
     {
         $validator = Validator::make($data, [
-            "category_id" => "required|numeric|exists:post_categories,id",
+            "category_id" => "nullable|numeric|exists:post_categories,id|". Rule::requiredIf(empty($id)),
             "group_id" => "nullable|numeric|exists:groups,id",
             "type" => "required|string|" . Rule::in(PostConstants::TYPES),
             "title" => "nullable|string",
@@ -181,6 +181,12 @@ class PostService
 
         if (!empty($key = $data["group_id"] ?? null)) {
             $builder = $builder->where("group_id", $key);
+        }
+
+        if (!empty($key = $data["target"] ?? null)) {
+            if ($key == "group") {
+                $builder = $builder->whereRelation("group", "group_access", StatusConstants::OPENED);
+            }
         }
 
         if (!empty($key = $data["user_id"] ?? null)) {

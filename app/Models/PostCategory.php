@@ -48,4 +48,9 @@ class PostCategory extends Model
     {
         return $this->hasMany(UserInterest::class, "category_id");
     }
+
+    public function parentCategory()
+    {
+        return $this->belongsTo(self::class, "category_id");
+    }
 }

@@ -8,8 +8,10 @@ use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
+use App\Http\Controllers\Admin\Post\PostController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\Report\CommentReportController;
+use App\Http\Controllers\Admin\Report\GroupReportController;
 use App\Http\Controllers\Admin\Report\PostReportController;
 use App\Http\Controllers\Admin\User\AccountStatusController;
 use App\Http\Controllers\Admin\User\UserController;
@@ -29,14 +31,19 @@ Route::middleware(["auth"])->group(
             'users' => UserController::class,
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
+            'posts' => PostController::class,
             'guidelines'=> GuidelineController::class,
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {
             Route::post('{id}/suspend', [UserController::class, "suspend"])->name("suspend");
             Route::post('{id}/strike', [UserController::class, "strike"])->name("strike");
-        });
+            Route::post('{id}/hide-posts', [UserController::class, 'hideUserPost'])->name('hide-posts');
+            Route::post('{id}/restore-posts', [UserController::class, 'restoreUserPost'])->name('restore-posts');
+            Route::delete('{id}/remove-posts', [UserController::class, 'removeUserPosts'])->name('remove-posts');
 
+        });
+       
         Route::prefix("post-categories/{category}")->as("categories.sub-categories.")->group(function () {
             Route::get('index', [PostCategoryController::class, "subCategories"])->name("index");
             Route::get('create', [PostCategoryController::class, "createCategory"])->name("create-sub-category");
@@ -77,8 +84,11 @@ Route::middleware(["auth"])->group(
         Route::prefix("reports")->as("reports.")->group(function () {
             Route::get('post/lists', [PostReportController::class, "reportList"])->name("post.lists");
             Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
-            Route::put('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
+            Route::post('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
             Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
+
+            Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");
+            Route::get('group/show/{id}', [GroupReportController::class, "show"])->name("group.show");
 
             Route::get('comment/lists', [CommentReportController::class, "reportList"])->name("comment.lists");
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");

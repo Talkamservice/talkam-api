@@ -54,7 +54,7 @@ class GroupService
     public static function validate(array $data, $id = null)
     {
         $validator = Validator::make($data, [
-            "category_id" => "required|exists:post_categories,id",
+            "category_id" => "nullable|exists:post_categories,id|" . Rule::requiredIf(empty($id)),
             "name" => "required|string",
             "description" => "nullable|string",
             "status" => "nullable|string",
@@ -103,7 +103,7 @@ class GroupService
                 foreach ($guidelines as $key => $guideline) {
                     (new GuidelineService)->create([
                         "group_id" => $group->id,
-                        ...(array)$guideline
+                        ...(array) $guideline
                     ]);
                 }
             }
@@ -158,6 +158,17 @@ class GroupService
 
         if (!empty($key = $data["status"] ?? null)) {
             $builder = $builder->where("status", $key);
+        }
+
+        if (!empty($key = $data["recommend"] ?? null)) {
+            if (auth("sanctum")->check()) {
+                $category_ids = auth("sanctum")->user()->interests()->pluck("category_id")->toArray();
+                if (count($category_ids) > 0) {
+                    $builder = $builder->whereIn("id", $category_ids ?? []);
+                } else {
+                    $builder = $builder->withCount("members")->orderBy("members_count", "desc");
+                }
+            }
         }
 
         if (!empty($key = $data["category_id"] ?? null)) {

@@ -95,7 +95,7 @@ class PostCategoryController extends Controller
     public function subCategories(Request $request, $category_id)
     {
         $category = $this->post_category_service->getById($category_id);
-        $categories = $this->post_category_service->list($request->all())->where("category_id", $category_id)->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $categories = $this->post_category_service->subCategoryList($request->all())->where("category_id", $category_id)->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view("dashboards.admin.pages.content.categories.sub_index", [
             "sn" => $categories->firstItem(),
             "category" => $category,

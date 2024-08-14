@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Post;
 
 use App\Constants\Post\PostConstants;
+use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\PostReport;
@@ -37,6 +38,7 @@ class PostResource extends JsonResource
             "uuid" => $this->uuid,
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
+            "group" => !empty($this->group) ? GroupResource::custom($this->group) : null,
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
             "tags" => $this->tags,
