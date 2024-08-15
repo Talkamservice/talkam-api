@@ -41,7 +41,7 @@ class SchedulePostPublishedNotification extends Notification
             ->markdown('emails.general.index', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "recipient_name" => $notifiable->name,
+                "recipient_name" => $notifiable->getName(),
             ]);
     }
 

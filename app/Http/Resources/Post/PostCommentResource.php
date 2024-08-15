@@ -5,6 +5,7 @@ namespace App\Http\Resources\Post;
 use App\Constants\Post\PostConstants;
 use App\Http\Resources\Users\UserResource;
 use App\Models\CommentReport;
+use App\Models\PostComment;
 use App\Models\UserCommentReaction;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -46,6 +47,22 @@ class PostCommentResource extends JsonResource
             "children" => self::collection($this->whenLoaded("children", $this->children)),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
+        ];
+    }
+
+    public static function custom(PostComment $model)
+    {
+        $reply_to = !empty($model->repliedComment?->user) ? UserResource::custom($model->repliedComment?->user) : null;
+        return [
+            "id" => $model->id,
+            "post" => PostResource::custom($model->post),
+            "user" => !empty($model->user) ? UserResource::custom($model->user) : null,
+            "comment" => $model->comment,
+            "is_anonymous" => $model->is_anonymous,
+            "reply_to" => ($model->repliedComment?->is_anonymous != 1) ? $reply_to : null,
+            "attachment" => $model->attachment,
+            "created_at" => formatDate($model->created_at),
+            "updated_at" => formatDate($model->updated_at)
         ];
     }
 }
