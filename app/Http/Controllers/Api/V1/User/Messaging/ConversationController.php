@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User\Messaging;
 
 use App\Constants\General\ApiConstants;
+use App\Events\NewMessage;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -50,6 +51,7 @@ class ConversationController extends Controller
         try {
             $conversation = $this->conversation_service->create($request->all());
             $data = ConversationResource::make($conversation);
+            broadcast(new NewMessage($data, $conversation->id))->toOthers();
             return ApiHelper::validResponse("Conversation created successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
