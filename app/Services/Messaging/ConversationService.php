@@ -54,7 +54,7 @@ class ConversationService
         try {
             $data = self::validate($data);
 
-            $data["sender_id"] = $data["sender_id"] ?? auth()->id();
+            $data["sender_id"] ??= auth()->id();
 
             $conversation = Conversation::where(function ($query) use ($data) {
                 $query->where('sender_id', $data["sender_id"])
@@ -81,12 +81,57 @@ class ConversationService
             ]);
 
             DB::commit();
+
             return $conversation;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
+
+    public function currentConversation(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "sender_id" => "nullable|exists:users,id",
+                "receiver_id" => "required|exists:users,id",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = self::validate($data);
+            $data["sender_id"] ??= auth()->id();
+
+            $conversation = Conversation::where(function ($query) use ($data) {
+                $query->where('sender_id', $data["sender_id"])
+                    ->where('receiver_id', $data["receiver_id"]);
+            })->orWhere(function ($query) use ($data) {
+                $query->where('sender_id', $data["receiver_id"])
+                    ->where('receiver_id', $data["sender_id"]);
+            })->first();
+
+            if (empty($conversation)) {
+                $conversation = Conversation::firstOrCreate([
+                    "sender_id" => $data["sender_id"],
+                    "receiver_id" => $data["receiver_id"]
+                ], [
+                    "notification_status" => $data["notification_status"] ?? 1,
+                    "is_anonymous" => $data["is_anonymous"] ?? 0,
+                    "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
+                ]);
+            }
+
+            DB::commit();
+            return $conversation;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
 
     public function update(array $data, $id)
     {

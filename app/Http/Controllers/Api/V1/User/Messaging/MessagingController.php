@@ -3,43 +3,74 @@
 namespace App\Http\Controllers\Api\V1\User\Messaging;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
+use App\Events\NewMessage;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PostCategory\PostCategoryResource;
-use App\Services\PostCategory\PostCategoryService;
+use App\Http\Resources\Messaging\MessageResource;
+use App\Notifications\Messaging\NewMessageNotification;
+use App\Services\Messaging\ConversationService;
+use App\Services\Messaging\MessageService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\ValidationException;
 
 class MessagingController extends Controller
 {
-    protected $post_category_service;
+    protected $messaging_service;
+    protected $conversation_service;
 
     public function __construct()
     {
-        $this->post_category_service = new PostCategoryService;
+        $this->conversation_service = new ConversationService;
+        $this->messaging_service = new MessageService;
     }
 
-    public function index(Request $request)
+    public function list(Request $request)
     {
         try {
-            $categories = $this->post_category_service->list()->get();
-            $data = PostCategoryResource::collection($categories);
-            return ApiHelper::validResponse("Categories returned successfully", $data);
+            $messaging = $this->messaging_service->list($request->all())->latest()->paginate(AppConstants::API_PAGINATION_SIZE);
+            $data = collectPagination($messaging);
+            $data["data"] = MessageResource::collection($data["data"]);
+            return ApiHelper::validResponse("Messages fetched successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function sendMessage(Request $request)
+    {
+        try {
+            $message = $this->messaging_service->create($request->all());
+            $conversationId = $message->conversation_id;
+            $data = MessageResource::make($message);
+
+            broadcast(new NewMessage($data, $conversationId))->toOthers();
+            // broadcast(new RefreshMessage($conversationId))->toOthers();
+            
+            // broadcast(new RefreshNotification())->toOthers();
+            Notification::send($message->receiver, new NewMessageNotification($message));
+            return ApiHelper::validResponse("Message sent successfully", MessageResource::make($message));
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (ModelNotFoundException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 
-    public function show($id)
+    public function deleteMessage(string $id)
     {
         try {
-            $user = $this->post_category_service->getById($id);
-            $data = PostCategoryResource::make($user);
-            return ApiHelper::validResponse("Category details returned successfully", $data);
-        } catch (ModelNotFoundException $th) {
-            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
-        } catch (Exception $th) {
+            $this->messaging_service->delete($id);
+            return ApiHelper::validResponse("Message deleted successfully");
+        } catch (ModelNotFoundException $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        } catch (\Throwable $th) {
+            // throw $th;
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
