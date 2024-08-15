@@ -49,29 +49,29 @@ Route::prefix("auth")->as("auth.")->group(function () {
 
     Route::prefix("password")->as("password.")->group(function () {
         Route::post('/forgot', [PasswordController::class, 'forgotPassword'])->name("forgot_password");
-        Route::post("/reset", [PasswordController::class,  "resetPassword"])->name("reset_password");
+        Route::post("/reset", [PasswordController::class, "resetPassword"])->name("reset_password");
     });
     Route::prefix("otp")->as("otp.")->group(function () {
         Route::post('/request', [VerificationController::class, 'request'])->name("request");
-        Route::post("/verify", [VerificationController::class,  "verify"])->name("verify");
+        Route::post("/verify", [VerificationController::class, "verify"])->name("verify");
     });
 });
 
-Route::get("profile/avatars", [UserController::class,  "listAvatars"])->name("avatars.list");
+Route::get("profile/avatars", [UserController::class, "listAvatars"])->name("avatars.list");
 
 Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
-        Route::get("/me", [UserController::class,  "me"])->name("me");
+        Route::get("/me", [UserController::class, "me"])->name("me");
 
         Route::prefix("profile")->as("profile.")->group(function () {
-            Route::post("/upload-avatar", [UserController::class,  "uploadAvatar"])->name("upload.avatar");
-            Route::post("/update", [UserController::class,  "update"])->name("update");
-            Route::post("interests/add-remove", [UserController::class,  "saveInterest"])->name("save-interest");
-            Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
-            Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");
-            Route::get("fetch", [UserController::class,  "getProfile"])->name("get-profile");
-            Route::post("link-social-account", [UserController::class,  "linkSocialAccount"])->name("link-social-account");
-            Route::post("unlink-social-account", [UserController::class,  "unlinkSocialAccount"])->name("unlink-social-account");
+            Route::post("/upload-avatar", [UserController::class, "uploadAvatar"])->name("upload.avatar");
+            Route::post("/update", [UserController::class, "update"])->name("update");
+            Route::post("interests/add-remove", [UserController::class, "saveInterest"])->name("save-interest");
+            Route::post("erase-account-data", [UserController::class, "eraseAccount"])->name("erase-account");
+            Route::post("delete-account", [UserController::class, "deleteAccount"])->name("delete-account");
+            Route::get("fetch", [UserController::class, "getProfile"])->name("get-profile");
+            Route::post("link-social-account", [UserController::class, "linkSocialAccount"])->name("link-social-account");
+            Route::post("unlink-social-account", [UserController::class, "unlinkSocialAccount"])->name("unlink-social-account");
         });
 
         Route::prefix("post-categories")->as("post-categories.")->group(function () {
@@ -126,7 +126,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
             Route::prefix("reports")->as("reports.")->group(function () {
                 Route::post("create", [GroupReportController::class, "report"])->name("report");
-                        
+
             });
             Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
             Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
@@ -146,7 +146,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::prefix("conversations")->as("conversations.")->group(function () {
                 Route::post("update-status", [ConversationController::class, "updateStatus"])->name("update-status");
                 Route::post("report", [ConversationController::class, "report"])->name("report");
-            Route::post("/current-conversation", [ConversationController::class, "currentConversation"])->name("current-conversation");
+                Route::post("/current-conversation", [ConversationController::class, "currentConversation"])->name("current-conversation");
             });
         });
 
