@@ -2,6 +2,7 @@
 
 namespace App\Services\Messaging;
 
+use App\Constants\General\StatusConstants;
 use App\Constants\Messaging\MessagingConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Conversation;
@@ -64,15 +65,20 @@ class ConversationService
             })->first();
 
             if (empty($conversation)) {
-                $conversation =  Conversation::firstOrCreate([
+                $conversation = Conversation::firstOrCreate([
                     "sender_id" => $data["sender_id"],
                     "receiver_id" => $data["receiver_id"]
-                ], $data);
+                ], [
+                    "notification_status" => $data["notification_status"] ?? 1,
+                    "is_anonymous" => $data["is_anonymous"] ?? 0,
+                    "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
+                ]);
             }
 
-            $this->message_service->create(array_merge([
+            $this->message_service->create([
                 "conversation_id" => $conversation->id,
-            ], $data));
+                ...$data
+            ]);
 
             DB::commit();
             return $conversation;
