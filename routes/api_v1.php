@@ -147,6 +147,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::post("update-status", [ConversationController::class, "updateStatus"])->name("update-status");
                 Route::post("report", [ConversationController::class, "report"])->name("report");
                 Route::post("/current-conversation", [ConversationController::class, "currentConversation"])->name("current-conversation");
+                Route::get("/pending-requests", [ConversationController::class, "pendingRequests"])->name("pending-request");
             });
         });
 
