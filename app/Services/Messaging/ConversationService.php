@@ -194,11 +194,9 @@ class ConversationService
         $data["sender_id"] ??= auth()->id();
 
         $builder = $builder->where(function ($query) use ($data) {
-            $query->where('sender_id', $data["sender_id"]);
-        })->orWhere(function ($query) use ($data) {
-            $query->where('sender_id', $data["receiver_id"]);
+            $query->where('sender_id', $data["sender_id"])
+                ->orWhere('receiver_id', $data["sender_id"]);
         });
-
 
         if (!empty($key = $data["status"] ?? null)) {
             $builder = $builder->where("status", $key);
