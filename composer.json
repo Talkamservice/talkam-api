@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.5",
         "predis/predis": "^2.2",
+        "pusher/pusher-php-server": "^7.2",
         "socialiteproviders/tiktok": "^5.2",
         "spatie/laravel-permission": "^6.9"
     },
@@ -67,6 +68,7 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "platform-check": false,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true

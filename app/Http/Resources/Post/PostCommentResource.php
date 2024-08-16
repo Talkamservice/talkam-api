@@ -4,6 +4,7 @@ namespace App\Http\Resources\Post;
 
 use App\Constants\Post\PostConstants;
 use App\Http\Resources\Users\UserResource;
+use App\Models\CommentReport;
 use App\Models\UserCommentReaction;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,10 +20,17 @@ class PostCommentResource extends JsonResource
 
     public function toArray($request)
     {
-        $user_reaction = UserCommentReaction::where(["comment_id" => $this->id, "user_id" => auth()->id()])->first();
+        $user_reaction = UserCommentReaction::where(["comment_id" => $this->id, "user_id" => auth("sanctum")->id()])->first();
         $likes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::LIKE])->count();
         $unlikes = UserCommentReaction::where(["comment_id" => $this->id, "action" => PostConstants::DISLIKE])->count();
 
+        $is_reported = CommentReport::where([
+            "user_id" => auth("sanctum")->id(),
+            "comment_id" => $this->id,
+            "post_id" => $this->post_id,
+        ])->exists();
+
+        $reply_to = !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null;
         return [
             "id" => $this->id,
             "post" => PostResource::custom($this->post),
@@ -31,7 +39,8 @@ class PostCommentResource extends JsonResource
             "is_anonymous" => $this->is_anonymous,
             "likes" => $likes,
             "unlikes" => $unlikes,
-            "reply_to" => !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null,
+            "is_reported" => $is_reported,
+            "reply_to" => ($this->repliedComment?->is_anonymous != 1) ? $reply_to : null,
             "attachment" => $this->attachment,
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
             "children" => self::collection($this->whenLoaded("children", $this->children)),

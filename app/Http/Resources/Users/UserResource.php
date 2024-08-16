@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Users;
 
+use App\Models\BlockedUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
@@ -14,6 +15,11 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        $is_blocked = BlockedUser::where([
+            "blocker_id" => auth("sanctum")->id(),
+            "blocked_user_id" => $this->id,
+        ])->exists();
+        
         return [
             "id" => (int) $this->id,
             "avatar" => $this->avatar,
@@ -27,6 +33,7 @@ class UserResource extends JsonResource
             "facebook_id" => $this->facebook_id,
             "tiktok_id" => $this->social_id,
             "apple_id" => $this->apple_user_id,
+            "is_blocked" => $is_blocked,
             "interests" => InterestResource::collection($this->whenLoaded("interests", $this->interests)),
             "email_verified_at" => formatDate($this->email_verified_at),
             "created_at" => formatDate($this->created_at),

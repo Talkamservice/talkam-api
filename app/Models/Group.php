@@ -30,6 +30,11 @@ class Group extends Model
         return $this->hasMany(GroupMember::class, "group_id");
     }
 
+    public function guidelines()
+    {
+        return $this->hasMany(Guideline::class, "group_id");
+    }
+
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
         return $query->where("status", $status);

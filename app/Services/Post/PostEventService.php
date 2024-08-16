@@ -52,12 +52,12 @@ class PostEventService
                     $phrases = [];
                     $count = count($filtered_words);
                     for ($i = 0; $i < $count; $i++) {
-                        $phrases[] = $filtered_words[$i]; // unigram
+                        $phrases[] = $filtered_words[$i] ?? null; // unigram
                         if ($i + 1 < $count) {
-                            $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1]; // bigram
+                            $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null); // bigram
                         }
                         if ($i + 2 < $count) {
-                            $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1] . ' ' . $filtered_words[$i + 2]; // trigram
+                            $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null) . ' ' . ($filtered_words[$i + 2] ?? null); // trigram
                         }
                     }
 
@@ -79,9 +79,15 @@ class PostEventService
         $top_trending_words = array_slice($word_frequency, 0, 10, true);
 
         TrendingTag::whereNull("category_id")->delete();
-        foreach ($top_trending_words as $word => $count) {
+
+        $filtered_array = array_filter($top_trending_words, function ($key) {
+            $trimmedKey = trim($key);
+            return !empty($trimmedKey) && strlen($trimmedKey) > 3;
+        }, ARRAY_FILTER_USE_KEY);
+
+        foreach ($filtered_array as $word => $count) {
             TrendingTag::create([
-                'tag' => ucwords($word),
+                'tag' => trim(ucwords($word)),
                 'count' => $count,
             ]);
         }
@@ -114,12 +120,12 @@ class PostEventService
                         $phrases = [];
                         $count = count($filtered_words);
                         for ($i = 0; $i < $count; $i++) {
-                            $phrases[] = $filtered_words[$i]; // unigram
+                            $phrases[] = $filtered_words[$i] ?? null; // unigram
                             if ($i + 1 < $count) {
-                                $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1]; // bigram
+                                $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null); // bigram
                             }
                             if ($i + 2 < $count) {
-                                $phrases[] = $filtered_words[$i] . ' ' . $filtered_words[$i + 1] . ' ' . $filtered_words[$i + 2]; // trigram
+                                $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null) . ' ' . ($filtered_words[$i + 2] ?? null); // trigram
                             }
                         }
 
@@ -140,10 +146,16 @@ class PostEventService
                     $top_trending_words = array_slice($word_frequency, 0, 10, true);
 
                     $category->trendingTags()->delete();
-                    foreach ($top_trending_words as $word => $count) {
+
+                    $filtered_array = array_filter($top_trending_words, function ($key) {
+                        $trimmedKey = trim($key);
+                        return !empty($trimmedKey) && strlen($trimmedKey) > 3;
+                    }, ARRAY_FILTER_USE_KEY);
+
+                    foreach ($filtered_array as $word => $count) {
                         TrendingTag::create([
                             "category_id" => $category->id,
-                            "tag" => $word,
+                            'tag' => trim(ucwords($word)),
                             "count" => $count,
                         ]);
                     }

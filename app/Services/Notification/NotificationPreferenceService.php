@@ -40,7 +40,7 @@ class NotificationPreferenceService
         $data = self::validate($data);
         $data["user_id"] = auth()->id();
 
-        $notification_preference = NotificationPreference::firstOrCreate([
+        $notification_preference = NotificationPreference::updateOrCreate([
             "user_id" => $data["user_id"]
         ], $data);
 

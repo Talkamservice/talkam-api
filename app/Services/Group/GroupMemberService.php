@@ -5,6 +5,7 @@ namespace App\Services\Group;
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Http\Resources\Group\GroupMemberResource;
 use App\Models\GroupMember;
 use App\Models\User;
 use App\Services\Group\GroupService;
@@ -52,7 +53,10 @@ class GroupMemberService
     {
         $data = self::validate($data);
         $data["role"] = $data["role"] ?? UserConstants::MEMBER;
-        return GroupMember::create($data);
+        return GroupMember::firstOrCreate([
+            "user_id"=> $data["user_id"],
+            "group_id" => $data["group_id"],
+        ], $data);
     }
 
     public static function addNewAdmin(array $data)
@@ -91,7 +95,16 @@ class GroupMemberService
     {
         DB::beginTransaction();
         try {
-            $data = self::validate($data);
+            $validator = Validator::make($data, [
+                "role" => "nullable|string",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            
             $member = $this->getById($id);
             $member->update($data);
             DB::commit();
@@ -119,5 +132,17 @@ class GroupMemberService
         }
 
         return $builder;
+    }
+
+    public static function listByGroup($group_id, array $data = [])
+    {
+        $builder = GroupMember::where("group_id", $group_id);
+
+        $data = array_map(function ($role) use ($builder) {
+            $group_members = $builder->clone()->where("role", $role)->with("user")->status()->get()->sortByDesc("name");
+            return GroupMemberResource::collection($group_members);
+        }, UserConstants::GROUP_ROLES);
+
+        return $data;
     }
 }

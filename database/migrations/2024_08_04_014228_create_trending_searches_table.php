@@ -12,11 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('guildlines', function (Blueprint $table) {
+        Schema::create('trending_searches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("group_id")->nullable()->constrained("groups")->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string("title");
-            $table->longText("description")->nullable();
+            $table->string("word");
+            $table->foreignId("user_id")->nullable()->constrained("users")->cascadeOnDelete();
+            $table->foreignId("category_id")->nullable()->constrained("post_categories")->cascadeOnDelete();
             $table->string("status")->default(StatusConstants::ACTIVE);
             $table->timestamps();
         });
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('guildlines');
+        Schema::dropIfExists('trending_searches');
     }
 };

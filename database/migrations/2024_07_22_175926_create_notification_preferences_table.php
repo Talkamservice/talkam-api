@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('notification_preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId("user_id")->constrained("users")->cascadeOnDelete();
-            $table->tinyInteger("talkam_news")->default(0);
-            $table->tinyInteger("talkam_research")->default(0);
-            $table->tinyInteger("moderation_activities")->default(0);
-            $table->tinyInteger("user_activities")->default(0);
+            $table->tinyInteger("talkam_news")->nullable()->default(0);
+            $table->tinyInteger("talkam_research")->nullable()->default(0);
+            $table->tinyInteger("moderation_activities")->nullable()->default(0);
+            $table->tinyInteger("user_activities")->nullable()->default(0);
             $table->string("comments")->nullable(); // mentions, all
             $table->timestamps();
         });
