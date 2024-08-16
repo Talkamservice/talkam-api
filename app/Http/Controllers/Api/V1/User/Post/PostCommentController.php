@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
-use App\Constants\General\AppConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;

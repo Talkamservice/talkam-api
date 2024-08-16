@@ -50,6 +50,11 @@ class Post extends Model
         return $this->hasMany(UserPostReaction::class, "post_id");
     }
 
+    public function group()
+    {
+        return $this->belongsTo(Group::class, "group_id");
+    }
+
     public function polls()
     {
         return $this->hasMany(PostPoll::class, "post_id");
@@ -78,15 +83,18 @@ class Post extends Model
     public function scopeUnblocked($query)
     {
         if (auth("sanctum")->check()) {
-            $query->whereDoesntHave('user.blockedUsers', function ($q) {
-                $q->where('blocked_user_id', auth()->id());
-            });
+            //All users that blocked me
+            $blocked_me_users = BlockedUser::where("blocked_user_id", auth("sanctum")->id())->pluck("blocker_id")->toArray();
+            //All users that I blocked
+            $blocked_users = BlockedUser::where("blocker_id", auth("sanctum")->id())->pluck("blocked_user_id")->toArray();
+
+            $query->whereNotIn('user_id', array_merge($blocked_me_users, $blocked_users));
         }
 
         return $query;
     }
 
-    
+
     public function postType($type)
     {
         switch ($type) {

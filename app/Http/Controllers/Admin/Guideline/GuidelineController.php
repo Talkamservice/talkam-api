@@ -8,7 +8,7 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
-use App\Services\Guildline\GuildlineService;
+use App\Services\Guideline\GuidelineService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -19,7 +19,7 @@ class GuidelineController extends Controller
 
     public function __construct()
     {
-        $this->guideline_service = new GuildlineService;
+        $this->guideline_service = new GuidelineService;
     }
 
     /**

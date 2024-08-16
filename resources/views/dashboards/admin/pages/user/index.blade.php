@@ -180,7 +180,7 @@
                                                                 data-bs-toggle="modal"
                                                                 data-restore-url="{{ route('admin.users.restore-posts', $user->id) }}"
                                                                 data-bs-target="#unhidePostModal">
-                                                                Unhide All Posts
+                                                                <i class="ri-eye-line"></i> | Unhide All Posts
                                                             </a>
                                                         </li>
                                                     @else
@@ -191,7 +191,7 @@
                                                                 data-hide-url="{{ route('admin.users.hide-posts', $user->id) }}"
                                                                 data-delete-url="{{ route('admin.users.remove-posts', $user->id) }}"
                                                                 data-bs-target="#actionModal">
-                                                                Hide All Posts
+                                                                <i class="ri-eye-off-line"></i> | Hide All Posts
                                                             </a>
                                                         </li>
                                                     @endif

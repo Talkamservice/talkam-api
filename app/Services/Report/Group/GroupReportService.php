@@ -41,7 +41,8 @@ class GroupReportService
     public static function validate(array $data)
     {
         $validator = Validator::make($data, [
-            "action" => "required|string|in:Suspended,Activated,Resolved"
+            "action" => "required|string|in:Suspended,Activated,Resolved",
+            "reason" => "required|string",
         ]);
 
         if ($validator->fails()) {

@@ -1,23 +1,31 @@
 <?php
 
-namespace App\Notifications\User;
+namespace App\Notifications\Messaging;
 
+use App\Helpers\MethodsHelper;
+use App\Http\Resources\Therapist\TherapistResource;
+use App\Http\Resources\Users\UserResource;
+use App\Models\Message;
+use App\Models\User;
+use App\Services\Message\FcmPushNotificationService;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Kutia\Larafirebase\Messages\FirebaseMessage;
 
-class PostRestorationNotification extends Notification
+class NewMessageNotification extends Notification
 {
     use Queueable;
+
+    public $therapist;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $post)
+    public function __construct(public Message $message)
     {
-        //
     }
 
     /**
@@ -27,7 +35,7 @@ class PostRestorationNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return ["mail", "database", "firebase"];
     }
 
     /**
@@ -38,10 +46,10 @@ class PostRestorationNotification extends Notification
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data["title"])
-            ->markdown('emails.posts.suspension-remove', [
+            ->markdown('emails.general.index', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "recipient_name" => $notifiable->full_name,
+                "recipient_name" => $notifiable->getName(),
             ]);
     }
 
@@ -53,9 +61,7 @@ class PostRestorationNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'post_id' => $this->post->id,
-            'title' => 'Post Restored',
-            'message' => 'Your post has been removed from suspension and can now appear on the web.',
+            //
         ];
     }
 
@@ -66,6 +72,7 @@ class PostRestorationNotification extends Notification
 
     public function toFirebase(object $notifiable)
     {
+
         $data = $this->buildData($notifiable);
 
         return (new FirebaseNotificationService)
@@ -73,21 +80,29 @@ class PostRestorationNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                "id" => $this->message?->conversation_id,
+                "type" => "conversation",
+            ])
             ->initiate();
     }
 
     public function buildData($notifiable)
     {
+        $title = "New Message from " . $this->message->receiver->getName();
+
         return [
             'data' => [
-                'id' => $this->post->id,
+                'id' => $this->message->conversation_id,
             ],
-            'title' => "Post Restored",
-            'message' => "Your post has been removed from suspension and can now appear on our platform.",
+            'title' => $title,
+            'message' => "{$this->message->sender->name} sent you a new message",
             'link' => null,
-            'type' => 'post',
+            'type' => 'conversation',
             'batch_no' => null,
-            "extra" => []
+            "extra" => [
+                "receiver" => UserResource::custom($this->message->receiver)
+            ]
         ];
     }
 }

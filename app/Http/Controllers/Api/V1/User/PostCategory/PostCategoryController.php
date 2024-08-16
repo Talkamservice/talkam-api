@@ -11,6 +11,7 @@ use App\Services\Post\RecentViewService;
 use App\Services\PostCategory\PostCategoryService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class PostCategoryController extends Controller
 {
@@ -54,6 +55,29 @@ class PostCategoryController extends Controller
             $categories = $this->post_category_service->subCategoryList($request->all())->get();
             $data = PostCategoryResource::collection($categories);
             return ApiHelper::validResponse("Sub categories returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function following(Request $request)
+    {
+        try {
+            $categories = $this->post_category_service->following()->get();
+            $data = PostCategoryResource::collection($categories);
+            return ApiHelper::validResponse("Categories returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function mergedCategories(Request $request)
+    {
+        try {
+            $categories = $this->post_category_service->mergeCatWithGroups($request->all())->toArray();
+            return ApiHelper::validResponse("Merged categories returned successfully", $categories);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

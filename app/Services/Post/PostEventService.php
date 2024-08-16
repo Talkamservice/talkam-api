@@ -36,7 +36,7 @@ class PostEventService
             ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
                 foreach ($posts as $post) {
 
-                    $content = $post->title . ' ' . $post->body;
+                    $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
 
                     // Tokenize the content into words
                     $words = preg_split('/[\s,]+/', $content);
@@ -85,7 +85,7 @@ class PostEventService
             return !empty($trimmedKey) && strlen($trimmedKey) > 3;
         }, ARRAY_FILTER_USE_KEY);
 
-        foreach ($filtered_array as $word => $count) {
+        foreach (ensureUniqueKeys($filtered_array) as $word => $count) {
             TrendingTag::create([
                 'tag' => trim(ucwords($word)),
                 'count' => $count,
@@ -104,7 +104,7 @@ class PostEventService
                 ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
                     foreach ($posts as $post) {
 
-                        $content = $post->title . ' ' . $post->body;
+                        $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
 
                         // Tokenize the content into words
                         $words = preg_split('/[\s,]+/', $content);
@@ -152,7 +152,7 @@ class PostEventService
                         return !empty($trimmedKey) && strlen($trimmedKey) > 3;
                     }, ARRAY_FILTER_USE_KEY);
 
-                    foreach ($filtered_array as $word => $count) {
+                    foreach (ensureUniqueKeys($filtered_array) as $word => $count) {
                         TrendingTag::create([
                             "category_id" => $category->id,
                             'tag' => trim(ucwords($word)),

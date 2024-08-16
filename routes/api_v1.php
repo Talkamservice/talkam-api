@@ -9,7 +9,9 @@ use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
 use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
+use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
+use App\Http\Controllers\Api\V1\User\Messaging\MessagingController;
 use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
@@ -48,36 +50,38 @@ Route::prefix("auth")->as("auth.")->group(function () {
 
     Route::prefix("password")->as("password.")->group(function () {
         Route::post('/forgot', [PasswordController::class, 'forgotPassword'])->name("forgot_password");
-        Route::post("/reset", [PasswordController::class,  "resetPassword"])->name("reset_password");
+        Route::post("/reset", [PasswordController::class, "resetPassword"])->name("reset_password");
     });
     Route::prefix("otp")->as("otp.")->group(function () {
         Route::post('/request', [VerificationController::class, 'request'])->name("request");
-        Route::post("/verify", [VerificationController::class,  "verify"])->name("verify");
+        Route::post("/verify", [VerificationController::class, "verify"])->name("verify");
     });
 });
 
-Route::get("profile/avatars", [UserController::class,  "listAvatars"])->name("avatars.list");
+Route::get("profile/avatars", [UserController::class, "listAvatars"])->name("avatars.list");
 
 Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
-        Route::get("/me", [UserController::class,  "me"])->name("me");
+        Route::get("/me", [UserController::class, "me"])->name("me");
 
         Route::prefix("profile")->as("profile.")->group(function () {
-            Route::post("/upload-avatar", [UserController::class,  "uploadAvatar"])->name("upload.avatar");
-            Route::post("/update", [UserController::class,  "update"])->name("update");
-            Route::post("interests/add-remove", [UserController::class,  "saveInterest"])->name("save-interest");
-            Route::post("erase-account-data", [UserController::class,  "eraseAccount"])->name("erase-account");
-            Route::post("delete-account", [UserController::class,  "deleteAccount"])->name("delete-account");
-            Route::get("fetch", [UserController::class,  "getProfile"])->name("get-profile");
-            Route::post("link-social-account", [UserController::class,  "linkSocialAccount"])->name("link-social-account");
-            Route::post("unlink-social-account", [UserController::class,  "unlinkSocialAccount"])->name("unlink-social-account");
+            Route::post("/upload-avatar", [UserController::class, "uploadAvatar"])->name("upload.avatar");
+            Route::post("/update", [UserController::class, "update"])->name("update");
+            Route::post("interests/add-remove", [UserController::class, "saveInterest"])->name("save-interest");
+            Route::post("erase-account-data", [UserController::class, "eraseAccount"])->name("erase-account");
+            Route::post("delete-account", [UserController::class, "deleteAccount"])->name("delete-account");
+            Route::get("fetch", [UserController::class, "getProfile"])->name("get-profile");
+            Route::post("link-social-account", [UserController::class, "linkSocialAccount"])->name("link-social-account");
+            Route::post("unlink-social-account", [UserController::class, "unlinkSocialAccount"])->name("unlink-social-account");
         });
 
         Route::prefix("post-categories")->as("post-categories.")->group(function () {
             Route::get("/", [PostCategoryController::class, "index"])->name("index");
             Route::get("{id}/show", [PostCategoryController::class, "show"])->name("show");
             Route::post("follow", [PostCategoryController::class, "follow"])->name("follow");
+            Route::get("following", [PostCategoryController::class, "following"])->name("following");
             Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
+            Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
         });
 
         Route::prefix("blocked-users")->as("blocked-users.")->group(function () {
@@ -95,7 +99,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             "recent-views" => RecentViewController::class,
             "groups" => GroupController::class,
             "group-members" => GroupMemberController::class,
-            "guidelines" => GuildlineController::class,
+            "guidelines" => GuidelineController::class,
         ]);
 
         Route::prefix("posts")->as("posts.")->group(function () {
@@ -123,8 +127,10 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
             Route::prefix("reports")->as("reports.")->group(function () {
                 Route::post("create", [GroupReportController::class, "report"])->name("report");
-                        
+
             });
+            Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
+            Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
         });
 
         Route::prefix("recents")->as("recents")->group(function () {
@@ -141,7 +147,16 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::prefix("conversations")->as("conversations.")->group(function () {
                 Route::post("update-status", [ConversationController::class, "updateStatus"])->name("update-status");
                 Route::post("report", [ConversationController::class, "report"])->name("report");
+                Route::post("/current-conversation", [ConversationController::class, "currentConversation"])->name("current-conversation");
+                Route::get("/pending-requests", [ConversationController::class, "pendingRequests"])->name("pending-request");
             });
+
+            Route::prefix("messages")->as("conversations.")->group(function () {
+                Route::get("list", [MessagingController::class, "list"])->name("get-messages");
+                Route::post("/send-message", [MessagingController::class, "sendMessage"])->name("send-message");
+                Route::delete("/delete-message/{messageId}", [MessagingController::class, "deleteMessage"])->name("delete-message");
+            });
+
         });
 
         Route::prefix("notifications")->as("notifications.")->group(function () {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User\Messaging;
 
 use App\Constants\General\ApiConstants;
+use App\Events\NewMessage;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -45,11 +46,25 @@ class ConversationController extends Controller
         }
     }
 
+    public function currentConversation(Request $request)
+    {
+        try {
+            $conversation = $this->conversation_service->currentConversation($request->all());
+            $data = ConversationResource::make($conversation);
+            return ApiHelper::validResponse("Conversation fetched successfully", $data);
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
     public function store(Request $request)
     {
         try {
             $conversation = $this->conversation_service->create($request->all());
-            $data = ConversationResource::make($conversation);
+            $data = ConversationResource::make($conversation)->toArray($request);
+            broadcast(new NewMessage($data["last_message"], $conversation->id))->toOthers();
             return ApiHelper::validResponse("Conversation created successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
@@ -114,6 +129,17 @@ class ConversationController extends Controller
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function pendingRequests(Request $request)
+    {
+        try {
+            $categories = $this->conversation_service->pendingRequests($request->all())->latest()->get();
+            $data = ConversationResource::collection($categories);
+            return ApiHelper::validResponse("Conversations returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
+use App\Http\Controllers\Admin\Post\PostController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\Report\CommentReportController;
 use App\Http\Controllers\Admin\Report\GroupReportController;
