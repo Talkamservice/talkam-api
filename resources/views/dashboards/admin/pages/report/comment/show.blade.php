@@ -22,45 +22,45 @@
                 <div class="col-xxl-12 col-xl-12">
                     <div class="card custom-card overflow-hidden">
                         <div class="card-body p-0">
-                            <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
-                                <div>
-                                    <span class="avatar avatar-xxl avatar-rounded online me-3">
-                                        <img src="{{ $comment_report->post->cover }}" alt="">
-                                    </span>
-                                </div>
-                                <div class="flex-fill main-profile-info">
-                                    <div class="d-flex align-items-center justify-content-end">
-                                        <button
-                                            class="btn bg-white btn-outline-{{ pillClasses($comment_report->status) }} btn-sm btn-wave">
-                                            {{ $comment_report->status }}
-                                        </button>
+                            @if($comment_report)
+                                <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
+                                    <div>
+                                        <span class="avatar avatar-xxl avatar-rounded online me-3">
+                                            <img src="{{ asset($comment_report->comment->cover) }}" alt="Cover Image">
+                                        </span>
                                     </div>
-                                    <div class="d-flex mb-0">
-                                        <div class="me-4">
-                                            <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">{{ $reasons_count }}
-                                            </p>
-                                            <p class="mb-0 fs-14 text-fixed-white">Reports</p>
+                                    <div class="flex-fill main-profile-info">
+                                        <div class="d-flex align-items-center justify-content-end">
+                                            <button
+                                                class="btn bg-white btn-outline-{{ pillClasses($comment_report->status) }} btn-sm btn-wave">
+                                                {{ $comment_report->status }}
+                                            </button>
+                                        </div>
+                                        <div class="d-flex mb-0">
+                                            <div class="me-4">
+                                                <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">{{ $reasons_count ?? 0 }}</p>
+                                                <p class="mb-0 fs-14 text-fixed-white">Reports</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="p-4 border-bottom border-block-end-dashed">
-                                <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
-                                <div class="text-muted">
-                                    <p class="mb-2">
-                                        <b>Name:</b> {{ $comment_report->comment->comment ?? 'N/A' }}
-                                    </p>
-                                    <p class="mb-2">
-                                      <b>Attachment:</b>
-                                      @if ($comment_report->comment->attachment)
-                                          <img src="{{ $comment_report->comment->attachment }}" alt="Comment Attachment" style="max-width: 100%; height: auto;">
-                                      @else
-                                          N/A
-                                      @endif
-                                  </p>
-                                  
+                                <div class="p-4 border-bottom border-block-end-dashed">
+                                    <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
+                                    <div class="text-muted">
+                                        <p class="mb-2"><b>Name:</b> {{ $comment_report->comment->comment }}</p>
+                                        <p class="mb-2">
+                                            <b>Attachment:</b>
+                                            @if ($comment_report->comment->attachment)
+                                                <img src="{{ $comment_report->comment->attachment }}" alt="Comment Attachment" style="max-width: 100%; height: auto;">
+                                            @else
+                                                N/A
+                                            @endif
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <p class="p-4">No Comment Report Information available.</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -92,21 +92,20 @@
                                     @forelse ($comment_report_lists as $report)
                                         <tr>
                                             <td>
-                                              <a href="{{ route('admin.users.show', $report->user_id) }}">
-                                                <div class="d-flex align-items-center fw-semibold">
-                                                    <span class="avatar avatar-sm me-2 avatar-rounded">
-                                                        <img src="{{ $report->user->avatarUrl() }}" alt="img">
-                                                    </span>{{ $report->post->user->username }}
-                                                </div>
-                                            </a>
+                                                <a href="{{ route('admin.users.show', $report->user_id) }}">
+                                                    <div class="d-flex align-items-center fw-semibold">
+                                                        <span class="avatar avatar-sm me-2 avatar-rounded">
+                                                            <img src="{{ $report->user->avatarUrl() }}" alt="Avatar">
+                                                        </span>{{ $report->post->user->username ?? 'Unknown' }}
+                                                    </div>
+                                                </a>
                                             </td>
-                                            <td>{{ $report->reason }}</td>
-                                            <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>
+                                            <td>{{ $report->reason ?? 'No reason provided' }}</td>
+                                            <td>{{ $report->created_at ? $report->created_at->format('Y-m-d h:i A') : 'N/A' }}</td>
                                         </tr>
                                     @empty
                                         <tr>
                                             <td colspan="3" class="text-center">No record found</td>
-                                        </tr>
                                     @endforelse
                                 </tbody>
                             </table>

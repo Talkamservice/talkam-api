@@ -78,11 +78,11 @@ class PostReportController extends Controller
         }
     }
 
-    public function  deleteReport(Request $request, $post_report_id)
+    public function deleteReportedPost(Request $request, $post_report_id)
     {
         try {
             $this->post_report_service->delete($post_report_id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Post report deleted successfully");
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Reported post deleted successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {

@@ -66,17 +66,17 @@ class CommentReportController extends Controller
         }
     }
 
-    public function  deleteReport(Request $request, $comment_report_id)
+    public function  deleteReportedComment(Request $request, $comment_report_id)
     {
         try {
             $this->comment_report_service->delete($comment_report_id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "comment report deleted successfully");
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, " Reported comment deleted successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            // throw $th;
+            throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }

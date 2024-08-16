@@ -30,7 +30,7 @@ Route::middleware(["auth"])->group(
             'users' => UserController::class,
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
-            'guidelines'=> GuidelineController::class,
+            'guidelines' => GuidelineController::class,
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {
@@ -39,9 +39,8 @@ Route::middleware(["auth"])->group(
             Route::post('{id}/hide-posts', [UserController::class, 'hideUserPost'])->name('hide-posts');
             Route::post('{id}/restore-posts', [UserController::class, 'restoreUserPost'])->name('restore-posts');
             Route::delete('{id}/remove-posts', [UserController::class, 'removeUserPosts'])->name('remove-posts');
-
         });
-       
+
         Route::prefix("post-categories/{category}")->as("categories.sub-categories.")->group(function () {
             Route::get('index', [PostCategoryController::class, "subCategories"])->name("index");
             Route::get('create', [PostCategoryController::class, "createCategory"])->name("create-sub-category");
@@ -83,15 +82,22 @@ Route::middleware(["auth"])->group(
             Route::get('post/lists', [PostReportController::class, "reportList"])->name("post.lists");
             Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
             Route::put('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
-            Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
+            Route::delete('post/delete/{id}', [PostReportController::class, "deleteReportedPost"])->name('post.delete');
 
             Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");
             Route::get('group/show/{id}', [GroupReportController::class, "show"])->name("group.show");
+            Route::post('group/activate/{id}', [GroupReportController::class, "activateReportedGroup"])->name("group.activate");
+            Route::post('group/suspend/{id}', [GroupReportController::class, "suspendReportedGroup"])->name("group.suspend");
+            Route::post('group-member/suspend/{id}', [GroupReportController::class, "suspendReportedGroupMember"])->name("group-member.suspend");
+            Route::post('group-member/undo-suspension/{id}', [GroupReportController::class, 'undoGroupMemberSuspension'])->name('group-member.undo-suspension');
+            Route::get('group-member/show/{id}', [GroupReportController::class, 'showGroupMemberReport'])->name('group-member.show');
+
+
+
 
             Route::get('comment/lists', [CommentReportController::class, "reportList"])->name("comment.lists");
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
+            Route::delete('comment/delete/{id}', [CommentReportController::class, "deleteReportedComment"])->name('comment.delete');
         });
     }
 );
-
-
