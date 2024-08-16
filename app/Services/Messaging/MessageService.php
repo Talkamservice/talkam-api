@@ -66,6 +66,9 @@ class MessageService
             $messages = $messages->where("conversation_id", $key);
         }
 
+        if (!empty($key = $data["search"] ?? null)) {
+            $messages = $messages->search($key);
+        }
 
         return $messages;
     }

@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
 use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
 use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
+use App\Http\Controllers\Api\V1\User\Messaging\MessagingController;
 use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
@@ -149,6 +150,13 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::post("/current-conversation", [ConversationController::class, "currentConversation"])->name("current-conversation");
                 Route::get("/pending-requests", [ConversationController::class, "pendingRequests"])->name("pending-request");
             });
+
+            Route::prefix("messages")->as("conversations.")->group(function () {
+                Route::get("list", [MessagingController::class, "list"])->name("get-messages");
+                Route::post("/send-message", [MessagingController::class, "sendMessage"])->name("send-message");
+                Route::delete("/delete-message/{messageId}", [MessagingController::class, "deleteMessage"])->name("delete-message");
+            });
+
         });
 
         Route::prefix("notifications")->as("notifications.")->group(function () {

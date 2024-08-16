@@ -131,15 +131,4 @@ class ConversationController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
-
-    public function pendingRequests(Request $request)
-    {
-        try {
-            $categories = $this->conversation_service->pendingRequests($request->all())->latest()->get();
-            $data = ConversationResource::collection($categories);
-            return ApiHelper::validResponse("Conversations returned successfully", $data);
-        } catch (Exception $e) {
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
-        }
-    }
 }
