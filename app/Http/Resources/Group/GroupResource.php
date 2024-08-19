@@ -33,7 +33,7 @@ class GroupResource extends JsonResource
             "status" => $this->status,
             "group_access" => $this->group_access,
             "image" => $this->image,
-            "is_following" => !empty($group_member),
+            "is_following" => !empty($group_member) && ($group_member?->status == StatusConstants::ACTIVE),
             "user_role" => $group_member?->role,
             "has_requested" => $group_member?->status == StatusConstants::PENDING,
             "is_suspended" => $group_member?->status == StatusConstants::SUSPENDED,
