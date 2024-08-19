@@ -129,6 +129,10 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::post("create", [GroupReportController::class, "report"])->name("report");
 
             });
+<<<<<<< HEAD
+=======
+            Route::get("members/list", [GroupMemberController::class, "list"])->name("members.list");
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
             Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
             Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
         });

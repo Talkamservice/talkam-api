@@ -2,6 +2,10 @@
 
 namespace App\Http\Resources\Group;
 
+<<<<<<< HEAD
+=======
+use App\Constants\General\StatusConstants;
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
 use App\Http\Resources\Guideline\GuidelineResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
@@ -39,6 +43,10 @@ class GroupResource extends JsonResource
             "description" => $this->description,
             "owner" => !empty($this->creator) ? UserResource::custom($this->creator) : null,
             "about" => $this->about,
+<<<<<<< HEAD
+=======
+            "pending_count" => $this->members()->status(StatusConstants::PENDING)->count(),
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

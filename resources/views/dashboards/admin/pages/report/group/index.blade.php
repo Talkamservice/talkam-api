@@ -15,6 +15,7 @@
                 </nav>
             </div>
         </div>
+<<<<<<< HEAD
         <!-- Page Header Close -->
 
         <!-- Reported Groups Section -->
@@ -94,6 +95,41 @@
                                                             @endif
                                                         </li>
                                                     </ul>
+=======
+    </div>
+    <!-- Page Header Close -->
+
+    <!-- Start::row-1 -->
+    <div class="col-xl-12">
+        <div class="card custom-card">
+
+            <div class="card-body">
+                <div class="table-responsive" style="min-height: 250px">
+                    <table class="table text-nowrap table-hover border table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Group Name</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($group_report_lists->groupBy('group_id') as $group_id => $group_reports)
+                                @php
+                                    $first_report = $group_reports->first();
+                                @endphp
+                                @if ($first_report && $first_report->group && $first_report->user)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('admin.users.show', $first_report->id) }}">
+                                                <div class="d-flex align-items-center fw-semibold">
+                                                    <span class="avatar avatar-sm me-2 avatar-rounded">
+                                                        <img src="{{ $first_report->group->image }}" alt="img">
+                                                    </span>
+                                                    <a class="text-primary" href="{{ url('https://web.talkam.prodevs.io/group/' . $first_report->group->id . '/featured') }}" target="_blank" rel="noopener noreferrer">{{ $first_report->group->name }}</a>
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
                                                 </div>
                                             </td>
                                         </tr>

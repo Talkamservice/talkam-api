@@ -22,12 +22,26 @@
                 <div class="col-xxl-12 col-xl-12">
                     <div class="card custom-card overflow-hidden">
                         <div class="card-body p-0">
+<<<<<<< HEAD
                             @if($comment_report)
                                 <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
                                     <div>
                                         <span class="avatar avatar-xxl avatar-rounded online me-3">
                                             <img src="{{ asset($comment_report->comment->cover) }}" alt="Cover Image">
                                         </span>
+=======
+                            <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
+                                <div>
+                                    <span class="avatar avatar-xxl avatar-rounded online me-3">
+                                        <img src="{{ $comment_report->post->cover }}" alt="">
+                                    </span>
+                                </div>
+                                <div class="flex-fill main-profile-info">
+                                    <div class="d-flex align-items-center justify-content-end">
+                                        <button class="btn bg-white btn-outline-{{ pillClasses($comment_report->status) }} btn-sm btn-wave">
+                                            {{ $comment_report->status }}
+                                        </button>
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
                                     </div>
                                     <div class="flex-fill main-profile-info">
                                         <div class="d-flex align-items-center justify-content-end">
@@ -44,6 +58,7 @@
                                         </div>
                                     </div>
                                 </div>
+<<<<<<< HEAD
                                 <div class="p-4 border-bottom border-block-end-dashed">
                                     <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
                                     <div class="text-muted">
@@ -57,6 +72,21 @@
                                             @endif
                                         </p>
                                     </div>
+=======
+                            </div>
+                            <div class="p-4 border-bottom border-block-end-dashed">
+                                <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
+                                <div class="text-muted">
+                                    <p class="mb-2">
+                                        <b>Comment:</b> {{ $comment_report->comment->comment ?? 'N/A' }}
+                                    </p>
+                                    @if ($comment_report->comment->attachment)
+                                        <p class="mb-2">
+                                            <b>Attachment:</b>
+                                            <img src="{{ $comment_report->comment->attachment }}" alt="Comment Attachment" style="max-width: 100%; height: auto;">
+                                        </p>
+                                    @endif
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
                                 </div>
                             @else
                                 <p class="p-4">No Comment Report Information available.</p>
@@ -95,8 +125,13 @@
                                                 <a href="{{ route('admin.users.show', $report->user_id) }}">
                                                     <div class="d-flex align-items-center fw-semibold">
                                                         <span class="avatar avatar-sm me-2 avatar-rounded">
+<<<<<<< HEAD
                                                             <img src="{{ $report->user->avatarUrl() }}" alt="Avatar">
                                                         </span>{{ $report->post->user->username ?? 'Unknown' }}
+=======
+                                                            <img src="{{ $report->user->avatarUrl() }}" alt="img">
+                                                        </span>{{ $report->post->user->username }}
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
                                                     </div>
                                                 </a>
                                             </td>

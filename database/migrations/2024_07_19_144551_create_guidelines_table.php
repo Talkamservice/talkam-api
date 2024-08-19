@@ -13,6 +13,7 @@ return new class extends Migration
     public function up(): void
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (!Schema::hasTable("guidelines")) {
             Schema::create('guidelines', function (Blueprint $table) {
                 $table->id();
@@ -37,6 +38,20 @@ return new class extends Migration
             $table->timestamps();
         });
 >>>>>>> 9d438a05bcf5dd64da5d585270a0980186b7ea93
+=======
+<<<<<<<< HEAD:database/migrations/2024_08_15_221341_create_group_member_reports_table.php
+        Schema::create('group_member_reports', function (Blueprint $table) {
+========
+        Schema::create('guidelines', function (Blueprint $table) {
+>>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd:database/migrations/2024_07_19_144551_create_guidelines_table.php
+            $table->id();
+            $table->foreignId('user_id')->constrained("users")->cascadeOnDelete();
+            $table->foreignId("group_member_id")->constrained("group_members")->cascadeOnDelete();
+            $table->longText('reason')->nullable();
+            $table->string("status")->default(StatusConstants::PENDING);
+            $table->timestamps();
+        });
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
     }
 
     /**
@@ -45,9 +60,13 @@ return new class extends Migration
     public function down(): void
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         Schema::dropIfExists('guildlines');
 =======
         Schema::dropIfExists('trending_searches');
 >>>>>>> 9d438a05bcf5dd64da5d585270a0980186b7ea93
+=======
+        Schema::dropIfExists('group_member_reports');
+>>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
     }
 };
