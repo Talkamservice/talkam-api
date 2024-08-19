@@ -39,7 +39,6 @@
                                     @endphp
                                     <tr>
                                         <td>
-
                                             <a href="{{ route('admin.users.show', $first_report->comment->user->id) }}">
                                                 <div class="d-flex align-items-center fw-semibold">
                                                     <span class="avatar avatar-sm me-2 avatar-rounded">
@@ -48,7 +47,6 @@
                                                     </span>{{ $first_report->comment->user->username }}
                                                 </div>
                                             </a>
-
                                         </td>
                                         <td title="{{ $first_report->comment->comment }}">
                                             <a href="{{ url('https://web.talkam.prodevs.io/comment/' . $first_report->comment->id) }}"
@@ -56,9 +54,8 @@
                                                 {{ Str::limit($first_report->comment->comment ?? 'N/A', 30) }}
                                             </a>
                                         </td>
-
                                         {{-- <td title="{{ $first_report->comment->attachment }}"> --}}
-                                            {{ Str::limit($first_report->comment->attachment ?? 'N/A', 30) }}</td>
+                                        {{-- {{ Str::limit($first_report->comment->attachment ?? 'N/A', 30) }}</td> --}}
                                         <td>
                                             <span class="badge bg-{{ pillClasses($first_report->status) }}-transparent">
                                                 {{ $first_report->status }}
@@ -82,9 +79,10 @@
                                                         <form id="strikeUser_{{ $first_report->post->user->id }}"
                                                             action="{{ route('admin.users.strike', $first_report->post->user->id) }}"
                                                             method="post"
-                                                            onsubmit="return confirm('Are you sure of this action?')"> @csrf
+                                                            onsubmit="return confirm('Are you sure of this action?')">
+                                                            @csrf
                                                             <a class="dropdown-item text-warning" href="#"
-                                                                onclick="$('#strikeUser_{{ $first_report->post->user->id }}').submit()">
+                                                                onclick="event.preventDefault(); document.getElementById('strikeUser_{{ $first_report->post->user->id }}').submit();">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                                                     width="13" height="13" fill="currentColor"
                                                                     style="vertical-align: middle;">
@@ -93,12 +91,11 @@
                                                                     </path>
                                                                 </svg> | Strike user
                                                             </a>
-
                                                         </form>
                                                     </li>
                                                     <li>
                                                         <a class="dropdown-item text-danger" href="#"
-                                                            onclick="$('#deleteUser_{{ $first_report->comment->id }}').submit()">
+                                                            onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $first_report->comment->id }}').submit();">
                                                             <i class="ri-delete-bin-line"></i> | Delete comment
                                                         </a>
                                                         <form id="deleteUser_{{ $first_report->comment->id }}"
@@ -109,14 +106,17 @@
                                                             @method('delete')
                                                         </form>
                                                     </li>
-
                                                 </ul>
                                             </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center">No record found</td>
+                                        <td colspan="5" class="text-center">
+                                            <img class="no-data-image"
+                                                src="{{ asset('admin_assets/images/empty/no-data-concept-illustration.jpg') }}"
+                                                alt="">
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -133,4 +133,4 @@
             </div>
         </div>
     </div>
-@endsection>
+@endsection
