@@ -200,10 +200,6 @@ class ConversationService
                 $query->where('sender_id', $data["sender_id"])
                     ->whereNot("status", StatusConstants::AWAITING_APPROVAL);
             });
-            // ->orWhere(function ($q) use ($data) {
-            //     $q->where('receiver_id', $data["sender_id"])
-            //         ->whereNot("status", StatusConstants::AWAITING_APPROVAL);
-            // });
         }
 
         if (!empty($key = $data["status"] ?? null)) {
