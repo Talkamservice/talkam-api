@@ -170,7 +170,7 @@ class GroupMemberController extends Controller
     {
         try {
             $this->group_member_service->reportMember($request->all());
-            return ApiHelper::validResponse("Request sent successfully");
+            return ApiHelper::validResponse("Report sent successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
