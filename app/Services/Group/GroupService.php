@@ -186,6 +186,25 @@ class GroupService
         return $builder;
     }
 
+    public static function following(array $data = [])
+    {
+        $builder = self::list($data);
+
+        if (!empty($type = $data["type"] ?? null)) {
+            $builder = $builder->whereRelation("members", function ($q) use ($type) {
+                if ($type == "all") {
+                    $q->where(["user_id" => auth()->id()])
+                        ->whereNotIn("status", [StatusConstants::BANNED]);
+                } else {
+                    $q->where(["user_id" => auth()->id()])
+                        ->whereNotIn("status", [StatusConstants::SUSPENDED, StatusConstants::BANNED]);
+                }
+            });
+        }
+
+        return $builder;
+    }
+
     public function requestAccess($id)
     {
         DB::beginTransaction();

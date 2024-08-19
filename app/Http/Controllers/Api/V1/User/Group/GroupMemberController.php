@@ -99,7 +99,7 @@ class GroupMemberController extends Controller
     public function following(Request $request)
     {
         try {
-            $groups = $this->group_service->list($request->all())->whereRelation("members", "user_id", auth()->id())
+            $groups = $this->group_service->following($request->all())
                 ->status()->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
             $data = collectPagination($groups);
