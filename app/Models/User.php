@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Constants\Account\User\UserConstants;
+use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -93,6 +94,11 @@ class User extends Authenticatable
     public function scopeRole($query, $role = UserConstants::USER)
     {
         return $query->where("role", $role);
+    }
+
+    public function scopeStatus($query, $status = StatusConstants::ACTIVE)
+    {
+        return $query->where("status", $status);
     }
 
     public function isAdmin()
