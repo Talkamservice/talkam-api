@@ -8,6 +8,7 @@ use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\GroupMember;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Predis\Response\Status;
 
 class GroupResource extends JsonResource
 {
@@ -34,6 +35,8 @@ class GroupResource extends JsonResource
             "image" => $this->image,
             "is_following" => !empty($group_member),
             "user_role" => $group_member?->role,
+            "has_requested" => $group_member?->status == StatusConstants::PENDING,
+            "is_suspended" => $group_member?->status == StatusConstants::SUSPENDED,
             "total_members" => $this->members?->count(),
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
             "guidelines" => GuidelineResource::collection($this->whenLoaded("guidelines", $this->guidelines)),
