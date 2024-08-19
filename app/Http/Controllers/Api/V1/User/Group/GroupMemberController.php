@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User\Group;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -130,7 +131,7 @@ class GroupMemberController extends Controller
             return ApiHelper::validResponse("Request sent successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
-        } catch (ModelNotFoundException $th) {
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);

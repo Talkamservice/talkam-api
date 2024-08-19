@@ -4,6 +4,7 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Group;
@@ -217,6 +218,11 @@ class GroupService
             ]);
 
             $admin = $this->getGroupOwner($id);
+
+            if (empty($admin)) {
+                throw new InvalidRequestException("We could not find the owner of this group");
+            }
+
             Notification::send($admin->user, new JoinGroupRequestNotification($member));
             DB::commit();
         } catch (\Throwable $th) {
