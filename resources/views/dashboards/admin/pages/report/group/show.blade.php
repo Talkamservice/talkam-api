@@ -103,9 +103,9 @@
                                             <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>
                                         </tr>
                                     @empty
-                                        <tr>
-                                            <td colspan="3" class="text-center">No record found</td>
-                                        </tr>
+                                    <tr>
+                                        <td colspan="5" class="text-center"><img class="no-data-image" src="{{asset('admin_assets/images/empty/no-data-concept-illustration.jpg')}}" alt=""></td>
+                                    </tr>
                                     @endforelse
                                 </tbody>
                             </table>
