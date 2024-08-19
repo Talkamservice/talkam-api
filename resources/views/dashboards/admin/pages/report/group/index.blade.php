@@ -121,6 +121,110 @@
             </div>
         </div>
 
-      
+        <!-- Reported Group Members Section -->
+        <div class="col-xl-12">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <h5 class="card-title">Reported Group Members</h5>
+                    <div class="table-responsive" style="min-height: 250px">
+                        <table class="table text-nowrap table-hover border table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Member Name</th>
+                                    <th scope="col">Group Name</th>
+                                    <th scope="col">Suspension Count</th>
+                                    <th scope="col">Suspension Ends</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($reported_members as $report)
+                                    <tr>
+                                        <td>{{ $report->groupMember->user->full_name }}</td>
+                                        <td>{{ $report->groupMember->group->name }}</td>
+                                        <td>{{ $report->groupMember->suspension_count ?? 0 }}</td>
+                                        <td>
+                                            @if ($report->groupMember->suspension_end)
+                                                {{ $report->groupMember->suspension_end->format('Y-m-d h:i A') }}
+                                            @else
+                                                Not Applicable
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{{ pillClasses($report->groupMember->status) }}-transparent">
+                                                {{ $report->groupMember->status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <a class="btn btn-outline-primary dropdown-toggle" href="#"
+                                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Action
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('admin.reports.group-member.show', $report->id) }}">
+                                                            <i class="ri-eye-line"></i> View
+                                                        </a>
+                                                    </li>
+                                                    @if ($report->user->banned)
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="#">
+                                                                <i class="ri-error-warning-line"></i> User Banned
+                                                            </a>
+                                                        </li>
+                                                    @elseif ($report->groupMember->suspension_end && $report->groupMember->suspension_end > now())
+                                                        <li>
+                                                            <form id="undoSuspension_{{ $report->id }}"
+                                                                action="{{ route('admin.reports.group-member.undo-suspension', $report->id) }}"
+                                                                method="POST"
+                                                                onsubmit="return confirm('Are you sure you want to lift this suspension?')">
+                                                                @csrf
+                                                                <a class="dropdown-item text-primary" href="#"
+                                                                    onclick="document.getElementById('undoSuspension_{{ $report->id }}').submit()">
+                                                                    <i class="ri-alert-line"></i> Undo Suspension
+                                                                </a>
+                                                            </form>
+                                                        </li>
+                                                    @else
+                                                        <li>
+                                                            <form id="suspendUser_{{ $report->id }}"
+                                                                action="{{ route('admin.reports.group-member.suspend', $report->id) }}"
+                                                                method="POST"
+                                                                onsubmit="return confirm('Are you sure you want to suspend this user?')">
+                                                                @csrf
+                                                                <a class="dropdown-item text-danger" href="#"
+                                                                    onclick="document.getElementById('suspendUser_{{ $report->id }}').submit()">
+                                                                    <i class="ri-alert-line"></i> Suspend User
+                                                                </a>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center">No records found</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            {{ $reported_members->links('pagination::bootstrap-4') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 @endsection
