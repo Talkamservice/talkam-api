@@ -82,6 +82,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("following", [PostCategoryController::class, "following"])->name("following");
             Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
             Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
+            Route::get("following", [PostCategoryController::class, "following"])->name("following");
+            Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
+            Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
         });
 
         Route::prefix("blocked-users")->as("blocked-users.")->group(function () {
@@ -121,17 +124,20 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("trending", [SearchController::class, "trending"])->name("trending");
         });
 
+        Route::prefix("search")->as("search")->group(function () {
+            Route::get("/", [SearchController::class, "index"])->name("index");
+            Route::get("recent", [SearchController::class, "recent"])->name("recent");
+            Route::get("trending", [SearchController::class, "trending"])->name("trending");
+        });
+
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
 
             Route::prefix("reports")->as("reports.")->group(function () {
+                Route::post("members/create", [GroupMemberController::class, "reportMember"])->name("report-members");
                 Route::post("create", [GroupReportController::class, "report"])->name("report");
-
             });
-            Route::get("members/list", [GroupMemberController::class, "list"])->name("members.list");
-            Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
-            Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
         });
 
         Route::prefix("recents")->as("recents")->group(function () {

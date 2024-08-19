@@ -6,8 +6,10 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostReport;
+use App\Notifications\User\PostsRemovedFromApplicationNotification;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -22,6 +24,7 @@ class PostReportService
     public static function getById($id): PostReport
     {
         $report = PostReport::find($id);
+        dd($report);
         if (empty($report)) {
             throw new ModelNotFoundException("Report not found");
         }
@@ -72,9 +75,12 @@ class PostReportService
         }
     }
 
-    public static function delete($report_id)
+    public static function delete($reported_post_id)
     {
-        $report = self::getById($report_id);
-        $report->delete();
+        $reported_post = self::getById($reported_post_id);
+        dd($reported_post);
+        $reported_post->post->delete();
+        Notification::send( $reported_post, new PostsRemovedFromApplicationNotification($reported_post));
+        return  $reported_post->refresh();
     }
 }

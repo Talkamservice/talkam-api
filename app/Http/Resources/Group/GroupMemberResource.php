@@ -20,6 +20,7 @@ class GroupMemberResource extends JsonResource
             "id" => $this->id,
             "role" => $this->role,
             "status" => $this->status,
+            "suspension_ends_at" => $this->suspension_ends_at,
             "group" => GroupResource::custom($this->group),
             "user" => UserResource::custom($this->user),
             "created_at" => formatDate($this->created_at),

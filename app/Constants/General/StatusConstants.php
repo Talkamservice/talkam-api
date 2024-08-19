@@ -41,6 +41,7 @@ class StatusConstants
     const OPENED = "Opened";
     const ACTIVATED = "Activated";
     const CLOSED = "Closed";
+    const BANNED = "Banned";
     const ACTIVE_OPTIONS = [
         self::ACTIVE => "Active",
         self::INACTIVE => "Inactive",

@@ -30,6 +30,7 @@ class AppConstants
         StatusConstants::SUCCESSFUL => "success",
         StatusConstants::PENDING => "primary",
         StatusConstants::PROCESSING => "info",
+        StatusConstants::SUSPENDED => "warning",
         StatusConstants::ACTIVE => "success",
         StatusConstants::INACTIVE => "warning",
         StatusConstants::SKIPPED => "warning",
@@ -37,6 +38,7 @@ class AppConstants
         StatusConstants::DELETED => "danger",
         StatusConstants::CANCELLED => "danger",
         StatusConstants::FAILED => "danger",
+        StatusConstants::BANNED => "danger",
     ];
 
     const ADMIN_PAGINATION_SIZE = 50;

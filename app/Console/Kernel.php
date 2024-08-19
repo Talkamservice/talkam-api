@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Group\UpdateSuspendedMembersStatus;
 use App\Console\Commands\Post\PostCommand;
 use App\Console\Commands\Post\TrendingPostCommand;
 use App\Console\Commands\TestCommand;
@@ -20,6 +21,7 @@ class Kernel extends ConsoleKernel
         TestCommand::class,
         PostCommand::class,
         TrendingPostCommand::class,
+        UpdateSuspendedMembersStatus::class
     ];
 
     /**
@@ -30,6 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("process:post_handle")->everyMinute();
         $schedule->command("process:trending_tags_handle")->everyThreeMinutes();
         // $schedule->command('inspire')->hourly();
+        $schedule->command('members:update-status')->everyMinute();
     }
 
     /**
@@ -37,7 +40,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

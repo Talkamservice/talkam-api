@@ -8,6 +8,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Resources\Group\GroupMemberResource;
 use App\Models\GroupMember;
+use App\Models\GroupMemberReport;
 use App\Models\User;
 use App\Services\Group\GroupService;
 use App\Services\User\UserService;
@@ -55,7 +56,7 @@ class GroupMemberService
         $data = self::validate($data);
         $data["role"] = $data["role"] ?? UserConstants::MEMBER;
         return GroupMember::firstOrCreate([
-            "user_id"=> $data["user_id"],
+            "user_id" => $data["user_id"],
             "group_id" => $data["group_id"],
         ], $data);
     }
@@ -135,7 +136,7 @@ class GroupMemberService
             }
 
             $data = $validator->validated();
-            
+
             $member = $this->getById($id);
             $member->update($data);
             DB::commit();
@@ -175,5 +176,37 @@ class GroupMemberService
         }, UserConstants::GROUP_ROLES);
 
         return $data;
+    }
+
+    public function reportMember(array $data = [])
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "group_member_id" => "required|numeric|exists:group_members,id",
+                "reason" => "required|string",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $group_member = self::getById($data["group_member_id"]);
+           
+            $report = GroupMemberReport::create([
+                "user_id" => $group_member->user_id,
+                "group_member_id" => $group_member->id,
+                "reason" => $data["reason"],
+            ]);
+
+
+            DB::commit();
+            return $report;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }
