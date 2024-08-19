@@ -32,11 +32,16 @@ Route::middleware(["auth"])->group(
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
 <<<<<<< HEAD
+<<<<<<< HEAD
             'guidelines' => GuidelineController::class,
 =======
             'posts' => PostController::class,
             'guidelines'=> GuidelineController::class,
 >>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
+=======
+            'posts' => PostController::class,
+            'guidelines'=> GuidelineController::class,
+>>>>>>> 405dd367fba6cf2a597feb81319853e4b350abb4
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {

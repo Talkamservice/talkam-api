@@ -61,6 +61,7 @@ return new class extends Migration
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         Schema::dropIfExists('guildlines');
 =======
         Schema::dropIfExists('trending_searches');
@@ -68,5 +69,8 @@ return new class extends Migration
 =======
         Schema::dropIfExists('group_member_reports');
 >>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
+=======
+        Schema::dropIfExists('guidelines');
+>>>>>>> 405dd367fba6cf2a597feb81319853e4b350abb4
     }
 };

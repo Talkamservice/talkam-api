@@ -126,12 +126,21 @@
                                                     <div class="d-flex align-items-center fw-semibold">
                                                         <span class="avatar avatar-sm me-2 avatar-rounded">
 <<<<<<< HEAD
+<<<<<<< HEAD
                                                             <img src="{{ $report->user->avatarUrl() }}" alt="Avatar">
                                                         </span>{{ $report->post->user->username ?? 'Unknown' }}
 =======
                                                             <img src="{{ $report->user->avatarUrl() }}" alt="img">
                                                         </span>{{ $report->post->user->username }}
 >>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
+=======
+                                                            <img src="{{ $report->user->avatarUrl() }}" alt="img">
+                                                        </span>{{ $report->post->user->username }}
+=======
+                                                            <img src="{{ $report->user->avatarUrl() }}" alt="Avatar">
+                                                        </span>{{ $report->post->user->username ?? 'Unknown' }}
+>>>>>>> 17b87e3bdbdec9a57985380574587d008ee650d9
+>>>>>>> 405dd367fba6cf2a597feb81319853e4b350abb4
                                                     </div>
                                                 </a>
                                             </td>
