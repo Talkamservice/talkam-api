@@ -31,17 +31,8 @@ Route::middleware(["auth"])->group(
             'users' => UserController::class,
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
-<<<<<<< HEAD
-<<<<<<< HEAD
-            'guidelines' => GuidelineController::class,
-=======
-            'posts' => PostController::class,
             'guidelines'=> GuidelineController::class,
->>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
-=======
-            'posts' => PostController::class,
-            'guidelines'=> GuidelineController::class,
->>>>>>> 405dd367fba6cf2a597feb81319853e4b350abb4
+
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {
@@ -92,13 +83,8 @@ Route::middleware(["auth"])->group(
         Route::prefix("reports")->as("reports.")->group(function () {
             Route::get('post/lists', [PostReportController::class, "reportList"])->name("post.lists");
             Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
-<<<<<<< HEAD
             Route::put('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
-            Route::delete('post/delete/{id}', [PostReportController::class, "deleteReportedPost"])->name('post.delete');
-=======
-            Route::post('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
             Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
->>>>>>> b3c3aac306096df41a5f769351d73014036f32dd
 
             Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");
             Route::get('group/show/{id}', [GroupReportController::class, "show"])->name("group.show");
