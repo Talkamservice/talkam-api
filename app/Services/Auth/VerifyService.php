@@ -78,8 +78,9 @@ class VerifyService
             }
 
             $data = $validator->validated();
-            $data["type"] = $data["type"] ?? PinConstants::TYPE_VERIFY_EMAIL;
+            $data["type"] ??= PinConstants::TYPE_VERIFY_EMAIL;
             $check = $this->pin_service->verify($data);
+            
             $pin = $check["pin"];
             $user = $check["user"] ?? null;
 
