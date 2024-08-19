@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Notifications\Group;
+
+use App\Services\Notifications\FirebaseNotificationService;
+use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class SuspendGroupMemberNotification extends Notification
+{
+    use Queueable;
+
+    protected $message;
+
+    public function __construct(public $group_member, $message)
+    {
+        $this->message = $message;
+    }
+
+    public function via($notifiable): array
+    {
+        return ['mail', 'database', 'firebase'];
+    }
+
+    public function toMail($notifiable): MailMessage
+    {
+        $data = $this->buildData($notifiable);
+        return (new MailMessage)
+            ->subject('Group Suspension Notification')
+            ->markdown('emails.group.suspend-member', [
+                "title" => $data["title"],
+                "message" => $data["message"],
+                'recipient_name' => $notifiable->full_name,
+            ]);
+    }
+
+    public function toArray($notifiable): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return $this->buildData($notifiable);
+    }
+
+    public function toFirebase($notifiable)
+    {
+        $data = $this->buildData($notifiable);
+
+        return (new FirebaseNotificationService)
+            ->setTitle($data["title"])
+            ->setBody($data["message"])
+            ->setType($data["type"])
+            ->byUserToken($notifiable->fcm_token)
+            ->initiate();
+    }
+
+    public function buildData($notifiable)
+    {
+        return [
+            'data' => [
+                'id' => $this->group_member->group_id,
+            ],
+            'title' => "Suspension Notification",
+            'message' => $this->message,
+            'link' => null,
+            'type' => 'group',
+            'batch_no' => null,
+            "extra" => []
+        ];
+    }
+    
+}

@@ -6,8 +6,10 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\CommentReport;
+use App\Notifications\User\CommentsRemovedFromApplicationNotification;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -49,7 +51,7 @@ class CommentReportService
             $report = self::getById($report_id);
 
             if (in_array($report->status, [StatusConstants::RESOLVED])) {
-                throw new InvalidRequestException("You cannot make changes you a resolved report");
+                throw new InvalidRequestException("You cannot make changes when you resolved a report");
             }
 
             if ($data["status"] == StatusConstants::SUSPENDED) {
@@ -72,9 +74,11 @@ class CommentReportService
         }
     }
 
-    public static function delete($report_id)
+    public static function delete($reported_comment_id)
     {
-        $report = self::getById($report_id);
-        $report->delete();
+        $reported_comment = self::getById($reported_comment_id);
+        $reported_comment->comment->delete();
+        Notification::send($reported_comment, new CommentsRemovedFromApplicationNotification($reported_comment));
+        return $reported_comment->refresh();
     }
 }

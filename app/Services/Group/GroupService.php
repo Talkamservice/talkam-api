@@ -4,10 +4,12 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Models\User;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
 use App\Services\Guideline\GuidelineService;
@@ -186,6 +188,25 @@ class GroupService
         return $builder;
     }
 
+    public static function following(array $data = [])
+    {
+        $builder = self::list($data);
+
+        if (!empty($type = $data["type"] ?? null)) {
+            $builder = $builder->whereRelation("members", function ($q) use ($type) {
+                if ($type == "all") {
+                    $q->where(["user_id" => auth()->id()])
+                        ->whereNotIn("status", [StatusConstants::BANNED]);
+                } else {
+                    $q->where(["user_id" => auth()->id()])
+                        ->whereNotIn("status", [StatusConstants::SUSPENDED, StatusConstants::BANNED]);
+                }
+            });
+        }
+
+        return $builder;
+    }
+
     public function requestAccess($id)
     {
         DB::beginTransaction();
@@ -197,8 +218,18 @@ class GroupService
                 "status" => StatusConstants::PENDING
             ]);
 
-            $admin = $this->getGroupOwner($id);
-            Notification::send($admin->user, new JoinGroupRequestNotification($member));
+            $admins = GroupMember::where([
+                "group_id" => $id,
+            ])->whereIn("role", [UserConstants::ADMIN, UserConstants::OWNER])
+                ->pluck("user_id")->toArray();
+
+            $users = User::whereIn("id", $admins)->status()->get();
+
+            if (empty($users)) {
+                throw new InvalidRequestException("No admin found for this group");
+            }
+
+            Notification::send($users, new JoinGroupRequestNotification($member));
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();

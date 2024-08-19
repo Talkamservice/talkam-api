@@ -23,11 +23,11 @@ class ApiHelper
         }
 
         $body = [
-            "message" => app()->environment(['local']) ? $trace->getMessage() : $message,
+            "message" => app()->environment(['local', 'staging']) ? $trace->getMessage() : $message,
             "code" => $code,
             "success" => false,
             "error_code" => $error_code,
-            "error_debug" => app()->environment(['local']) ? $trace->getTrace() : $trace_msg ?? null
+            "error_debug" => app()->environment(['local', 'staging']) ? $trace->getTrace() : $trace_msg ?? null
 
         ];
 

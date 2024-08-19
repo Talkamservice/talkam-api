@@ -38,8 +38,8 @@ class MessageService
     public static function create(array $data)
     {
         $data = self::validate($data);
-        $data["sender_id"] = $data["sender_id"] ?? auth()->id();
-        $message =  Message::create($data);
+        $data["sender_id"] ??= auth()->id();
+        $message = Message::create($data);
         return $message;
     }
 
@@ -58,9 +58,18 @@ class MessageService
     }
 
 
-    public static function list()
+    public static function list(array $data = [])
     {
-        $messages = Message::latest();
+        $messages = Message::query();
+
+        if (!empty($key = $data["conversation_id"] ?? null)) {
+            $messages = $messages->where("conversation_id", $key);
+        }
+
+        if (!empty($key = $data["search"] ?? null)) {
+            $messages = $messages->search($key);
+        }
+
         return $messages;
     }
 }

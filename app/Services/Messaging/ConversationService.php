@@ -2,6 +2,7 @@
 
 namespace App\Services\Messaging;
 
+use App\Constants\General\StatusConstants;
 use App\Constants\Messaging\MessagingConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Conversation;
@@ -53,7 +54,7 @@ class ConversationService
         try {
             $data = self::validate($data);
 
-            $data["sender_id"] = $data["sender_id"] ?? auth()->id();
+            $data["sender_id"] ??= auth()->id();
 
             $conversation = Conversation::where(function ($query) use ($data) {
                 $query->where('sender_id', $data["sender_id"])
@@ -64,15 +65,64 @@ class ConversationService
             })->first();
 
             if (empty($conversation)) {
-                $conversation =  Conversation::firstOrCreate([
+                $conversation = Conversation::firstOrCreate([
                     "sender_id" => $data["sender_id"],
                     "receiver_id" => $data["receiver_id"]
-                ], $data);
+                ], [
+                    "notification_status" => $data["notification_status"] ?? 1,
+                    "is_anonymous" => $data["is_anonymous"] ?? 0,
+                    "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
+                ]);
             }
 
-            $this->message_service->create(array_merge([
+            $this->message_service->create([
                 "conversation_id" => $conversation->id,
-            ], $data));
+                ...$data
+            ]);
+
+            DB::commit();
+
+            return $conversation;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function currentConversation(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "sender_id" => "nullable|exists:users,id",
+                "receiver_id" => "required|exists:users,id",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = self::validate($data);
+            $data["sender_id"] ??= auth()->id();
+
+            $conversation = Conversation::where(function ($query) use ($data) {
+                $query->where('sender_id', $data["sender_id"])
+                    ->where('receiver_id', $data["receiver_id"]);
+            })->orWhere(function ($query) use ($data) {
+                $query->where('sender_id', $data["receiver_id"])
+                    ->where('receiver_id', $data["sender_id"]);
+            })->first();
+
+            if (empty($conversation)) {
+                $conversation = Conversation::firstOrCreate([
+                    "sender_id" => $data["sender_id"],
+                    "receiver_id" => $data["receiver_id"]
+                ], [
+                    "notification_status" => $data["notification_status"] ?? 1,
+                    "is_anonymous" => $data["is_anonymous"] ?? 0,
+                    "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
+                ]);
+            }
 
             DB::commit();
             return $conversation;
@@ -81,6 +131,7 @@ class ConversationService
             throw $th;
         }
     }
+
 
     public function update(array $data, $id)
     {
@@ -139,6 +190,19 @@ class ConversationService
     public static function list(array $data)
     {
         $builder = Conversation::with(["receiver", "sender"]);
+
+        $data["sender_id"] ??= auth()->id();
+
+        if (!empty($key = $data["tab"] ?? null)) {
+            $builder = $builder->where('receiver_id', $data["sender_id"]);
+        } else {
+            $builder = $builder->where(function ($query) use ($data) {
+                $query->where('sender_id', $data["sender_id"]);
+            })->orWhere(function ($q) use ($data) {
+                $q->where('receiver_id', $data["sender_id"])
+                    ->whereNot("status", StatusConstants::AWAITING_APPROVAL);
+            });
+        }
 
         if (!empty($key = $data["status"] ?? null)) {
             $builder = $builder->where("status", $key);

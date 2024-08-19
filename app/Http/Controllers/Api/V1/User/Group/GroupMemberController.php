@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User\Group;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -99,7 +100,7 @@ class GroupMemberController extends Controller
     public function following(Request $request)
     {
         try {
-            $groups = $this->group_service->list($request->all())->whereRelation("members", "user_id", auth()->id())
+            $groups = $this->group_service->following($request->all())
                 ->status()->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
             $data = collectPagination($groups);
@@ -130,7 +131,7 @@ class GroupMemberController extends Controller
             return ApiHelper::validResponse("Request sent successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
-        } catch (ModelNotFoundException $th) {
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
@@ -142,6 +143,35 @@ class GroupMemberController extends Controller
         try {
             $this->group_service->updateAccessRequest($request->all());
             return ApiHelper::validResponse("Request updated successfully");
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function list(Request $request)
+    {
+        try {
+            $group = $this->group_service->getById($request->group_id);
+            $group_members = $this->group_member_service->list($group->id, $request->all())->paginate(AppConstants::API_PAGINATION_SIZE);
+            $data = collectPagination($group_members);
+            $data["data"] = GroupMemberResource::collection($data["data"]);
+            return ApiHelper::validResponse("Group members returned successfully", $data);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function reportMember(Request $request)
+    {
+        try {
+            $this->group_member_service->reportMember($request->all());
+            return ApiHelper::validResponse("Report sent successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
