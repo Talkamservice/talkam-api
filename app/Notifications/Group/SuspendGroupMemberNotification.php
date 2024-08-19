@@ -13,7 +13,7 @@ class SuspendGroupMemberNotification extends Notification
 
     protected $message;
 
-    public function __construct(public $user, $message)
+    public function __construct(public $group_member, $message)
     {
         $this->message = $message;
     }
@@ -25,11 +25,12 @@ class SuspendGroupMemberNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
+        $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject('Group Suspension Notification')
             ->markdown('emails.group.suspend-member', [
-                'title' => 'Suspension Notification',
-                'message' => $this->message,
+                "title" => $data["title"],
+                "message" => $data["message"],
                 'recipient_name' => $notifiable->full_name,
             ]);
     }
@@ -37,28 +38,40 @@ class SuspendGroupMemberNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'message' => $this->message,
-            'type' => 'suspension',
+            //
         ];
     }
 
     public function toDatabase($notifiable)
     {
-        return [
-            'message' => $this->message,
-            'type' => 'suspension',
-        ];
+        return $this->buildData($notifiable);
     }
 
     public function toFirebase($notifiable)
     {
+        $data = $this->buildData($notifiable);
+
         return (new FirebaseNotificationService)
-            ->setTitle('Suspension Notification')
-            ->setBody($this->message)
-            ->setType('suspension')
+            ->setTitle($data["title"])
+            ->setBody($data["message"])
+            ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->initiate();
     }
 
+    public function buildData($notifiable)
+    {
+        return [
+            'data' => [
+                'id' => $this->group_member->group_id,
+            ],
+            'title' => "Suspension Notification",
+            'message' => $this->message,
+            'link' => null,
+            'type' => 'group',
+            'batch_no' => null,
+            "extra" => []
+        ];
+    }
     
 }

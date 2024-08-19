@@ -165,4 +165,18 @@ class GroupMemberController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
+
+    public function reportMember(Request $request)
+    {
+        try {
+            $this->group_member_service->reportMember($request->all());
+            return ApiHelper::validResponse("Request sent successfully");
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
 }

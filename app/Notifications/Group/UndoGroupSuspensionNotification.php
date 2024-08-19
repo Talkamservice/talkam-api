@@ -8,12 +8,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SuspendGroupNotification extends Notification implements ShouldQueue
+class UndoGroupSuspensionNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
-    public function __construct(public $group, public $reason)
+    public function __construct(public $group)
     {
          // No need for extra assignment; public properties are automatically assigned
     }
@@ -28,7 +28,7 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data['title'])
-            ->markdown('emails.group.suspend-group', [
+            ->markdown('emails.group.unsuspend-group', [
                 'title' => $data['title'],
                 'message' => $data['message'],
                 "group_name" => $this->group->name,
@@ -65,7 +65,7 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
                 'id' => $this->group->id,
             ],
             'title' => "Group Suspension Notification!",
-            'message' => "Your group '{$this->group->name}' has been suspended due to reported violations. Reason: {$this->reason}",
+            'message' => "The suspension of your group has been removed. You can now access your group",
             'link' => null,
             'type' => 'group',
             'batch_no' => null,

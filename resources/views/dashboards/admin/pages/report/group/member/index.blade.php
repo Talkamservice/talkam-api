@@ -27,8 +27,9 @@
                                 <tr>
                                     <th scope="col">Member Name</th>
                                     <th scope="col">Group Name</th>
-                                    <th scope="col">Suspension Count</th>
-                                    <th scope="col">Suspension Ends</th>
+                                    <th scope="col">Group Description</th>
+                                    <th scope="col">Total Suspension</th>
+                                    <th scope="col">Suspension Ends At</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Action</th>
                                 </tr>
@@ -37,7 +38,7 @@
                                 @forelse ($reported_members as $report)
                                     <tr>
                                         <td>
-                                            <a href="{{ route('admin.users.show',  $report->groupMember->user->id) }}">
+                                            <a class="text-primary" href="{{ route('admin.users.show',  $report->groupMember->user->id) }}">
                                                 <div class="d-flex align-items-center fw-semibold">
                                                     <span class="avatar avatar-sm me-2 avatar-rounded">
                                                         <img src="{{  $report->groupMember->user->avatarUrl() }}"
@@ -46,13 +47,16 @@
                                                 </div>
                                             </a>
                                         </td>
+                                        <td>
+                                            <a class="text-primary" href="{{ url('https://web.talkam.prodevs.io/group/' . $report->groupMember->group_id . '/featured') }}" target="_blank" rel="noopener noreferrer">{{ $report->groupMember->group->name }}</a>
+                                        </td>
                                         <td>{{ $report->groupMember->group->name }}</td>
                                         <td>{{ $report->groupMember->suspension_count ?? 0 }}</td>
                                         <td>
                                             @if ($report->groupMember->suspension_end)
-                                                {{ $report->groupMember->suspension_end->format('Y-m-d h:i A') }}
+                                                {{ carbon()->parse($report->groupMember->suspension_end)->format('Y-m-d h:i A') }}
                                             @else
-                                                Not Applicable
+                                                N/A
                                             @endif
                                         </td>
                                         <td>
@@ -120,13 +124,13 @@
                         </table>
                     </div>
                 </div>
-                <div class="card-footer">
+                {{-- <div class="card-footer">
                     <div class="d-flex align-items-center">
                         <div>
                             {{ $reported_members->links('pagination::bootstrap-4') }}
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Group\UpdateSuspendedMembersStatus;
 use App\Console\Commands\Post\PostCommand;
 use App\Console\Commands\Post\TrendingPostCommand;
 use App\Console\Commands\TestCommand;
@@ -20,6 +21,7 @@ class Kernel extends ConsoleKernel
         TestCommand::class,
         PostCommand::class,
         TrendingPostCommand::class,
+        UpdateSuspendedMembersStatus::class
     ];
 
     /**

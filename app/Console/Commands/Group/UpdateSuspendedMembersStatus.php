@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Group;
 
 use Illuminate\Console\Command;
 use App\Models\GroupMember;

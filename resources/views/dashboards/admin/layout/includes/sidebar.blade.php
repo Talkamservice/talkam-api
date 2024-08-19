@@ -101,8 +101,8 @@
 
                         </li>
                         <li class="slide has-sub">
-                            <a href="javascript:void(0);" class="">
-                                <i class="bx bx-user-plus side-menu__icon list-item-icon"></i>
+                            <a href="javascript:void(0);" class="side-menu__item list-item">
+                                {{-- <i class="bx bx-user-plus side-menu__icon list-item-icon"></i> --}}
                                 <span class="side-menu__label list-item-label">Group</span>
                                 <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                             </a>
