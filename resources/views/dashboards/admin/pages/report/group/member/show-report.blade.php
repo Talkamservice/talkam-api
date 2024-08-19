@@ -4,12 +4,12 @@
 <div class="container-fluid">
     <!-- Page Header -->
     <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-        <h1 class="page-title fw-semibold fs-18 mb-0">Group Member Report Information</h1>
+        <h1 class="page-title fw-semibold fs-18 mb-0">Report Information</h1>
         <div class="ms-md-1 ms-0">
             <nav>
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('admin.reports.group.lists') }}">List</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Group Member Report Information</li>
+                    <li class="breadcrumb-item active" aria-current="page">Report Information</li>
                 </ol>
             </nav>
         </div>
@@ -28,9 +28,10 @@
                             </span>
                         </div>
                         <div class="flex-fill main-profile-info">
-                            <div class="d-flex align-items-center justify-content-end">
-                                <button class="btn bg-white btn-outline-{{ pillClasses($group_member_report->status) }} btn-sm btn-wave">
-                                    {{ $group_member_report->status }}
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h6 class="fw-semibold mb-1 text-fixed-white">{{ $group_member_report->groupMember?->user?->full_name }}</h6>
+                                <button class="btn bg-white btn-outline-{{ pillClasses($group_member_report->groupMember?->status) }} btn-sm btn-wave">
+                                    {{ $group_member_report->groupMember?->status }}
                                 </button>
                             </div>
                             <div class="d-flex mb-0">

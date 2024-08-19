@@ -29,7 +29,7 @@
                                                         <tr>
                                                             <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                                                 <div style="font-family:Muli, Arial, sans-serif;font-size:14px;font-weight:400;line-height:20px;text-align:left;color:#333333;">
-                                                                    We wanted to inform you that your group "<strong>{{ $group_name }}</strong>" has been unsuspended.
+                                                                    We wanted to inform you that your group "<strong>{{ $group_name }}</strong>" has been suspended.
                                                                 </div>
                                                             </td>
                                                         </tr>

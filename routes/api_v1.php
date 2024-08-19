@@ -135,8 +135,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
 
             Route::prefix("reports")->as("reports.")->group(function () {
+                Route::post("members/create", [GroupMemberController::class, "reportMember"])->name("report-members");
                 Route::post("create", [GroupReportController::class, "report"])->name("report");
-
             });
         });
 

@@ -153,3 +153,7 @@ function ensureUniqueKeys(array $array) {
     return $uniqueArray;
 }
 
+function carbon() {
+   return new Carbon;
+}
+

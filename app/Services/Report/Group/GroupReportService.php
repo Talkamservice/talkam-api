@@ -2,6 +2,8 @@
 
 namespace App\Services\Report\Group;
 
+use App\Constants\Account\User\UserConstants;
+use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
@@ -12,6 +14,7 @@ use App\Models\GroupMemberReport;
 use App\Models\GroupReport;
 use App\Notifications\Group\SuspendGroupNotification;
 use App\Notifications\Group\SuspendGroupMemberNotification;
+use App\Notifications\Group\UndoGroupSuspensionNotification;
 use App\Services\User\UserService;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -95,10 +98,10 @@ class GroupReportService
             ]);
 
             // Get the admins of the group
-            $admins = $group->members()->where('role', 'Admin')->get();
+            $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
 
             // Send notification to the group's admins
-            Notification::send($admins, new SuspendGroupNotification($group, $reason, StatusConstants::SUSPENDED));
+            Notification::send($user, new SuspendGroupNotification($group, $reason));
 
             DB::commit();
             return 'Group has been suspended.';
@@ -118,10 +121,10 @@ class GroupReportService
             ]);
 
             // Get the admins of the group
-            $admins = $group->members()->where('role', 'Admin')->get();
+            $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
 
             // Send notification to the group's admins
-            Notification::send($admins, new SuspendGroupNotification($group, $reason, StatusConstants::ACCEPTED));
+            Notification::send($user, new UndoGroupSuspensionNotification($group));
 
             DB::commit();
             return 'Group has been activated.';
@@ -135,22 +138,20 @@ class GroupReportService
 
     public function suspendMember($group_member_report_id)
     {
-        // Find the GroupMemberReport by ID
-        try {
-            $group_member_report = GroupMemberReport::findOrFail($group_member_report_id);
-        } catch (ModelNotFoundException $e) {
-            throw new Exception('Group member report not found.');
-        }
-
-        // Find the group member related to the report
-        try {
-            $group_member = GroupMember::findOrFail($group_member_report->group_member_id);
-        } catch (ModelNotFoundException $e) {
-            throw new Exception('Group member not found.');
-        }
-
         DB::beginTransaction();
         try {
+            $group_member_report = GroupMemberReport::find($group_member_report_id);
+
+            if (empty($group_member_report)) {
+                throw new ModelNotFoundException('Group member report not found.');
+            }
+
+            $group_member = GroupMember::findOrFail($group_member_report->group_member_id);
+
+            if (empty($group_member_report)) {
+                throw new ModelNotFoundException('Group member not found.');
+            }
+
             $suspensionDurations = [
                 1 => now()->addHours(rand(24, 48)),
                 2 => now()->addDays(7),
@@ -172,7 +173,7 @@ class GroupReportService
                     'status' => StatusConstants::BANNED,
                 ]);
 
-                Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member->user, 'You have been permanently banned from the group.'));
+                Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, 'You have been permanently banned from the group.'));
                 DB::commit();
                 return 'User has been banned permanently.';
             }
@@ -185,7 +186,7 @@ class GroupReportService
                 'status' => StatusConstants::SUSPENDED,
             ]);
 
-            Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member->user, "You have been suspended until {$suspensionEnd->toDateTimeString()} for failing to comply with the group's rules."));
+            Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, "You have been suspended until {$suspensionEnd->toDateTimeString()} for failing to comply with the group's rules."));
 
             DB::commit();
             return "User has been suspended until {$suspensionEnd->toDateTimeString()}.";
@@ -198,23 +199,23 @@ class GroupReportService
     {
         // Attempt to find the group member
         $group_member = GroupMember::findOrFail($group_member_id);
-    
+
         // Check if the member is currently suspended
         if (!$group_member->suspension_end || $group_member->suspension_end <= now()) {
-            return redirect()->back()->with(NotificationConstants::ERROR_MSG, 'User is not currently suspended.');
+            throw new InvalidRequestException("User is not currently suspended.");
         }
-    
+
         // Reset suspension end
         $group_member->update([
             'suspension_end' => null,
             'status' => StatusConstants::ACTIVE,
         ]);
-    
+
         // Optionally, send a notification to the user
-        Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member->user, 'Your suspension has been lifted. Failure to comply may lead to a longer suspension from the group or banned.'));
-    
+        Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, 'Your suspension has been lifted. Failure to comply may lead to a longer suspension from the group or banned.'));
+
         return 'Suspension has been lifted.';
     }
-    
+
 
 }

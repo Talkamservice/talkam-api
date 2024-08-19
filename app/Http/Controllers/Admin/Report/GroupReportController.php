@@ -7,13 +7,11 @@ use App\Constants\General\NotificationConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
-use App\Models\GroupMember;
 use App\Models\GroupMemberReport;
 use App\Models\GroupReport;
 use App\Services\Report\Group\GroupReportService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class GroupReportController extends Controller
 {
@@ -25,52 +23,32 @@ class GroupReportController extends Controller
     }
 
     public function reportList()
-{
-    // Paginate reported group lists
-    $group_report_lists = GroupReport::with('group')
-        ->latest()
-        ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+    {
+        // Paginate reported group lists
+        $group_report_lists = GroupReport::with('group')
+            ->latest()
+            ->get()
+            ->unique("group_id");
 
-    // Paginate reported group members
-    $reported_members = GroupMemberReport::with('groupMember')
-        ->latest()
-        ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        return view('dashboards.admin.pages.report.group.index', [
+            'sn' => $group_report_lists,
+            'group_report_lists' => $group_report_lists,
+        ]);
+    }
 
-    // Modify reported_members' groupMember's suspension_end without converting to Collection
-    $reported_members->getCollection()->transform(function ($report) {
-        $report->groupMember->suspension_end = $report->groupMember->suspension_end
-            ? Carbon::parse($report->groupMember->suspension_end)
-            : null;
-        return $report;
-    });
+    public function groupReportList()
+    {
+        // Paginate reported group members
+        $reported_members = GroupMemberReport::with('groupMember')
+            ->latest()
+            ->get()
+            ->unique("group_id");
 
-    return view('dashboards.admin.pages.report.group.index', [
-        'sn' => $group_report_lists->firstItem(),
-        'group_report_lists' => $group_report_lists,
-        'reported_members' => $reported_members,
-    ]);
-}
-
-public function groupReportList()
-{
-       // Paginate reported group members
-    $reported_members = GroupMemberReport::with('groupMember')
-        ->latest()
-        ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-
-    // Modify reported_members' groupMember's suspension_end without converting to Collection
-    $reported_members->getCollection()->transform(function ($report) {
-        $report->groupMember->suspension_end = $report->groupMember->suspension_end
-            ? Carbon::parse($report->groupMember->suspension_end)
-            : null;
-        return $report;
-    });
-
-    return view('dashboards.admin.pages.report.group.member.index', [
-        'sn' =>  $reported_members->firstItem(),
-        'reported_members' => $reported_members,
-    ]);
-}
+        return view('dashboards.admin.pages.report.group.member.index', [
+            // 'sn' => $reported_members->firstItem(),
+            'reported_members' => $reported_members,
+        ]);
+    }
 
 
     public function show($id)
@@ -93,16 +71,16 @@ public function groupReportList()
     {
         // Retrieve the group member report with the related group member and user
         $group_member_report = GroupMemberReport::with('user')->findOrFail($id);
-    
+
         // Count the number of reports for the group member
         $reasons_count = GroupMemberReport::where('group_member_id', $group_member_report->group_member_id)->count();
-    
+
         // Get the list of reports for the group member, including the user who reported
         $group_member_report_lists = GroupMemberReport::where('group_member_id', $group_member_report->group_member_id)
             ->latest()
             ->with('user') // Load the user who reported
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-    
+
         // Pass data to the view
         return view('dashboards.admin.pages.report.group.member.show-report', [
             'group_member_report' => $group_member_report,
@@ -110,13 +88,13 @@ public function groupReportList()
             'group_member_report_lists' => $group_member_report_lists,
         ]);
     }
-    
+
 
 
     public function suspendReportedGroup(Request $request, $group_report_id)
     {
         try {
-            $group_report = GroupReport::findOrFail($group_report_id);
+            $group_report = $this->group_report_service->getById($group_report_id);
             $message = $this->group_report_service->suspendGroup($group_report->group);
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
@@ -124,14 +102,14 @@ public function groupReportList()
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
-    public function  activateReportedGroup(Request $request, $group_report_id)
+    public function activateReportedGroup(Request $request, $group_report_id)
     {
         try {
-            $group_report = GroupReport::findOrFail($group_report_id);
+            $group_report = $this->group_report_service->getById($group_report_id);
             $message = $this->group_report_service->suspensionLift($group_report->group);
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
@@ -139,7 +117,7 @@ public function groupReportList()
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
@@ -155,26 +133,23 @@ public function groupReportList()
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            // Log the error if needed
-            Log::error('Error in undoGroupMemberSuspension: ' . $th->getMessage());
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
-    
+
 
     public function suspendReportedGroupMember(Request $request, $group_member_report_id)
     {
         try {
             // Apply suspension logic (update the group member's status)
             $message = $this->group_report_service->suspendMember($group_member_report_id);
-            // Return success response
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG,  $message);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, 'Group member report or member not found.');
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, 'Something went wrong while trying to process your request.');
         }
     }
