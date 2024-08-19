@@ -135,6 +135,10 @@ class PostCategoryService
             $categories = $categories->where("name", "LIKE", "%$key%");
         }
 
+        if (!empty($key = $data["category_id"] ?? null)) {
+            $categories = $categories->where("category_id", $key);
+        }
+
         if (!empty($key = $data["sort"] ?? null)) {
             if ($key == "popular") {
                 $categories = $categories->withCount('posts')->orderBy('posts_count', 'desc');
