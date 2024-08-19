@@ -9,6 +9,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Models\User;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
 use App\Services\Guideline\GuidelineService;
@@ -217,13 +218,18 @@ class GroupService
                 "status" => StatusConstants::PENDING
             ]);
 
-            $admin = $this->getGroupOwner($id);
+            $admins = GroupMember::where([
+                "group_id" => $id,
+            ])->whereIn("role", [UserConstants::ADMIN, UserConstants::OWNER])
+                ->pluck("user_id")->toArray();
 
-            if (empty($admin)) {
-                throw new InvalidRequestException("We could not find the owner of this group");
+            $users = User::whereIn("id", $admins)->status()->get();
+
+            if (empty($users)) {
+                throw new InvalidRequestException("No admin found for this group");
             }
 
-            Notification::send($admin->user, new JoinGroupRequestNotification($member));
+            Notification::send($users, new JoinGroupRequestNotification($member));
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
