@@ -116,9 +116,9 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center">No records found</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="5" class="text-center"><img class="no-data-image" src="{{asset('admin_assets/images/empty/no-data-concept-illustration.jpg')}}" alt=""></td>
+                                </tr>
                                 @endforelse
                             </tbody>
                         </table>
