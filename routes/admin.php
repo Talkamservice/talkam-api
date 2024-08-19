@@ -89,6 +89,7 @@ Route::middleware(["auth"])->group(
             Route::get('group/show/{id}', [GroupReportController::class, "show"])->name("group.show");
             Route::post('group/activate/{id}', [GroupReportController::class, "activateReportedGroup"])->name("group.activate");
             Route::post('group/suspend/{id}', [GroupReportController::class, "suspendReportedGroup"])->name("group.suspend");
+            Route::get('group/member/lists', [GroupReportController::class, "groupReportList"])->name("group.member.lists");
             Route::post('group-member/suspend/{id}', [GroupReportController::class, "suspendReportedGroupMember"])->name("group-member.suspend");
             Route::post('group-member/undo-suspension/{id}', [GroupReportController::class, 'undoGroupMemberSuspension'])->name('group-member.undo-suspension');
             Route::get('group-member/show/{id}', [GroupReportController::class, 'showGroupMemberReport'])->name('group-member.show');

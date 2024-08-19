@@ -51,6 +51,26 @@ class GroupReportController extends Controller
     ]);
 }
 
+public function groupReportList()
+{
+       // Paginate reported group members
+    $reported_members = GroupMemberReport::with('groupMember')
+        ->latest()
+        ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+
+    // Modify reported_members' groupMember's suspension_end without converting to Collection
+    $reported_members->getCollection()->transform(function ($report) {
+        $report->groupMember->suspension_end = $report->groupMember->suspension_end
+            ? Carbon::parse($report->groupMember->suspension_end)
+            : null;
+        return $report;
+    });
+
+    return view('dashboards.admin.pages.report.group.member.index', [
+        'sn' =>  $reported_members->firstItem(),
+        'reported_members' => $reported_members,
+    ]);
+}
 
 
     public function show($id)
