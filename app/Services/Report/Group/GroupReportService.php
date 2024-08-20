@@ -17,6 +17,7 @@ use App\Notifications\Group\SuspendGroupMemberNotification;
 use App\Notifications\Group\UndoGroupSuspensionNotification;
 use App\Services\User\UserService;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -88,28 +89,98 @@ class GroupReportService
         $report->delete();
     }
 
-    public function suspendGroup(Group $group, $reason = null)
+    public function suspendOrBanGroup(Request $request, $group_id)
+    {
+   
+        DB::beginTransaction();
+        try {
+            $group = Group::find($group_id);
+
+            if (empty($group)) {
+                throw new ModelNotFoundException('Group not found.');
+            }
+
+            $actionType = $request->input('action_type');
+            $reason = $request->input('suspension_reason');
+            $suspensionDurations = [
+                1 => now()->addHours(rand(24, 48)),
+                2 => now()->addDays(7),
+                3 => now()->addDays(30),
+            ];
+
+            if ($actionType === 'ban') {
+                // Ensure group is not already banned
+                if ($group->status === StatusConstants::BANNED) {
+                    return 'Group is already banned.';
+                }
+
+                // Update the group's status to banned
+                $group->update([
+                    'status' => StatusConstants::BANNED,
+                ]);
+
+                // Notify group admins
+                $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
+                Notification::send($user, new SuspendGroupNotification($group, null, "You have been permanently banned from the group for the following reason: {$reason}."));
+
+                DB::commit();
+                return 'Group has been banned permanently.';
+            } elseif ($actionType === 'suspend') {
+                // Ensure group is not already suspended
+                if ($group->status === StatusConstants::SUSPENDED) {
+                    return 'Group is already suspended.';
+                }
+
+                // Calculate suspension end time
+                $suspensionEnd = $suspensionDurations[$request->input('duration')] ?? now()->addHours(24);
+                $duration = $suspensionEnd->diffForHumans();
+
+                // Update the group's status to suspended
+                $group->update([
+                    'status' => StatusConstants::SUSPENDED,
+                ]);
+
+                // Notify group admins
+                $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
+                Notification::send($user, new SuspendGroupNotification($group, $duration, $reason));
+
+                DB::commit();
+                return 'Group has been suspended.';
+            } else {
+                throw new InvalidRequestException('Invalid action type.');
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th; 
+        }
+    }
+
+
+
+
+    public function deleteGroup(Group $group, $reason = null)
     {
         DB::beginTransaction();
         try {
-            // Update the group's status to suspended
-            $group->update([
-                'status' => StatusConstants::SUSPENDED,
-            ]);
-
             // Get the admins of the group
-            $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
-
+            $admins = $group->members()->where('role', UserConstants::OWNER)->first()->user; 
+    
+            // Delete the group
+            $group->delete();
+    
             // Send notification to the group's admins
-            Notification::send($user, new SuspendGroupNotification($group, $reason));
-
+            // foreach ($admins as $admin) {
+            //     Notification::send($admin, new SuspendGroupMemberNotification($group, null));
+            // }
+    
             DB::commit();
-            return 'Group has been suspended.';
-        } catch (Exception $e) {
+            return 'Group has been deleted.';
+        } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;
         }
     }
+    
 
     public function suspensionLift(Group $group, $reason = null)
     {
@@ -135,79 +206,90 @@ class GroupReportService
     }
 
 
-
-    public function suspendMember($group_member_report_id)
+    public function suspendOrBanMember(Request $request, $group_member_report_id)
     {
         DB::beginTransaction();
         try {
             $group_member_report = GroupMemberReport::find($group_member_report_id);
-
-            if (empty($group_member_report)) {
+    
+            if (!$group_member_report) {
                 throw new ModelNotFoundException('Group member report not found.');
             }
-
+    
             $group_member = GroupMember::findOrFail($group_member_report->group_member_id);
-
-            if (empty($group_member_report)) {
+    
+            if (!$group_member) {
                 throw new ModelNotFoundException('Group member not found.');
             }
-
+    
+            $actionType = $request->input('action_type');
+            $suspensionReason = $request->input('suspension_reason');
             $suspensionDurations = [
                 1 => now()->addHours(rand(24, 48)),
                 2 => now()->addDays(7),
                 3 => now()->addDays(30),
             ];
-
-            // Check if the user is already banned
-            if ($group_member->banned) {
-                throw new Exception('User is already banned and cannot be suspended.');
-            }
-
-            $newSuspensionCount = $group_member->suspension_count + 1;
-
-            // Determine if the user should be banned
-            if ($newSuspensionCount > 3) {
+    
+            // Check if the user needs to be banned
+            if ($group_member->suspension_count >= 3 || $actionType === 'ban') {
+                if ($group_member->banned) {
+                    DB::commit();
+                    return 'User has aready been banned.';
+                }
+    
+                // Ban the user
                 $group_member->update([
                     'banned' => true,
                     'suspension_end' => null,
                     'status' => StatusConstants::BANNED,
                 ]);
-
-                Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, 'You have been permanently banned from the group.'));
+    
+                Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, "You have been permanently banned from the group for the following reason: {$suspensionReason}."));
+    
                 DB::commit();
                 return 'User has been banned permanently.';
+            } else {
+                // Apply suspension
+                $newSuspensionCount = $group_member->suspension_count + 1;
+                $suspensionEnd = $suspensionDurations[$request->input('duration')] ?? now()->addHours(24);
+    
+                $group_member->update([
+                    'suspension_reason' => $suspensionReason,
+                    'suspension_count' => $newSuspensionCount,
+                    'suspension_end' => $suspensionEnd,
+                    'status' => StatusConstants::SUSPENDED,
+                ]);
+    
+                $message = "You have been suspended until {$suspensionEnd->diffForHumans()} for the following reason: {$suspensionReason}.";
+                Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
+    
+                DB::commit();
+                return "User has been suspended until {$suspensionEnd->toDateTimeString()}.";
             }
-
-            $suspensionEnd = $suspensionDurations[$newSuspensionCount] ?? now()->addHours(24);
-
-            $group_member->update([
-                'suspension_count' => $newSuspensionCount,
-                'suspension_end' => $suspensionEnd,
-                'status' => StatusConstants::SUSPENDED,
-            ]);
-
-            Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, "You have been suspended until {$suspensionEnd->toDateTimeString()} for failing to comply with the group's rules."));
-
-            DB::commit();
-            return "User has been suspended until {$suspensionEnd->toDateTimeString()}.";
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
+    
+
+
+
+
     public function undoGroupMemberSuspension($group_member_id)
     {
         // Attempt to find the group member
-        $group_member = GroupMember::findOrFail($group_member_id);
+        $group_member = GroupMember::find($group_member_id);
 
         // Check if the member is currently suspended
-        if (!$group_member->suspension_end || $group_member->suspension_end <= now()) {
+        if (!$group_member) {
             throw new InvalidRequestException("User is not currently suspended.");
         }
 
         // Reset suspension end
         $group_member->update([
             'suspension_end' => null,
+            'suspension_reason' => null,
             'status' => StatusConstants::ACTIVE,
         ]);
 
@@ -216,6 +298,4 @@ class GroupReportService
 
         return 'Suspension has been lifted.';
     }
-
-
 }

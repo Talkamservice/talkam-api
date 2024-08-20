@@ -8,7 +8,7 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="#">Comment Report</a></li>
+                        {{-- <li class="breadcrumb-item"><a href="#">Comment Report</a></li> --}}
                         <li class="breadcrumb-item active" aria-current="page">Index</li>
                     </ol>
                 </nav>

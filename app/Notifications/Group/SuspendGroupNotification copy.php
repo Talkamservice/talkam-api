@@ -8,12 +8,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SuspendGroupNotification extends Notification implements ShouldQueue
+class DeleteGroupNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
-    public function __construct(public $group, public $reason, public $duration)
+    public function __construct(public $group)
     {
          // No need for extra assignment; public properties are automatically assigned
     }
@@ -65,7 +65,7 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
                 'id' => $this->group->id,
             ],
             'title' => "Group Suspension Notification!",
-            'message' => "Your group '{$this->group->name}' has been suspended due to reported violations for '{$this->duration}'. Reason: {$this->reason}",
+            'message' => "Your group '{$this->group->name}' has been Deleted due to reported violations }",
             'link' => null,
             'type' => 'group',
             'batch_no' => null,
