@@ -55,7 +55,7 @@ class NotificationHandlerService
             $this->comments_notifications_type == "mentions" ||
             $comment->is_anonymous == 1
         ) {
-            return;
+            return $this;
         }
 
         Notification::send($comment->post->user, new NewCommentNotification($comment));
@@ -99,7 +99,7 @@ class NotificationHandlerService
     public function notifyCommentOwnerOfNewComment($comment)
     {
         if ($this->comments_notifications_type == null || $comment->is_anonymous == 1) {
-            return;
+            return $this;
         }
 
         if ($this->can_receive_content_activities == 1) {
