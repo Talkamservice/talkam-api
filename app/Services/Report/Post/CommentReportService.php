@@ -54,14 +54,6 @@ class CommentReportService
                 throw new InvalidRequestException("You cannot make changes when you resolved a report");
             }
 
-            if ($data["status"] == StatusConstants::SUSPENDED) {
-                $this->user_service->suspend(StatusConstants::INACTIVE, $report->post->user_id);
-            }
-
-            if ($data["status"] == StatusConstants::ACTIVATED) {
-                $this->user_service->suspend(StatusConstants::ACTIVE, $report->post->user_id);
-            }
-
             $report->update([
                 'status' => StatusConstants::RESOLVED
             ]);

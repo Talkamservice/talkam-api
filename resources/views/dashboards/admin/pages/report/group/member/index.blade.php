@@ -9,7 +9,6 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        {{-- <li class="breadcrumb-item"><a href="#">Index</a></li> --}}
                         <li class="breadcrumb-item active" aria-current="page">Index</li>
                     </ol>
                 </nav>
@@ -90,13 +89,13 @@
                                                         </li>
                                                     @elseif ($report->groupMember->suspension_end && $report->groupMember->suspension_end > now())
                                                         <li>
-                                                            <form id="undoSuspension_{{ $report->id }}"
+                                                            <form id="undoSuspensionForm_{{ $report->id }}"
                                                                 action="{{ route('admin.reports.group-member.undo-suspension', $report->id) }}"
                                                                 method="POST"
                                                                 onsubmit="return confirm('Are you sure you want to lift this suspension?')">
                                                                 @csrf
                                                                 <a class="dropdown-item text-primary" href="#"
-                                                                    onclick="document.getElementById('undoSuspension_{{ $report->id }}').submit()">
+                                                                    onclick="document.getElementById('undoSuspensionForm_{{ $report->id }}').submit()">
                                                                     <i class="ri-alert-line"></i> Undo Suspension
                                                                 </a>
                                                             </form>
@@ -107,18 +106,7 @@
                                                             <i class="ri-alert-line"></i> Suspend/Ban
                                                         </a>
                                                     </li>
-                                                    <li>
-                                                        <form id="undoSuspension_{{ $report->id }}"
-                                                            action="{{ route('admin.reports.group-member.undo-suspension', $report->id) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('Are you sure you want to lift this suspension?')">
-                                                            @csrf
-                                                            <a class="dropdown-item text-primary" href="#"
-                                                                onclick="document.getElementById('undoSuspension_{{ $report->id }}').submit()">
-                                                                <i class="ri-alert-line"></i> Undo Suspension
-                                                            </a>
-                                                        </form>
-                                                    </li>
+                                                   
                                                 </ul>
                                             </div>
                                         </td>
@@ -134,13 +122,6 @@
                         </table>
                     </div>
                 </div>
-                {{-- <div class="card-footer">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            {{ $reported_members->links('pagination::bootstrap-4') }}
-                        </div>
-                    </div>
-                </div> --}}
             </div>
         </div>
 
@@ -151,14 +132,14 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="suspendOrBanModalLabel">Suspend or Ban Group</h5>
+                    <h5 class="modal-title" id="suspendOrBanModalLabel">Suspend or Ban Group Member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="suspendOrBanForm" method="POST" action="">
                     @csrf
                     @method('post')
                     <input type="hidden" name="action_type" id="actionType">
-                    <input type="hidden" name="group_id" id="groupId">
+                    <input type="hidden" name="group_member_id" id="groupMemberId">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="suspensionReason" class="form-label">Reason for Suspension/Ban</label>
@@ -187,8 +168,8 @@
         function openModal(reportId) {
             const modal = new bootstrap.Modal(document.getElementById('suspendOrBanModal'));
             const form = document.getElementById('suspendOrBanForm');
-            form.setAttribute('action', `{{ route('admin.reports.group-member.suspend-or-ban', $report->id) }}`);
-            document.getElementById('groupId').value = reportId;
+            form.setAttribute('action', `{{ route('admin.reports.group-member.suspend-or-ban', '') }}/${reportId}`);
+            document.getElementById('groupMemberId').value = reportId;
             modal.show();
         }
 

@@ -63,7 +63,7 @@ class PostReportController extends Controller
     {
         try {
             $this->post_report_service->changeStatus($request->all(), $post_report_id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Post report updated successfully");
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Post report status updated successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {
@@ -89,20 +89,6 @@ class PostReportController extends Controller
         }
     }
 
-    public function deletePost(Request $request, $post_id)
-    {
-        try {
-            $this->post_report_service->delete($post_id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Post report deleted successfully");
-        } catch (ModelNotFoundException $th) {
-            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
-        } catch (InvalidRequestException $th) {
-            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
-        } catch (\Throwable $th) {
-            // throw $th;
-            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
-        }
-    }
-
+  
    
 }

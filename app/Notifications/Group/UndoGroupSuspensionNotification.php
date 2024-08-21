@@ -28,7 +28,7 @@ class UndoGroupSuspensionNotification extends Notification implements ShouldQueu
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data['title'])
-            ->markdown('emails.group.unsuspend-group', [
+            ->markdown('emails.group.suspend-group', [
                 'title' => $data['title'],
                 'message' => $data['message'],
                 "group_name" => $this->group->name,
@@ -65,7 +65,7 @@ class UndoGroupSuspensionNotification extends Notification implements ShouldQueu
                 'id' => $this->group->id,
             ],
             'title' => "Group Suspension Notification!",
-            'message' => "The suspension of your group has been removed. You can now access your group",
+            'message' => " We wanted to inform you that your group '{$this->group}' has been unsuspended.",
             'link' => null,
             'type' => 'group',
             'batch_no' => null,

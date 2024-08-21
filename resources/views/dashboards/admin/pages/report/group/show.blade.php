@@ -76,6 +76,70 @@
                                 <button class="btn btn-sm btn-success p-2">Filter</button>
                             </div>
                         </form>
+                        <div class="dropdown ms-auto me-auto">
+                            <a class="btn btn-outline-primary dropdown-toggle" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Action
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item"
+                                        href="{{ route('admin.reports.group.show', $group_report->id) }}">
+                                        <i class="ri-eye-line"></i> View
+                                    </a>
+                                </li>
+                                @if ($group_report->group->status === 'Suspended')
+                                    <!-- Undo Suspension Form -->
+                                    <form id="undoSuspensionForm_{{ $group_report->id }}"
+                                        action="{{ route('admin.reports.group.activate', $group_report->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to lift this suspension?')">
+                                        @csrf
+                                        <a class="dropdown-item text-primary" href="#"
+                                            onclick="document.getElementById('undoSuspensionForm_{{ $group_report->id }}').submit()">
+                                            <i class="ri-alert-line"></i> Undo Suspension
+                                        </a>
+                                    </form>
+
+                                    <!-- Delete Group Form -->
+                                    <form id="deleteGroupForm_{{ $group_report->id }}"
+                                        action="{{ route('admin.reports.group.delete', $group_report->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to permanently delete this group?')">
+                                        @csrf
+                                        <a class="dropdown-item text-danger" href="#"
+                                            onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()">
+                                            <i class="ri-alert-line"></i> Delete
+                                        </a>
+                                    </form>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#"
+                                            onclick="openModal('{{ $group_report->group->id }}')">
+                                            <i class="ri-alert-line"></i> Suspend/Ban
+                                        </a>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#"
+                                            onclick="openModal('{{ $group_report->group->id }}')">
+                                            <i class="ri-alert-line"></i> Suspend/Ban
+                                        </a>
+                                    </li>
+                                    <!-- Delete Group Form -->
+                                    <form id="deleteGroupForm_{{ $group_report->id }}"
+                                        action="{{ route('admin.reports.group.delete', $group_report->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to permanently delete this group?')">
+                                        @csrf
+                                        <a class="dropdown-item text-danger" href="#"
+                                            onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()">
+                                            <i class="ri-alert-line"></i> Delete
+                                        </a>
+                                    </form>
+                                @endif
+                            </ul>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -122,4 +186,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.report.group.suspend-ban-modal')
 @endsection

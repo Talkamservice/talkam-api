@@ -83,7 +83,7 @@ Route::middleware(["auth"])->group(
         Route::prefix("reports")->as("reports.")->group(function () {
             Route::get('post/lists', [PostReportController::class, "reportList"])->name("post.lists");
             Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
-            Route::put('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
+            Route::post('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
             Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
 
             Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");
@@ -105,6 +105,8 @@ Route::middleware(["auth"])->group(
             Route::get('comment/lists', [CommentReportController::class, "reportList"])->name("comment.lists");
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
             Route::delete('comment/delete/{id}', [CommentReportController::class, "deleteReportedComment"])->name('comment.delete');
+            Route::post('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
+
         });
     }
 );
