@@ -70,7 +70,7 @@
                                                                 @csrf
                                                                 @method('post')
                                                                 <a class="dropdown-item text-danger" href="#" onclick="document.getElementById('suspendGroup_{{ $group_report->group->id }}').submit()">
-                                                                    <i class="ri-alert-line"></i> Suspend Group
+                                                                    <i class="ri-alert-line"></i> Suspend
                                                                 </a>
                                                             </form>
                                                         @endif
@@ -81,7 +81,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center">No records found</td>
+                                        <td colspan="5" class="text-center"><img class="no-data-image" src="{{asset('admin_assets/images/empty/no-data-concept-illustration.jpg')}}" alt=""></td>
                                     </tr>
                                 @endforelse
                             </tbody>

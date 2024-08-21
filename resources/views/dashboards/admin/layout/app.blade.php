@@ -90,6 +90,10 @@
         .list-item-sub:hover {
             color: #000000 !important;
         }
+        .no-data-image{
+            height: 50vh;
+            width: 40%;
+        }
     </style>
 </head>
 
