@@ -8,7 +8,7 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.reports.group.lists') }}">List</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.reports.group.lists') }}">Index</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Report Information</li>
                     </ol>
                 </nav>

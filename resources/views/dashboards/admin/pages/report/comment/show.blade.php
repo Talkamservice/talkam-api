@@ -5,11 +5,11 @@
 
         <!-- Page Header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-            <h1 class="page-title fw-semibold fs-18 mb-0">Comment Report Information</h1>
+            <h1 class="page-title fw-semibold fs-18 mb-0">Comment Report</h1>
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.reports.post.lists') }}">List</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.reports.post.lists') }}">Index</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Comment Report Information</li>
                     </ol>
                 </nav>
@@ -48,30 +48,16 @@
                                 <div class="p-4 border-bottom border-block-end-dashed">
                                     <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
                                     <div class="text-muted">
-                                        <p class="mb-2"><b>Name:</b> {{ $comment_report->comment->comment }}</p>
+                                        <p class="mb-2"><b>Comment:</b> {{ $comment_report->comment->comment ?? 'N/A' }}</p>
                                         <p class="mb-2">
                                             <b>Attachment:</b>
                                             @if ($comment_report->comment->attachment)
-                                                <img src="{{ $comment_report->comment->attachment }}" alt="Comment Attachment" style="max-width: 100%; height: auto;">
+                                                <img src="{{ asset($comment_report->comment->attachment) }}" alt="Comment Attachment" style="max-width: 100%; height: auto;">
                                             @else
                                                 N/A
                                             @endif
                                         </p>
                                     </div>
-                            </div>
-                            <div class="p-4 border-bottom border-block-end-dashed">
-                                <p class="fs-15 mb-2 me-4 fw-semibold">Comment Information :</p>
-                                <div class="text-muted">
-                                    <p class="mb-2">
-                                        <b>Comment:</b> {{ $comment_report->comment->comment ?? 'N/A' }}
-                                    </p>
-                                    @if ($comment_report->comment->attachment)
-                                        <p class="mb-2">
-                                            <b>Attachment:</b>
-                                            <img src="{{ $comment_report->comment->attachment }}" alt="Comment Attachment" style="max-width: 100%; height: auto;">
-                                        </p>
-                                    @endif
-
                                 </div>
                             @else
                                 <p class="p-4">No Comment Report Information available.</p>
@@ -85,10 +71,10 @@
                     <div class="card-header d-flex justify-content-between">
                         <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                             <div class="form-group me-2">
-                                <label for="">Search</label>
-                                <input class="form-control" type="text" placeholder="Search...." name="search">
+                                <label for="search">Search</label>
+                                <input class="form-control" id="search" type="text" placeholder="Search..." name="search">
                             </div>
-                            <div class="form-group me-2" style="margin-top: 20px;">
+                            <div class="form-group me-2" style="margin-top: 28px;">
                                 <button class="btn btn-sm btn-success p-2">Filter</button>
                             </div>
                         </form>
@@ -110,20 +96,8 @@
                                                 <a href="{{ route('admin.users.show', $report->user_id) }}">
                                                     <div class="d-flex align-items-center fw-semibold">
                                                         <span class="avatar avatar-sm me-2 avatar-rounded">
-
                                                             <img src="{{ $report->user->avatarUrl() }}" alt="Avatar">
-                                                        </span>{{ $report->post->user->username ?? 'Unknown' }}
-                                                            <img src="{{ $report->user->avatarUrl() }}" alt="img">
-                                                        </span>{{ $report->post->user->username }}
-
-                                                            <img src="{{ $report->user->avatarUrl() }}" alt="img">
-                                                        </span>{{ $report->post->user->username }}
-
-                                                            <img src="{{ $report->user->avatarUrl() }}" alt="Avatar">
-                                                        </span>{{ $report->post->user->username ?? 'Unknown' }}
-
-                                                            <img src="{{ $report->user->avatarUrl() }}" alt="img">
-                                                        </span>{{ $report->post->user->username }}
+                                                        </span>{{ $report->user->username ?? 'Unknown' }}
                                                     </div>
                                                 </a>
                                             </td>
@@ -132,7 +106,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="text-center">No record found</td>
+                                            <td colspan="3" class="text-center">No records found</td>
                                     @endforelse
                                 </tbody>
                             </table>
