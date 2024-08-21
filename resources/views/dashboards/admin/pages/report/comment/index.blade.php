@@ -130,11 +130,11 @@
                                                     </li>
                                                     <li>
                                                         <a class="dropdown-item text-danger" href="#"
-                                                            onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $first_report->comment->id }}').submit();">
+                                                            onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $first_report->id }}').submit();">
                                                             <i class="ri-delete-bin-line"></i> | Delete
                                                         </a>
-                                                        <form id="deleteUser_{{ $first_report->comment->id }}"
-                                                            action="{{ route('admin.reports.comment.delete', $first_report->comment->id) }}"
+                                                        <form id="deleteUser_{{ $first_report->id }}"
+                                                            action="{{ route('admin.reports.comment.delete', $first_report->id) }}"
                                                             method="POST"
                                                             onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf

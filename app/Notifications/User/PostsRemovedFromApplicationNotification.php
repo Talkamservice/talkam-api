@@ -54,7 +54,7 @@ class PostsRemovedFromApplicationNotification extends Notification
     {
         return [
             'post_id' => $this->post->id,
-            'title' => 'Post(s) Removed',
+            'title' => 'Post(s) Removed Notification',
             'message' => 'Your posts has been removed completely due to a guideline violation. For safety of our community, deleted post(s) can never be undo',
         ];
     }
@@ -82,7 +82,7 @@ class PostsRemovedFromApplicationNotification extends Notification
             'data' => [
                 'id' => $this->post->id,
             ],
-            'title' => "Post(s) Removed",
+            'title' => "Post(s) Removed Notification",
             'message' => "Your posts has been removed completely due to a guideline violation. For safety of our community, deleted post(s) can never be undo.",
             'link' => null,
             'type' => 'post',

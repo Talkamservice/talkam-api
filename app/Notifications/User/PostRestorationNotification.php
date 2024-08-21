@@ -54,7 +54,7 @@ class PostRestorationNotification extends Notification
     {
         return [
             'post_id' => $this->post->id,
-            'title' => 'Post Restored',
+            'title' => 'Post Restored Notification',
             'message' => 'Your post has been removed from suspension and can now appear on the web.',
         ];
     }
@@ -82,7 +82,7 @@ class PostRestorationNotification extends Notification
             'data' => [
                 'id' => $this->post->id,
             ],
-            'title' => "Post Restored",
+            'title' => "Post Restored Notification",
             'message' => "Your post has been removed from suspension and can now appear on our platform.",
             'link' => null,
             'type' => 'post',

@@ -70,7 +70,7 @@ class CommentReportService
     {
         $reported_comment = self::getById($reported_comment_id);
         $reported_comment->comment->delete();
-        Notification::send($reported_comment, new CommentsRemovedFromApplicationNotification($reported_comment));
-        return $reported_comment->refresh();
+        Notification::send($reported_comment->user, new CommentsRemovedFromApplicationNotification($reported_comment));
+        // return $reported_comment->refresh();
     }
 }
