@@ -91,11 +91,12 @@ class GroupReportController extends Controller
 
 
 
-    public function suspendReportedGroup(Request $request, $group_report_id)
+    public function suspendBanReportedGroup(Request $request, $group_id)
     {
         try {
-            $group_report = $this->group_report_service->getById($group_report_id);
-            $message = $this->group_report_service->suspendGroup($group_report->group);
+            $message = $this->group_report_service->suspendOrBanGroup($request, $group_id);
+            // Check if message is an error message or success
+            $status = strpos($message, 'already') !== false ? NotificationConstants::ERROR_MSG : NotificationConstants::SUCCESS_MSG;
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
@@ -111,6 +112,21 @@ class GroupReportController extends Controller
         try {
             $group_report = $this->group_report_service->getById($group_report_id);
             $message = $this->group_report_service->suspensionLift($group_report->group);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
+        } catch (ModelNotFoundException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (InvalidRequestException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            // throw $th;
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+        }
+    }
+    public function deleteReportedGroup(Request $request, $group_report_id)
+    {
+        try {
+            $group_report = $this->group_report_service->getById($group_report_id);
+            $message = $this->group_report_service->deleteGroup($group_report->group);
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
@@ -138,11 +154,12 @@ class GroupReportController extends Controller
     }
 
 
-    public function suspendReportedGroupMember(Request $request, $group_member_report_id)
+    public function suspendBanReportedGroupMember(Request $request, $group_member_report_id)
     {
         try {
             // Apply suspension logic (update the group member's status)
-            $message = $this->group_report_service->suspendMember($group_member_report_id);
+            $message = $this->group_report_service->suspendOrBanMember($request, $group_member_report_id);
+            $status = strpos($message, 'already') !== false ? NotificationConstants::ERROR_MSG : NotificationConstants::SUCCESS_MSG;
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, 'Group member report or member not found.');

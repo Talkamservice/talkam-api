@@ -88,11 +88,15 @@ Route::middleware(["auth"])->group(
             Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");
             Route::get('group/show/{id}', [GroupReportController::class, "show"])->name("group.show");
             Route::post('group/activate/{id}', [GroupReportController::class, "activateReportedGroup"])->name("group.activate");
-            Route::post('group/suspend/{id}', [GroupReportController::class, "suspendReportedGroup"])->name("group.suspend");
+            Route::post('group/suspend-or-ban/{id}', [GroupReportController::class, "suspendBanReportedGroup"])->name("group.suspend-or-ban");
+            Route::post('group/delete/{id}', [GroupReportController::class, "deleteReportedGroup"])->name("group.delete");
+
             Route::get('group/member/lists', [GroupReportController::class, "groupReportList"])->name("group.member.lists");
-            Route::post('group-member/suspend/{id}', [GroupReportController::class, "suspendReportedGroupMember"])->name("group-member.suspend");
+            Route::post('group-member/suspend-or-ban/{id}', [GroupReportController::class, "suspendBanReportedGroupMember"])->name("group-member.suspend-or-ban");
             Route::post('group-member/undo-suspension/{id}', [GroupReportController::class, 'undoGroupMemberSuspension'])->name('group-member.undo-suspension');
             Route::get('group-member/show/{id}', [GroupReportController::class, 'showGroupMemberReport'])->name('group-member.show');
+            // Route::post('group-member/ban/{id}', [GroupReportController::class, 'banGroupMember'])->name('group-member.ban');
+            Route::post('group-member/suspend/{id}', [GroupReportController::class, "suspendReportedGroupMember"])->name("group-member.suspend");
 
 
 
