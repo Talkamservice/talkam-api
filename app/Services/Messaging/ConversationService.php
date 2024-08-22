@@ -198,7 +198,7 @@ class ConversationService
         } else {
             $builder = $builder->where(function ($query) use ($data) {
                 $query->where('sender_id', $data["sender_id"])
-                    ->whereNot("status", StatusConstants::AWAITING_APPROVAL);
+                    ->orWhereNot("status", StatusConstants::AWAITING_APPROVAL);
             });
         }
 
