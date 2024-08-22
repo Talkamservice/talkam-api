@@ -1,21 +1,22 @@
 <?php
 
-namespace App\Notifications\Post;
+namespace App\Notifications\Comment;
 
+use App\Http\Resources\Post\PostCommentResource;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SchedulePostNotification extends Notification
+class NewCommentNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $post)
+    public function __construct(public $comment)
     {
         //
     }
@@ -76,16 +77,21 @@ class SchedulePostNotification extends Notification
 
     public function buildData($notifiable)
     {
+        $commenter = $this->comment->user->username ?? $this->comment->user->full_name;
+        $total_comments = $this->comment?->post?->comments->unique("user_id")->count();
+
         return [
             'data' => [
-                'id' => $this->post->id,
+                'id' => $this->comment->id,
             ],
-            'title' => "New Scheduled Post",
-            'message' => "You have scheduled a new post",
+            'title' => "New Comment",
+            'message' => "{$commenter} and {$total_comments} others replied to your post.",
             'link' => null,
             'type' => 'post',
             'batch_no' => null,
-            "extra" => []
+            "extra" => [
+                "comment" => PostCommentResource::custom($this->comment),
+            ]
         ];
     }
 }

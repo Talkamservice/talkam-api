@@ -8,6 +8,7 @@ use App\Models\BlockedUser;
 use App\Models\CommentReport;
 use App\Models\PostReport;
 use App\Models\UserPostReaction;
+use App\Services\Notification\NotificationHandlerService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -85,7 +86,7 @@ class PostReactionService
     public static function addReaction($post_id, $user_id, $action = PostConstants::LIKE)
     {
         $inverse = ($action == PostConstants::DISLIKE) ? PostConstants::LIKE : PostConstants::DISLIKE;
-        UserPostReaction::create([
+        $post_reaction = UserPostReaction::create([
             "post_id" => $post_id,
             "user_id" => $user_id,
             "action" => $action,
@@ -97,6 +98,10 @@ class PostReactionService
             "user_id" => $user_id,
             "action" => $inverse,
         ])->delete();
+
+        (new NotificationHandlerService)->init($post_reaction->post->user_id)
+            ->notifyCommentOwnerOfNewReaction($post_reaction)
+            ->notifyThreadUser($post_reaction, "post_reaction");
     }
 
     public static function update(array $data, $id)

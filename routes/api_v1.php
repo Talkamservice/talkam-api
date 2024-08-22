@@ -171,8 +171,13 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
 
         Route::prefix("notifications")->as("notifications.")->group(function () {
+            Route::get("list", [NotificationController::class, "index"])->name("index");
+            Route::get("{notification}/show", [NotificationController::class, "show"])->name("show");
+            Route::post("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
+            Route::post("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
             Route::get("preference/fetch", [NotificationController::class, "notificationPerference"])->name("notification-perference");
             Route::post("preference/save", [NotificationController::class, "saveNotificationPerference"])->name("save-notification-perference");
+            Route::post("thread/add", [NotificationController::class, "sendThreadNotification"])->name("send-thread-notification");
         });
     });
 });

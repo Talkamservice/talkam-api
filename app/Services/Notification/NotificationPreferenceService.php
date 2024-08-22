@@ -4,6 +4,8 @@ namespace App\Services\Notification;
 
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\NotificationPreference;
+use App\Models\ThreadNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -65,5 +67,37 @@ class NotificationPreferenceService
     {
         $model = NotificationPreference::firstOrCreate(["user_id" => $user_id]);
         return $model;
+    }
+
+    public static function sendThreadNotification(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($data, [
+                "user_id" => "nullable|exists:users,id",
+                "post_id" => "nullable|exists:posts,id",
+                "comment_id" => "nullable|exists:post_comments,id",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $data["user_id"] ??= auth()->id();
+
+            $thread_notification = ThreadNotification::firstOrCreate([
+                "user_id" => $data["user_id"],
+                "post_id" => $data["post_id"] ?? null,
+                "comment_id" => $data["comment_id"] ?? null,
+            ]);
+
+            DB::commit();
+            return $thread_notification;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }

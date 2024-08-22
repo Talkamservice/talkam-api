@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->names();
     }
 
+    public function getName()
+    {
+        return $this->username ?? $this->names();
+    }
+
     public function interests()
     {
         return $this->hasMany(UserInterest::class, "user_id");
@@ -121,4 +126,10 @@ class User extends Authenticatable
             return asset("admin_assets/images/authentication/logo.png");
         }
     }
+
+    public function notificationPreference()
+    {
+        return $this->hasOne(NotificationPreference::class, 'user_id');
+    }
+
 }

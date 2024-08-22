@@ -7,6 +7,7 @@ use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostComment;
 use App\Models\UserCommentReaction;
+use App\Services\Notification\NotificationHandlerService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -44,8 +45,17 @@ class PostCommentService
     {
         $data = self::validate($data);
         $data["user_id"] = auth()->id();
-        $post = PostComment::create($data);
-        return $post;
+        $comment = PostComment::create($data);
+
+        $notification = (new NotificationHandlerService)->init($comment->post->user_id)
+            ->notifyPostOwnerOfNewComment($comment)
+            ->notifyThreadUser($comment, "comment");
+
+        if (!empty($data["reply_comment_id"] ?? null)) {
+            $notification->notifyCommentOwnerOfNewComment($comment);
+        }
+
+        return $comment;
     }
 
     public static function update(array $data, $id)
@@ -140,7 +150,7 @@ class PostCommentService
     {
         $inverse = ($action == PostConstants::DISLIKE) ? PostConstants::LIKE : PostConstants::DISLIKE;
 
-        UserCommentReaction::create([
+        $comment_reaction = UserCommentReaction::create([
             "comment_id" => $comment_id,
             "user_id" => $user_id,
             "action" => $action,
@@ -152,5 +162,9 @@ class PostCommentService
             "user_id" => $user_id,
             "action" => $inverse,
         ])->delete();
+
+        (new NotificationHandlerService)->init($comment_reaction->comment->user_id)
+            ->notifyCommentOwnerOfNewReaction($comment_reaction)
+            ->notifyThreadUser($comment_reaction, "comment_reaction");
     }
 }
