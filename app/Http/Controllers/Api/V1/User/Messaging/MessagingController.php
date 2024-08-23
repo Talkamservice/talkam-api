@@ -6,6 +6,7 @@ use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
 use App\Events\NewMessage;
 use App\Events\ReceiveMessage;
+use App\Events\RefreshMessage;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -49,10 +50,8 @@ class MessagingController extends Controller
             $conversationId = $message->conversation_id;
             $data = MessageResource::make($message);
 
-            broadcast(new NewMessage($data, $conversationId))->toOthers();
             broadcast(new ReceiveMessage($data, $conversationId, $message->receiver_id))->toOthers();
-
-            // broadcast(new RefreshMessage($conversationId))->toOthers();
+            broadcast(new RefreshMessage($conversationId))->toOthers();
             
             // broadcast(new RefreshNotification())->toOthers();
             Notification::send($message->receiver, new NewMessageNotification($message));

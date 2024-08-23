@@ -24,7 +24,3 @@ Broadcast::channel('presence-user.{id}', function ($user, $id) {
 Broadcast::channel('private-conversation.{conversationId}', function ($user, $conversationId) {
     return $user;
 });
-
-Broadcast::channel('receive-message.{userId}', function ($user, $userId) {
-    return $user;
-});
