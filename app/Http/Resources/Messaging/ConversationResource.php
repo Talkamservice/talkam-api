@@ -16,15 +16,16 @@ class ConversationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $other_member = $this->members()->whereNot("user_id", auth()->id())->first();
         return [
             "id" => $this->id,
-            "sender" => UserResource::custom($this->sender),
-            "receiver" => UserResource::custom($this->receiver),
+            "members" => ConversationMemberResource::collection($this->members),
             "last_message" => MessageResource::make($this->messages()->latest()->first()),
             "number_of_unread" => $this->messages()->where('receiver_id', $this->receiver_id)->where('read', false)->count(),
             "notification_status" => $this->notification_status,
             "is_anonymous" => $this->is_anonymous,
-            "user_blocked" => (new BlockUserService)->isBlocked($this->sender_id, $this->receiver_id),
+            "requested_by" => UserResource::custom($this->user),
+            "user_blocked" => (new BlockUserService)->isBlocked(auth()->id(), $other_member?->user_id),
             "status" => $this->status
         ];
     }

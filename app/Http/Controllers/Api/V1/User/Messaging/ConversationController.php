@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User\Messaging;
 
 use App\Constants\General\ApiConstants;
 use App\Events\NewMessage;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -54,6 +55,8 @@ class ConversationController extends Controller
             return ApiHelper::validResponse("Conversation fetched successfully", $data);
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (InvalidRequestException | ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $e) {
             return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $e);
         }
@@ -68,6 +71,8 @@ class ConversationController extends Controller
             return ApiHelper::validResponse("Conversation created successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (InvalidRequestException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
@@ -85,6 +90,8 @@ class ConversationController extends Controller
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (InvalidRequestException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
@@ -99,6 +106,8 @@ class ConversationController extends Controller
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (InvalidRequestException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
@@ -132,14 +141,14 @@ class ConversationController extends Controller
         }
     }
 
-    public function pendingRequests(Request $request)
-    {
-        try {
-            $categories = $this->conversation_service->pendingRequests($request->all())->latest()->get();
-            $data = ConversationResource::collection($categories);
-            return ApiHelper::validResponse("Conversations returned successfully", $data);
-        } catch (Exception $e) {
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
-        }
-    }
+    // public function pendingRequests(Request $request)
+    // {
+    //     try {
+    //         $categories = $this->conversation_service->pendingRequests($request->all())->latest()->get();
+    //         $data = ConversationResource::collection($categories);
+    //         return ApiHelper::validResponse("Conversations returned successfully", $data);
+    //     } catch (Exception $e) {
+    //         return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+    //     }
+    // }
 }
