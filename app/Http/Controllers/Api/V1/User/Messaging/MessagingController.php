@@ -50,7 +50,7 @@ class MessagingController extends Controller
             $data = MessageResource::make($message);
 
             broadcast(new NewMessage($data, $conversationId))->toOthers();
-            broadcast(new ReceiveMessage($data, $message->receiver_id))->toOthers();
+            broadcast(new ReceiveMessage($data, $conversationId, $message->receiver_id))->toOthers();
 
             // broadcast(new RefreshMessage($conversationId))->toOthers();
             
