@@ -3,6 +3,7 @@
 namespace App\Services\Messaging;
 
 use App\Exceptions\General\ModelNotFoundException;
+use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -64,6 +65,7 @@ class MessageService
 
         if (!empty($key = $data["conversation_id"] ?? null)) {
             $messages = $messages->where("conversation_id", $key);
+            Conversation::where("id", $key)->messages()->update(['read' => true]);
         }
 
         if (!empty($key = $data["search"] ?? null)) {
