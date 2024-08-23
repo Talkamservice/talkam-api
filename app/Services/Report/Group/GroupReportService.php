@@ -91,7 +91,6 @@ class GroupReportService
 
     public function suspendOrBanGroup(Request $request, $group_id)
     {
-   
         DB::beginTransaction();
         try {
             $group = Group::find($group_id);
@@ -151,7 +150,7 @@ class GroupReportService
             }
         } catch (\Throwable $th) {
             DB::rollBack();
-            throw $th; 
+            throw $th;
         }
     }
 
@@ -163,16 +162,16 @@ class GroupReportService
         DB::beginTransaction();
         try {
             // Get the admins of the group
-            $admins = $group->members()->where('role', UserConstants::OWNER)->first()->user; 
-    
+            $admins = $group->members()->where('role', UserConstants::OWNER)->first()->user;
+
             // Delete the group
             $group->delete();
-    
+
             // Send notification to the group's admins
             // foreach ($admins as $admin) {
             //     Notification::send($admin, new SuspendGroupMemberNotification($group, null));
             // }
-    
+
             DB::commit();
             return 'Group has been deleted.';
         } catch (\Throwable $e) {
@@ -180,7 +179,7 @@ class GroupReportService
             throw $e;
         }
     }
-    
+
 
     public function suspensionLift(Group $group, $reason = null)
     {
@@ -211,17 +210,17 @@ class GroupReportService
         DB::beginTransaction();
         try {
             $group_member_report = GroupMemberReport::find($group_member_report_id);
-    
+
             if (!$group_member_report) {
                 throw new ModelNotFoundException('Group member report not found.');
             }
-    
+
             $group_member = GroupMember::findOrFail($group_member_report->group_member_id);
-    
+
             if (!$group_member) {
                 throw new ModelNotFoundException('Group member not found.');
             }
-    
+
             $actionType = $request->input('action_type');
             $suspensionReason = $request->input('suspension_reason');
             $suspensionDurations = [
@@ -229,40 +228,41 @@ class GroupReportService
                 2 => now()->addDays(7),
                 3 => now()->addDays(30),
             ];
-    
+
             // Check if the user needs to be banned
             if ($group_member->suspension_count >= 3 || $actionType === 'ban') {
                 if ($group_member->banned) {
                     DB::commit();
                     return 'User has aready been banned.';
                 }
-    
+
                 // Ban the user
                 $group_member->update([
                     'banned' => true,
                     'suspension_end' => null,
                     'status' => StatusConstants::BANNED,
                 ]);
-    
+
                 Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, "You have been permanently banned from the group for the following reason: {$suspensionReason}."));
-    
+
                 DB::commit();
                 return 'User has been banned permanently.';
             } else {
                 // Apply suspension
                 $newSuspensionCount = $group_member->suspension_count + 1;
                 $suspensionEnd = $suspensionDurations[$request->input('duration')] ?? now()->addHours(24);
-    
+
                 $group_member->update([
                     'suspension_reason' => $suspensionReason,
                     'suspension_count' => $newSuspensionCount,
                     'suspension_end' => $suspensionEnd,
                     'status' => StatusConstants::SUSPENDED,
                 ]);
-    
+
                 $message = "You have been suspended until {$suspensionEnd->diffForHumans()} for the following reason: {$suspensionReason}.";
+
                 Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
-    
+
                 DB::commit();
                 return "User has been suspended until {$suspensionEnd->toDateTimeString()}.";
             }
@@ -271,7 +271,7 @@ class GroupReportService
             throw $th;
         }
     }
-    
+
 
 
 

@@ -12,14 +12,12 @@ class CommentsRemovedFromApplicationNotification extends Notification
 {
     use Queueable;
 
-    public $comment;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct($comment)
+    public function __construct(public $reported_comment)
     {
-        $this->comment = $comment;
+
     }
 
     /**
@@ -55,8 +53,8 @@ class CommentsRemovedFromApplicationNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'post_comment_id' => $this->comment->id,
-            'title' => 'Comment Removed',
+            'post_comment_id' => $this->reported_comment->id,
+            'title' => 'Comment Removed Notification',
             'message' => 'Your comment has been removed completely due to a guideline violation. For the safety of our community, deleted comments cannot be undone.',
         ];
     }
@@ -95,9 +93,9 @@ class CommentsRemovedFromApplicationNotification extends Notification
     {
         return [
             'data' => [
-                'id' => $this->comment->id,
+                'id' => $this->reported_comment->id,
             ],
-            'title' => 'Comment Removed',
+            'title' => 'Comment Removed Notification',
             'message' => 'Your comment has been removed completely due to a guideline violation. For the safety of our community, deleted comments cannot be undone.',
             'link' => null,
             'type' => 'comment',

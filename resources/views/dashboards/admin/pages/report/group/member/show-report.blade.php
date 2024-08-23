@@ -72,6 +72,41 @@
                                 <button class="btn btn-sm btn-success p-2">Filter</button>
                             </div>
                         </form>
+                        <div class="dropdown ms-auto me-auto">
+                            <a class="btn btn-outline-primary dropdown-toggle" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Action
+                            </a>
+                            <ul class="dropdown-menu">
+                               
+                                @if ($group_member_report->user->banned)
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#">
+                                            <i class="ri-error-warning-line"></i> User Banned
+                                        </a>
+                                    </li>
+                                @elseif ($group_member_report->groupMember->suspension_end && $group_member_report->groupMember->suspension_end > now())
+                                    <li>
+                                        <form id="undoSuspensionForm_{{ $group_member_report->groupMember->id }}"
+                                            action="{{ route('admin.reports.group-member.undo-suspension', $group_member_report->groupMember->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Are you sure you want to lift this suspension?')">
+                                            @csrf
+                                            <a class="dropdown-item text-primary" href="#"
+                                                onclick="document.getElementById('undoSuspensionForm_{{ $group_member_report->groupMember->id }}').submit()">
+                                                <i class="ri-alert-line"></i> Undo Suspension
+                                            </a>
+                                        </form>
+                                    </li>
+                                @endif
+                                <li>
+                                    <a class="dropdown-item text-danger suspend-btn" href="#" onclick="openModal('{{ $group_member_report->id }}')">
+                                        <i class="ri-alert-line"></i> Suspend/Ban
+                                    </a>
+                                </li>
+                               
+                            </ul>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -84,21 +119,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($group_member_report_lists as $report)
+                                    @forelse ($group_member_report_lists as $group_member_report)
                                         <tr>
                                             <td>
-                                                <a href="{{ route('admin.users.show', $report->user_id) }}">
+                                                <a class="text-primary" href="{{ route('admin.users.show', $group_member_report->user_id) }}">
                                                     <div class="d-flex align-items-center fw-semibold">
                                                         <span class="avatar avatar-sm me-2 avatar-rounded">
                                                             <!-- Check if image exists, otherwise use a default image -->
-                                                            <img src="{{ $report->user->avatarUrl() }}"
+                                                            <img src="{{ $group_member_report->user->avatarUrl() }}"
                                                                 alt="Reporter Image">
-                                                        </span>{{ $report->user->full_name ?? 'Unknown' }}
+                                                        </span>{{ $group_member_report->user->full_name ?? 'Unknown' }}
                                                     </div>
                                                 </a>
                                             </td>
-                                            <td>{{ $report->reason ?? 'No reason provided' }}</td>
-                                            <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>
+                                            <td>{{ $group_member_report->reason ?? 'No reason provided' }}</td>
+                                            <td>{{ $group_member_report->created_at->format('Y-m-d h:i A') }}</td>
                                         </tr>
                                     @empty
                                         <tr>
@@ -122,4 +157,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.report.group.member.suspend-ban-modal')
 @endsection

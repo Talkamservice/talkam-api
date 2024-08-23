@@ -76,13 +76,27 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <form id="strikeUser_{{ $first_report->post->user->id }}"
-                                                            action="{{ route('admin.users.strike', $first_report->post->user->id) }}"
+                                                        <form id="updateStatus_{{ $first_report->id }}"
+                                                            action="{{ route('admin.reports.comment.update-status', $first_report->id) }}"
+                                                            method="POST"
+                                                            onsubmit="return confirm('Are you sure of this action?')">
+                                                            @csrf
+                                                            <input type="hidden" name="action" value="Resolved">
+                                                            <a class="dropdown-item text-success"
+                                                                onclick="event.preventDefault(); document.getElementById('updateStatus_{{ $first_report->id }}').submit()"
+                                                                href="#">
+                                                                <i class="ri-check-line"></i> | Mark As Resolved
+                                                            </a>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form id="strikeUser_{{ $first_report->comment->user->id }}"
+                                                            action="{{ route('admin.users.strike', $first_report->comment->user->id) }}"
                                                             method="post"
                                                             onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf
                                                             <a class="dropdown-item text-warning" href="#"
-                                                                onclick="event.preventDefault(); document.getElementById('strikeUser_{{ $first_report->post->user->id }}').submit();">
+                                                                onclick="event.preventDefault(); document.getElementById('strikeUser_{{ $first_report->comment->user->id }}').submit();">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                                                     width="13" height="13" fill="currentColor"
                                                                     style="vertical-align: middle;">
@@ -94,12 +108,33 @@
                                                         </form>
                                                     </li>
                                                     <li>
+                                                        <form id="suspendUser_{{ $first_report->comment->user->id }}"
+                                                            action="{{ route('admin.users.suspend', $first_report->comment->user->id) }}"
+                                                            method="post"
+                                                            onsubmit="return confirm('Are you sure of this action?')">
+                                                            @csrf
+                                                            @if ($first_report->comment->user->status === 'Active')
+                                                                <input type="hidden" name="status" value="Inactive">
+                                                                <a class="dropdown-item text-danger" href="#"
+                                                                    onclick="$('#suspendUser_{{ $first_report->comment->user->id }}').submit()"><i
+                                                                        class="ri-close-line"></i> | Suspend User</a>
+                                                            @endif
+
+                                                            @if ($first_report->comment->user->status === 'Inactive')
+                                                                <input type="hidden" name="status" value="Active">
+                                                                <a class="dropdown-item text-success" href="#"
+                                                                    onclick="$('#suspendUser_{{ $first_report->comment->user->id }}').submit()"><i
+                                                                        class="ri-check-line"></i> | Activate User</a>
+                                                            @endif
+                                                        </form>
+                                                    </li>
+                                                    <li>
                                                         <a class="dropdown-item text-danger" href="#"
-                                                            onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $first_report->comment->id }}').submit();">
-                                                            <i class="ri-delete-bin-line"></i> | Delete comment
+                                                            onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $first_report->id }}').submit();">
+                                                            <i class="ri-delete-bin-line"></i> | Delete
                                                         </a>
-                                                        <form id="deleteUser_{{ $first_report->comment->id }}"
-                                                            action="{{ route('admin.reports.comment.delete', $first_report->comment->id) }}"
+                                                        <form id="deleteUser_{{ $first_report->id }}"
+                                                            action="{{ route('admin.reports.comment.delete', $first_report->id) }}"
                                                             method="POST"
                                                             onsubmit="return confirm('Are you sure of this action?')">
                                                             @csrf

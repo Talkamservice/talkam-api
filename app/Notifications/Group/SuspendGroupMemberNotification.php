@@ -11,11 +11,10 @@ class SuspendGroupMemberNotification extends Notification
 {
     use Queueable;
 
-    protected $message;
 
-    public function __construct(public $group_member, $message)
+    public function __construct(public $group_member, public $message)
     {
-        $this->message = $message;
+    
     }
 
     public function via($notifiable): array

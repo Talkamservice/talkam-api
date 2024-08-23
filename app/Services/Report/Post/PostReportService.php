@@ -24,7 +24,6 @@ class PostReportService
     public static function getById($id): PostReport
     {
         $report = PostReport::find($id);
-        dd($report);
         if (empty($report)) {
             throw new ModelNotFoundException("Report not found");
         }
@@ -52,15 +51,7 @@ class PostReportService
             $report = self::getById($report_id);
 
             if (in_array($report->status, [StatusConstants::RESOLVED])) {
-                throw new InvalidRequestException("You cannot make changes you a resolved report");
-            }
-
-            if ($data["action"] == StatusConstants::SUSPENDED) {
-                $this->user_service->suspend(StatusConstants::INACTIVE, $report->post->user_id);
-            }
-
-            if ($data["action"] == StatusConstants::ACTIVATED) {
-                $this->user_service->suspend(StatusConstants::ACTIVE, $report->post->user_id);
+                throw new InvalidRequestException("You cannot make changes to a resolved report");
             }
 
             $report->update([
@@ -78,9 +69,8 @@ class PostReportService
     public static function delete($reported_post_id)
     {
         $reported_post = self::getById($reported_post_id);
-        dd($reported_post);
         $reported_post->post->delete();
         Notification::send( $reported_post, new PostsRemovedFromApplicationNotification($reported_post));
-        return  $reported_post->refresh();
+        // return  $reported_post->refresh();
     }
 }

@@ -54,7 +54,7 @@ class PostSuspensionNotification extends Notification
     {
         return [
             'post_id' => $this->post->id,
-            'title' => 'Post Suspended',
+            'title' => 'Post Suspended Notification',
             'message' => 'Your post has been suspended due to a guideline violation.',
         ];
     }
@@ -82,7 +82,7 @@ class PostSuspensionNotification extends Notification
             'data' => [
                 'id' => $this->post->id,
             ],
-            'title' => "Post(s) Suspended",
+            'title' => "Post(s) Suspension Notification",
             'message' => "Your post(S) has been suspended due to a guideline violation.",
             'link' => null,
             'type' => 'post',
