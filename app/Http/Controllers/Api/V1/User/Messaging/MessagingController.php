@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\User\Messaging;
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
 use App\Events\NewMessage;
+use App\Events\ReceiveMessage;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -44,10 +45,13 @@ class MessagingController extends Controller
     {
         try {
             $message = $this->messaging_service->create($request->all());
+            
             $conversationId = $message->conversation_id;
             $data = MessageResource::make($message);
 
             broadcast(new NewMessage($data, $conversationId))->toOthers();
+            broadcast(new ReceiveMessage($data, $message->receiver_id))->toOthers();
+
             // broadcast(new RefreshMessage($conversationId))->toOthers();
             
             // broadcast(new RefreshNotification())->toOthers();
