@@ -164,8 +164,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
             Route::prefix("messages")->as("conversations.")->group(function () {
                 Route::get("list", [MessagingController::class, "list"])->name("get-messages");
-                Route::post("/send-message", [MessagingController::class, "sendMessage"])->name("send-message");
-                Route::delete("/delete-message/{messageId}", [MessagingController::class, "deleteMessage"])->name("delete-message");
+                Route::post("/send", [MessagingController::class, "sendMessage"])->name("send-message");
+                Route::delete("/delete/{messageId}", [MessagingController::class, "deleteMessage"])->name("delete-message");
             });
 
         });
