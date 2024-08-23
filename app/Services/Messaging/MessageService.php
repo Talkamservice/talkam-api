@@ -65,7 +65,7 @@ class MessageService
 
         if (!empty($key = $data["conversation_id"] ?? null)) {
             $messages = $messages->where("conversation_id", $key);
-            Conversation::where("id", $key)->messages()->update(['read' => true]);
+            Conversation::where("id", $key)->first()?->messages()?->update(['read' => true]);
         }
 
         if (!empty($key = $data["search"] ?? null)) {
