@@ -14,11 +14,14 @@ class RefreshNotification implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $userId;
+
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct($userId)
     {
+        $this->userId = $userId;
     }
 
     /**
@@ -29,13 +32,13 @@ class RefreshNotification implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('therapist-notification')
+            new Channel('refresh-notification.' . $this->userId)
         ];
     }
 
     public function broadcastAs()
     {
-        return 'refresh-notification';
+        return 'refresh';
     }
 
     public function broadcastWith()
