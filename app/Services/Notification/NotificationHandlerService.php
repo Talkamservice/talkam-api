@@ -7,10 +7,10 @@ use App\Models\User;
 use App\Notifications\Comment\NewCommentMentionNotification;
 use App\Notifications\Comment\NewCommentNotification;
 use App\Notifications\Comment\NewCommentReactionNotification;
-use App\Notifications\Comment\NewPostReactionNotification;
+use App\Notifications\Post\NewPostReactionNotification;
 use App\Notifications\Comment\NewThreadCommentNotification;
 use App\Notifications\Comment\NewThreadCommentReactionNotification;
-use App\Notifications\Comment\NewThreadPostReactionNotification;
+use App\Notifications\Post\NewThreadPostReactionNotification;
 use Illuminate\Support\Facades\Notification;
 
 class NotificationHandlerService
