@@ -38,7 +38,7 @@ class NotificationHandlerService
         $this->can_receive_talkam_research = $this->canSendNotification("talkam_research");
         $this->can_receive_moderation_activities = $this->canSendNotification("moderation_activities");
         $this->can_receive_content_activities = $this->canSendNotification("user_activities");
-        $this->comments_notifications_type = $this->user->notificationPreference->comments;
+        $this->comments_notifications_type = $this->user->notificationPreference?->comments;
     }
 
     private function canSendNotification($content, $type = "bool")
