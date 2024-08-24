@@ -100,7 +100,7 @@ class PostReactionService
         ])->delete();
 
         (new NotificationHandlerService)->init($post_reaction->post->user_id)
-            ->notifyCommentOwnerOfNewReaction($post_reaction)
+            ->notifyPostOwnerOfNewReaction($post_reaction)
             ->notifyThreadUser($post_reaction, "post_reaction");
     }
 
