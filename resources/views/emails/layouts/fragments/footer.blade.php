@@ -1,11 +1,10 @@
 <tr>
     <td>
         <p class="detailCont-p">
-            This email was sent to
-            <span><a class="link">talkam@gmail.com.</a></span> If you’d rather
+            This email was sent to you by
+            <span><a class="link">{{ config("system.emails.sudo") }}</a></span> If you’d rather
             not receive this kind of email, you can
-            <span><a class="link"> or manage your email preferences.</a></span>
-            unsubscribe
+            <span><a class="link"> manage your email preferences.</a></span>
         </p>
 
         <p class="detailCont-ps">
