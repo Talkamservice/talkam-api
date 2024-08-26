@@ -1,74 +1,216 @@
 <head>
-    <title> Welcome to Talkam </title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">
-        #outlook a {
-            padding: 0;
-        }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
 
+    <style>
         body {
             margin: 0;
             padding: 0;
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
         }
 
-        table,
-        td {
-            border-collapse: collapse;
-            mso-table-lspace: 0pt;
-            mso-table-rspace: 0pt;
+        * {
+            font-family: "Inter", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 500;
+            margin: 0;
         }
 
-        img {
-            border: 0;
-            height: auto;
-            line-height: 100%;
-            outline: none;
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 3% 4%;
+            border-radius: 5px;
+            background-color: #f2f5f8;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #333333;
+        }
+
+        .logoCont {
+            text-align: left;
+            padding-bottom: 3%;
+            padding-top: 2%;
+            color: #999999;
+        }
+
+        .detailCont {
+            text-align: left;
+            color: #333333;
+            background-color: white;
+            padding: 5%;
+        }
+
+        .detailCont-p {
+            margin: 5% 0 3% 0;
+        }
+
+        .link {
+            color: #4a9ecf;
+            font-weight: 600;
+        }
+
+        .lineCont {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+        }
+
+        .line {
+            border: 1px solid #e1e1e1;
+            width: 150px;
+            margin-top: 8%;
+            margin-bottom: 3%;
+        }
+
+        .getTalkam-h {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5%;
+            text-align: center;
+            color: black;
+        }
+
+        .getTalkam-d {
+            text-align: center;
+            padding: 0 5%;
+        }
+
+        .btnCont {
+            display: flex;
+            justify-content: center;
+            padding: 0 0 5% 0;
+            background-color: white;
+            margin-top: -1%;
+        }
+
+        .horzontal {
+            border: 1px solid lightgray;
+            width: 30%;
+            margin: 7% 0 5% 0;
+            left: 35%;
+            position: relative;
+        }
+
+        .apple {
+            margin-right: 3%;
+            display: flex;
+            align-items: center;
+            border: none;
+            background-color: white;
+        }
+
+        .clickBtn {
             text-decoration: none;
-            -ms-interpolation-mode: bicubic;
+            border: none;
+            border-radius: 6px;
+            margin-bottom: 3%;
+            color: white;
+            padding: 2% 4%;
+            background-color: #4a9ecf;
         }
 
-        p {
-            display: block;
-            margin: 13px 0;
+        .playStore {
+            display: flex;
+            align-items: center;
+            border: none;
+            background-color: white;
         }
-        .background_color {
-            background-color: #EEFAFF !important;
+
+        .spanText {
+            text-align: left;
+            margin-left: 3%;
+            font-size: 12px;
         }
-    </style>
-    <link href="https://fonts.googleapis.com/css?family=Muli:300,400,700" rel="stylesheet" type="text/css" />
-    <style type="text/css">
-        @import url(https://fonts.googleapis.com/css?family=Muli:300,400,700);
-    </style>
-    <style type="text/css">
-        @media only screen and (min-width:480px) {
-            .mj-column-per-100 {
-                width: 100% !important;
-                max-width: 100%;
-            }
+
+        .appleText {
+            font-size: 16px;
         }
-    </style>
-    <style type="text/css">
-        @media only screen and (max-width:480px) {
-            table.mj-full-width-mobile {
-                width: 100% !important;
+
+        .spanText-1 {
+            text-align: left;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            margin-left: 3%;
+            font-size: 12px;
+        }
+
+        .playStoreText {
+            font-size: 16px;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .footerlogo {
+            text-align: center;
+            padding-top: 10%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flogo {
+            width: 80px;
+        }
+
+        .iconsCont {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -5%;
+        }
+
+        .icon1 {
+            margin-right: 30px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                max-width: 400px;
             }
 
-            td.mj-full-width-mobile {
-                width: auto !important;
+            .detailCont-p,
+            .detailCont-ps,
+            .link {
+                font-size: 14px;
             }
-        }
-    </style>
-    <style type="text/css">
-        a,
-        span,
-        td,
-        th {
-            -webkit-font-smoothing: antialiased !important;
-            -moz-osx-font-smoothing: grayscale !important;
+
+            .getTalkam-h {
+                font-size: 18px;
+            }
+
+            .getTalkam-d {
+                font-size: 14px;
+                padding: 0 2%;
+            }
+
+            .appleIcon,
+            .playstoreIcon {
+                width: 30px;
+            }
+
+            .appleText,
+            .playStoreText {
+                font-size: 15px;
+            }
+
+            .icon1 {
+                margin-right: 15px;
+            }
+
+            .iconsCont {
+                margin-top: -7%;
+            }
         }
     </style>
 </head>

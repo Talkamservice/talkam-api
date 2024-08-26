@@ -16,6 +16,6 @@ class MessagingConstants
     ];
     const CONVERSATION_ACTIONS = [
         StatusConstants::ACCEPTED => StatusConstants::ACCEPTED,
-        StatusConstants::REJECTED => StatusConstants::REJECTED,
+        StatusConstants::DECLINED => StatusConstants::DECLINED,
     ];
 }

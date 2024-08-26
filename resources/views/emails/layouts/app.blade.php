@@ -1,46 +1,43 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="en">
+@include('emails.layouts.fragments.head')
 
-@include("emails.layouts.fragments.head")
+<body>
+    <table class="container">
+        <tr>
+            <td class="logoCont">
+                <img src="{{ asset('email/assets/talkamlogo.svg') }}" />
+            </td>
+        </tr>
 
-<body class="background_color">
-    <div class="background_color">
-        <div style="margin:0px auto;max-width:600px;">
-            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
-                <tbody>
-                    <tr>
-                        <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
-                            <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
-                                    <tbody>
-                                        <tr>
-                                            <td style="font-size:0px;word-break:break-word;">
-                                                <div style="height:20px;"> </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;">
-                                                    <tbody>
-                                                        <tr>
-                                                            <td align="center" style="width:175px;">
-                                                                <img src="{{ asset("images/logo/talkam-logo.png") }}"/>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        @yield("content")
-    </div>
+        <tr>
+            <td class="detailCont">
+                @yield('content')
+
+                <hr class="horzontal" />
+
+                <p class="getTalkam-h">Get the TalkAM app!</p>
+
+                <p class="getTalkam-d">
+                    Get the most of TalkAM by installing the mobile app. You can log in
+                    by using your existing emails address and password.
+                </p>
+
+                <tr>
+                    <td class="btnCont">
+                        <button class="apple">
+                            <img class="appleIcon" src="{{ asset('email/assets/appleIcon.svg') }}" />
+                        </button>
+        
+                        <button class="playStore">
+                            <img class="playstoreIcon" src="{{ asset('email/assets/playstoreIcon.svg') }}" />
+                        </button>
+                    </td>
+                </tr>
+            </td>
+        </tr>
+        @include('emails.layouts.fragments.footer')
+    </table>
 </body>
 
 </html>
