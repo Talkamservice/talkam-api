@@ -53,7 +53,7 @@ class MessagingController extends Controller
 
             broadcast(new ReceiveMessage($data, $conversationId, $message->receiver_id))->toOthers();
             Notification::send($message->receiver, new NewMessageNotification($message));
-            broadcast(new RefreshNotification(auth()->id()))->toOthers();
+            broadcast(new RefreshNotification($message->receiver_id))->toOthers();
             
             return ApiHelper::validResponse("Message sent successfully", MessageResource::make($message));
         } catch (ValidationException $e) {
