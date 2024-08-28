@@ -76,5 +76,5 @@ class MessageService
         }
 
         return $messages;
-    },
+    }
 }
