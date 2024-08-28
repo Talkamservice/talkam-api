@@ -96,7 +96,7 @@ class NewMessageNotification extends Notification
                 'id' => $this->message->conversation_id,
             ],
             'title' => $title,
-            'message' => "{$this->message->sender->name} sent you a new message",
+            'message' => "{$this->message->sender->getName()} sent you a new message",
             'link' => null,
             'type' => 'conversation',
             'batch_no' => null,

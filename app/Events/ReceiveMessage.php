@@ -10,18 +10,22 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class RefreshMessage implements ShouldBroadcast
+class ReceiveMessage implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $message;
     public $conversationId;
+    public $userId;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($conversationId)
+    public function __construct($message, $conversationId, $userId)
     {
+        $this->message = $message;
         $this->conversationId = $conversationId;
+        $this->userId = $userId;
     }
 
     /**
@@ -32,19 +36,19 @@ class RefreshMessage implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('therapist-notification.' . $this->conversationId)
+            new Channel('private-conversation.' . $this->conversationId)
         ];
     }
 
     public function broadcastAs()
     {
-        return 'refresh-message';
+        return "receive-message.{$this->userId}";
     }
 
     public function broadcastWith()
     {
         return [
-            'data' => [],
+            'data' => $this->message,
         ];
     }
 }

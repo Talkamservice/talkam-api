@@ -190,11 +190,13 @@ class PostCategoryService
 
         return $categories->map(function ($category) use ($parent_category) {
             return [
+                "id" => $category->id,
                 "name" => $category->name,
                 "parent_category" => [
                     "id" => $parent_category->id,
                     "name" => $parent_category->name
                 ],
+                "type" => "Category",
                 "followers_count" => $category->interests_count,
                 "created_at" => formatDate($category->created_at),
             ];
@@ -206,6 +208,8 @@ class PostCategoryService
         $groups = Group::where("category_id", $parent_category->id)->withCount("members")->status()->get();
         return $groups->map(function ($group) use ($parent_category) {
             return [
+                "id" => $group->id, 
+                "type" => "Group",
                 "name" => $group->name,
                 "followers_count" => $group->members_count,
                 "created_at" => formatDate($group->created_at),

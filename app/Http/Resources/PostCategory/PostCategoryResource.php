@@ -17,7 +17,7 @@ class PostCategoryResource extends JsonResource
 
     public function toArray($request)
     {
-        $interests = UserInterest::where("user_id", auth()->id())->pluck("category_id")->toArray();
+        $interests = UserInterest::where("user_id", auth("sanctum")->id())->pluck("category_id")->toArray();
         $is_following = in_array($this->id, $interests ?? []);
 
         return [

@@ -116,6 +116,11 @@ class User extends Authenticatable
         return $this->belongsTo(Avatar::class, 'avatar_id');
     }
 
+    public function conversationMember()
+    {
+        return $this->belongsTo(ConversationMember::class, 'id', "user_id");
+    }
+
     public function avatarUrl($type = null)
     {
         if (!empty($this->avatar)) {

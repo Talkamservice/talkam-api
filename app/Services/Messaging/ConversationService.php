@@ -4,9 +4,12 @@ namespace App\Services\Messaging;
 
 use App\Constants\General\StatusConstants;
 use App\Constants\Messaging\MessagingConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Conversation;
+use App\Models\ConversationMember;
 use App\Models\ConversationReport;
+use App\QueryBuilders\Conversation\ConversationQueryBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -33,7 +36,7 @@ class ConversationService
     public static function validate($data, $id = null)
     {
         $validator = Validator::make($data, [
-            "sender_id" => "bail|nullable|exists:users,id",
+            // "sender_id" => "bail|nullable|exists:users,id",
             "receiver_id" => "bail|nullable|exists:users,id|" . Rule::requiredIf(empty($id)),
             "message" => "bail|nullable|string",
             "message_type" => "bail|nullable|string",
@@ -54,26 +57,32 @@ class ConversationService
         try {
             $data = self::validate($data);
 
-            $data["sender_id"] ??= auth()->id();
+            $user = auth()->user();
 
-            $conversation = Conversation::where(function ($query) use ($data) {
-                $query->where('sender_id', $data["sender_id"])
-                    ->where('receiver_id', $data["receiver_id"]);
-            })->orWhere(function ($query) use ($data) {
-                $query->where('sender_id', $data["receiver_id"])
-                    ->where('receiver_id', $data["sender_id"]);
-            })->first();
-
-            if (empty($conversation)) {
-                $conversation = Conversation::firstOrCreate([
-                    "sender_id" => $data["sender_id"],
-                    "receiver_id" => $data["receiver_id"]
-                ], [
-                    "notification_status" => $data["notification_status"] ?? 1,
-                    "is_anonymous" => $data["is_anonymous"] ?? 0,
-                    "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
-                ]);
+            if ($user->id == $data["receiver_id"]) {
+                throw new InvalidRequestException("You can`t chat with yourself");
             }
+
+            $conversation = Conversation::whereHas("members", function ($query) use ($user) {
+                $query->whereIn("user_id", [$user->id]);
+            })
+                ->whereHas("otherMembers", function ($query) use ($data) {
+                    $query->whereIn("user_id", [$data["receiver_id"]]);
+                })->first();
+
+            if (!empty($conversation)) {
+                return $conversation;
+            }
+
+            $conversation = Conversation::create([
+                "user_id" => $user->id,
+                "notification_status" => $data["notification_status"] ?? 1,
+                "is_anonymous" => $data["is_anonymous"] ?? 0,
+                "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
+            ]);
+
+            $this->addMemberToConversation($user->id, $conversation->id);
+            $this->addMemberToConversation($data["receiver_id"], $conversation->id);
 
             $this->message_service->create([
                 "conversation_id" => $conversation->id,
@@ -87,6 +96,14 @@ class ConversationService
             DB::rollBack();
             throw $th;
         }
+    }
+
+    public function addMemberToConversation(int $user_id, int $conversation_id)
+    {
+        return ConversationMember::firstOrCreate([
+            "user_id" => $user_id,
+            "conversation_id" => $conversation_id,
+        ]);
     }
 
     public function currentConversation(array $data)
@@ -103,26 +120,32 @@ class ConversationService
             }
 
             $data = self::validate($data);
-            $data["sender_id"] ??= auth()->id();
+            $user = auth()->user();
 
-            $conversation = Conversation::where(function ($query) use ($data) {
-                $query->where('sender_id', $data["sender_id"])
-                    ->where('receiver_id', $data["receiver_id"]);
-            })->orWhere(function ($query) use ($data) {
-                $query->where('sender_id', $data["receiver_id"])
-                    ->where('receiver_id', $data["sender_id"]);
-            })->first();
-
-            if (empty($conversation)) {
-                $conversation = Conversation::firstOrCreate([
-                    "sender_id" => $data["sender_id"],
-                    "receiver_id" => $data["receiver_id"]
-                ], [
-                    "notification_status" => $data["notification_status"] ?? 1,
-                    "is_anonymous" => $data["is_anonymous"] ?? 0,
-                    "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
-                ]);
+            if ($user->id == $data["receiver_id"]) {
+                throw new InvalidRequestException("You can`t chat with yourself");
             }
+
+            $conversation = Conversation::whereHas("members", function ($query) use ($user) {
+                $query->whereIn("user_id", [$user->id]);
+            })
+                ->whereHas("otherMembers", function ($query) use ($data) {
+                    $query->whereIn("user_id", [$data["receiver_id"]]);
+                })->first();
+
+            if (!empty($conversation)) {
+                return $conversation;
+            }
+
+            $conversation = Conversation::create([
+                "user_id" => $user->id,
+                "notification_status" => $data["notification_status"] ?? 1,
+                "is_anonymous" => $data["is_anonymous"] ?? 0,
+                "status" => $data["status"] ?? StatusConstants::AWAITING_RESPONSE,
+            ]);
+
+            $this->addMemberToConversation($user->id, $conversation->id);
+            $this->addMemberToConversation($data["receiver_id"], $conversation->id);
 
             DB::commit();
             return $conversation;
@@ -187,34 +210,24 @@ class ConversationService
         return $conversation->refresh();
     }
 
+    public static function fetch($conversation_id): Conversation
+    {
+        $user = auth()->user();
+
+        $conversation = Conversation::whereHas("members", function ($query) use ($user) {
+            $query->where("user_id", $user->id);
+        })->where("id", $conversation_id)
+            ->with("otherMembers")->first();
+
+        return $conversation;
+    }
+
+
     public static function list(array $data)
     {
-        $builder = Conversation::with(["receiver", "sender"]);
-
-        $data["sender_id"] ??= auth()->id();
-
-        if (!empty($key = $data["tab"] ?? null)) {
-            $builder = $builder->where('receiver_id', $data["sender_id"]);
-        } else {
-            $builder = $builder->where(function ($query) use ($data) {
-                $query->where('sender_id', $data["sender_id"])
-                    ->orWhereNot("status", StatusConstants::AWAITING_APPROVAL);
-            });
-        }
-
-        if (!empty($key = $data["status"] ?? null)) {
-            $builder = $builder->where("status", $key);
-        }
-
-        if (!empty($searchTerm = $data["search"] ?? null)) {
-            $builder->where(function ($q) use ($searchTerm) {
-                $q->whereHas('receiver', function ($receiver) use ($searchTerm) {
-                    $receiver->search($searchTerm);
-                })->orWhereHas("messages", function ($message) use ($searchTerm) {
-                    $message->search($searchTerm);
-                });
-            });
-        }
+        $user = auth()->user();
+        $builder = ConversationQueryBuilder::list($data)
+            ->with("lastMessage");
 
         return $builder;
     }

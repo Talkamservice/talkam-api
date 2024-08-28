@@ -7,10 +7,10 @@ use App\Models\User;
 use App\Notifications\Comment\NewCommentMentionNotification;
 use App\Notifications\Comment\NewCommentNotification;
 use App\Notifications\Comment\NewCommentReactionNotification;
-use App\Notifications\Comment\NewPostReactionNotification;
+use App\Notifications\Post\NewPostReactionNotification;
 use App\Notifications\Comment\NewThreadCommentNotification;
 use App\Notifications\Comment\NewThreadCommentReactionNotification;
-use App\Notifications\Comment\NewThreadPostReactionNotification;
+use App\Notifications\Post\NewThreadPostReactionNotification;
 use Illuminate\Support\Facades\Notification;
 
 class NotificationHandlerService
@@ -38,7 +38,7 @@ class NotificationHandlerService
         $this->can_receive_talkam_research = $this->canSendNotification("talkam_research");
         $this->can_receive_moderation_activities = $this->canSendNotification("moderation_activities");
         $this->can_receive_content_activities = $this->canSendNotification("user_activities");
-        $this->comments_notifications_type = $this->user->notificationPreference->comments;
+        $this->comments_notifications_type = $this->user->notificationPreference?->comments;
     }
 
     private function canSendNotification($content, $type = "bool")

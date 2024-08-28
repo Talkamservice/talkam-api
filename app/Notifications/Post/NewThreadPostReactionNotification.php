@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Comment;
+namespace App\Notifications\Post;
 
 use App\Http\Resources\Post\PostResource;
 use App\Services\Notifications\FirebaseNotificationService;

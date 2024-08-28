@@ -14,8 +14,7 @@ return new class extends Migration
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sender_id')->constrained("users")->cascadeOnDelete();
-            $table->foreignId("receiver_id")->constrained("users")->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained("users")->cascadeOnDelete();
             $table->boolean('notification_status')->default(1);
             $table->boolean('is_anonymous')->default(0);
             $table->string('status')->default(StatusConstants::AWAITING_RESPONSE);
