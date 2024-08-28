@@ -21,7 +21,7 @@ class ConversationResource extends JsonResource
             "id" => $this->id,
             "members" => ConversationMemberResource::collection($this->members),
             "last_message" => MessageResource::make($this->messages()->latest()->first()),
-            "number_of_unread" => $this->messages()->where('receiver_id', $this->receiver_id)->where('read', false)->count(),
+            "number_of_unread" => $this->messages()->where('receiver_id', auth()->id())->where('read', false)->count(),
             "notification_status" => $this->notification_status,
             "is_anonymous" => $this->is_anonymous,
             "requested_by" => UserResource::custom($this->user),
