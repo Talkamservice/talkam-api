@@ -19,14 +19,13 @@
                     <div class="mb-3" id="durationField" style="display: block;">
                         <label for="suspensionDuration" class="form-label">Suspension Duration</label>
                         <select id="suspensionDuration" name="duration" class="form-select">
-                            <option value="1">24-48 hours</option>
+                            <option value="1">24 hours</option>
                             <option value="2">7 days</option>
                             <option value="3">30 days</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-danger" onclick="setActionType('ban')">Ban</button>
                     <button type="submit" class="btn btn-warning" onclick="setActionType('suspend')">Suspend</button>
                 </div>

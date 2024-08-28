@@ -102,7 +102,7 @@ class GroupReportService
             $actionType = $request->input('action_type');
             $reason = $request->input('suspension_reason');
             $suspensionDurations = [
-                1 => now()->addHours(rand(24, 48)),
+                1 => now()->addHours(rand(24)),
                 2 => now()->addDays(7),
                 3 => now()->addDays(30),
             ];
@@ -224,7 +224,7 @@ class GroupReportService
             $actionType = $request->input('action_type');
             $suspensionReason = $request->input('suspension_reason');
             $suspensionDurations = [
-                1 => now()->addHours(rand(24, 48)),
+                1 => now()->addHours(rand(24)),
                 2 => now()->addDays(7),
                 3 => now()->addDays(30),
             ];

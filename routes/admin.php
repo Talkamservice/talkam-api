@@ -3,9 +3,12 @@
 use App\Http\Controllers\Admin\Authorization\PermissionController;
 use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
+use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
+use App\Http\Controllers\Admin\Notification\AccountUpdateNotification;
+use App\Http\Controllers\Admin\Notification\AccountUpdateNotificationController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
@@ -77,6 +80,8 @@ Route::middleware(["auth"])->group(
             Route::get("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
             Route::get("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
             Route::get("{notification}/delete", [NotificationController::class, "destroy"])->name("destroy");
+
+            Route::resource('send-bulk-notification', BulkMessagesNotificationController::class);
         });
 
         Route::prefix("reports")->as("reports.")->group(function () {

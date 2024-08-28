@@ -81,7 +81,7 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form id="deleteUser_{{ $first_report->id }}"
+                                                            <form id="updateStatus_{{ $first_report->id }}"
                                                                 action="{{ route('admin.reports.post.update-status', $first_report->id) }}"
                                                                 method="POST"
                                                                 onsubmit="return confirm('Are you sure of this action?')">
@@ -103,7 +103,7 @@
                                                                 @if ($first_report->post->user->status === 'Active')
                                                                     <input type="hidden" name="status" value="Inactive">
                                                                     <a class="dropdown-item text-danger" href="#"
-                                                                        onclick="$('#suspendUser_{{ $first_report->post->user->id }}').submit()"><i
+                                                                        onclick="event.preventDefault(); document.getElementById('#suspendUser_{{ $first_report->post->user->id }}').submit()"><i
                                                                             class="ri-close-line"></i> | Suspend User</a>
                                                                 @endif
 
