@@ -68,7 +68,7 @@ class MessageService
             $messages = $messages->where("conversation_id", $key);
             Conversation::where("id", $key)->first()?->whereHas("members", function($member) {
                 return $member->whereNot("user_id", auth()->id());
-            })->messages()?->update(['read' => true]);
+            })?->messages()?->update(['read' => true]);
         }
 
         if (!empty($key = $data["search"] ?? null)) {
