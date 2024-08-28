@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User\Messaging;
 
 use App\Constants\General\ApiConstants;
 use App\Events\NewMessage;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -39,6 +40,8 @@ class ConversationController extends Controller
         try {
             $conversation = $this->conversation_service->show($id);
             $data = ConversationResource::make($conversation);
+            $other_member = $this->members()->whereNot("user_id", auth()->id())->first();
+            broadcast(new RefreshNotification($other_member->id))->toOthers();
             return ApiHelper::validResponse("Conversation details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
