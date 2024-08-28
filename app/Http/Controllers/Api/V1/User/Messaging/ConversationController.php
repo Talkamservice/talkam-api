@@ -40,7 +40,7 @@ class ConversationController extends Controller
         try {
             $conversation = $this->conversation_service->show($id);
             $data = ConversationResource::make($conversation);
-            $other_member = $this->members()->whereNot("user_id", auth()->id())->first();
+            $other_member = $conversation->members()->whereNot("user_id", auth()->id())->first();
             broadcast(new RefreshNotification($other_member->id))->toOthers();
             return ApiHelper::validResponse("Conversation details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
