@@ -87,7 +87,7 @@ class NewCommentNotification extends Notification
             'title' => "New Comment",
             'message' => "{$commenter} and {$total_comments} others replied to your post.",
             'link' => null,
-            'type' => 'post',
+            'type' => 'comment',
             'batch_no' => null,
             "extra" => [
                 "comment" => PostCommentResource::custom($this->comment),

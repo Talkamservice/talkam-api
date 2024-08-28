@@ -89,12 +89,12 @@ class NewCommentReactionNotification extends Notification
 
         return [
             'data' => [
-                'id' => $this->comment_reaction->id,
+                'id' => $this->comment_reaction->comment_id,
             ],
             'title' => "New {$this->comment_reaction->action}",
             'message' => $message,
             'link' => null,
-            'type' => 'comment_reaction',
+            'type' => 'comment',
             'batch_no' => null,
             "extra" => [
                 "comment" => PostCommentResource::custom($this->comment_reaction->comment),
