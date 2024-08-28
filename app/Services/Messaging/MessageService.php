@@ -40,6 +40,7 @@ class MessageService
     {
         $data = self::validate($data);
         $data["sender_id"] ??= auth()->id();
+        $data["read"] = 0;
         $message = Message::create($data);
         return $message;
     }
