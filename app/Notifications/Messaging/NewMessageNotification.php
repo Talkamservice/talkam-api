@@ -89,7 +89,7 @@ class NewMessageNotification extends Notification
 
     public function buildData($notifiable)
     {
-        $title = "New Message from " . $this->message->receiver->getName();
+        $title = "New Message from " . $this->message->sender->getName();
 
         return [
             'data' => [
