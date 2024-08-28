@@ -66,9 +66,9 @@ class MessageService
 
         if (!empty($key = $data["conversation_id"] ?? null)) {
             $messages = $messages->where("conversation_id", $key);
-            Conversation::where("id", $key)->first()?->messages()?->whereHas("members", function($member) {
+            Conversation::where("id", $key)->first()?->whereHas("members", function($member) {
                 return $member->whereNot("user_id", auth()->id());
-            })->update(['read' => true]);
+            })->messages()?->update(['read' => true]);
         }
 
         if (!empty($key = $data["search"] ?? null)) {
@@ -76,5 +76,5 @@ class MessageService
         }
 
         return $messages;
-    }
+    },
 }
