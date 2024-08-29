@@ -140,7 +140,7 @@ class PostController extends Controller
     public function media(Request $request)
     {
         try {
-            $attachments = PostAttachment::where("user_id", $request->user_id)->whereHas("posts", function ($post) use ($request) {
+            $attachments = PostAttachment::where("user_id", $request->user_id)->whereHas("post", function ($post) use ($request) {
                 $post->status()->list($request->all())->unblocked()->anonymous()
                 ->where("type", PostConstants::FILE);
             })->paginate(AppConstants::API_PAGINATION_SIZE)
