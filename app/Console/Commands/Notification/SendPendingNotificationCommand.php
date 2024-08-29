@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Notification;
 
 use App\Constants\General\StatusConstants;
+use App\Helpers\MethodsHelper;
 use App\Jobs\SendUserNotificationJob;
 use App\Models\SendBulkNotification;
 use Carbon\Carbon;
@@ -28,14 +29,7 @@ class SendPendingNotificationCommand extends Command
 
         foreach ($pendingNotifications as $notification) {
             // Dispatch jobs for each notification
-            $chunkSize = 1000;
-            $userIds = $notification->recipients()->pluck('user_id')->toArray();
-
-            foreach (array_chunk($userIds, $chunkSize) as $chunk) {
-                $job = new SendUserNotificationJob($notification, $chunkSize);
-                dispatch($job);
-            }
-
+            MethodsHelper::dispatchJob(new SendUserNotificationJob($notification));
             // Update notification status to Sent
             $notification->update(['status' => StatusConstants::SENT]);
 

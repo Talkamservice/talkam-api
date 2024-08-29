@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("process:trending_tags_handle")->everyThreeMinutes();
         // $schedule->command('inspire')->hourly();
         $schedule->command('members:update-status')->everyMinute();
-        $schedule->command('notifications:send-pending')->everyTenMinutes();
+        $schedule->command('notifications:send-pending')->everyMinute();
     }
 
     /**
