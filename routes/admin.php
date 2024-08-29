@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\Announcement\AnnouncementController;
 use App\Http\Controllers\Admin\Authorization\PermissionController;
 use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
+use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
@@ -77,6 +79,8 @@ Route::middleware(["auth"])->group(
             Route::get("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
             Route::get("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
             Route::get("{notification}/delete", [NotificationController::class, "destroy"])->name("destroy");
+
+            Route::resource('send-bulk-notification', BulkMessagesNotificationController::class);
         });
 
         Route::prefix("reports")->as("reports.")->group(function () {
@@ -99,13 +103,13 @@ Route::middleware(["auth"])->group(
             Route::post('group-member/suspend/{id}', [GroupReportController::class, "suspendReportedGroupMember"])->name("group-member.suspend");
 
 
-
-
             Route::get('comment/lists', [CommentReportController::class, "reportList"])->name("comment.lists");
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
             Route::delete('comment/delete/{id}', [CommentReportController::class, "deleteReportedComment"])->name('comment.delete');
             Route::post('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
 
         });
+
+        Route::resource('announcements', AnnouncementController::class);
     }
 );

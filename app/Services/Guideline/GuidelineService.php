@@ -4,6 +4,7 @@ namespace App\Services\Guideline;
 
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Guideline;
+use App\Models\SendBulkNotification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -56,7 +57,7 @@ class GuidelineService
 
     public static function list(array $data = [])
     {
-        $builder = Guideline::latest();
+        $builder = SendBulkNotification::latest();
         if (!empty($key = $data["group_id"] ?? null)) {
             $builder = $builder->where("group_id", $key);
         } else {

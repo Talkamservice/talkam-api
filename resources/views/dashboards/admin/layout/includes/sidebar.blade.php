@@ -89,6 +89,25 @@
                 <li class="slide has-sub">
                     <a href="javascript:void(0);" class="side-menu__item list-item">
                         <i class="bx bx-message-dots side-menu__icon list-item-icon"></i>
+                        <span class="side-menu__label list-item-label">Digital Outreach</span>
+                        <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
+                    </a>
+                    <ul class="slide-menu child1">
+                        <li class="slide">
+                            <a href="{{ route('admin.notifications.send-bulk-notification.index') }}"
+                                class="side-menu__item list-item list-item-sub">Notification</a>
+                        </li>
+                        <li class="slide">
+                            <a href="{{ route('admin.announcements.index') }}"
+                                class="side-menu__item list-item list-item-sub">Announcement</a>
+                        </li>
+                    </ul>
+                </li>
+                
+
+                <li class="slide has-sub">
+                    <a href="javascript:void(0);" class="side-menu__item list-item">
+                        <i class="bx bx-message-dots side-menu__icon list-item-icon"></i>
                         <span class="side-menu__label list-item-label">Report</span>
                         <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                     </a>

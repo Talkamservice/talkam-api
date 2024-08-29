@@ -28,6 +28,7 @@ class StatusConstants
     const DRAFTED = "Drafted";
     const SCHEDULED = "Scheduled";
     const PUBLISHED = "Published";
+    const SENT = "Sent";
     const SUCCESSFUL = "Successful";
     const FAILED = "Failed";
     const SKIPPED = "Skipped";
