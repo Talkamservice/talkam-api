@@ -94,6 +94,11 @@ class Post extends Model
         return $query;
     }
 
+    public function scopeAnonymous($query, $anonymous = 0)
+    {
+        return $query->where("is_anonymous", $anonymous);
+    }
+
 
     public function postType($type)
     {
