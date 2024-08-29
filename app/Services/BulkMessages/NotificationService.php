@@ -5,6 +5,7 @@ namespace App\Services\bulkMessages;
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Helpers\MethodsHelper;
 use App\Jobs\SendUserNotificationJob;
 use App\Models\SendBulkNotification;
 use App\Models\User;
@@ -50,7 +51,6 @@ class NotificationService
     public function send(array $data, $notificationId = null)
     {
         $data = $this->validate($data);
-        $sendAt = isset($data['schedule_date']) ? Carbon::parse($data['schedule_date']) : null;
         // Handle existing or new notification
         if ($notificationId) {
             $notification = self::getById($notificationId);
@@ -58,7 +58,7 @@ class NotificationService
         } else {
             $notification = SendBulkNotification::create($data);
         }
-    
+
         // Determine recipients based on type
         if ($data['type'] === 'single') {
             $userIds = is_array($data['user_id']) ? $data['user_id'] : [$data['user_id']];
@@ -67,27 +67,19 @@ class NotificationService
             $userIds = User::where('status', StatusConstants::ACTIVE)->pluck('id')->toArray();
             $notification->recipients()->sync($userIds);
         }
-    
-        // Only dispatch jobs if the status is not pending
-        if ($data['status'] !== StatusConstants::PENDING) {
-            $chunkSize = 1000;
-            $userIds = $notification->recipients()->pluck('user_id')->toArray();
-    
-            // Split users into chunks and dispatch a job for each chunk
-            foreach (array_chunk($userIds, $chunkSize) as $chunk) {
-                $job = new SendUserNotificationJob($notification, $chunkSize);
-    
-                if ($sendAt) {
-                    $job->delay($sendAt->diffInSeconds(Carbon::now()));
-                }
-    
-                dispatch($job);
-            }
+
+        $sendAt = isset($data['schedule_date']) ? Carbon::parse($data['schedule_date']) : null;
+
+        if ($sendAt?->isPast() || is_null($sendAt)) {
+            MethodsHelper::dispatchJob(new SendUserNotificationJob($notification));
+            $notification->update([
+                "status" => StatusConstants::SENT
+            ]);
         }
-    
+
         return $notification;
     }
-    
+
 
     public static function list(array $data = [])
     {

@@ -33,6 +33,7 @@
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
                                 <tr>
+                                    <th scope="col">S/N</th>
                                     <th scope="col">Title</th>
                                     <th scope="col">Message</th>
                                     <th scope="col">Type</th>
@@ -44,6 +45,9 @@
                             <tbody>
                                 @forelse ($notifications as $notification)
                                     <tr>
+                                        <td>
+                                            {{ $sn++ }}
+                                        </td>
                                         <td>
                                             <span
                                                 title="{{ $notification->title }}">{{ Str::limit($notification->title, 30) }}</span>

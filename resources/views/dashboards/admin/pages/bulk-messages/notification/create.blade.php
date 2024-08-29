@@ -74,7 +74,7 @@
                                             @foreach ($users as $user)
                                                 <option value="{{ $user->id }}"
                                                     {{ in_array($user->id, old('user_id', isset($notification) ? $notification->recipients()->pluck('user_id')->toArray() : [])) ? 'selected' : '' }}>
-                                                    {{ $user->full_name }}
+                                                    {{ $user->getName() }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -103,7 +103,7 @@
                                 </div>
 
                                 <!-- Status Field -->
-                                <div class="row col-xl-9 col-sm-12 mb-3">
+                                {{-- <div class="row col-xl-9 col-sm-12 mb-3">
                                     <label for="status"
                                         class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
@@ -119,7 +119,7 @@
                                             </option>
                                         </select>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
 
                             <div class="mt-3">
