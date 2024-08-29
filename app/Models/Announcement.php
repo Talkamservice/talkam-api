@@ -23,12 +23,12 @@ class Announcement extends Model
         'published_at' => 'datetime',
     ];
 
-    public function imageUrl()
+    public function bannerUrl()
     {
         return $this->banner_image ?? null;
     }
     public function user()
     {
-        $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 }

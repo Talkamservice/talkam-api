@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Announcement\AnnouncementController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
@@ -167,7 +168,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::post("/send", [MessagingController::class, "sendMessage"])->name("send-message");
                 Route::delete("/delete/{messageId}", [MessagingController::class, "deleteMessage"])->name("delete-message");
             });
-
         });
 
         Route::prefix("notifications")->as("notifications.")->group(function () {
@@ -206,7 +206,12 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get("suggestions", [SearchController::class, "suggestions"])->name("suggestions");
         Route::delete("{id}/delete", [SearchController::class, "destroy"])->name("destroy");
     });
+
+    Route::prefix("announcements")->as("announcements.")->group(function () {
+        Route::get("/", [AnnouncementController::class, "index"]);
+        Route::get("{id}/show", [AnnouncementController::class, "show"])->name('show');
+    });
+
 });
 
 Route::post('/broadcasting/auth', [AuthController::class, "authenticate"])->middleware('auth:sanctum');
-

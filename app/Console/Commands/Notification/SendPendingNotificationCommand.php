@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Notification;
 
 use App\Constants\General\StatusConstants;
 use App\Jobs\SendUserNotificationJob;
@@ -8,7 +8,7 @@ use App\Models\SendBulkNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class BulkNotificationCommand extends Command
+class SendPendingNotificationCommand extends Command
 {
     // Command signature
     protected $signature = 'notifications:send-pending';
