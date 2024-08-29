@@ -56,7 +56,7 @@ class NotificationController extends Controller
         } catch (ValidationException $th) {
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Validation failed.");
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
         }
     }
@@ -95,7 +95,7 @@ class NotificationController extends Controller
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
         }
     }
