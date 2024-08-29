@@ -77,9 +77,9 @@
                                         class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Banner Image</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <input type="file" class="form-control" name="banner_image" id="banner_image">
-                                        @if(isset($announcement->banner_image))
+                                        {{-- @if(isset($announcement->banner_image))
                                             <img src="{{ asset('storage/' . $announcement->banner_image) }}" alt="Banner Image" class="img-fluid mt-2">
-                                        @endif
+                                        @endif --}}
                                     </div>
                                 </div>
 
