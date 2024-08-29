@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
+use App\Constants\Post\PostConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Post\PostAttachmentResource;
 use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Post\TrendingResource;
+use App\Models\PostAttachment;
+use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostService;
 use App\Services\Post\RecentViewService;
 use Exception;
@@ -128,6 +132,23 @@ class PostController extends Controller
             $data = collectPagination($posts);
             $data["data"] = PostResource::collection($data["data"]);
             return ApiHelper::validResponse("Posts returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function media(Request $request)
+    {
+        try {
+            $attachments = PostAttachment::where("user_id", $request->user_id)->whereHas("posts", function ($post) use ($request) {
+                $post->status()->list($request->all())->unblocked()->anonymous()
+                ->where("type", PostConstants::FILE);
+            })->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
+
+            $data = collectPagination($attachments);
+            $data["data"] = PostAttachmentResource::collection($data["data"]);
+            return ApiHelper::validResponse("Media returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

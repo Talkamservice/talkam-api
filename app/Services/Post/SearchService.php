@@ -109,7 +109,7 @@ class SearchService
         ]);
 
         $records = match ($data["sort"]) {
-            'post' => Post::status()->search($data["search"])->unblocked(),
+            'post' => Post::status()->search($data["search"])->unblocked()->anonymous(),
             'group' => Group::status()->search($data["search"]),
             'media' => Post::status()->search($data["search"])->where("type", PostConstants::FILE),
             default => collect([]),

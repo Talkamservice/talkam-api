@@ -42,7 +42,7 @@ class AppConstants
     ];
 
     const ADMIN_PAGINATION_SIZE = 50;
-    const API_PAGINATION_SIZE = 20;
+    const API_PAGINATION_SIZE = 50;
 
     const BOOL_OPTIONS = [
         "1" => "Yes",

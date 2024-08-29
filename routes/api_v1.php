@@ -113,6 +113,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("filter", [PostController::class, "filter"])->name("filter");
             Route::get("actions/get-comment-posts", [PostController::class, "postWithComments"])->name("get-comment-posts");
             Route::get("actions/get-upvotes", [PostController::class, "postWithLikes"])->name("get-liked-posts");
+            Route::get("media", [PostController::class, "media"])->name("get-all-media");
         });
 
         Route::prefix("trendings")->as("trendings")->group(function () {

@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\PostCategory;
 
+use App\Http\Resources\Post\TrendingResource;
+use App\Models\TrendingTag;
 use App\Models\UserInterest;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +21,7 @@ class PostCategoryResource extends JsonResource
     {
         $interests = UserInterest::where("user_id", auth("sanctum")->id())->pluck("category_id")->toArray();
         $is_following = in_array($this->id, $interests ?? []);
-
+        $tags = TrendingTag::where("category_id", $this->id)->orderBy("count", "desc")->limit(3)->get();
         return [
             "id" => $this->id,
             "name" => $this->name,
@@ -32,6 +34,7 @@ class PostCategoryResource extends JsonResource
                 "name" => $this->parentCategory?->name,
                 "description" => $this->parentCategory?->description,
             ] : null,
+            "trending_tags" => TrendingResource::collection($tags),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];
