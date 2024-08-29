@@ -183,6 +183,10 @@ class PostService
             $builder = $builder->where("group_id", $key);
         }
 
+        if (!empty($key = $data["exclude_anonymous"] ?? null)) {
+            $builder = $builder->where("is_anonymous", 0);
+        }
+        
         if (!empty($key = $data["target"] ?? null)) {
             if ($key == "group") {
                 $builder = $builder->whereRelation("group", "group_access", StatusConstants::OPENED);
