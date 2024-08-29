@@ -145,8 +145,7 @@ class PostController extends Controller
                 if (!empty($request->exclude_anonymous)) {
                     $post = $post->where("is_anonymous", 0);
                 }
-                $post->unblocked()->anonymous()
-                    ->where("type", PostConstants::FILE);
+                $post->where("type", PostConstants::FILE);
             })->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
 
