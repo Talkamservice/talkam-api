@@ -77,7 +77,7 @@ class NotificationService
             foreach (array_chunk($userIds, $chunkSize) as $chunk) {
                 $job = new SendUserNotificationJob($notification, $chunkSize);
     
-                if ($sendAt && $sendAt->isFuture()) {
+                if ($sendAt) {
                     $job->delay($sendAt->diffInSeconds(Carbon::now()));
                 }
     
