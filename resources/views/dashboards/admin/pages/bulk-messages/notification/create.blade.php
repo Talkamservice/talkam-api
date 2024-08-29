@@ -36,18 +36,14 @@
                             <div class="gy-4 mb-4">
                                 <!-- Type Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
-                                    <label for="type"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Type</label>
+                                    <label for="type" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Type</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <select name="type" id="type" class="form-control"
-                                            onchange="toggleRecipients(this.value)">
-                                            <option value="" disabled selected>Select Option</option>
-                                            <option value="single"
-                                                {{ (old('type') ?? ($notification->type ?? '')) == 'single' ? 'selected' : '' }}>
+                                        <select name="type" id="type" class="form-control" onchange="toggleRecipients(this.value)">
+                                            <option readonly value="" >Select Option</option>
+                                            <option value="Single" {{ (old('type') ?? ($notification->type ?? '')) == 'Single' ? 'selected' : '' }}>
                                                 Single
                                             </option>
-                                            <option value="broadcast"
-                                                {{ (old('type') ?? ($notification->type ?? '')) == 'broadcast' ? 'selected' : '' }}>
+                                            <option value="Broadcast" {{ (old('type') ?? ($notification->type ?? '')) == 'Broadcast' ? 'selected' : '' }}>
                                                 Broadcast
                                             </option>
                                         </select>
@@ -56,8 +52,7 @@
 
                                 <!-- Title Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
-                                    <label for="title"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Title</label>
+                                    <label for="title" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Title</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <input type="text" class="form-control" name="title" id="title"
                                             value="{{ old('title') ?? ($notification->title ?? '') }}"
@@ -67,8 +62,7 @@
 
                                 <!-- Recipients Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3" id="recipients-container" style="display:none;">
-                                    <label for="recipients"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Recipients</label>
+                                    <label for="recipients" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Recipients</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="user_id[]" id="recipients" class="form-control" multiple>
                                             @foreach ($users as $user)
@@ -83,8 +77,7 @@
 
                                 <!-- Message Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
-                                    <label for="message"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Message</label>
+                                    <label for="message" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Message</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <textarea name="body" class="form-control" id="message" cols="30" rows="5">{!! old('body') ?? ($notification->body ?? '') !!}</textarea>
                                     </div>
@@ -92,34 +85,13 @@
 
                                 <!-- Schedule Date Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
-                                    <label for="schedule_date"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Schedule Date
-                                        (Optional)</label>
+                                    <label for="schedule_date" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Schedule Date (Optional)</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <input type="datetime-local" class="form-control" name="schedule_date"
                                             id="schedule_date"
                                             value="{{ old('schedule_date') ?? ($notification->schedule_date ?? '') }}">
                                     </div>
                                 </div>
-
-                                <!-- Status Field -->
-                                {{-- <div class="row col-xl-9 col-sm-12 mb-3">
-                                    <label for="status"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
-                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <select name="status" id="status" class="form-control">
-                                            <option value="" disabled selected>Select Option</option>
-                                            <option value="Pending"
-                                                {{ (old('status') ?? ($notification->status ?? '')) == 'Pending' ? 'selected' : '' }}>
-                                                Pending
-                                            </option>
-                                            <option value="Sent"
-                                                {{ (old('status') ?? ($notification->status ?? '')) == 'Sent' ? 'selected' : '' }}>
-                                                Sent
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div> --}}
                             </div>
 
                             <div class="mt-3">
@@ -141,18 +113,15 @@
             const recipientsContainer = document.getElementById('recipients-container');
             const recipientsSelect = $('#recipients');
 
-            if (type === 'single') {
+            if (type === 'Single') {
                 recipientsContainer.style.display = 'flex';
-
-                recipientsSelect.attr('single', type === 'single');
-
                 recipientsSelect.select2({
                     tags: true,
                     tokenSeparators: [',', ' '],
                     closeOnSelect: false,
                     templateSelection: function(data, container) {
                         $(container).find('.select2-selection__choice__remove').html(
-                            '<i class="fas fa-times" style="padding-left: 5px; cursor: pointer;"></i>'
+                            '<i class="ri-close-line" style="padding-right: 5px; cursor: pointer;"></i>'
                         );
                         return data.text;
                     }
@@ -172,7 +141,7 @@
                 closeOnSelect: false,
                 templateSelection: function(data, container) {
                     $(container).find('.select2-selection__choice__remove').html(
-                        '<i class="fas fa-times" style="padding-left: 5px; cursor: pointer;"></i>'
+                        '<i class="ri-close-line" style="padding-left: 5px; cursor: pointer;"></i>'
                     );
                     return data.text;
                 }

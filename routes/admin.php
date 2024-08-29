@@ -81,6 +81,7 @@ Route::middleware(["auth"])->group(
             Route::get("{notification}/delete", [NotificationController::class, "destroy"])->name("destroy");
 
             Route::resource('send-bulk-notification', BulkMessagesNotificationController::class);
+            Route::post('send-bulk-notification/update-status/{id}', [BulkMessagesNotificationController::class, 'changeStatus'])->name('announcements.update-status');
         });
 
         Route::prefix("reports")->as("reports.")->group(function () {
@@ -111,5 +112,6 @@ Route::middleware(["auth"])->group(
         });
 
         Route::resource('announcements', AnnouncementController::class);
+        Route::post('announcements/update-status/{id}', [AnnouncementController::class, 'changeStatus'])->name('announcements.update-status');
     }
 );

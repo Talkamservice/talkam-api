@@ -30,7 +30,7 @@ class AnnouncementController extends Controller
         return view('dashboards.admin.pages.announcement.index', [
             "sn" => $announcements->firstItem(),
             "announcements" => $announcements,
-            "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
+            "Active" => StatusConstants::ACTIVE,
         ]);
     }
 
@@ -108,6 +108,21 @@ class AnnouncementController extends Controller
         try {
             $this->announcement_service->delete($id);
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Announcement deleted successfully");
+        } catch (ModelNotFoundException $th) {
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (InvalidRequestException $th) {
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
+        }
+    }
+
+    public function changeStatus(Request $request, string $id)
+    {
+        // dd($request->all());
+        try {
+            $this->announcement_service->changeStatus($request, $id);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Announcement status updated successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {
