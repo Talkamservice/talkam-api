@@ -87,12 +87,12 @@ class NewPostReactionNotification extends Notification
         $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . " your post.";
         return [
             'data' => [
-                'id' => $this->post_reaction->id,
+                'id' => $this->post_reaction->post_id,
             ],
             'title' => "New {$this->post_reaction->action}",
             'message' => $message,
             'link' => null,
-            'type' => 'post_reaction',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => [
                 "post" => PostResource::custom($this->post_reaction->post),

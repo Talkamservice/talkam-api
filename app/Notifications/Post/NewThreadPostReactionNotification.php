@@ -79,12 +79,12 @@ class NewThreadPostReactionNotification extends Notification
     {
         return [
             'data' => [
-                'id' => $this->post_reaction->id,
+                'id' => $this->post_reaction->post_id,
             ],
             'title' => "New {$this->post_reaction->action}",
             'message' => "A post just got {$this->post_reaction->action}d",
             'link' => null,
-            'type' => 'post_reaction',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => [
                 "post" => PostResource::custom($this->post_reaction->post),

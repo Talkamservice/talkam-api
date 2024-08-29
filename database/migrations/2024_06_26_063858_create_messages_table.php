@@ -20,7 +20,7 @@ return new class extends Migration
             $table->longText('message')->nullable();
             $table->string('asset_url')->nullable();
             $table->string('message_type')->default(MessagingConstants::TEXT);
-            $table->boolean('read')->default(0);
+            $table->boolean('read')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });
