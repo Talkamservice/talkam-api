@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\BulkMessages;
+namespace App\Http\Controllers\Admin\Announcement;
 
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
@@ -8,29 +8,28 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Services\BulkMessages\NotificationService;
-use Dotenv\Exception\ValidationException;
+use App\Models\Announcement;
+use App\Services\Announcement\AnnouncementService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
-class NotificationController extends Controller
+class AnnouncementController extends Controller
 {
-    protected $bulk_notifications_service;
+    protected $announcement_service;
 
-    public function __construct(NotificationService $bulk_notifications_service)
+    public function __construct(AnnouncementService $announcement_service)
     {
-        $this->bulk_notifications_service = $bulk_notifications_service;
+        $this->announcement_service = $announcement_service;
     }
-
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $notifications = $this->bulk_notifications_service->list($request->all())->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-        return view('dashboards.admin.pages.bulk-messages.notification.index', [
-            "sn" => $notifications->firstItem(),
-            "notifications" => $notifications,
+        $announcements = $this->announcement_service->list($request->all())->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        return view('dashboards.admin.pages.announcement.index', [
+            "sn" => $announcements->firstItem(),
+            "announcements" => $announcements,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
         ]);
     }
@@ -40,8 +39,8 @@ class NotificationController extends Controller
      */
     public function create()
     {
-        return view('dashboards.admin.pages.bulk-messages.notification.create', [
-            'users' => User::where('status', StatusConstants::ACTIVE)->get(),
+        return view('dashboards.admin.pages.announcement.create', [
+            "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
         ]);
     }
 
@@ -51,12 +50,13 @@ class NotificationController extends Controller
     public function store(Request $request)
     {
         try {
-            $this->bulk_notifications_service->send($request->all());
-            return redirect()->route('admin.notifications.send-bulk-notification.index')->with(NotificationConstants::SUCCESS_MSG, "Notification created successfully");
+            $this->announcement_service->send($request->all());
+            return redirect()->route('admin.announcements.index')->with(NotificationConstants::SUCCESS_MSG, "Announcement created successfully");
         } catch (ValidationException $th) {
+            // throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Validation failed.");
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
         }
     }
@@ -66,7 +66,7 @@ class NotificationController extends Controller
      */
     public function show(string $id)
     {
-        // Implement show method if needed
+        //
     }
 
     /**
@@ -74,9 +74,9 @@ class NotificationController extends Controller
      */
     public function edit(string $id)
     {
-        return view('dashboards.admin.pages.bulk-messages.notification.create', [
-            'notification' => $this->bulk_notifications_service->getById($id),
-            'users' => User::where('status', StatusConstants::ACTIVE)->get(),
+        return view('dashboards.admin.pages.announcement.create', [
+            'announcement' => $this->announcement_service->getById($id),
+            "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
         ]);
     }
 
@@ -86,8 +86,8 @@ class NotificationController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            $this->bulk_notifications_service->send($request->all(), $id);
-            return redirect()->route('admin.notifications.send-bulk-notification.index')->with(NotificationConstants::SUCCESS_MSG, "Notification updated successfully");
+            $this->announcement_service->send($request->all(), $id);
+            return redirect()->route('admin.announcements.index')->with(NotificationConstants::SUCCESS_MSG, "Announcement updated successfully");
         } catch (ValidationException $th) {
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Validation failed.");
         } catch (ModelNotFoundException $th) {
@@ -95,7 +95,7 @@ class NotificationController extends Controller
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
         }
     }
@@ -106,8 +106,8 @@ class NotificationController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->bulk_notifications_service->delete($id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Notification deleted successfully");
+            $this->announcement_service->delete($id);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Announcement deleted successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {

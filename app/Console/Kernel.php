@@ -2,9 +2,11 @@
 
 namespace App\Console;
 
+use App\Console\Commands\BulkNotificationCommand;
 use App\Console\Commands\Group\UpdateSuspendedMembersStatus;
 use App\Console\Commands\Post\PostCommand;
 use App\Console\Commands\Post\TrendingPostCommand;
+use App\Console\Commands\SendPendingNotifications;
 use App\Console\Commands\TestCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -21,7 +23,8 @@ class Kernel extends ConsoleKernel
         TestCommand::class,
         PostCommand::class,
         TrendingPostCommand::class,
-        UpdateSuspendedMembersStatus::class
+        UpdateSuspendedMembersStatus::class,
+        BulkNotificationCommand::class,
     ];
 
     /**
@@ -33,6 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("process:trending_tags_handle")->everyThreeMinutes();
         // $schedule->command('inspire')->hourly();
         $schedule->command('members:update-status')->everyMinute();
+        $schedule->command('notifications:send-pending')->everyTenMinutes();
     }
 
     /**

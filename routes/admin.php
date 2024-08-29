@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Announcement\AnnouncementController;
 use App\Http\Controllers\Admin\Authorization\PermissionController;
 use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
@@ -7,8 +8,6 @@ use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessag
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
-use App\Http\Controllers\Admin\Notification\AccountUpdateNotification;
-use App\Http\Controllers\Admin\Notification\AccountUpdateNotificationController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
@@ -104,13 +103,13 @@ Route::middleware(["auth"])->group(
             Route::post('group-member/suspend/{id}', [GroupReportController::class, "suspendReportedGroupMember"])->name("group-member.suspend");
 
 
-
-
             Route::get('comment/lists', [CommentReportController::class, "reportList"])->name("comment.lists");
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
             Route::delete('comment/delete/{id}', [CommentReportController::class, "deleteReportedComment"])->name('comment.delete');
             Route::post('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
 
         });
+
+        Route::resource('announcements', AnnouncementController::class);
     }
 );

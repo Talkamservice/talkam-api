@@ -19,12 +19,12 @@ class SendUserNotificationJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    protected $user;
+    protected $chunkSize;
     protected $notification;
-    public function __construct(User $user, SendBulkNotification $notification)
+    public function __construct(SendBulkNotification $notification, $chunkSize = 1000)
     {
-        $this->user = $user;
         $this->notification = $notification;
+        $this->chunkSize = $chunkSize;
     }
 
     /**
@@ -32,6 +32,15 @@ class SendUserNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->user->notify(new SendbulkUsersNotification($this->user, $this->notification));
+        $userIds = $this->notification->recipients()->pluck('user_id')->toArray();
+
+        // Process users in chunks
+        foreach (array_chunk($userIds, $this->chunkSize) as $chunk) {
+            $users = User::whereIn('id', $chunk)->get();
+
+            foreach ($users as $user) {
+                $user->notify(new SendbulkUsersNotification($user, $this->notification));
+            }
+        }
     }
 }

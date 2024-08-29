@@ -51,9 +51,6 @@ class NotificationService
     {
         $data = $this->validate($data);
         $sendAt = isset($data['schedule_date']) ? Carbon::parse($data['schedule_date']) : null;
-    
-        $jobs = [];
-    
         // Handle existing or new notification
         if ($notificationId) {
             $notification = self::getById($notificationId);
@@ -63,49 +60,34 @@ class NotificationService
         }
     
         // Determine recipients based on type
-        if ($data['type'] === 'single' || $data['type'] === 'multiple') {
-            // Ensure user_id is an array
+        if ($data['type'] === 'single') {
             $userIds = is_array($data['user_id']) ? $data['user_id'] : [$data['user_id']];
-            // Sync recipients
             $notification->recipients()->sync($userIds);
-        } elseif ($data['type'] === 'all') {
-            // Get all active user IDs
+        } elseif ($data['type'] === 'broadcast') {
             $userIds = User::where('status', StatusConstants::ACTIVE)->pluck('id')->toArray();
-            // Sync recipients
             $notification->recipients()->sync($userIds);
         }
     
         // Only dispatch jobs if the status is not pending
         if ($data['status'] !== StatusConstants::PENDING) {
-            // Get the users for the notification
+            $chunkSize = 1000;
             $userIds = $notification->recipients()->pluck('user_id')->toArray();
-            $users = User::whereIn('id', $userIds)->get();
     
-            foreach ($users as $user) {
-                $job = new SendUserNotificationJob($user, $notification);
-                
+            // Split users into chunks and dispatch a job for each chunk
+            foreach (array_chunk($userIds, $chunkSize) as $chunk) {
+                $job = new SendUserNotificationJob($notification, $chunkSize);
+    
                 if ($sendAt && $sendAt->isFuture()) {
-                    // Calculate the delay in seconds
-                    $delayInSeconds = $sendAt->diffInSeconds(Carbon::now());
-                    $job->delay($delayInSeconds);
-                } 
+                    $job->delay($sendAt->diffInSeconds(Carbon::now()));
+                }
     
-                $jobs[] = $job;
-            }
-    
-            // Dispatch all jobs using batching
-            if (!empty($jobs)) {
-                Bus::batch($jobs)
-                    ->dispatch();
+                dispatch($job);
             }
         }
     
         return $notification;
     }
     
-
-
-
 
     public static function list(array $data = [])
     {

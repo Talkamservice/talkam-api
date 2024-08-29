@@ -141,5 +141,8 @@ class User extends Authenticatable
         return $this->belongsToMany(SendBulkNotification::class, 'bulk_notification_user', 'user_id', 'send_bulk_notification_id');
     }
     
-
+    public function announcement()
+    {
+        $this->hasMany(Announcement::class);
+    }
 }

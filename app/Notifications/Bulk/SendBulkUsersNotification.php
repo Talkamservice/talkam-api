@@ -84,7 +84,7 @@ class SendbulkUsersNotification extends Notification
             'title' => "{$this->notification->title}",
             'message' => "{$this->notification->message}",
             'link' => null,
-            'type' => 'Account Update',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];
