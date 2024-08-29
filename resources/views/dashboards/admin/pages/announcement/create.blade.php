@@ -52,7 +52,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Audience Field -->
+                                {{-- <!-- Audience Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
                                     <label for="audience"
                                         class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Audience</label>
@@ -69,7 +69,7 @@
                                             </option>
                                         </select>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <!-- Banner Image Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">

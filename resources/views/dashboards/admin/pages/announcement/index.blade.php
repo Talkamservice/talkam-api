@@ -33,7 +33,7 @@
                                 <tr>
                                     <th scope="col">Banner</th>
                                     <th scope="col">Title</th>
-                                    <th scope="col">Audience</th>
+                                    {{-- <th scope="col">Audience</th> --}}
                                     <th scope="col">Status</th>
                                     <th scope="col">Published At</th>
                                     <th scope="col">Action</th>
@@ -50,7 +50,7 @@
                                         <td>
                                             <span title="{{ $announcement->title }}">{{ Str::limit($announcement->title, 30) }}</span>
                                         </td>
-                                        <td>{{ ucfirst($announcement->audience) }}</td>
+                                        {{-- <td>{{ ucfirst($announcement->audience) }}</td> --}}
                                         <td>
                                             <span class="badge bg-{{ pillClasses($announcement->status) }}-transparent">
                                                 {{ $announcement->status }}
