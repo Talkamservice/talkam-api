@@ -24,7 +24,7 @@ class SendPendingNotificationCommand extends Command
     {
         // Fetch all notifications that are not sent and have a schedule date in the past
         $pendingNotifications = SendBulkNotification::where('status', StatusConstants::PENDING)
-            ->where('schedule_date', '<=', Carbon::now())
+            ->where('schedule_date', '<=', now()->format('Y-m-d H:i:s'))
             ->get();
 
         foreach ($pendingNotifications as $notification) {
