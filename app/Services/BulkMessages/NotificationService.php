@@ -29,7 +29,7 @@ class NotificationService
     {
         $validator = Validator::make($data, [
             'title' => 'required|string|max:255',
-            'message' => 'required|string',
+            'body' => 'required|string',
             'type' => 'required|in:single,multiple,all',
             'status' => 'nullable|string',
             'schedule_date' => 'nullable|date',

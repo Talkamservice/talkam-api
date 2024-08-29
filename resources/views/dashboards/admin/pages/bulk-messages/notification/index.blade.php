@@ -50,7 +50,7 @@
                                         </td>
                                         <td>
                                             <span
-                                                title="{{ strip_tags($notification->message) }}">{{ Str::limit(strip_tags($notification->message), 50) }}</span>
+                                                title="{{ strip_tags($notification->body) }}">{{ Str::limit(strip_tags($notification->body), 50) }}</span>
                                         </td>
                                         <td>{{ $notification->type }}</td>
                                         <td>
