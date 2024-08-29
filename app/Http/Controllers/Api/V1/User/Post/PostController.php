@@ -141,8 +141,8 @@ class PostController extends Controller
     {
         try {
             $attachments = PostAttachment::where("user_id", $request->user_id)->whereHas("post", function ($post) use ($request) {
-                $post->status()->list($request->all())->unblocked()->anonymous()
-                ->where("type", PostConstants::FILE);
+                $post->status()->unblocked()->anonymous()
+                    ->where("type", PostConstants::FILE);
             })->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
 
