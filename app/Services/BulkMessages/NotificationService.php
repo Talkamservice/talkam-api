@@ -114,7 +114,7 @@ class NotificationService
     public function changeStatus(Request $request, $id)
     {
         $status = $request->input('status');
-        if (!in_array($status, [StatusConstants::ACTIVE, StatusConstants::INACTIVE])) {
+        if (!in_array($status, [StatusConstants::SENT, StatusConstants::PENDING])) {
             throw new InvalidRequestException("Invalid status provided");
         }
 

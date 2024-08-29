@@ -102,6 +102,10 @@ class AnnouncementService
         $announcement->update([
             "status" => $status
         ]);
-
+        if (StatusConstants::ACTIVE) {
+            $announcement->update([
+                'published_at' => now(),
+            ]);
+        }
     }
 }
