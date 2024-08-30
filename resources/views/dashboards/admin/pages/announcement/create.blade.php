@@ -108,7 +108,7 @@
                                     <label for="published_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Publish
                                         Date</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="datetime-local" class="form-control" name="published_at" readonly
+                                        <input type="datetime-local" class="form-control" name="published_at" 
                                             id="published_at"
                                             value="{{ old('published_at') ?? (isset($announcement) && $announcement->published_at ? $announcement->published_at->format('Y-m-d\TH:i') : '') }}">
                                     </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\bulkMessages;
+namespace App\Services\BulkMessages;
 
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
@@ -30,9 +30,14 @@ class NotificationService
 
     public static function validate(array $data, $id = null)
     {
+
+        // If the type is Broadcast, get all user IDs
+        if ($data['type'] === 'Broadcast') {
+            $data['user_id'] = User::pluck('id')->toArray(); // Retrieve all user IDs
+        }
         $validator = Validator::make($data, [
             'title' => 'required|string|max:255',
-            'body' => 'required|string',
+            'message' => 'required|string',
             'type' => 'required|in:Single,Broadcast',
             'status' => 'nullable|string',
             'schedule_date' => 'nullable|date',
@@ -122,6 +127,5 @@ class NotificationService
         $notification->update([
             "status" => $status
         ]);
-
     }
 }

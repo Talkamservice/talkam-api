@@ -55,9 +55,9 @@
                                                 title="{{ $announcement->title }}">{{ Str::limit($announcement->title, 30) }}</span>
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-primary show-body"
+                                            <button type="button" class="btn btn-primary btn-sm show-body"
                                                 data-body="{!! $announcement->body !!}">
-                                                View Body
+                                                View
                                             </button>
                                         </td>
                                         <td>{{ ucfirst($announcement->audience) }}</td>

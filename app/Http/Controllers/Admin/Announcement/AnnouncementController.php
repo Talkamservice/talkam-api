@@ -53,8 +53,7 @@ class AnnouncementController extends Controller
             $this->announcement_service->send($request->all());
             return redirect()->route('admin.announcements.index')->with(NotificationConstants::SUCCESS_MSG, "Announcement created successfully");
         } catch (ValidationException $th) {
-            // throw $th;
-            return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Validation failed.");
+            throw $th;
         } catch (\Throwable $th) {
             // throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
@@ -89,7 +88,7 @@ class AnnouncementController extends Controller
             $this->announcement_service->send($request->all(), $id);
             return redirect()->route('admin.announcements.index')->with(NotificationConstants::SUCCESS_MSG, "Announcement updated successfully");
         } catch (ValidationException $th) {
-            return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Validation failed.");
+            throw $th;
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {

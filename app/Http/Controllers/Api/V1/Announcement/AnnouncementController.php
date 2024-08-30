@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Announcement;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -21,7 +22,7 @@ class AnnouncementController extends Controller
     public function index(Request $request)
     {
         try {
-            $announcements = $this->announcement_service->list($request->all())->get();
+            $announcements = $this->announcement_service->list($request->all())->where('status', StatusConstants::ACTIVE)->get();
             $data = AnnouncementResource::collection($announcements);
             return ApiHelper::validResponse("Announcements returned successfully", $data);
         } catch (ModelNotFoundException $th) {

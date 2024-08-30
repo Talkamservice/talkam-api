@@ -37,7 +37,7 @@ class AnnouncementService
             'audience' => 'required|string|in:Group,Public',
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             // 'status' => 'nullable|string',
-            'published_at' => 'nullable|date|after_or_equal:today',
+            'published_at' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
