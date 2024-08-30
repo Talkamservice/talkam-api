@@ -79,7 +79,7 @@
                                 <div class="row col-xl-9 col-sm-12 mb-3">
                                     <label for="message" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Message</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <textarea name="body" class="form-control" id="message" cols="30" rows="5">{!! old('body') ?? ($notification->body ?? '') !!}</textarea>
+                                        <textarea name="message" class="form-control" id="message" cols="30" rows="5">{!! old('message') ?? ($notification->message ?? '') !!}</textarea>
                                     </div>
                                 </div>
 

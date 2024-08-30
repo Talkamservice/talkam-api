@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('send_bulk_notifications', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('body');
+            $table->text('message');
             $table->string('type'); // e.g., single, broadcast
             $table->string('status')->default(StatusConstants::PENDING); // e.g., Pending, Sent
             $table->timestamps();
