@@ -3,6 +3,7 @@
 namespace App\Notifications\Comment;
 
 use App\Http\Resources\Post\PostCommentResource;
+use App\Http\Resources\Users\UserResource;
 use App\Models\UserCommentReaction;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
@@ -89,15 +90,15 @@ class NewCommentReactionNotification extends Notification
 
         return [
             'data' => [
-                'id' => $this->comment_reaction->comment_id,
+                'id' => $this->comment_reaction->comment->post_id,
             ],
             'title' => "New {$this->comment_reaction->action}",
             'message' => $message,
             'link' => null,
-            'type' => 'comment',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => [
-                "comment" => PostCommentResource::custom($this->comment_reaction->comment),
+                "user" => UserResource::custom($this->comment_reaction->user),
             ]
         ];
     }
