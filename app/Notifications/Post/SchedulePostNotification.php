@@ -83,7 +83,7 @@ class SchedulePostNotification extends Notification
             'title' => "New Scheduled Post",
             'message' => "You have scheduled a new post",
             'link' => null,
-            'type' => 'post',
+            'type' => 'scheduled_post',
             'batch_no' => null,
             "extra" => []
         ];
