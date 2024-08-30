@@ -101,7 +101,7 @@ class NewMessageNotification extends Notification
             'type' => 'conversation',
             'batch_no' => null,
             "extra" => [
-                "receiver" => UserResource::custom($this->message->receiver)
+                "sender" => UserResource::custom($this->message->sender)
             ]
         ];
     }
