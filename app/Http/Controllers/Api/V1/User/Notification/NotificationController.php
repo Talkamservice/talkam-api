@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Notification\NotificationPreferenceResource;
 use App\Http\Resources\Notification\NotificationResource;
 use App\Models\AppDatabaseNotification;
+use App\Models\Message;
 use App\Models\User;
 use App\Services\Notification\NotificationPreferenceService;
 use Exception;
@@ -32,7 +33,7 @@ class NotificationController extends Controller
             return ApiHelper::validResponse("Notifications returned successfully", $data);
         } catch (Exception $e) {
             //throw $th;
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, $request, $e);
         }
     }
 
@@ -45,10 +46,10 @@ class NotificationController extends Controller
             $data = NotificationResource::make($notification);
             return ApiHelper::validResponse("Notification returned successfully", $data);
         } catch (ModelNotFoundException $e) {
-            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, $request, $e);
         } catch (Exception $e) {
             //throw $th;
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, $request, $e);
         }
     }
 
@@ -60,7 +61,7 @@ class NotificationController extends Controller
             return ApiHelper::validResponse("Notification cleared successfully");
         } catch (Exception $e) {
             //throw $th;
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, $request, $e);
         }
     }
 
@@ -75,7 +76,7 @@ class NotificationController extends Controller
             return ApiHelper::validResponse("Notifications marked as read successfully");
         } catch (Exception $e) {
             //throw $th;
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, $request, $e);
         }
     }
 
@@ -112,6 +113,25 @@ class NotificationController extends Controller
         try {
             $this->notification_preference_service->sendThreadNotification($request->all());
             return ApiHelper::validResponse("Thread notification added successfully");
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function notificationStatus(Request $request)
+    {
+        try {
+            $user = !empty($request->user_id) ? User::find($request->user_id) : auth()->user();
+            $notifications = $user->notifications;
+            $unread_messages = Message::where('receiver_id', $user->id)->where('read', false)->count();
+            $data = [
+                "notifications" => $notifications->count(),
+                "unread_notifications" => $notifications->whereNull("read_at")->count(),
+                "unread_messages" => $unread_messages,
+            ];
+            return ApiHelper::validResponse("Notification stats returned successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (Exception $th) {
