@@ -11,7 +11,7 @@ class SendBulkNotification extends Model
 
     protected $fillable = [
         'title',
-        'body',
+        'message',
         'type',
         'status',
         'schedule_date',
