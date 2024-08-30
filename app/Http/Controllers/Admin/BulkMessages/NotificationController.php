@@ -55,9 +55,10 @@ class NotificationController extends Controller
             $this->bulk_notifications_service->send($request->all());
             return redirect()->route('admin.notifications.send-bulk-notification.index')->with(NotificationConstants::SUCCESS_MSG, "Notification created successfully");
         } catch (ValidationException $th) {
+            throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Validation failed.");
         } catch (\Throwable $th) {
-            // throw $th;
+            throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
         }
     }

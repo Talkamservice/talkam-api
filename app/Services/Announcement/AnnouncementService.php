@@ -73,7 +73,7 @@ class AnnouncementService
     {
         $builder = Announcement::latest();
 
-        if (!empty($status = $data["status"] ?? StatusConstants::ACTIVE)) {
+        if (!empty($status = $data["status"] ?? null)) {
             $builder = $builder->where("status", $status);
         }
 
