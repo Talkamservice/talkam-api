@@ -143,9 +143,8 @@ class PostController extends Controller
             $attachments = PostAttachment::where("user_id", $request->user_id)->whereHas("post", function ($post) use ($request) {
                 $post->status();
                 if (!empty($request->exclude_anonymous)) {
-                    $post = $post->where("is_anonymous", 0);
+                    $post->where("is_anonymous", 0);
                 }
-                $post->where("type", PostConstants::FILE);
             })->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
 
