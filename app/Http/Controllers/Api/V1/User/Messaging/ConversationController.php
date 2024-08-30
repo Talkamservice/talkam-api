@@ -121,7 +121,9 @@ class ConversationController extends Controller
     {
         try {
             $conversation = $this->conversation_service->getById($id);
+            $other_member = $conversation->members()->whereNot("user_id", auth()->id())->first();
             $conversation->delete();
+            broadcast(new RefreshNotification($other_member->user_id))->toOthers();
             return ApiHelper::validResponse("Conversation deleted successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
