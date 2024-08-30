@@ -32,6 +32,7 @@ class NotificationController extends Controller
             "sn" => $notifications->firstItem(),
             "notifications" => $notifications,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
+            'Sent' => StatusConstants::SENT,
         ]);
     }
 
@@ -56,7 +57,7 @@ class NotificationController extends Controller
         } catch (ValidationException $th) {
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Validation failed.");
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
         }
     }
@@ -108,6 +109,21 @@ class NotificationController extends Controller
         try {
             $this->bulk_notifications_service->delete($id);
             return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Notification deleted successfully");
+        } catch (ModelNotFoundException $th) {
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (InvalidRequestException $th) {
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
+        }
+    }
+
+    public function changeStatus(Request $request, string $id)
+    {
+        // dd($request->all());
+        try {
+            $this->bulk_notifications_service->changeStatus($request, $id);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Notification status updated successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {

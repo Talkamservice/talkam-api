@@ -84,7 +84,7 @@
                                                     @if ($report->user->banned)
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="#">
-                                                                <i class="ri-error-warning-line"></i> User Banned
+                                                                <i class="ri-error-warning-line"></i>  User Banned
                                                             </a>
                                                         </li>
                                                     @elseif ($report->groupMember->suspension_end && $report->groupMember->suspension_end > now())

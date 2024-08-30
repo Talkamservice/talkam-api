@@ -2,10 +2,13 @@
 
 namespace App\Services\Announcement;
 
+use App\Constants\General\StatusConstants;
 use App\Constants\Media\FileConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Announcement;
 use App\Services\Media\FileService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -31,9 +34,9 @@ class AnnouncementService
         $validator = Validator::make($data, [
             'title' => 'required|string|max:255',
             'body' => 'required|string',
-            // 'audience' => 'required|string|in:users,public',
+            'audience' => 'required|string|in:Group,Public',
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'status' => 'nullable|string',
+            // 'status' => 'nullable|string',
             'published_at' => 'nullable|date|after_or_equal:today',
         ]);
 
@@ -86,5 +89,23 @@ class AnnouncementService
     {
         $announcement = self::getById($id);
         $announcement->delete();
+    }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $status = $request->input('status');
+        if (!in_array($status, [StatusConstants::ACTIVE, StatusConstants::INACTIVE])) {
+            throw new InvalidRequestException("Invalid status provided");
+        }
+
+        $announcement = $this->getById($id);
+        $announcement->update([
+            "status" => $status
+        ]);
+        if (StatusConstants::ACTIVE) {
+            $announcement->update([
+                'published_at' => now(),
+            ]);
+        }
     }
 }
