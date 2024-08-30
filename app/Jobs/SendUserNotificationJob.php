@@ -21,7 +21,7 @@ class SendUserNotificationJob implements ShouldQueue
      */
     protected $chunkSize;
     protected $notification;
-    public function __construct(SendBulkNotification $notification, $chunkSize = 1000)
+    public function __construct(SendBulkNotification $notification, $chunkSize = 500)
     {
         $this->notification = $notification;
         $this->chunkSize = $chunkSize;

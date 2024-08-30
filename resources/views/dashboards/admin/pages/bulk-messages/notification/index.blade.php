@@ -53,9 +53,9 @@
                                                 title="{{ $notification->title }}">{{ Str::limit($notification->title, 50) }}</span>
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-primary show-body"
-                                                data-body="{!! $notification->body !!}">
-                                                View Body
+                                            <button type="button" class="btn btn-primary btn-sm show-body"
+                                                data-body="{!! $notification->message !!}">
+                                                View
                                             </button>
                                         </td>
 
@@ -149,7 +149,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="bodyModalLabel">Notification Body</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Body content will be dynamically inserted here -->
