@@ -179,6 +179,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("preference/fetch", [NotificationController::class, "notificationPerference"])->name("notification-perference");
             Route::post("preference/save", [NotificationController::class, "saveNotificationPerference"])->name("save-notification-perference");
             Route::post("thread/add", [NotificationController::class, "sendThreadNotification"])->name("send-thread-notification");
+            Route::get("get-notification-status", [NotificationController::class, "notificationStatus"])->name("get-notification-status");
         });
     });
 });
