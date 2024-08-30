@@ -87,14 +87,27 @@ class NotificationPreferenceService
 
             $data["user_id"] ??= auth()->id();
 
-            $thread_notification = ThreadNotification::firstOrCreate([
+            $payload = [
                 "user_id" => $data["user_id"],
-                "post_id" => $data["post_id"] ?? null,
-                "comment_id" => $data["comment_id"] ?? null,
-            ]);
+            ];
+
+            if (isset($data["post_id"])) {
+                $payload["post_id"] = $data["post_id"];
+            }
+
+            if (isset($data["comment_id"])) {
+                $payload["comment_id"] = $data["comment_id"];
+            }
+
+            $thread_notification = ThreadNotification::where($payload)->first();
+
+            if (empty($thread_notification)) {
+                $thread_notification = ThreadNotification::firstOrCreate($payload);
+            }else {
+                $thread_notification->delete();
+            }
 
             DB::commit();
-            return $thread_notification;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
