@@ -34,7 +34,7 @@ class MessagingController extends Controller
     public function list(Request $request)
     {
         try {
-            $messaging = $this->messaging_service->list($request->all())->latest()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $messaging = $this->messaging_service->list($request->all())->orderBy("id", "asc")->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
             $data = collectPagination($messaging);
             $data["data"] = MessageResource::collection($data["data"]);
             return ApiHelper::validResponse("Messages fetched successfully", $data);
