@@ -4,6 +4,7 @@ namespace App\Services\bulkMessages;
 
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Jobs\SendUserNotificationJob;
@@ -12,6 +13,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Bus\Batch;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -30,12 +32,12 @@ class NotificationService
     {
         $validator = Validator::make($data, [
             'title' => 'required|string|max:255',
-            'message' => 'required|string',
-            'type' => 'required|in:single,multiple,all',
+            'body' => 'required|string',
+            'type' => 'required|in:Single,Broadcast',
             'status' => 'nullable|string',
             'schedule_date' => 'nullable|date',
             'user_id' => [
-                'required_if:type,single,multiple', // required for 'single' and 'multiple'
+                'required_if:type,Single,Broadcast', // required for 'single' and 'multiple'
                 'exists:users,id',
             ],
         ]);
@@ -60,10 +62,10 @@ class NotificationService
         }
 
         // Determine recipients based on type
-        if ($data['type'] === 'single') {
+        if ($data['type'] === 'Single') {
             $userIds = is_array($data['user_id']) ? $data['user_id'] : [$data['user_id']];
             $notification->recipients()->sync($userIds);
-        } elseif ($data['type'] === 'broadcast') {
+        } elseif ($data['type'] === 'Broadcast') {
             $userIds = User::where('status', StatusConstants::ACTIVE)->pluck('id')->toArray();
             $notification->recipients()->sync($userIds);
         }
@@ -107,5 +109,19 @@ class NotificationService
         $notification = self::getById($id);
         $notification->recipients()->detach(); // Remove all recipients
         $notification->delete();
+    }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $status = $request->input('status');
+        if (!in_array($status, [StatusConstants::SENT, StatusConstants::PENDING])) {
+            throw new InvalidRequestException("Invalid status provided");
+        }
+
+        $notification = $this->getById($id);
+        $notification->update([
+            "status" => $status
+        ]);
+
     }
 }

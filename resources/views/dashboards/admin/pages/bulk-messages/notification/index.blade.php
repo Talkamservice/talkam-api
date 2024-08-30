@@ -50,12 +50,15 @@
                                         </td>
                                         <td>
                                             <span
-                                                title="{{ $notification->title }}">{{ Str::limit($notification->title, 30) }}</span>
+                                                title="{{ $notification->title }}">{{ Str::limit($notification->title, 50) }}</span>
                                         </td>
                                         <td>
-                                            <span
-                                                title="{{ strip_tags($notification->message) }}">{{ Str::limit(strip_tags($notification->message), 50) }}</span>
+                                            <button type="button" class="btn btn-primary show-body"
+                                                data-body="{!! $notification->body !!}">
+                                                View Body
+                                            </button>
                                         </td>
+
                                         <td>{{ $notification->type }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($notification->status) }}-transparent">
@@ -70,21 +73,20 @@
                                                     Actions
                                                 </a>
                                                 <ul class="dropdown-menu">
-                                                    {{-- <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.notifications.send-bulk-notification.show', $notification->id) }}">
-                                                        <i class="fas fa-eye"></i> View
-                                                    </a>
-                                                </li> --}}
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('admin.notifications.send-bulk-notification.edit', $notification->id) }}">
-                                                            <i class="fas fa-edit"></i> Edit
-                                                        </a>
-                                                    </li>
+                                                   
+                                                    @if ($notification->status !== $Sent)
+                                                        <li>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('admin.notifications.send-bulk-notification.edit', $notification->id) }}">
+                                                                <i class="ri-edit-2-line"></i>| Edit
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                    
                                                     <li>
                                                         <a class="dropdown-item text-danger" href="#"
                                                             onclick="confirmDeletion({{ $notification->id }})">
-                                                            <i class="fas fa-trash"></i> Delete
+                                                            <i class="ri-delete-bin-line"></i> | Delete
                                                         </a>
                                                     </li>
 
@@ -141,6 +143,22 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="bodyModal" tabindex="-1" aria-labelledby="bodyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bodyModalLabel">Notification Body</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Body content will be dynamically inserted here -->
+                    <div id="modalBodyContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function confirmDeletion(notificationId) {
             // Show the modal
@@ -156,5 +174,18 @@
                 }
             });
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.show-body').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    // Get the body content from the data-body attribute
+                    const bodyContent = this.getAttribute('data-body');
+                    // Insert the body content as HTML into the modal
+                    document.getElementById('modalBodyContent').innerHTML = bodyContent;
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('bodyModal'));
+                    modal.show();
+                });
+            });
+        });
     </script>
 @endsection

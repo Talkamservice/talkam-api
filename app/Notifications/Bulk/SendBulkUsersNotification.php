@@ -82,7 +82,7 @@ class SendbulkUsersNotification extends Notification
                 'id' => $this->notification->id,
             ],
             'title' => "{$this->notification->title}",
-            'message' => "{$this->notification->message}",
+            'message' => "{$this->notification->body}",
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,
