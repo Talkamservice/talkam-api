@@ -50,9 +50,7 @@ class NotificationHandlerService
 
     public function notifyPostOwnerOfNewComment($comment)
     {
-        if (
-            $this->comments_notifications_type == null ||
-            $this->comments_notifications_type == "mentions" ||
+        if ($this->comments_notifications_type == "mentions" ||
             $comment->is_anonymous == 1
         ) {
             return $this;
@@ -98,7 +96,7 @@ class NotificationHandlerService
 
     public function notifyCommentOwnerOfNewComment($comment)
     {
-        if ($this->comments_notifications_type == null || $comment->is_anonymous == 1) {
+        if ($comment->is_anonymous == 1) {
             return $this;
         }
 
