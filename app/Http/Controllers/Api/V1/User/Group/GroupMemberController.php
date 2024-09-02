@@ -93,7 +93,7 @@ class GroupMemberController extends Controller
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $th);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
 
@@ -120,7 +120,7 @@ class GroupMemberController extends Controller
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $th);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
 

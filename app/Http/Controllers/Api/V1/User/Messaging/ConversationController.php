@@ -61,7 +61,7 @@ class ConversationController extends Controller
         } catch (InvalidRequestException | ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $e) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 

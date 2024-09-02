@@ -39,7 +39,7 @@ class MessagingController extends Controller
             $data["data"] = MessageResource::collection($data["data"]);
             return ApiHelper::validResponse("Messages fetched successfully", $data);
         } catch (Exception $e) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 

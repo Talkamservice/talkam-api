@@ -19,99 +19,88 @@
         </div>
 
         <!-- Page Header Close -->
-
         <!-- Start::row-1 -->
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-end">
-                    <a href="{{ route('admin.notifications.send-bulk-notification.create') }}" class="btn btn-primary"><i
-                            class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
-
+                    <a href="{{ route('admin.notifications.send-bulk-notification.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive" style="min-height: 250px">
-                        <table class="table text-nowrap table-hover border table-bordered">
-                            <thead>
-                                <tr>
-                                    <th scope="col">S/N</th>
-                                    <th scope="col">Title</th>
-                                    <th scope="col">Message</th>
-                                    <th scope="col">Type</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Scheduled Date</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($notifications as $notification)
+                        @if ($notifications->isNotEmpty())
+                            <table class="table text-nowrap table-hover border table-bordered">
+                                <thead>
                                     <tr>
-                                        <td>
-                                            {{ $sn++ }}
-                                        </td>
-                                        <td>
-                                            <span
-                                                title="{{ $notification->title }}">{{ Str::limit($notification->title, 50) }}</span>
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-primary btn-sm show-body"
-                                                data-body="{!! $notification->message !!}">
-                                                View
-                                            </button>
-                                        </td>
+                                        <th scope="col">S/N</th>
+                                        <th scope="col">Title</th>
+                                        <th scope="col">Message</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Scheduled Date</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($notifications as $notification)
+                                        <tr>
+                                            <td>
+                                                {{ $sn++ }}
+                                            </td>
+                                            <td>
+                                                <span title="{{ $notification->title }}">{{ Str::limit($notification->title, 50) }}</span>
+                                            </td>
+                                            <td>
+                                                <button type="button" data-bs-toggle="modal" data-bs-target="#notificationContent_{{ $notification->id }}" class="btn btn-primary btn-sm show-body">
+                                                    View
+                                                </button>
+                                            </td>
 
-                                        <td>{{ $notification->type }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ pillClasses($notification->status) }}-transparent">
-                                                {{ $notification->status }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $notification->schedule_date }}</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a class="btn btn-outline-primary dropdown-toggle" href="#"
-                                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    Actions
-                                                </a>
-                                                <ul class="dropdown-menu">
-                                                   
-                                                    @if ($notification->status !== $Sent)
+                                            <td>{{ $notification->type }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ pillClasses($notification->status) }}-transparent">
+                                                    {{ $notification->status }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $notification->schedule_date }}</td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Actions
+                                                    </a>
+                                                    <ul class="dropdown-menu">
+
+                                                        @if ($notification->status !== $Sent)
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('admin.notifications.send-bulk-notification.edit', $notification->id) }}">
+                                                                    <i class="ri-edit-2-line"></i>| Edit
+                                                                </a>
+                                                            </li>
+                                                        @endif
+
                                                         <li>
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('admin.notifications.send-bulk-notification.edit', $notification->id) }}">
-                                                                <i class="ri-edit-2-line"></i>| Edit
+                                                            <a class="dropdown-item text-danger" href="#" onclick="$('#deleteNotificationForm_{{ $notification->id }}').submit()" onsubmit="return confim('Are you sure of this action?')">
+                                                                <i class="ri-delete-bin-line"></i> | Delete
                                                             </a>
+                                                            <form id="deleteNotificationForm_{{ $notification->id }}').submit()" action="{{ route('admin.notifications.send-bulk-notification.destroy', $notification->id) }}" method="POST" style="display: none;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                            </form>
                                                         </li>
-                                                    @endif
-                                                    
-                                                    <li>
-                                                        <a class="dropdown-item text-danger" href="#"
-                                                            onclick="confirmDeletion({{ $notification->id }})">
-                                                            <i class="ri-delete-bin-line"></i> | Delete
-                                                        </a>
-                                                    </li>
 
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Hidden Delete Form -->
-                                    <form id="deleteNotificationForm_{{ $notification->id }}"
-                                        action="{{ route('admin.notifications.send-bulk-notification.destroy', $notification->id) }}"
-                                        method="POST" style="display: none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center">
-                                            <img class="no-data-image"
-                                                src="{{ asset('admin_assets/images/empty/no-data-concept-illustration.jpg') }}"
-                                                alt="No data available">
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- Hidden Delete Form -->
+                                        @include('dashboards.admin.pages.bulk-messages.modal.notification_content_modal', [
+                                            'modalKey' => "notificationContent_$notification->id",
+                                        ])
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            @include('general.components.no_content')
+                        @endif
                     </div>
                 </div>
                 <div class="card-footer">
@@ -125,8 +114,7 @@
         </div>
     </div>
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog"
-        aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -173,18 +161,5 @@
                 }
             });
         }
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.show-body').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    // Get the body content from the data-body attribute
-                    const bodyContent = this.getAttribute('data-body');
-                    // Insert the body content as HTML into the modal
-                    document.getElementById('modalBodyContent').innerHTML = bodyContent;
-                    // Show the modal
-                    const modal = new bootstrap.Modal(document.getElementById('bodyModal'));
-                    modal.show();
-                });
-            });
-        });
     </script>
 @endsection

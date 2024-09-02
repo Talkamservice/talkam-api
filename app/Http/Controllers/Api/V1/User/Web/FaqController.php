@@ -28,7 +28,7 @@ class FaqController extends Controller
             return ApiHelper::validResponse("Faqs returned successfully", $data);
         } catch (Exception $e) {
             //throw $th;
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $e);
         }
     }
 
@@ -40,7 +40,7 @@ class FaqController extends Controller
             return ApiHelper::validResponse("Faq returned successfully", $data);
         } catch (Exception $e) {
             //throw $th;
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $e);
         }
     }
 

@@ -173,7 +173,7 @@ class InviteController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             // throw $th;
-            return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
         }
     }
 }
