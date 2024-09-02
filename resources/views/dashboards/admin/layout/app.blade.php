@@ -6,7 +6,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title> Admin - Talkam. </title>
-    <meta name="Description" content="Your path to mental and emotional wellbeing.">
+    <meta name="Description" content="Find interesting posts and discussions on talkam.">
     <meta name="Author" content="Talkam">
     <meta name="keywords" content="">
 

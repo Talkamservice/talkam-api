@@ -99,6 +99,10 @@ class Post extends Model
         return $query->where("is_anonymous", $anonymous);
     }
 
+    public function threadNotifications()
+    {
+        return $this->hasMany(ThreadNotification::class, "post_id");
+    }
 
     public function postType($type)
     {
