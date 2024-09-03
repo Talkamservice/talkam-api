@@ -89,7 +89,9 @@ class NotificationHandlerService
     public function notifyPostOwnerOfNewReaction($post_reaction)
     {
         if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
-            Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
+            if ($this->user->id != $post_reaction->user_id) {
+                Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
+            }
         }
 
         return $this;
