@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\SendBulkNotification;
 use App\Models\User;
-use App\Notifications\Bulk\SendbulkUsersNotification;
+use App\Notifications\Bulk\SendBulkUsersNotification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,16 +32,13 @@ class SendUserNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        // dd('e reach here');
         $userIds = $this->notification->recipients()->pluck('user_id')->toArray();
 
         // Process users in chunks
         foreach (array_chunk($userIds, $this->chunkSize) as $chunk) {
             $users = User::whereIn('id', $chunk)->get();
-            // dd('e reach here', $users);
             foreach ($users as $user) {
-                // dd('e reach here', $user);
-                $user->notify(new SendbulkUsersNotification($user, $this->notification));
+                $user->notify(new SendBulkUsersNotification($user, $this->notification));
             }
         }
     }

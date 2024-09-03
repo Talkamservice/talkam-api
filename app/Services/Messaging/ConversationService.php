@@ -10,6 +10,7 @@ use App\Models\Conversation;
 use App\Models\ConversationMember;
 use App\Models\ConversationReport;
 use App\QueryBuilders\Conversation\ConversationQueryBuilder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -227,7 +228,16 @@ class ConversationService
     {
         $user = auth()->user();
         $builder = ConversationQueryBuilder::list($data)
-            ->with("lastMessage");
+            ->whereHas('otherMembers')
+            ->with(['lastMessage', 'otherMembers', 'messages' => function ($query) {
+                $query->latest();
+            }])
+            ->withCount([
+                'messages as latest_message_timestamp' => function (Builder $query) {
+                    $query->select(DB::raw('MAX(created_at)'));
+                }
+            ])
+            ->orderByDesc('latest_message_timestamp');
 
         return $builder;
     }
