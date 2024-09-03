@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\V1\General\AuthController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
-use App\Http\Controllers\Api\V1\User\Guildline\GuildlineController;
 use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Messaging\MessagingController;
@@ -25,6 +24,9 @@ use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
 use App\Http\Controllers\Api\V1\User\Post\SearchController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\UserController;
+use App\Http\Controllers\Api\V1\User\Web\FaqController;
+use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
+use App\Http\Controllers\Api\V1\User\Web\TermAndConditionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -181,6 +183,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("thread/add", [NotificationController::class, "sendThreadNotification"])->name("send-thread-notification");
             Route::get("get-notification-status", [NotificationController::class, "notificationStatus"])->name("get-notification-status");
         });
+
+        Route::get("/terms-and-conditions", [TermAndConditionController::class, "index"])->name("terms-and-conditions.list");
+        Route::get("/privacy-policies", [PrivacyPolicyController::class, "index"])->name("privacy-policies.list");
+        // Route::post("contact-us", [ContactUsController::class, "save"])->name("save");
+        Route::get("faqs", [FaqController::class, "index"])->name("faqs.index");
     });
 });
 

@@ -19,7 +19,7 @@ class NotificationController extends Controller
             DatabaseNotification::where(["notifiable_type" => User::class, "notifiable_id" => $user->id])->delete();
             return ApiHelper::validResponse("Notification cleared successfully");
         } catch (\Throwable $th) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $th);
         }
     }
 
@@ -33,7 +33,7 @@ class NotificationController extends Controller
             }
             return ApiHelper::validResponse("Notifications marked as read successfully");
         } catch (\Throwable $th) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE,  $request, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $th);
         }
     }
 

@@ -75,8 +75,7 @@
 
                                 <!-- Banner Image Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
-                                    <label for="banner_image" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Banner
-                                        Image</label>
+                                    <label for="banner_image" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Banner</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <input type="file" class="form-control" name="banner_image" id="banner_image">
                                         {{-- @if (isset($announcement->banner_image))

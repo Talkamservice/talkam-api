@@ -24,6 +24,12 @@ class PostComment extends Model
         return $this->belongsTo(Post::class, "post_id");
     }
 
+    public function threadNotifications()
+    {
+        return $this->hasMany(ThreadNotification::class, "post_id");
+    }
+
+
     public function parent()
     {
         return $this->belongsTo(self::class, "parent_id");

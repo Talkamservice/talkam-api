@@ -34,12 +34,12 @@ class MessagingController extends Controller
     public function list(Request $request)
     {
         try {
-            $messaging = $this->messaging_service->list($request->all())->latest()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $messaging = $this->messaging_service->list($request->all())->orderBy("id", "desc")->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
             $data = collectPagination($messaging);
             $data["data"] = MessageResource::collection($data["data"]);
             return ApiHelper::validResponse("Messages fetched successfully", $data);
         } catch (Exception $e) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 

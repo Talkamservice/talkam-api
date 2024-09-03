@@ -145,7 +145,7 @@ class PostController extends Controller
                 if (!empty($request->exclude_anonymous)) {
                     $post->where("is_anonymous", 0);
                 }
-            })->paginate(AppConstants::API_PAGINATION_SIZE)
+            })->latest()->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
 
             $data = collectPagination($attachments);

@@ -50,15 +50,13 @@ class NotificationHandlerService
 
     public function notifyPostOwnerOfNewComment($comment)
     {
-        if (
-            $this->comments_notifications_type == null ||
-            $this->comments_notifications_type == "mentions" ||
-            $comment->is_anonymous == 1
-        ) {
+        if ($this->comments_notifications_type == "mentions" || $comment->is_anonymous == 1 ) {
             return $this;
         }
+        if ($this->user->id != $comment->user_id) {
+            Notification::send($comment->post->user, new NewCommentNotification($comment));
+        }
 
-        Notification::send($comment->post->user, new NewCommentNotification($comment));
         return $this;
     }
 
@@ -89,8 +87,10 @@ class NotificationHandlerService
 
     public function notifyPostOwnerOfNewReaction($post_reaction)
     {
-        if ($this->can_receive_content_activities == 1) {
-            Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
+            if ($this->user->id != $post_reaction->user_id) {
+                Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
+            }
         }
 
         return $this;
@@ -98,12 +98,14 @@ class NotificationHandlerService
 
     public function notifyCommentOwnerOfNewComment($comment)
     {
-        if ($this->comments_notifications_type == null || $comment->is_anonymous == 1) {
+        if ($comment->is_anonymous == 1) {
             return $this;
         }
 
-        if ($this->can_receive_content_activities == 1) {
-            Notification::send($comment->user, new NewCommentMentionNotification($comment));
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
+            if ($this->user->id != $comment->user_id) {
+                Notification::send($comment->user, new NewCommentMentionNotification($comment));
+            }
         }
 
         return $this;
@@ -111,8 +113,10 @@ class NotificationHandlerService
 
     public function notifyCommentOwnerOfNewReaction($comment_reaction)
     {
-        if ($this->can_receive_content_activities == 1) {
-            Notification::send($comment_reaction->comment->post->user, new NewCommentReactionNotification($comment_reaction));
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
+            if ($this->user->id != $comment_reaction->user_id) {
+                Notification::send($comment_reaction->comment->user, new NewCommentReactionNotification($comment_reaction));
+            }
         }
 
         return $this;

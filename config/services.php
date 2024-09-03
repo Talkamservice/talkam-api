@@ -54,4 +54,10 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI')
     ],
+
+    'firebase' => [
+        'clientId' => env('FIREBASE_CLIENT_ID'),
+        'clientEmail' => env('FIREBASE_CLIENT_EMAIL'),
+        'privateKey' => env('FIREBASE_CLIENT_PRIVATE_KEY'),
+    ],
 ];

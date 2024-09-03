@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User\Notification;
 
 use App\Constants\General\ApiConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -28,7 +29,14 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         try {
-            $notifications = auth()->user()->notifications;
+            $user = auth()->user();
+            $builder = AppDatabaseNotification::where(["notifiable_type" => User::class, "notifiable_id" => $user->id]);
+
+            if (!empty($request->tab) && $request->tab == "mention") {
+                $builder = $builder->whereJsonContains('data->type', 'mention');
+            }
+
+            $notifications = $builder->latest()->get();
             $data = NotificationResource::collection($notifications);
             return ApiHelper::validResponse("Notifications returned successfully", $data);
         } catch (Exception $e) {
@@ -43,6 +51,7 @@ class NotificationController extends Controller
 
             $notification = AppDatabaseNotification::findOrFail($notification_id);
             $notification->markAsRead();
+            broadcast(new RefreshNotification($notification->notifiable_id))->toOthers();
             $data = NotificationResource::make($notification);
             return ApiHelper::validResponse("Notification returned successfully", $data);
         } catch (ModelNotFoundException $e) {

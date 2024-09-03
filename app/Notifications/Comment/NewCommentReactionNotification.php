@@ -3,6 +3,7 @@
 namespace App\Notifications\Comment;
 
 use App\Http\Resources\Post\PostCommentResource;
+use App\Http\Resources\Users\UserResource;
 use App\Models\UserCommentReaction;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
@@ -81,23 +82,28 @@ class NewCommentReactionNotification extends Notification
         $action_by = $this->comment_reaction->user->username ?? $this->comment_reaction->user->full_name;
         $total_actions = UserCommentReaction::where("comment_id", $this->comment_reaction->coment_id)
             ->where("action", $this->comment_reaction->action)
+            ->whereNot("user_id", $this->comment_reaction->user_id)
             ->get()
             ->unique("user_id")
             ->count();
 
-        $message = "{$action_by} and {$total_actions} others " . strtolower($this->comment_reaction->action) . " your comment.";
+        if ($total_actions == 0) {
+            $message = "{$action_by} " . strtolower($this->comment_reaction->action) . " your comment.";
+        } else {
+            $message = "{$action_by} and {$total_actions} others " . strtolower($this->comment_reaction->action) . " your comment.";
+        }
 
         return [
             'data' => [
-                'id' => $this->comment_reaction->comment_id,
+                'id' => $this->comment_reaction->comment->post_id,
             ],
             'title' => "New {$this->comment_reaction->action}",
             'message' => $message,
             'link' => null,
-            'type' => 'comment',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => [
-                "comment" => PostCommentResource::custom($this->comment_reaction->comment),
+                "user" => UserResource::custom($this->comment_reaction->user),
             ]
         ];
     }

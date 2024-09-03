@@ -78,14 +78,20 @@ class NewCommentNotification extends Notification
     public function buildData($notifiable)
     {
         $commenter = $this->comment->user->username ?? $this->comment->user->full_name;
-        $total_comments = $this->comment?->post?->comments->unique("user_id")->count();
+        $total_comments = $this->comment?->post?->comments()->whereNot("user_id", $this->comment->user_id)->distinct("user_id")->count();
+
+        if ($total_comments == 0) {
+            $message = "{$commenter} replied to your post.";
+        }else {
+            $message = "{$commenter} and {$total_comments} others replied to your post.";
+        }
 
         return [
             'data' => [
                 'id' => $this->comment->id,
             ],
             'title' => "New Comment",
-            'message' => "{$commenter} and {$total_comments} others replied to your post.",
+            'message' => $message,
             'link' => null,
             'type' => 'comment',
             'batch_no' => null,

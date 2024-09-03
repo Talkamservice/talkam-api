@@ -7,7 +7,7 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.reviews.index') }}">Web Review</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.terms-and-conditions.index') }}">Term and Condition</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ isset($term_and_condition) ? 'Edit' : 'Create' }}</li>
                     </ol>
                 </nav>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
 use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
@@ -16,6 +17,8 @@ use App\Http\Controllers\Admin\Report\GroupReportController;
 use App\Http\Controllers\Admin\Report\PostReportController;
 use App\Http\Controllers\Admin\User\AccountStatusController;
 use App\Http\Controllers\Admin\User\UserController;
+use App\Http\Controllers\Admin\Web\PrivacyPolicyController;
+use App\Http\Controllers\Admin\Web\TermAndConditionController;
 use App\Http\Controllers\Web\InviteController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +36,9 @@ Route::middleware(["auth"])->group(
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
             'guidelines'=> GuidelineController::class,
-
+            "terms-and-conditions" => TermAndConditionController::class,
+            "privacy-policies" => PrivacyPolicyController::class,
+            "faqs" => FaqController::class
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {

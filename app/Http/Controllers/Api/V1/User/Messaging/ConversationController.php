@@ -42,6 +42,7 @@ class ConversationController extends Controller
             $data = ConversationResource::make($conversation);
             $other_member = $conversation->members()->whereNot("user_id", auth()->id())->first();
             broadcast(new RefreshNotification($other_member->user_id))->toOthers();
+            broadcast(new RefreshNotification(auth()->id()))->toOthers();
             return ApiHelper::validResponse("Conversation details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
@@ -61,7 +62,7 @@ class ConversationController extends Controller
         } catch (InvalidRequestException | ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $e) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, null, $e);
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
 
@@ -121,7 +122,9 @@ class ConversationController extends Controller
     {
         try {
             $conversation = $this->conversation_service->getById($id);
+            $other_member = $conversation->members()->whereNot("user_id", auth()->id())->first();
             $conversation->delete();
+            broadcast(new RefreshNotification($other_member->user_id))->toOthers();
             return ApiHelper::validResponse("Conversation deleted successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);

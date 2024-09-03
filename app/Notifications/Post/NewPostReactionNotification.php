@@ -4,6 +4,7 @@ namespace App\Notifications\Post;
 
 use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
+use App\Http\Resources\Users\UserResource;
 use App\Models\UserPostReaction;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
@@ -82,9 +83,14 @@ class NewPostReactionNotification extends Notification
         $action_by = $this->post_reaction->user->username ?? $this->post_reaction->user->full_name;
         $total_actions = UserPostReaction::where("post_id", $this->post_reaction->post_id)
             ->where("action", $this->post_reaction->action)
+            ->whereNot("user_id", $this->post_reaction->user_id)
             ->count();
 
-        $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . " your post.";
+        if ($total_actions == 0) {
+            $message = "{$action_by} " . strtolower($this->post_reaction->action) . " your post.";
+        }else {
+            $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . " your post.";
+        }
         return [
             'data' => [
                 'id' => $this->post_reaction->post_id,
@@ -95,7 +101,7 @@ class NewPostReactionNotification extends Notification
             'type' => 'post',
             'batch_no' => null,
             "extra" => [
-                "post" => PostResource::custom($this->post_reaction->post),
+                "user" => UserResource::custom($this->post_reaction->user),
             ]
         ];
     }

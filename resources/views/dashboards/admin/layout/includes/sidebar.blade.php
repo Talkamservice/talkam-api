@@ -81,14 +81,14 @@
 
                 <li class="slide">
                     <a href="{{ route('admin.guidelines.index') }}" class="side-menu__item list-item">
-                        <i class="bx bx-folder-open side-menu__icon list-item-icon"></i>
+                        <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
                         <span class="side-menu__label list-item-label">Community Guidelines</span>
                     </a>
                 </li>
 
                 <li class="slide has-sub">
                     <a href="javascript:void(0);" class="side-menu__item list-item">
-                        <i class="bx bx-message-dots side-menu__icon list-item-icon"></i>
+                        <i class="bx bx-notification side-menu__icon list-item-icon"></i>
                         <span class="side-menu__label list-item-label">Digital Outreach</span>
                         <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                     </a>
@@ -133,12 +133,30 @@
                                         class="side-menu__item list-item list-item-sub">Members</a>
                                 </li>
                             </ul>
-
                         </li>
                     </ul>
-
                 </li>
 
+                <li class="slide">
+                    <a href="{{ route('admin.terms-and-conditions.create') }}" class="side-menu__item list-item">
+                        <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
+                        <span class="side-menu__label list-item-label">Terms And Conditions</span>
+                    </a>
+                </li>
+
+                <li class="slide">
+                    <a href="{{ route('admin.faqs.index') }}" class="side-menu__item list-item">
+                        <i class="bx bx-question-mark side-menu__icon list-item-icon"></i>
+                        <span class="side-menu__label list-item-label">FAQs</span>
+                    </a>
+                </li>
+
+                <li class="slide">
+                    <a href="{{ route('admin.privacy-policies.create') }}" class="side-menu__item list-item">
+                        <i class="bx bx-low-vision side-menu__icon list-item-icon"></i>
+                        <span class="side-menu__label list-item-label">Privacy Policy</span>
+                    </a>
+                </li>
 
                 <!-- Start::slide -->
                 <li class="slide has-sub">
