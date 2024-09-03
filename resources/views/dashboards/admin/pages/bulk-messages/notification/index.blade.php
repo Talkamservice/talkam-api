@@ -81,7 +81,7 @@
                                                             <a class="dropdown-item text-danger" href="#" onclick="$('#deleteNotificationForm_{{ $notification->id }}').submit()" onsubmit="return confim('Are you sure of this action?')">
                                                                 <i class="ri-delete-bin-line"></i> | Delete
                                                             </a>
-                                                            <form id="deleteNotificationForm_{{ $notification->id }}').submit()" action="{{ route('admin.notifications.send-bulk-notification.destroy', $notification->id) }}" method="POST" style="display: none;">
+                                                            <form id="deleteNotificationForm_{{ $notification->id }}" action="{{ route('admin.notifications.send-bulk-notification.destroy', $notification->id) }}" method="POST" style="display: none;">
                                                                 @csrf
                                                                 @method('DELETE')
                                                             </form>
@@ -94,6 +94,7 @@
                                         <!-- Hidden Delete Form -->
                                         @include('dashboards.admin.pages.bulk-messages.modal.notification_content_modal', [
                                             'modalKey' => "notificationContent_$notification->id",
+                                            "modalContent" => $notification->message
                                         ])
                                     @endforeach
                                 </tbody>
@@ -113,53 +114,4 @@
             </div>
         </div>
     </div>
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this notification?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="bodyModal" tabindex="-1" aria-labelledby="bodyModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bodyModalLabel">Notification Body</h5>
-                </div>
-                <div class="modal-body">
-                    <!-- Body content will be dynamically inserted here -->
-                    <div id="modalBodyContent"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function confirmDeletion(notificationId) {
-            // Show the modal
-            $('#deleteConfirmationModal').modal('show');
-
-            // Set the form action to the correct notification ID when the Delete button is clicked
-            $('#confirmDeleteBtn').off('click').on('click', function() {
-                var form = document.getElementById('deleteNotificationForm_' + notificationId);
-                if (form) {
-                    form.submit();
-                } else {
-                    console.error('Delete form not found for notification ID: ' + notificationId);
-                }
-            });
-        }
-    </script>
 @endsection

@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <textarea class="form-control" disabled cols="30" rows="5">{{ strip_tags($notification->message) }}</textarea>
+                    <textarea class="form-control" disabled cols="30" rows="5">{{ strip_tags($modalContent) }}</textarea>
                 </div>
             </div>
             <div class="modal-footer">
