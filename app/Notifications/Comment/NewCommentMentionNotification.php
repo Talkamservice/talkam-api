@@ -85,7 +85,7 @@ class NewCommentMentionNotification extends Notification
             'data' => [
                 'id' => $this->comment->post_id,
             ],
-            'title' => "New {$this->comment->action}",
+            'title' => "Comment thread",
             'message' => $message,
             'link' => null,
             'type' => 'mention',
