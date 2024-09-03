@@ -103,8 +103,9 @@ class NotificationHandlerService
         }
 
         if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
-            if ($this->user->id != $comment->user_id) {
-                Notification::send($comment->user, new NewCommentMentionNotification($comment));
+            $reply_comment = $comment->repliedComment;
+            if ($comment->user_id != $reply_comment->user_id) {
+                Notification::send($reply_comment->user, new NewCommentMentionNotification($comment));
             }
         }
 
