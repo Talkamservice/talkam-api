@@ -79,7 +79,7 @@ class NewCommentMentionNotification extends Notification
     public function buildData($notifiable)
     {
         $action_by = $this->comment->user->username ?? $this->comment->user->full_name;
-        $message = "@{$action_by} replied: @{$this->comment->repliedComment->user->getName()} {$this->comment->comment}";
+        $message = "@{$action_by} replied: @{$this->comment->repliedComment->user->getName()} '{$this->comment->comment}'";
 
         return [
             'data' => [
