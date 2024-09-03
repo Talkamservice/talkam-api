@@ -83,6 +83,7 @@ class NewPostReactionNotification extends Notification
         $action_by = $this->post_reaction->user->username ?? $this->post_reaction->user->full_name;
         $total_actions = UserPostReaction::where("post_id", $this->post_reaction->post_id)
             ->where("action", $this->post_reaction->action)
+            ->whereNot("user_id", $this->post_reaction->user_id)
             ->count();
 
         $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . " your post.";

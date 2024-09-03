@@ -82,6 +82,7 @@ class NewCommentReactionNotification extends Notification
         $action_by = $this->comment_reaction->user->username ?? $this->comment_reaction->user->full_name;
         $total_actions = UserCommentReaction::where("comment_id", $this->comment_reaction->coment_id)
             ->where("action", $this->comment_reaction->action)
+            ->whereNot("user_id", $this->comment_reaction->user_id)
             ->get()
             ->unique("user_id")
             ->count();
