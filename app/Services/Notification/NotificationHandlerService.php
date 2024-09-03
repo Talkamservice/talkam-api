@@ -50,14 +50,13 @@ class NotificationHandlerService
 
     public function notifyPostOwnerOfNewComment($comment)
     {
-        if (
-            $this->comments_notifications_type == "mentions" ||
-            $comment->is_anonymous == 1
-        ) {
+        if ($this->comments_notifications_type == "mentions" || $comment->is_anonymous == 1 ) {
             return $this;
         }
+        if ($this->user->id != $comment->user_id) {
+            Notification::send($comment->post->user, new NewCommentNotification($comment));
+        }
 
-        Notification::send($comment->post->user, new NewCommentNotification($comment));
         return $this;
     }
 
@@ -104,7 +103,9 @@ class NotificationHandlerService
         }
 
         if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
-            Notification::send($comment->user, new NewCommentMentionNotification($comment));
+            if ($this->user->id != $comment->user_id) {
+                Notification::send($comment->user, new NewCommentMentionNotification($comment));
+            }
         }
 
         return $this;
