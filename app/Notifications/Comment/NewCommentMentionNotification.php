@@ -88,7 +88,7 @@ class NewCommentMentionNotification extends Notification
             'title' => "New {$this->comment->action}",
             'message' => $message,
             'link' => null,
-            'type' => 'post',
+            'type' => 'mention',
             'batch_no' => null,
             "extra" => [
                 "comment" => PostCommentResource::custom($this->comment),

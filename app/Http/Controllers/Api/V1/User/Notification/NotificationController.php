@@ -28,7 +28,14 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         try {
-            $notifications = auth()->user()->notifications;
+            $user = auth()->user();
+            $builder = AppDatabaseNotification::where(["notifiable_type" => User::class, "notifiable_id" => $user->id]);
+
+            if (!empty($request->tab) && $request->tab == "mention") {
+                $builder = $builder->whereJsonContains('data->type', 'mention');
+            }
+
+            $notifications = $builder->latest()->get();
             $data = NotificationResource::collection($notifications);
             return ApiHelper::validResponse("Notifications returned successfully", $data);
         } catch (Exception $e) {
