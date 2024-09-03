@@ -42,6 +42,7 @@ class ConversationController extends Controller
             $data = ConversationResource::make($conversation);
             $other_member = $conversation->members()->whereNot("user_id", auth()->id())->first();
             broadcast(new RefreshNotification($other_member->user_id))->toOthers();
+            broadcast(new RefreshNotification(auth()->id()))->toOthers();
             return ApiHelper::validResponse("Conversation details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
