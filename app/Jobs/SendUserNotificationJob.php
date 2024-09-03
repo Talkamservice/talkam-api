@@ -32,13 +32,15 @@ class SendUserNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
+        // dd('e reach here');
         $userIds = $this->notification->recipients()->pluck('user_id')->toArray();
 
         // Process users in chunks
         foreach (array_chunk($userIds, $this->chunkSize) as $chunk) {
             $users = User::whereIn('id', $chunk)->get();
-
+            // dd('e reach here', $users);
             foreach ($users as $user) {
+                // dd('e reach here', $user);
                 $user->notify(new SendbulkUsersNotification($user, $this->notification));
             }
         }

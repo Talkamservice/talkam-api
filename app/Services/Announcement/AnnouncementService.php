@@ -36,7 +36,7 @@ class AnnouncementService
             'body' => 'required|string',
             'audience' => 'required|string|in:Group,Public',
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            // 'status' => 'nullable|string',
+            'status' => 'nullable|string',
             'published_at' => 'nullable|date',
         ]);
 
@@ -102,7 +102,7 @@ class AnnouncementService
         $announcement->update([
             "status" => $status
         ]);
-        if (StatusConstants::ACTIVE) {
+        if ($announcement->status === StatusConstants::ACTIVE) {
             $announcement->update([
                 'published_at' => now(),
             ]);

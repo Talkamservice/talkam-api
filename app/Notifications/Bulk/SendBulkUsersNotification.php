@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SendbulkUsersNotification extends Notification
+class SendbulkUsersNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -35,7 +35,6 @@ class SendbulkUsersNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data["title"])

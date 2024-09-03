@@ -42,7 +42,7 @@ class NotificationService
             'status' => 'nullable|string',
             'schedule_date' => 'nullable|date',
             'user_id' => [
-                'required_if:type,Single,Broadcast', // required for 'single' and 'multiple'
+                'required_if:type,Single', // required for 'single' and 'multiple'
                 'exists:users,id',
             ],
         ]);
@@ -76,7 +76,6 @@ class NotificationService
         }
 
         $sendAt = isset($data['schedule_date']) ? Carbon::parse($data['schedule_date']) : null;
-
         if ($sendAt?->isPast() || is_null($sendAt)) {
             MethodsHelper::dispatchJob(new SendUserNotificationJob($notification));
             $notification->update([
