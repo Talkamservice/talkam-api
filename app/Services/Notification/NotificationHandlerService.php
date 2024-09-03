@@ -87,7 +87,7 @@ class NotificationHandlerService
 
     public function notifyPostOwnerOfNewReaction($post_reaction)
     {
-        if ($this->can_receive_content_activities == 1) {
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
             Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
         }
 
@@ -100,7 +100,7 @@ class NotificationHandlerService
             return $this;
         }
 
-        if ($this->can_receive_content_activities == 1) {
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
             Notification::send($comment->user, new NewCommentMentionNotification($comment));
         }
 
@@ -109,7 +109,7 @@ class NotificationHandlerService
 
     public function notifyCommentOwnerOfNewReaction($comment_reaction)
     {
-        if ($this->can_receive_content_activities == 1) {
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
             Notification::send($comment_reaction->comment->post->user, new NewCommentReactionNotification($comment_reaction));
         }
 
