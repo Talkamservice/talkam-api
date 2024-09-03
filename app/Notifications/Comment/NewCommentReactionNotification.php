@@ -87,7 +87,11 @@ class NewCommentReactionNotification extends Notification
             ->unique("user_id")
             ->count();
 
-        $message = "{$action_by} and {$total_actions} others " . strtolower($this->comment_reaction->action) . " your comment.";
+        if ($total_actions == 0) {
+            $message = "{$action_by} " . strtolower($this->comment_reaction->action) . " your comment.";
+        } else {
+            $message = "{$action_by} and {$total_actions} others " . strtolower($this->comment_reaction->action) . " your comment.";
+        }
 
         return [
             'data' => [

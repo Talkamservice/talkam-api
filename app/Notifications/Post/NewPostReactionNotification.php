@@ -86,7 +86,11 @@ class NewPostReactionNotification extends Notification
             ->whereNot("user_id", $this->post_reaction->user_id)
             ->count();
 
-        $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . " your post.";
+        if ($total_actions == 0) {
+            $message = "{$action_by} " . strtolower($this->post_reaction->action) . " your post.";
+        }else {
+            $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . " your post.";
+        }
         return [
             'data' => [
                 'id' => $this->post_reaction->post_id,
