@@ -19,9 +19,13 @@ class AvatarTableSeeder extends Seeder
      */
     public function run()
     {
+        // Delete all existing avatars
+        Avatar::truncate();
+
         $avatar_files = array_merge(
-            File::files(public_path("samples/avatars")),
-            File::files(public_path("samples/additional_avatar"))
+            // File::files(public_path("samples/avatars")),
+            // File::files(public_path("samples/additional_avatar")),
+            File::files(public_path("samples/profile-avatars"))
         );
 
         foreach ($avatar_files as $key => $avatar_file) {
