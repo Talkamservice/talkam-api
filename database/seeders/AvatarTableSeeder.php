@@ -23,8 +23,6 @@ class AvatarTableSeeder extends Seeder
         Avatar::truncate();
 
         $avatar_files = array_merge(
-            // File::files(public_path("samples/avatars")),
-            // File::files(public_path("samples/additional_avatar")),
             File::files(public_path("samples/profile-avatars"))
         );
 
