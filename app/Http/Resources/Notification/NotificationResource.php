@@ -18,7 +18,7 @@ class NotificationResource extends JsonResource
         return [
             "id" => $this->id,
             "title" => $this->data["title"] ?? "",
-            "message" => $this->data["message"] ?? "",
+            "message" => strip_tags($this->data["message"]) ?? "",
             "type" => $this->data["type"] ?? "",
             "data_id" => $this->data["data"]["id"] ?? null,
             "extra" => $this->data["extra"] ?? [],

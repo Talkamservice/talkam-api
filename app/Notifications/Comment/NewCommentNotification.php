@@ -80,6 +80,8 @@ class NewCommentNotification extends Notification
         $commenter = $this->comment->user->username ?? $this->comment->user->full_name;
         $total_comments = $this->comment?->post?->comments()->whereNot("user_id", $this->comment->user_id)->distinct("user_id")->count();
 
+        $commenter = ($this->comment->is_anonymous == 1) ? "@Anonymous" : $commenter;
+        
         if ($total_comments == 0) {
             $message = "{$commenter} replied to your post.";
         }else {

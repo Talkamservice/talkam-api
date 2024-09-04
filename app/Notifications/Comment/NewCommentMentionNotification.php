@@ -78,14 +78,15 @@ class NewCommentMentionNotification extends Notification
 
     public function buildData($notifiable)
     {
-        $action_by = $this->comment->user->username ?? $this->comment->user->full_name;
-        $message = "{$action_by} replied: {$this->comment->repliedComment->user->getName()} $this->comment";
+        $commenter = ($this->comment->is_anonymous == 1) ? "@Anonymous" : $this->comment->user->username ?? $this->comment->user->full_name;
+        $reply_commenter = ($this->comment->repliedComment->is_anonymous == 1) ? "@Anonymous" : $this->comment->repliedComment->user->getName();
+        $message = "@{$commenter} replied: @{$reply_commenter} '{$this->comment->comment}'";
 
         return [
             'data' => [
                 'id' => $this->comment->post_id,
             ],
-            'title' => "New {$this->comment->action}",
+            'title' => "Comment thread",
             'message' => $message,
             'link' => null,
             'type' => 'mention',
