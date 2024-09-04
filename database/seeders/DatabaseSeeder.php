@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             CategoryTableSeeder::class,
             UserTableSeeder::class,
             PermissionTableSeeder::class,
-            AvatarTableSeeder::class
+            // AvatarTableSeeder::class
         ]);
     }
 }
