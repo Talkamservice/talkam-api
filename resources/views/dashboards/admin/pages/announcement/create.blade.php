@@ -61,13 +61,13 @@
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="audience" id="audience" class="form-control">
                                             <option value="" disabled selected>Select Audience</option>
-                                            <option value="Group"
-                                                {{ (old('audience') ?? ($announcement->audience ?? '')) == 'Group' ? 'selected' : '' }}>
-                                               Group
+                                            <option value="Group_Admins"
+                                                {{ (old('audience') ?? ($announcement->audience ?? '')) == 'Group_Admins' ? 'selected' : '' }}>
+                                               Group Admins
                                             </option>
-                                            <option value="Public"
-                                                {{ (old('audience') ?? ($announcement->audience ?? '')) == 'Public' ? 'selected' : '' }}>
-                                                Public
+                                            <option value="General"
+                                                {{ (old('audience') ?? ($announcement->audience ?? '')) == 'General' ? 'selected' : '' }}>
+                                                General
                                             </option>
                                         </select>
                                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Announcement;
 
+use App\Constants\Account\User\UserConstants;
 use App\Http\Resources\Users\UserResource;
 use App\Models\Group;
 use App\Models\User;
@@ -36,10 +37,14 @@ class AnnouncementResource extends JsonResource
 
     protected function getTargetedUsers()
     {
-        if ($this->audience === 'Group') {
-            // Return users belonging to a group
-            return Group::whereHas('members')->get();
-        } elseif ($this->audience === 'Public') {
+        if ($this->audience === 'Group_Admins') {
+            // Return users belonging to a group where the role is 'Admin'
+            return Group::whereHas('members', function ($query) {
+                $query->whereIn('role', [UserConstants::OWNER, UserConstants::ADMIN]);
+            })->with(['members' => function ($query) {
+                $query->whereIn('role', [UserConstants::OWNER, UserConstants::ADMIN]);
+            }])->get()->pluck('members')->flatten();
+        } elseif ($this->audience === 'General') {
             // Return all users (including those with and without a group)
             return User::all();
         } else {
