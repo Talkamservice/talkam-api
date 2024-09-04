@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User\Notification;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\StatusConstants;
 use App\Events\RefreshNotification;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Notification\NotificationPreferenceResource;
 use App\Http\Resources\Notification\NotificationResource;
 use App\Models\AppDatabaseNotification;
+use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
 use App\Services\Notification\NotificationPreferenceService;
@@ -132,13 +134,21 @@ class NotificationController extends Controller
     public function notificationStatus(Request $request)
     {
         try {
+            $request->validate([
+                "user_id" => "nullable|exists:users,id"
+            ]);
+
             $user = !empty($request->user_id) ? User::find($request->user_id) : auth()->user();
             $notifications = $user->notifications;
             $unread_messages = Message::where('receiver_id', $user->id)->where('read', false)->count();
+            $total_requests = Conversation::whereHas("otherMembers")->where("status", StatusConstants::AWAITING_RESPONSE)
+                ->whereNot('user_id', $user->id)->count();
+
             $data = [
                 "notifications" => $notifications->count(),
                 "unread_notifications" => $notifications->whereNull("read_at")->count(),
                 "unread_messages" => $unread_messages,
+                "total_requests" => $total_requests
             ];
             return ApiHelper::validResponse("Notification stats returned successfully", $data);
         } catch (ValidationException $th) {
