@@ -19,4 +19,13 @@ class ConversationMember extends Model
     {
         return $this->belongsTo(Conversation::class, "conversation_id");
     }
+
+    public function scopeSearch($query, $key)
+    {
+        $query->where(function ($query) use ($key) {
+            $query->whereHas("user", function ($user) use ($key) {
+                $user->search($key);
+            });
+        });
+    }
 }
