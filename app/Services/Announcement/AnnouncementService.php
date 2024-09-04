@@ -34,7 +34,7 @@ class AnnouncementService
         $validator = Validator::make($data, [
             'title' => 'required|string|max:255',
             'body' => 'required|string',
-            'audience' => 'required|string|in:Group,Public',
+            'audience' => 'required|string|in:Group_Admins,General',
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'status' => 'nullable|string',
             'published_at' => 'nullable|date',

@@ -47,18 +47,21 @@
                                         <tr>
                                             <td class="d-flex justify-content-center">
                                                 <span>
-                                                    <img src="{{ $announcement->banner_image }}" alt="" style="width: 50px; height:50px: border-radius:10px">
+                                                    <img src="{{ $announcement->banner_image }}" alt=""
+                                                        style="width: 50px; height:50px: border-radius:10px">
                                                 </span>
                                             </td>
                                             <td>
-                                                <span title="{{ $announcement->title }}">{{ Str::limit($announcement->title, 30) }}</span>
+                                                <span
+                                                    title="{{ $announcement->title }}">{{ Str::limit($announcement->title, 30) }}</span>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#announcementContent_{{ $announcement->body }}">
+                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#announcementContent_{{ $announcement->id }}">
                                                     View
                                                 </button>
                                             </td>
-                                            <td>{{ ucfirst($announcement->audience) }}</td>
+                                            <td> {{ ucwords(str_replace('_', ' ', strtolower($announcement->audience))) }}</td>
                                             <td>
                                                 <span class="badge bg-{{ pillClasses($announcement->status) }}-transparent">
                                                     {{ $announcement->status }}
@@ -67,7 +70,8 @@
                                             <td>{{ $announcement->published_at ?? 'N/A' }}</td>
                                             <td>
                                                 <div class="dropdown">
-                                                    <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <a class="btn btn-outline-primary dropdown-toggle" href="#"
+                                                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                         Actions
                                                     </a>
                                                     <ul class="dropdown-menu">
@@ -88,7 +92,8 @@
 
                                                         <li>
                                                             @if ($announcement->status !== $Active)
-                                                                <a class="dropdown-item" href="{{ route('admin.announcements.edit', $announcement->id) }}">
+                                                                <a class="dropdown-item"
+                                                                    href="{{ route('admin.announcements.edit', $announcement->id) }}">
                                                                     <i class="ri-edit-2-line"></i> | Edit
                                                                 </a>
                                                             @endif
@@ -96,11 +101,17 @@
 
                                                         @foreach ($statuses as $status => $details)
                                                             <li>
-                                                                <form id="updateStatus_{{ $status }}_{{ $announcement->id }}" action="{{ route('admin.announcements.update-status', $announcement->id) }}" method="POST"
+                                                                <form
+                                                                    id="updateStatus_{{ $status }}_{{ $announcement->id }}"
+                                                                    action="{{ route('admin.announcements.update-status', $announcement->id) }}"
+                                                                    method="POST"
                                                                     onsubmit="return confirm('Are you sure you want to {{ strtolower($details['label']) }}?')">
                                                                     @csrf
-                                                                    <input type="hidden" name="status" value="{{ $status }}">
-                                                                    <a class="dropdown-item {{ $details['class'] }}" onclick="event.preventDefault(); document.getElementById('updateStatus_{{ $status }}_{{ $announcement->id }}').submit()" href="#">
+                                                                    <input type="hidden" name="status"
+                                                                        value="{{ $status }}">
+                                                                    <a class="dropdown-item {{ $details['class'] }}"
+                                                                        onclick="event.preventDefault(); document.getElementById('updateStatus_{{ $status }}_{{ $announcement->id }}').submit()"
+                                                                        href="#">
                                                                         <i class="{{ $details['icon'] }}"></i> |
                                                                         {{ $details['label'] }}
                                                                     </a>
@@ -108,7 +119,8 @@
                                                             </li>
                                                         @endforeach
                                                         <li>
-                                                            <a class="dropdown-item text-danger" href="#" onclick="$('#deleteannouncementForm_{{ $announcement->id }}').submit()">
+                                                            <a class="dropdown-item text-danger" href="#"
+                                                                onclick="$('#deleteannouncementForm_{{ $announcement->id }}').submit()">
                                                                 <i class="ri-delete-bin-line"></i> | Delete
                                                             </a>
                                                         </li>
@@ -117,14 +129,19 @@
                                             </td>
                                         </tr>
                                         <!-- Hidden Delete Form -->
-                                        <form id="deleteannouncementForm_{{ $announcement->id }}" action="{{ route('admin.announcements.destroy', $announcement->id) }}" method="POST" style="display: none;">
+                                        <form id="deleteannouncementForm_{{ $announcement->id }}"
+                                            action="{{ route('admin.announcements.destroy', $announcement->id) }}"
+                                            method="POST" style="display: none;">
                                             @csrf
                                             @method('DELETE')
                                         </form>
-                                        @include('dashboards.admin.pages.bulk-messages.modal.notification_content_modal', [
-                                            'modalKey' => "announcementContent_$announcement->id",
-                                            "modalContent" => $announcement->body
-                                        ])
+                                        @include(
+                                            'dashboards.admin.pages.bulk-messages.modal.notification_content_modal',
+                                            [
+                                                'modalKey' => "announcementContent_$announcement->id",
+                                                'modalContent' => $announcement->body,
+                                            ]
+                                        )
                                     @endforeach
                                 </tbody>
                             </table>
