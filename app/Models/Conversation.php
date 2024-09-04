@@ -51,7 +51,7 @@ class Conversation extends Model
                 $receiver->search($search);
             })->orWhereHas("messages", function ($message) use ($search) {
                 $message->search($search);
-            })->orWhereHas("otherMembers", function ($member) use ($search) {
+            })->orWhereHas("members", function ($member) use ($search) {
                 $member->search($search);
             });
         });

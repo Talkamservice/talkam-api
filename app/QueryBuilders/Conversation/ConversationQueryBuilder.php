@@ -22,10 +22,6 @@ class ConversationQueryBuilder
             $builder = $builder->where("status", $key);
         }
 
-        if (!empty($key = $data["search"] ?? null)) {
-            $builder = $builder->search($key);
-        }
-
         $user = auth()->user();
         if (!empty($key = $data["tab"] ?? null)) {
             $builder = $builder->where("status", StatusConstants::AWAITING_RESPONSE)
@@ -35,6 +31,10 @@ class ConversationQueryBuilder
                 ->orWhereHas("members", function ($query) use ($user) {
                     $query->where("user_id", $user->id);
                 })->whereNot("status", StatusConstants::AWAITING_RESPONSE);
+        }
+
+        if (!empty($key = $data["search"] ?? null)) {
+            $builder = $builder->search($key);
         }
 
         return $builder;
