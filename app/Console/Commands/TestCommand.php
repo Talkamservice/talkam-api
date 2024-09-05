@@ -2,6 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
+use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Console\Command;
 
 class TestCommand extends Command
@@ -25,6 +28,18 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        //
+        (new ActivityLogService)
+            ->setEvent("deleted")
+            ->setTitle("Client Removal")
+            ->setDescription((auth("admin")->user()?->name . " deleted a client"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::DELETED_CLIENT)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth("admin")->user()->id)
+            ->setData([
+                "client" => $user->refresh()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
     }
 }

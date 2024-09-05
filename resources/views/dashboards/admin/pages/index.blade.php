@@ -25,7 +25,7 @@
             <div class="col-xxl-12 col-xl-12">
                 <div class="row">
                     @foreach ($cards as $card)
-                        <div class="col-xxl-6 col-lg-6 col-md-6">
+                        <div class="col-xxl-3 col-lg-3 col-md-6">
                             <div class="card custom-card overflow-hidden">
                                 <div class="card-body">
                                     <div class="d-flex align-items-top justify-content-between">
