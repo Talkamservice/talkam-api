@@ -24,7 +24,7 @@ class ConversationQueryBuilder
 
         $user = auth()->user();
         if (!empty($key = $data["tab"] ?? null)) {
-            $builder = $builder->where("status", StatusConstants::AWAITING_RESPONSE)
+            $builder = $builder->whereHas("messages")->where("status", StatusConstants::AWAITING_RESPONSE)
                 ->whereNot('user_id', $user->id);
         } else {
             $builder->where("user_id", $user->id)

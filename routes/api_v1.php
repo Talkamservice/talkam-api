@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
+use App\Http\Controllers\Api\V1\Feedback\FeedbackController;
 use App\Http\Controllers\Api\V1\General\AuthController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\Web\FaqController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
 use App\Http\Controllers\Api\V1\User\Web\TermAndConditionController;
+use App\Http\Controllers\Api\V1\Waitlist\WaitlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -183,13 +185,14 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("thread/add", [NotificationController::class, "sendThreadNotification"])->name("send-thread-notification");
             Route::get("get-notification-status", [NotificationController::class, "notificationStatus"])->name("get-notification-status");
         });
-
-        Route::get("/terms-and-conditions", [TermAndConditionController::class, "index"])->name("terms-and-conditions.list");
-        Route::get("/privacy-policies", [PrivacyPolicyController::class, "index"])->name("privacy-policies.list");
-        // Route::post("contact-us", [ContactUsController::class, "save"])->name("save");
-        Route::get("faqs", [FaqController::class, "index"])->name("faqs.index");
     });
 });
+
+Route::get("user/terms-and-conditions", [TermAndConditionController::class, "index"])->name("terms-and-conditions.list");
+Route::get("user/privacy-policies", [PrivacyPolicyController::class, "index"])->name("privacy-policies.list");
+Route::post("user/feedback", [FeedbackController::class, "save"])->name("feedback.save");
+Route::get("user/faqs", [FaqController::class, "index"])->name("faqs.index");
+Route::post("user/waitlist/save", [WaitlistController::class,  "save"])->name("waitlist.save");
 
 //Guest mode
 Route::prefix('user')->as('user.')->group(function () {
