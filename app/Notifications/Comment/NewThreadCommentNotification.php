@@ -91,7 +91,7 @@ class NewThreadCommentNotification extends Notification
 
         return [
             'data' => [
-                'id' => $this->comment->id,
+                'id' => $this->comment?->post_id,
             ],
             'title' => "New Comment",
             'message' => $message,
