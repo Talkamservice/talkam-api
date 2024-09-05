@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("admin_id")->constrained("admins")->cascadeOnDelete();
+            $table->foreignId("admin_id")->constrained("users")->cascadeOnDelete();
             $table->string("title");
             $table->string("channel")->nullable();
             $table->string("model")->nullable();
