@@ -19,7 +19,13 @@ class ActivityLogConstants
     const EVENT_PRINTED = "printed";
     const EVENT_ESCALATED = "escalated";
     const EVENT_COMPLETED = "completed";
-    const EVENT_STRIKED = "striked";
+    const EVENT_HIDE_POST = "striked";
+    const EVENT_STRIKED = "hide_post";
+    const EVENT_POST_RESTORE = "restore_post";
+    const EVENT_DATA_ERASED = "data_erased";
+    const USER_ACCOUNT_DELETED = "account_deleted";
+    const SUSPEND_USER = "suspend";
+   
 
     const EVENTS = [
         self::EVENT_ACCEPTED,
@@ -38,6 +44,11 @@ class ActivityLogConstants
         self::EVENT_COMPLETED,
         self::EVENT_ESCALATED,
         self::EVENT_STRIKED,
+        self::EVENT_HIDE_POST,
+        self::EVENT_POST_RESTORE,
+        self:: EVENT_DATA_ERASED,
+        self::USER_ACCOUNT_DELETED,
+        self::SUSPEND_USER,
     ];
 
     const CHANNEL_DEFAULT = "default";
