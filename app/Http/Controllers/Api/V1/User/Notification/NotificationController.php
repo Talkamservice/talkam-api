@@ -37,7 +37,7 @@ class NotificationController extends Controller
             if (!empty($tab = $request->tab)) {
                 if ($tab == "system_admin") {
                     $builder = $builder->whereJsonContains('data->type', 'notification');
-                } else if ($tab == 'message') {
+                } else if ($tab == 'conversation') {
                     $builder = $builder->whereJsonContains('data->type', 'conversation');
                 } elseif ($tab == 'post_activity') {
                     $builder = $builder->whereNotIn('data->type', ['notification', 'conversation']);
