@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Comment;
 
+use App\Http\Resources\Post\PostAttachmentResource;
 use App\Http\Resources\Post\PostCommentResource;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
@@ -88,6 +89,7 @@ class NewThreadCommentReactionNotification extends Notification
             'batch_no' => null,
             "extra" => [
                 "comment" => PostCommentResource::custom($this->comment_reaction->comment),
+                "post_attachements" => !empty($this->comment_reaction?->comment?->post?->attachments) ? PostAttachmentResource::collection($this->comment_reaction?->comment?->post?->attachments) : null
             ]
         ];
     }
