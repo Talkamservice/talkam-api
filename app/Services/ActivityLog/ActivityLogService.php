@@ -183,7 +183,7 @@ class ActivityLogService
             "channel" => "nullable|string|" . Rule::in(ActivityLogConstants::CHANNELS),
             "model" => "nullable|string",
             "model_id" => "nullable|int|required_with:model",
-            "admin_id" => "required|exists:admins,id",
+            "admin_id" => "required|exists:users,id",
             "current_data" => "nullable|array",
             "previous_data" => "nullable|array",
             "metadata" => "nullable|array",
