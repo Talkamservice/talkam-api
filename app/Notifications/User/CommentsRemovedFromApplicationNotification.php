@@ -93,7 +93,7 @@ class CommentsRemovedFromApplicationNotification extends Notification
     {
         return [
             'data' => [
-                'id' => $this->reported_comment->comment_id,
+                'id' => $this->reported_comment->comment?->post_id,
             ],
             'title' => 'Comment Removed Notification',
             'message' => 'Your comment has been removed completely due to a guideline violation. For the safety of our community, deleted comments cannot be undone.',

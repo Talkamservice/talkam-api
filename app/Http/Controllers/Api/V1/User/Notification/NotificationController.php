@@ -34,8 +34,14 @@ class NotificationController extends Controller
             $user = auth()->user();
             $builder = AppDatabaseNotification::where(["notifiable_type" => User::class, "notifiable_id" => $user->id]);
 
-            if (!empty($request->tab) && $request->tab == "mention") {
-                $builder = $builder->whereJsonContains('data->type', 'mention');
+            if (!empty($tab = $request->tab)) {
+                if ($tab == "system_admin") {
+                    $builder = $builder->whereJsonContains('data->type', 'notification');
+                } else if ($tab == 'message') {
+                    $builder = $builder->whereJsonContains('data->type', 'conversation');
+                } elseif ($tab == 'post_activity') {
+                    $builder = $builder->whereNotIn('data->type', ['notification', 'conversation']);
+                }
             }
 
             $notifications = $builder->latest()->get();
