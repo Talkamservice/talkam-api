@@ -185,7 +185,6 @@ class ActivityLogService
             "model" => "nullable|string",
             "model_id" => "nullable|int|required_with:model",
             "admin_id" => "required|exists:users,id",
-            "current_data" => "nullable|array",
             "previous_data" => "nullable|array",
             "metadata" => "nullable|array",
             "url" => "nullable",
@@ -203,16 +202,6 @@ class ActivityLogService
         }
 
         return $validator->validated();
-    }
-
-    private function validateAdminID($attribute, $value, $fail){
-            // Check if admin_id exists in admins table
-            $existsInAdmins = DB::table('admins')->where('id', $value)->exists();
-            
-            // If not found in admins, check in users table
-            if (!$existsInAdmins && !DB::table('users')->where('id', $value)->exists()) {
-                $fail('The selected admin_id is not valid.');
-            }
     }
 
     /**

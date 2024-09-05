@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
 use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\Faq\FaqCategoryController;
 use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
@@ -38,7 +39,8 @@ Route::middleware(["auth"])->group(
             'guidelines'=> GuidelineController::class,
             "terms-and-conditions" => TermAndConditionController::class,
             "privacy-policies" => PrivacyPolicyController::class,
-            "faqs" => FaqController::class
+            "faqs" => FaqController::class,
+            "faq-categories" => FaqCategoryController::class
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {
