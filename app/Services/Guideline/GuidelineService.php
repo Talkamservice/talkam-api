@@ -57,7 +57,7 @@ class GuidelineService
 
     public static function list(array $data = [])
     {
-        $builder = SendBulkNotification::latest();
+        $builder = Guideline::latest();
         if (!empty($key = $data["group_id"] ?? null)) {
             $builder = $builder->where("group_id", $key);
         } else {
