@@ -19,6 +19,7 @@ class ActivityLogConstants
     const EVENT_PRINTED = "printed";
     const EVENT_ESCALATED = "escalated";
     const EVENT_COMPLETED = "completed";
+    const EVENT_STRIKED = "striked";
 
     const EVENTS = [
         self::EVENT_ACCEPTED,
@@ -35,7 +36,8 @@ class ActivityLogConstants
         self::EVENT_PRINTED,
         self::EVENT_RECEIVED,
         self::EVENT_COMPLETED,
-        self::EVENT_ESCALATED
+        self::EVENT_ESCALATED,
+        self::EVENT_STRIKED,
     ];
 
     const CHANNEL_DEFAULT = "default";

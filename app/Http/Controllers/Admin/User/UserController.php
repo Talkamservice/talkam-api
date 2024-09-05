@@ -134,7 +134,7 @@ class UserController extends Controller
             return back()
                 ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            // throw $th;
+            throw $th;
             return back()->withInput($request->all())
                 ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
         }

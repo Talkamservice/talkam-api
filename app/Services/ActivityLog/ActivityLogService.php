@@ -4,6 +4,7 @@ namespace App\Services\ActivityLog;
 
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Models\ActivityLog;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -202,6 +203,16 @@ class ActivityLogService
         }
 
         return $validator->validated();
+    }
+
+    private function validateAdminID($attribute, $value, $fail){
+            // Check if admin_id exists in admins table
+            $existsInAdmins = DB::table('admins')->where('id', $value)->exists();
+            
+            // If not found in admins, check in users table
+            if (!$existsInAdmins && !DB::table('users')->where('id', $value)->exists()) {
+                $fail('The selected admin_id is not valid.');
+            }
     }
 
     /**

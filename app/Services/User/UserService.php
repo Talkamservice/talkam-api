@@ -3,6 +3,8 @@
 namespace App\Services\User;
 
 use App\Constants\Account\User\UserConstants;
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
@@ -15,7 +17,9 @@ use App\Notifications\User\PostsRemovedFromApplicationNotification;
 use App\Notifications\User\PostSuspensionNotification;
 use App\Notifications\User\StrikeUserNotification;
 use App\Notifications\User\SuspendUserNotification;
+use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -240,7 +244,27 @@ class UserService
         $user->increment("strike");
 
         Notification::send($user, new StrikeUserNotification($user));
+
+        // $admin = auth()->user()->id;
+        // dd($admin);
+       $activity_log = (new ActivityLogService)
+        ->setEvent("striked")
+        ->setTitle("User Striked")
+        ->setDescription((auth("admin")->user()?->name . " strike a user"))
+        ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+        ->setActivity(ActivitiesConstants::STRIKED_USER)
+        ->setModel(User::class, $user->id)
+        ->setAdmin(auth()->user()->id)
+        ->setData([
+            "User" => $user->refresh()->toArray(),
+        ])
+        ->setUrl(request()->fullUrl())
+        ->log();
+
+        dd($activity_log);
+
         return $user->refresh();
+
     }
 
     public function hidePost(Request $request, $id)
