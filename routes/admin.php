@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
 use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\Faq\FaqCategoryController;
 use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Feedback\FeedbackController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
@@ -40,6 +41,7 @@ Route::middleware(["auth"])->group(
             "terms-and-conditions" => TermAndConditionController::class,
             "privacy-policies" => PrivacyPolicyController::class,
             "faqs" => FaqController::class,
+            "faq-categories" => FaqCategoryController::class,
             "feedbacks" => FeedbackController::class
         ]);
 

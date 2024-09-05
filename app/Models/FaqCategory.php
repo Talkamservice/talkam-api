@@ -6,7 +6,7 @@ use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Faq extends Model
+class FaqCategory extends Model
 {
     use HasFactory;
 
@@ -18,8 +18,8 @@ class Faq extends Model
 
     }
 
-    public function category()
+    public function faq()
     {
-        return $this->belongsTo(FaqCategory::class, 'faq_category_id');
+        return $this->hasMany(Faq::class, 'faq_category_id');
     }
 }

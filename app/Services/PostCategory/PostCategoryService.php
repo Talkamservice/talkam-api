@@ -2,6 +2,8 @@
 
 namespace App\Services\PostCategory;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
 use App\Constants\Media\FileConstants;
 use App\Exceptions\General\InvalidRequestException;
@@ -9,7 +11,9 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Group;
 use App\Models\MergeCategory;
 use App\Models\PostCategory;
+use App\Models\User;
 use App\Models\UserInterest;
+use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\Media\FileService;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +68,20 @@ class PostCategoryService
         }
 
         $category = PostCategory::create($data);
+
+        (new ActivityLogService)
+            ->setEvent("created")
+            ->setTitle("Category Created")
+            ->setDescription((auth()->user()?->name . " create a category"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::CATEGORY_CREATED)
+            ->setModel(PostCategory::class, $category->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "Post Category" => $category->refresh()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
         return $category;
     }
 
@@ -71,7 +89,7 @@ class PostCategoryService
     {
         $data = self::validate($data, $id);
         $category = self::getById($id);
-
+        $old_category = $category;
         if (!empty($background_image = $data["image"] ?? null)) {
             $data["image"] = $this->file_service->saveFromFileIntoStorage($background_image, FileConstants::CATEGORY_PATH, null, auth()->id());
         }
@@ -81,6 +99,22 @@ class PostCategoryService
         }
 
         $category->update($data);
+
+        (new ActivityLogService)
+            ->setEvent("updated")
+            ->setTitle("Category Updated")
+            ->setDescription((auth()->user()?->name . " updated a category"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::CATEGORY_UPDATED)
+            ->setModel(PostCategory::class, $category->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "Old Category Data" => $old_category->toArray()
+            ], [
+                "Category" => $category->refresh()->toArray()
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
         return $category->refresh();
     }
 
@@ -89,8 +123,22 @@ class PostCategoryService
         DB::beginTransaction();
         try {
             $category = self::getById($category_id);
+            $deleted_category = $category;
             $category->delete();
             DB::commit();
+            (new ActivityLogService)
+                ->setEvent("deleted")
+                ->setTitle("Category Deleted")
+                ->setDescription((auth()->user()?->name . " delete a category"))
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::CATEGORY_DELETED)
+                ->setModel(PostCategory::class, $category->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData([
+                    "Category" =>  $deleted_category->refresh()->toArray()
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -208,7 +256,7 @@ class PostCategoryService
         $groups = Group::where("category_id", $parent_category->id)->withCount("members")->status()->get();
         return $groups->map(function ($group) use ($parent_category) {
             return [
-                "id" => $group->id, 
+                "id" => $group->id,
                 "type" => "Group",
                 "name" => $group->name,
                 "followers_count" => $group->members_count,

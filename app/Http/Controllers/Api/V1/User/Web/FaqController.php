@@ -6,7 +6,9 @@ use App\Constants\General\ApiConstants;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Faq\FaqResource;
+use App\Http\Resources\FaqCategory\FaqCategoryResource;
 use App\Models\Faq;
+use App\Models\FaqCategory;
 use App\Services\Faq\FaqService;
 use Exception;
 use Illuminate\Http\Request;
@@ -23,8 +25,8 @@ class FaqController extends Controller
     public function index(Request $request)
     {
         try {
-            $faqs = Faq::status()->get();
-            $data = FaqResource::collection($faqs);
+            $faqs = FaqCategory::status()->get();
+            $data = FaqCategoryResource::collection($faqs);
             return ApiHelper::validResponse("Faqs returned successfully", $data);
         } catch (Exception $e) {
             //throw $th;

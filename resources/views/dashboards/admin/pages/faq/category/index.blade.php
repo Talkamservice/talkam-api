@@ -4,11 +4,12 @@
 
         <!-- Page Header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-            <h1 class="page-title fw-semibold fs-18 mb-0">Faqs</h1>
+            <h1 class="page-title fw-semibold fs-18 mb-0">Faq Categories</h1>
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="#">Faqs</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.faqs.index')}}">Faqs</a></li>
+                        <li class="breadcrumb-item"><a href="#">Categories</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Index</li>
                     </ol>
                 </nav>
@@ -31,9 +32,8 @@
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
-                    <div class="pr-2">
-                        <a href="{{ route('admin.faqs.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
-                        <a href="{{ route('admin.faq-categories.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Add Category</span></a>
+                    <div class="">
+                        <a href="{{ route('admin.faq-categories.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -41,30 +41,26 @@
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
                                 <tr>
-                                    <th scope="col">Question</th>
-                                    <th scope="col">Answer</th>
-                                    <th scope="col">Category</th>
+                                    <th scope="col">NAMe</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($faqs as $faq)
+                                @forelse ($faq_categories as $faq_category)
                                     <tr>
-                                        <td>{{ $faq->question }}</td>
-                                        <td>{{ str_limit($faq->answer) }}</td>
-                                        <td>{{ str_limit($faq->category->name) }}</td>
+                                        <td>{{ $faq_category->question }}</td>
                                         <td>
-                                            <span class="badge bg-{{ pillClasses($faq->status) }}-transparent">
-                                                {{ $faq->status }}
+                                            <span class="badge bg-{{ pillClasses($faq_category->status) }}-transparent">
+                                                {{ $faq_category->status }}
                                             </span>
                                         </td>
-                                        <td>{{ $faq->created_at->format('Y-m-d h:i A') }}</td>
+                                        <td>{{ $faq_category->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor" href="{{ route('admin.faqs.edit', $faq->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                <form action="{{ route('admin.faqs.destroy', $faq->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
+                                                <a aria-label="anchor" href="{{ route('admin.faq-categories.edit', $faq_category->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
+                                                <form action="{{ route('admin.faq-categories.destroy', $faq_category->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
                                                     <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
                                                 </form>
                                             </div>

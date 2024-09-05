@@ -4,6 +4,7 @@ namespace App\Services\ActivityLog;
 
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Models\ActivityLog;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -184,7 +185,6 @@ class ActivityLogService
             "model" => "nullable|string",
             "model_id" => "nullable|int|required_with:model",
             "admin_id" => "required|exists:users,id",
-            "current_data" => "nullable|array",
             "previous_data" => "nullable|array",
             "metadata" => "nullable|array",
             "url" => "nullable",
