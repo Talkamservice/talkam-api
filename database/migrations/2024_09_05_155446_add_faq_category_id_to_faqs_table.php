@@ -12,17 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('faqs', function (Blueprint $table) {
-            $table->foreignId('faq_category_id')->nullable()->after('id')->constrained('faqs')->cascadeOnDelete();
+            $table->foreignId('faq_category_id')->nullable()->after('id')->constrained('faq_categories')->cascadeOnDelete();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
         Schema::table('faqs', function (Blueprint $table) {
-           $table->dropColumn('faq_category_id');
+            // First drop the foreign key constraint
+            // $table->dropForeign(['faq_category_id']);
+            
+            // Then drop the column
+            $table->dropColumn('faq_category_id');
         });
     }
+    
 };
