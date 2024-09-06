@@ -41,7 +41,7 @@ class FeedbackController extends Controller
         try {
             $feedback = $this->feedback_service->create($request->all());
             $data = FeedbackResource::make($feedback);
-            return ApiHelper::validResponse("Feedback suubmitted successfully");
+            return ApiHelper::validResponse("Feedback submitted successfully");
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE,  $request, $e);
         } catch (ModelNotFoundException $e) {
