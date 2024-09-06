@@ -51,7 +51,6 @@ class WaitlistService
             $waitlist = Waitlist::create([
                 "name" => $data["name"],
                 "email" => $data["email"],
-                "has_notified_admin" => 1
             ]);
 
             // AppMailerService::send([

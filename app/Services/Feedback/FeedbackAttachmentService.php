@@ -46,7 +46,8 @@ class FeedbackAttachmentService
         $data = self::validate($data);
 
         if (!empty($file = $data["file"] ?? null)) {
-            $data["file"] = $this->file_service->saveFromFileIntoStorage($file, FileConstants::CATEGORY_PATH, null, auth()->id());
+            $data["url"] = $this->file_service->saveFromFileIntoStorage($file, FileConstants::CATEGORY_PATH, null, auth()->id());
+            unset($data["file"]);
         }
 
         $post = FeedbackAttachment::create($data);
