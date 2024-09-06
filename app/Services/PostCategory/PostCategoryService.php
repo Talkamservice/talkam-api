@@ -72,7 +72,7 @@ class PostCategoryService
         (new ActivityLogService)
             ->setEvent("created")
             ->setTitle("Category Created")
-            ->setDescription((auth()->user()?->name . " create a category"))
+            ->setDescription((auth()->user()?->full_name . " create a category"))
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CATEGORY_CREATED)
             ->setModel(PostCategory::class, $category->id)
@@ -87,9 +87,14 @@ class PostCategoryService
 
     public function update(array $data, $id)
     {
+        // Validate the data and find the category by ID
         $data = self::validate($data, $id);
         $category = self::getById($id);
-        $old_category = $category;
+
+        // Capture old category data before the update
+        $old_category_data = $category;
+
+        // Handle image updates if provided
         if (!empty($background_image = $data["image"] ?? null)) {
             $data["image"] = $this->file_service->saveFromFileIntoStorage($background_image, FileConstants::CATEGORY_PATH, null, auth()->id());
         }
@@ -98,25 +103,31 @@ class PostCategoryService
             $data["icon_image"] = $this->file_service->saveFromFileIntoStorage($icon_image, FileConstants::CATEGORY_PATH, null, auth()->id());
         }
 
+        // Update the category with the new data
         $category->update($data);
 
+        // Refresh the category to get the latest data after the update
+        $new_category_data = $category;
+
+        // Log the activity
         (new ActivityLogService)
             ->setEvent("updated")
             ->setTitle("Category Updated")
-            ->setDescription((auth()->user()?->name . " updated a category"))
+            ->setDescription(auth()->user()?->full_name . " updated a category")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CATEGORY_UPDATED)
             ->setModel(PostCategory::class, $category->id)
             ->setAdmin(auth()->user()->id)
-            ->setData([
-                "Old Category Data" => $old_category->toArray()
-            ], [
-                "Category" => $category->refresh()->toArray()
-            ])
+            ->setData(
+                ["Old Category Data" => $old_category_data->toArray()],
+                ["Category" => $new_category_data->refresh()->toArray()]
+            )
             ->setUrl(request()->fullUrl())
             ->log();
-        return $category->refresh();
+
+        return $category;
     }
+
 
     public static function delete($category_id)
     {
@@ -129,13 +140,13 @@ class PostCategoryService
             (new ActivityLogService)
                 ->setEvent("deleted")
                 ->setTitle("Category Deleted")
-                ->setDescription((auth()->user()?->name . " delete a category"))
+                ->setDescription((auth()->user()?->full_name . " delete a category"))
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::CATEGORY_DELETED)
                 ->setModel(PostCategory::class, $category->id)
                 ->setAdmin(auth()->user()->id)
                 ->setData([
-                    "Category" =>  $deleted_category->refresh()->toArray()
+                    "Category" =>  $deleted_category->toArray()
                 ])
                 ->setUrl(request()->fullUrl())
                 ->log();

@@ -203,6 +203,13 @@
                 <li class="slide__category list-head-cont"><span class="category-name list-head">SETTINGS</span></li>
 
                 <li class="slide">
+                    <a href="{{ route('admin.activity-logs.index') }}" class="side-menu__item list-item">
+                        <i class="bx bx-user side-menu__icon list-item-icon"></i>
+                        <span class="side-menu__label list-item-label">Activity Logs</span>
+                    </a>
+                </li>
+
+                <li class="slide">
                     <a href="{{ route('admin.avatars.index') }}" class="side-menu__item list-item">
                         <i class="bx bx-user side-menu__icon list-item-icon"></i>
                         <span class="side-menu__label list-item-label">Avatars</span>

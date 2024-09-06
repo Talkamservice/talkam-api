@@ -2,11 +2,14 @@
 
 namespace App\Services\Announcement;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
 use App\Constants\Media\FileConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Announcement;
+use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Media\FileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -59,11 +62,41 @@ class AnnouncementService
 
         if ($id) {
             $announcement = self::getById($id);
+            $old_announcement = $announcement;
             // Update the announcement with validated data
             $announcement->update($data);
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("updated")
+                ->setTitle("Announcement Updated")
+                ->setDescription(auth()->user()?->full_name . " updated an announcement")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::ANNOUNCEMENT_UPDATED)
+                ->setModel(Announcement::class, $announcement->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(
+                    ["Old Announcement" =>  $old_announcement->toArray()],
+                    ["Announcement" => $announcement->refresh()->toArray()]
+                )
+                ->setUrl(request()->fullUrl())
+                ->log();
         } else {
             // Create new announcement
             $announcement = Announcement::create($data);
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("created")
+                ->setTitle("Announcement Created")
+                ->setDescription(auth()->user()?->full_name . " created an announcement")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::ANNOUNCEMENT_CREATED)
+                ->setModel(Announcement::class, $announcement->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(
+                    ["Announcement" => $announcement->refresh()->toArray()]
+                )
+                ->setUrl(request()->fullUrl())
+                ->log();
         }
         return $announcement;
     }
@@ -88,7 +121,22 @@ class AnnouncementService
     public static function delete(string $id)
     {
         $announcement = self::getById($id);
+        $old_announcement = $announcement;
         $announcement->delete();
+
+        (new ActivityLogService)
+            ->setEvent("updated")
+            ->setTitle("Announcement Deleted")
+            ->setDescription(auth()->user()?->full_name . " deleted an announcement")
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::ANNOUNCEMENT_DELETED)
+            ->setModel(Announcement::class, $announcement->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData(
+                ["Old Announcement" =>  $old_announcement->toArray()],
+            )
+            ->setUrl(request()->fullUrl())
+            ->log();
     }
 
     public function changeStatus(Request $request, $id)
@@ -99,6 +147,7 @@ class AnnouncementService
         }
 
         $announcement = $this->getById($id);
+        $old_announcement = $announcement;
         $announcement->update([
             "status" => $status
         ]);
@@ -107,5 +156,19 @@ class AnnouncementService
                 'published_at' => now(),
             ]);
         }
+        (new ActivityLogService)
+            ->setEvent("updated")
+            ->setTitle("Announcement Status Changed")
+            ->setDescription(auth()->user()?->full_name . " changed announcement status")
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::ANNOUNCEMENT_UPDATED)
+            ->setModel(Announcement::class, $announcement->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData(
+                ["Old Announcement" =>  $old_announcement->toArray()],
+                ["Announcement" =>  $announcement->refresh()->toArray()]
+            )
+            ->setUrl(request()->fullUrl())
+            ->log();
     }
 }

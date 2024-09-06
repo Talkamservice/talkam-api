@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLog\ActivityLogController;
 use App\Http\Controllers\Admin\Announcement\AnnouncementController;
 use App\Http\Controllers\Admin\Authorization\PermissionController;
 use App\Http\Controllers\Admin\Authorization\RoleController;
@@ -122,5 +123,7 @@ Route::middleware(["auth"])->group(
 
         Route::resource('announcements', AnnouncementController::class);
         Route::post('announcements/update-status/{id}', [AnnouncementController::class, 'changeStatus'])->name('announcements.update-status');
+
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     }
 );

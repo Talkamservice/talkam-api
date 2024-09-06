@@ -230,4 +230,10 @@ class ActivityLogService
         $data = $this->sanitize($data);
         return ActivityLog::create($data);
     }
+
+    public function list()
+    {
+        $builder = ActivityLog::latest();
+        return $builder;
+    }
 }
