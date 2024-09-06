@@ -54,7 +54,7 @@
                                     <tr>
                                         <td>{{ $faq->question }}</td>
                                         <td>{{ str_limit($faq->answer) }}</td>
-                                        <td>{{ str_limit($faq->category->name) }}</td>
+                                        <td>{{ str_limit($faq->category->name ?? "N/A") }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($faq->status) }}-transparent">
                                                 {{ $faq->status }}
