@@ -22,11 +22,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('faqs', function (Blueprint $table) {
-            // First drop the foreign key constraint
-            // $table->dropForeign(['faq_category_id']);
-            
-            // Then drop the column
-            $table->dropColumn('faq_category_id');
+            if (Schema::hasColumns("faqs", ["faq_category_id"])) {
+                $table->dropConstrainedForeignId('faq_category_id');
+            }
         });
     }
     
