@@ -3,6 +3,8 @@
 namespace App\Services\User;
 
 use App\Constants\Account\User\UserConstants;
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
@@ -15,7 +17,9 @@ use App\Notifications\User\PostsRemovedFromApplicationNotification;
 use App\Notifications\User\PostSuspensionNotification;
 use App\Notifications\User\StrikeUserNotification;
 use App\Notifications\User\SuspendUserNotification;
+use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -94,7 +98,19 @@ class UserService
                 "avatar" => $avatar
             ]);
         }
-
+        (new ActivityLogService)
+            ->setEvent("created")
+            ->setTitle("User Account Updated")
+            ->setDescription((auth()->user()?->full_name . " create A user account"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::CREATED_USER_ACCOUNT)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "User Data" => $user->refresh()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
         return $user;
     }
 
@@ -133,7 +149,9 @@ class UserService
             }
 
             $data = $validator->validated();
-
+            // Capture old user data before update
+            $user = !empty($id) ? $this->getById($id) : auth()->user();
+            $oldUserData = $user;
 
             $names = isset($data["name"]) ? self::getNames($data["name"]) : [];
             $user = !empty($id) ? $this->getById($id) : auth()->user();
@@ -156,6 +174,22 @@ class UserService
 
             $user->update(array_merge($data, $names));
 
+            (new ActivityLogService)
+                ->setEvent("updated")
+                ->setTitle("User Account Updated")
+                ->setDescription((auth()->user()?->full_name . " update their account"))
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::UPDATED_USER_ACCOUNT)
+                ->setModel(User::class, $user->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData([
+                    "Old User Data" =>  $oldUserData->toArray(),
+                ], [
+                    "User Data" => $user->refresh()->toArray(),
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
+
             DB::commit();
             return $user->refresh();
         } catch (\Throwable $th) {
@@ -169,19 +203,37 @@ class UserService
         DB::beginTransaction();
         try {
             $user = auth()->user();
+            $erased_user_account = $user;
             $this->clearUserData($user);
             DB::commit();
+
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("data_erased")
+                ->setTitle("User Data Erased")
+                ->setDescription((auth()->user()?->full_name . " erased their data"))
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::ERASED_USER_DATA)
+                ->setModel(User::class, $user->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData([
+                    "User" => $erased_user_account->refresh()->toArray(),
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
 
+
     public function deleteAccount(array $data)
     {
         DB::beginTransaction();
         try {
             $user = auth()->user();
+            $deleted_user_account = $user;
             $this->clearUserData($user);
 
             AccountDeactivation::create([
@@ -193,24 +245,57 @@ class UserService
 
             $user->forceDelete();
             DB::commit();
+
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("account_deleted")
+                ->setTitle("User Account Deleted")
+                ->setDescription((auth()->user()?->full_name . " deleted their account"))
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::DELETED_USER_ACCOUNT)
+                ->setModel(User::class, $user->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData([
+                    "User" =>  $deleted_user_account->refresh()->toArray(),
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
 
+
     public function delete($id)
     {
         DB::beginTransaction();
         try {
             $user = $this->getById($id);
+            $oldUserData = $user;
             $this->clearUserData($user);
             $user->forceDelete();
+
+            (new ActivityLogService)
+            ->setEvent("deleted")
+            ->setTitle("User Deleted")
+            ->setDescription((auth()->user()?->full_name . " delete a user"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::DELETED_USER)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "User" =>  $oldUserData->toArray(),
+                "User" => $user->refresh()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
+
     }
 
     public function clearUserData($user)
@@ -231,6 +316,21 @@ class UserService
         ]);
 
         Notification::send($user, new SuspendUserNotification($user, $user->status));
+        $user->refresh();
+        (new ActivityLogService)
+            ->setEvent("suspend")
+            ->setTitle("User Suspended")
+            ->setDescription((auth()->user()?->full_name . " suspend a user"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::SUSPEND_USER)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "User" => $user->refresh()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
+
         return $user;
     }
 
@@ -240,7 +340,22 @@ class UserService
         $user->increment("strike");
 
         Notification::send($user, new StrikeUserNotification($user));
-        return $user->refresh();
+        $user->refresh();
+        (new ActivityLogService)
+            ->setEvent("striked")
+            ->setTitle("User Striked")
+            ->setDescription((auth()->user()?->full_name . " strike a user"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::STRIKED_USER)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "User" => $user->refresh()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
+
+        return $user;
     }
 
     public function hidePost(Request $request, $id)
@@ -254,7 +369,25 @@ class UserService
             // Send notification about the post suspension
             Notification::send($user, new PostSuspensionNotification($user));
         }
-        return $user->refresh();
+        // Refresh the user model
+        $user->refresh();
+
+
+        (new ActivityLogService)
+            ->setEvent("hide_post")
+            ->setTitle("Hide User Post")
+            ->setDescription((auth()->user()?->full_name . " hide user post"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::HIDE_USER_POST)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "User Post(s)" => $user->posts()->withTrashed()->get()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
+
+        return $user;
     }
 
 
@@ -265,16 +398,52 @@ class UserService
         $user->posts()->onlyTrashed()->restore();
         // Send notification about the post restoration
         Notification::send($user, new PostRestorationNotification($user));
-        return $user->refresh();
+
+        // Refresh the user model
+        $user->refresh();
+
+        (new ActivityLogService)
+            ->setEvent("restore_post")
+            ->setTitle("Restore User Post")
+            ->setDescription((auth("admin")->user()?->name . " restore user post"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::HIDE_USER_POST)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "User Post(s)" => $user->posts()->withTrashed()->get()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
+        return $user;
     }
 
     public function deleteUserPostsPermanently(Request $request, $id)
     {
         $user = $this->getById($id);
+        // Retrieve the soft-deleted posts before they are permanently deleted
+        $deletedPosts = $user->posts()->onlyTrashed()->get();
         $user->posts()->onlyTrashed()->forceDelete();
         // Send notification about the post restoration
         Notification::send($user, new PostsRemovedFromApplicationNotification($user));
-        return $user->refresh();
+
+        // Refresh the user model
+        $user->refresh();
+
+        (new ActivityLogService)
+            ->setEvent("deleted")
+            ->setTitle("Deleted User Post(s)")
+            ->setDescription((auth("admin")->user()?->name . " deleted user post(s)"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::DELETE_USER_POST)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "User Post(s)" =>  $deletedPosts->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
+        return $user;
     }
 
 

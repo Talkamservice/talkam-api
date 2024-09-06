@@ -27,10 +27,10 @@ return new class extends Migration
             $table->text("tags")->nullable();
             $table->text("description")->nullable();
             $table->string("activity")->nullable();
-            $table->longText("current_data")->nullable(); 
+            $table->longText("current_data")->nullable();
             $table->longText("previous_data")->nullable();
-            $table->longText("metadata")->nullable(); 
-            $table->string("trigger")->nullable(); 
+            $table->longText("metadata")->nullable();
+            $table->string("trigger")->nullable();
             $table->timestamps();
         });
     }

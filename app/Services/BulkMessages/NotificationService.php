@@ -2,6 +2,8 @@
 
 namespace App\Services\BulkMessages;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
@@ -10,6 +12,7 @@ use App\Helpers\MethodsHelper;
 use App\Jobs\SendUserNotificationJob;
 use App\Models\SendBulkNotification;
 use App\Models\User;
+use App\Services\ActivityLog\ActivityLogService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Bus\Batch;
@@ -61,9 +64,37 @@ class NotificationService
         // Handle existing or new notification
         if ($notificationId) {
             $notification = self::getById($notificationId);
+            $old_notification = $notification;
             $notification->update($data);
+            (new ActivityLogService)
+                ->setEvent("updated")
+                ->setTitle("Bulk Notification Updated")
+                ->setDescription(auth()->user()?->full_name . " updated a bulk notification")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::UPDATED_USER_NOTIFICATION)
+                ->setModel(SendBulkNotification::class, $notification->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(
+                    ["Old Bulk Notification" =>  $old_notification->toArray()],
+                    ["Bulk Notification" =>  $notification->refresh()->toArray()],
+                )
+                ->setUrl(request()->fullUrl())
+                ->log();
         } else {
             $notification = SendBulkNotification::create($data);
+            (new ActivityLogService)
+                ->setEvent("created")
+                ->setTitle("Bulk Notification Created")
+                ->setDescription(auth()->user()?->full_name . " created a bulk notification")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::CREATED_USER_NOTIFICATION)
+                ->setModel(SendBulkNotification::class, $notification->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(
+                    ["Bulk Notification" =>  $notification->refresh()->toArray()],
+                )
+                ->setUrl(request()->fullUrl())
+                ->log();
         }
 
         // Determine recipients based on type
@@ -81,6 +112,20 @@ class NotificationService
             $notification->update([
                 "status" => StatusConstants::SENT
             ]);
+
+            (new ActivityLogService)
+                ->setEvent("sent")
+                ->setTitle("Sent Bulk Notification")
+                ->setDescription(auth()->user()?->full_name . " sent a bulk notification")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::SENT_USER_NOTIFICATION)
+                ->setModel(SendBulkNotification::class, $notification->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(
+                    ["Bulk Notification" =>  $notification->refresh()->toArray()],
+                )
+                ->setUrl(request()->fullUrl())
+                ->log();
         }
 
         return $notification;
@@ -110,10 +155,34 @@ class NotificationService
 
     public function delete(string $id)
     {
+        // Get the notification and store the old data before deletion
         $notification = self::getById($id);
-        $notification->recipients()->detach(); // Remove all recipients
+        $old_notification_data = $notification->toArray();
+    
+        // Remove all recipients associated with this notification
+        $notification->recipients()->detach(); 
+    
+        // Delete the notification
         $notification->delete();
+    
+        // Log the activity with the old data before the deletion
+        (new ActivityLogService)
+            ->setEvent("deleted")
+            ->setTitle("Bulk Notification Deleted")
+            ->setDescription(auth()->user()?->full_name . " deleted a bulk notification")
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::DELETED_USER_NOTIFICATION)
+            ->setModel(SendBulkNotification::class, $notification->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData([
+                "Bulk Notification" => $old_notification_data, 
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
+    
+        return $notification;
     }
+    
 
     public function changeStatus(Request $request, $id)
     {

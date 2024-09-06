@@ -4,28 +4,27 @@ namespace App\Services\Faq;
 
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Faq;
+use App\Models\FaqCategory;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class FaqService
+class FaqCategoryService
 {
 
     public static function getById($id): Faq
     {
-        $faq = Faq::find($id);
+        $faq_category = FaqCategory::find($id);
         if (empty($faq)) {
-            throw new ModelNotFoundException("Faq not found");
+            throw new ModelNotFoundException("Category not found");
         }
-        return $faq;
+        return $faq_category;
     }
 
     public static function validate($data, $id = null)
     {
         $validator = Validator::make($data, [
-            'faq_category_id' => 'nullable|string|exists:faq_categories,id',
-            "question" => "bail|required|string",
-            "answer" => "bail|required|string",
-            "url" => "bail|nulable|string",
+            "name" => "bail|nullable|string",
+            'status' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -38,28 +37,28 @@ class FaqService
     public  function store(array $data)
     {
         $data = self::validate($data);
-        $faq =  Faq::create($data);
-        return $faq;
+        $faq_category =  FaqCategory::create($data);
+        return $faq_category;
     }
 
     public function update(array $data, $id)
     {
         $data = self::validate($data, $id);
-        $faq = self::getById($id);
+        $faq_category = self::getById($id);
 
-        $faq->update($data);
-        return $faq->refresh();
+        $faq_category->update($data);
+        return $faq_category->refresh();
     }
 
-    public function delete($faq_id)
+    public function delete($faq_category_id)
     {
-        $faq = self::getById($faq_id);
-        $faq->delete();
+        $faq_category = self::getById($faq_category_id);
+        $faq_category->delete();
     }
 
     public static function list()
     {
-        $faqs = Faq::latest();
-        return $faqs;
+        $faq_categorys = FaqCategory::latest();
+        return $faq_categorys;
     }
 }
