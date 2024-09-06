@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Post;
 
+use App\Http\Resources\Post\PostAttachmentResource;
 use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Users\UserResource;
@@ -89,7 +90,7 @@ class NewPostReactionNotification extends Notification
         if ($total_actions == 0) {
             $message = "{$action_by} " . strtolower($this->post_reaction->action) . " your post.";
         }else {
-            $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . " your post.";
+            $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . "d your post.";
         }
         return [
             'data' => [
@@ -102,6 +103,7 @@ class NewPostReactionNotification extends Notification
             'batch_no' => null,
             "extra" => [
                 "user" => UserResource::custom($this->post_reaction->user),
+                "post_attachements" => !empty($this->post_reaction?->post?->attachments) ? PostAttachmentResource::collection($this->post_reaction?->post?->attachments) : null
             ]
         ];
     }

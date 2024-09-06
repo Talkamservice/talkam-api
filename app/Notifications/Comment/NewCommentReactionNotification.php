@@ -90,7 +90,7 @@ class NewCommentReactionNotification extends Notification
         if ($total_actions == 0) {
             $message = "{$action_by} " . strtolower($this->comment_reaction->action) . " your comment.";
         } else {
-            $message = "{$action_by} and {$total_actions} others " . strtolower($this->comment_reaction->action) . " your comment.";
+            $message = "{$action_by} and {$total_actions} others " . strtolower($this->comment_reaction->action) . "d your comment.";
         }
 
         return [
