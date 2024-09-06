@@ -2,9 +2,9 @@
     <td>
         <p class="detailCont-p">
             This email was sent to you by
-            <span><a class="link">{{ config("system.emails.sudo") }}</a></span> If you’d rather
+            <span><a class="link">{{ env("MAIL_FROM_ADDRESS") }}</a></span> If you’d rather
             not receive this kind of email, you can
-            <span><a class="link"> manage your email preferences.</a></span>
+            <span><a class="https://web.talkam.prodevs.io/help&info/rules"> manage your email preferences.</a></span>
         </p>
 
         <p class="detailCont-ps">
