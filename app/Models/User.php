@@ -145,4 +145,9 @@ class User extends Authenticatable
     {
        return $this->hasMany(Announcement::class);
     }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class, 'user_id');
+    }
 }

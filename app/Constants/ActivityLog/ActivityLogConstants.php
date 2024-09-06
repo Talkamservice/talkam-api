@@ -25,6 +25,7 @@ class ActivityLogConstants
     const EVENT_DATA_ERASED = "data_erased";
     const USER_ACCOUNT_DELETED = "account_deleted";
     const SUSPEND_USER = "suspend";
+    const SENT = "sent";
    
 
     const EVENTS = [
@@ -49,6 +50,7 @@ class ActivityLogConstants
         self:: EVENT_DATA_ERASED,
         self::USER_ACCOUNT_DELETED,
         self::SUSPEND_USER,
+        self::SENT,
     ];
 
     const CHANNEL_DEFAULT = "default";
