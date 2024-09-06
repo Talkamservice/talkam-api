@@ -49,7 +49,7 @@ class FaqController extends Controller
         } catch (ValidationException $th) {
             throw $th;
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
