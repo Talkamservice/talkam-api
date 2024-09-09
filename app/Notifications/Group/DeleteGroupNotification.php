@@ -28,7 +28,7 @@ class DeleteGroupNotification extends Notification implements ShouldQueue
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data['title'])
-            ->markdown('emails.group.suspend-group', [
+            ->markdown('emails.group.delete-group', [
                 'title' => $data['title'],
                 'message' => $data['message'],
                 "group_name" => $this->group->name,

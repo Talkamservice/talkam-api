@@ -103,7 +103,7 @@ class GroupReportController extends Controller
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            // throw $th;
+            throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }

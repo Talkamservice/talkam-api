@@ -65,7 +65,7 @@
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="#"
                                                                 onclick="$('#deleteLogForm_{{ $log->id }}').submit()">
-                                                                <i class="ri-delete-bin-line"></i> | Delete
+                                                                {{-- <i class="ri-delete-bin-line"></i> | Delete --}}
                                                             </a>
                                                         </li>
                                                     </ul>

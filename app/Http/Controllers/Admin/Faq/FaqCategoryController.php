@@ -51,7 +51,7 @@ class FaqCategoryController extends Controller
     {
         try {
             $this->faq_category_service->store($request->all());
-            return redirect()->route("admin.faqs.index")->with(NotificationConstants::SUCCESS_MSG, "Faq Category created successfully");
+            return redirect()->route("admin.faq-categories.index")->with(NotificationConstants::SUCCESS_MSG, "Faq Category created successfully");
         } catch (ValidationException $th) {
             throw $th;
         } catch (\Throwable $th) {
@@ -87,7 +87,7 @@ class FaqCategoryController extends Controller
     {
         try {
             $this->faq_category_service->update($request->all(), $faq_category->id);
-            return redirect()->route("admin.faqs.index")->with(NotificationConstants::SUCCESS_MSG, "Faq Category updated successfully");
+            return redirect()->route("admin.faq-categories.index")->with(NotificationConstants::SUCCESS_MSG, "Faq Category updated successfully");
         } catch (ValidationException $th) {
             throw $th;
         } catch (ModelNotFoundException $th) {

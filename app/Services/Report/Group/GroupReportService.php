@@ -3,6 +3,8 @@
 namespace App\Services\Report\Group;
 
 use App\Constants\Account\User\UserConstants;
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
@@ -12,9 +14,11 @@ use App\Models\Group;
 use App\Models\GroupMember;
 use App\Models\GroupMemberReport;
 use App\Models\GroupReport;
+use App\Notifications\Group\DeleteGroupNotification;
 use App\Notifications\Group\SuspendGroupNotification;
 use App\Notifications\Group\SuspendGroupMemberNotification;
 use App\Notifications\Group\UndoGroupSuspensionNotification;
+use App\Services\ActivityLog\ActivityLogService;
 use App\Services\User\UserService;
 use Exception;
 use Illuminate\Http\Request;
@@ -102,46 +106,61 @@ class GroupReportService
             $actionType = $request->input('action_type');
             $reason = $request->input('suspension_reason');
             $suspensionDurations = [
-                1 => now()->addHours(rand(24)),
+                1 => now()->addHours(24),
                 2 => now()->addDays(7),
                 3 => now()->addDays(30),
             ];
 
             if ($actionType === 'ban') {
-                // Ensure group is not already banned
                 if ($group->status === StatusConstants::BANNED) {
                     return 'Group is already banned.';
                 }
 
-                // Update the group's status to banned
-                $group->update([
-                    'status' => StatusConstants::BANNED,
-                ]);
+                $group->update(['status' => StatusConstants::BANNED]);
 
-                // Notify group admins
                 $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
                 Notification::send($user, new SuspendGroupNotification($group, null, "You have been permanently banned from the group for the following reason: {$reason}."));
+
+                // Log the activity
+                (new ActivityLogService)
+                    ->setEvent("banned")
+                    ->setTitle("Group Banned")
+                    ->setDescription(auth()->user()?->full_name . " banned a group")
+                    ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                    ->setActivity(ActivitiesConstants::GROUP_BANNED)
+                    ->setModel(Group::class, $group->id)
+                    ->setAdmin(auth()->user()->id)
+                    ->setData(["Group" => $group->refresh()->toArray()])
+                    ->setUrl(request()->fullUrl())
+                    ->log();
 
                 DB::commit();
                 return 'Group has been banned permanently.';
             } elseif ($actionType === 'suspend') {
-                // Ensure group is not already suspended
                 if ($group->status === StatusConstants::SUSPENDED) {
                     return 'Group is already suspended.';
                 }
 
-                // Calculate suspension end time
                 $suspensionEnd = $suspensionDurations[$request->input('duration')] ?? now()->addHours(24);
                 $duration = $suspensionEnd->diffForHumans();
 
-                // Update the group's status to suspended
-                $group->update([
-                    'status' => StatusConstants::SUSPENDED,
-                ]);
+                $group->update(['status' => StatusConstants::SUSPENDED]);
 
-                // Notify group admins
                 $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
                 Notification::send($user, new SuspendGroupNotification($group, $duration, $reason));
+
+                // Log the activity
+                (new ActivityLogService)
+                    ->setEvent("suspended")
+                    ->setTitle("Group Suspended")
+                    ->setDescription(auth()->user()?->full_name . " suspended a group")
+                    ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                    ->setActivity(ActivitiesConstants::GROUP_SUSPENDED)
+                    ->setModel(Group::class, $group->id)
+                    ->setAdmin(auth()->user()->id)
+                    ->setData(["Group" => $group->refresh()->toArray()])
+                    ->setUrl(request()->fullUrl())
+                    ->log();
 
                 DB::commit();
                 return 'Group has been suspended.';
@@ -154,23 +173,30 @@ class GroupReportService
         }
     }
 
-
-
-
     public function deleteGroup(Group $group, $reason = null)
     {
         DB::beginTransaction();
         try {
-            // Get the admins of the group
             $admins = $group->members()->where('role', UserConstants::OWNER)->first()->user;
 
-            // Delete the group
             $group->delete();
 
-            // Send notification to the group's admins
-            // foreach ($admins as $admin) {
-            //     Notification::send($admin, new SuspendGroupMemberNotification($group, null));
-            // }
+            foreach ($admins as $admin) {
+                Notification::send($admin, new DeleteGroupNotification($group, null));
+            }
+
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("deleted")
+                ->setTitle("Group Activated")
+                ->setDescription(auth()->user()?->full_name . " deleted a group")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::GROUP_DELETED)
+                ->setModel(Group::class, $group->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(["Group" => $group->refresh()->toArray()])
+                ->setUrl(request()->fullUrl())
+                ->log();
 
             DB::commit();
             return 'Group has been deleted.';
@@ -180,21 +206,28 @@ class GroupReportService
         }
     }
 
-
     public function suspensionLift(Group $group, $reason = null)
     {
         DB::beginTransaction();
         try {
-            // Update the group's status to accepted (activated)
-            $group->update([
-                'status' => StatusConstants::ACTIVE,
-            ]);
+            $group->update(['status' => StatusConstants::ACTIVE]);
 
-            // Get the admins of the group
             $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
 
-            // Send notification to the group's admins
             Notification::send($user, new UndoGroupSuspensionNotification($group));
+
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("activated")
+                ->setTitle("Group Activated")
+                ->setDescription(auth()->user()?->full_name . " activated a group")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::GROUP_ACTIVATED)
+                ->setModel(Group::class, $group->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(["Group" => $group->refresh()->toArray()])
+                ->setUrl(request()->fullUrl())
+                ->log();
 
             DB::commit();
             return 'Group has been activated.';
@@ -224,19 +257,17 @@ class GroupReportService
             $actionType = $request->input('action_type');
             $suspensionReason = $request->input('suspension_reason');
             $suspensionDurations = [
-                1 => now()->addHours(rand(24)),
+                1 => now()->addHours(24),
                 2 => now()->addDays(7),
                 3 => now()->addDays(30),
             ];
 
-            // Check if the user needs to be banned
             if ($group_member->suspension_count >= 3 || $actionType === 'ban') {
                 if ($group_member->banned) {
                     DB::commit();
-                    return 'User has aready been banned.';
+                    return 'User has already been banned.';
                 }
 
-                // Ban the user
                 $group_member->update([
                     'banned' => true,
                     'suspension_end' => null,
@@ -245,10 +276,22 @@ class GroupReportService
 
                 Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, "You have been permanently banned from the group for the following reason: {$suspensionReason}."));
 
+                // Log the activity
+                (new ActivityLogService)
+                    ->setEvent("banned")
+                    ->setTitle("Group Member Banned")
+                    ->setDescription(auth()->user()?->full_name . " banned a group member")
+                    ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                    ->setActivity(ActivitiesConstants::GROUP_MEMBER_BANNED)
+                    ->setModel(GroupMember::class, $group_member->id)
+                    ->setAdmin(auth()->user()->id)
+                    ->setData(["Group" => $group_member->refresh()->toArray()])
+                    ->setUrl(request()->fullUrl())
+                    ->log();
+
                 DB::commit();
                 return 'User has been banned permanently.';
             } else {
-                // Apply suspension
                 $newSuspensionCount = $group_member->suspension_count + 1;
                 $suspensionEnd = $suspensionDurations[$request->input('duration')] ?? now()->addHours(24);
 
@@ -263,17 +306,27 @@ class GroupReportService
 
                 Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
 
+                // Log the activity
+                (new ActivityLogService)
+                    ->setEvent("suspended")
+                    ->setTitle("Group Member Suspended")
+                    ->setDescription(auth()->user()?->full_name . " suspended a group member")
+                    ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                    ->setActivity(ActivitiesConstants::GROUP_MEMBER_SUSPENDED)
+                    ->setModel(GroupMember::class, $group_member->id)
+                    ->setAdmin(auth()->user()->id)
+                    ->setData(["Group Member" => $group_member->refresh()->toArray()])
+                    ->setUrl(request()->fullUrl())
+                    ->log();
+
                 DB::commit();
-                return "User has been suspended until {$suspensionEnd->toDateTimeString()}.";
+                return 'User has been suspended.';
             }
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
-            throw $th;
+            throw $e;
         }
     }
-
-
-
 
 
     public function undoGroupMemberSuspension($group_member_id)
@@ -295,7 +348,19 @@ class GroupReportService
 
         // Optionally, send a notification to the user
         Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, 'Your suspension has been lifted. Failure to comply may lead to a longer suspension from the group or banned.'));
-
+        (new ActivityLogService)
+            ->setEvent("activated")
+            ->setTitle("Group Member Activated")
+            ->setDescription(auth()->user()?->full_name . " activated a group member")
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::GROUP_MEMBER_ACTIVATED)
+            ->setModel(GroupMember::class, $group_member->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData(
+                ["Group" => $group_member->refresh()->toArray()]
+            )
+            ->setUrl(request()->fullUrl())
+            ->log();
         return 'Suspension has been lifted.';
     }
 }
