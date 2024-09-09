@@ -129,7 +129,7 @@ class GroupReportService
                     ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                     ->setActivity(ActivitiesConstants::GROUP_BANNED)
                     ->setModel(Group::class, $group->id)
-                    ->setAdmin(auth()->user()->id)
+                    ->setAdmin(auth()->user()?->id)
                     ->setData(["Group" => $group->refresh()->toArray()])
                     ->setUrl(request()->fullUrl())
                     ->log();
@@ -157,7 +157,7 @@ class GroupReportService
                     ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                     ->setActivity(ActivitiesConstants::GROUP_SUSPENDED)
                     ->setModel(Group::class, $group->id)
-                    ->setAdmin(auth()->user()->id)
+                    ->setAdmin(auth()->user()?->id)
                     ->setData(["Group" => $group->refresh()->toArray()])
                     ->setUrl(request()->fullUrl())
                     ->log();
@@ -193,7 +193,7 @@ class GroupReportService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::GROUP_DELETED)
                 ->setModel(Group::class, $group->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData(["Group" => $group->refresh()->toArray()])
                 ->setUrl(request()->fullUrl())
                 ->log();
@@ -224,7 +224,7 @@ class GroupReportService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::GROUP_ACTIVATED)
                 ->setModel(Group::class, $group->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData(["Group" => $group->refresh()->toArray()])
                 ->setUrl(request()->fullUrl())
                 ->log();
@@ -284,7 +284,7 @@ class GroupReportService
                     ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                     ->setActivity(ActivitiesConstants::GROUP_MEMBER_BANNED)
                     ->setModel(GroupMember::class, $group_member->id)
-                    ->setAdmin(auth()->user()->id)
+                    ->setAdmin(auth()->user()?->id)
                     ->setData(["Group" => $group_member->refresh()->toArray()])
                     ->setUrl(request()->fullUrl())
                     ->log();
@@ -314,7 +314,7 @@ class GroupReportService
                     ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                     ->setActivity(ActivitiesConstants::GROUP_MEMBER_SUSPENDED)
                     ->setModel(GroupMember::class, $group_member->id)
-                    ->setAdmin(auth()->user()->id)
+                    ->setAdmin(auth()->user()?->id)
                     ->setData(["Group Member" => $group_member->refresh()->toArray()])
                     ->setUrl(request()->fullUrl())
                     ->log();
@@ -355,7 +355,7 @@ class GroupReportService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::GROUP_MEMBER_ACTIVATED)
             ->setModel(GroupMember::class, $group_member->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 ["Group" => $group_member->refresh()->toArray()]
             )

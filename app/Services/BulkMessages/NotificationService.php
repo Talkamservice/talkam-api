@@ -71,7 +71,7 @@ class NotificationService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::UPDATED_USER_NOTIFICATION)
                 ->setModel(SendBulkNotification::class, $notification->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData([
                     "Old Bulk Notification" => $old_notification,
                     "Updated Bulk Notification" => $notification->refresh()->toArray(),
@@ -87,7 +87,7 @@ class NotificationService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::CREATED_USER_NOTIFICATION)
                 ->setModel(SendBulkNotification::class, $notification->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData([
                     "Bulk Notification" => $notification->refresh()->toArray(),
                 ])
@@ -118,7 +118,7 @@ class NotificationService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::SENT_USER_NOTIFICATION)
                 ->setModel(SendBulkNotification::class, $notification->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData([
                     "Bulk Notification" => $notification->toArray(),
                 ])
@@ -165,7 +165,7 @@ class NotificationService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::DELETED_USER_NOTIFICATION)
             ->setModel(SendBulkNotification::class, $notification->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "Bulk Notification" => $old_notification_data,
             ])

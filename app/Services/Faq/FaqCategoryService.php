@@ -47,7 +47,7 @@ class FaqCategoryService
         ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
         ->setActivity(ActivitiesConstants::CREATED_FAQ_CATEGORY)
         ->setModel(FaqCategory::class, $faq_category->id)
-        ->setAdmin(auth()->user()->id)
+        ->setAdmin(auth()->user()?->id)
         ->setData(
             [
                 "FAQ Category" => $faq_category->refresh()->toArray()
@@ -71,7 +71,7 @@ class FaqCategoryService
         ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
         ->setActivity(ActivitiesConstants::UPDATED_FAQ_CATEGORY)
         ->setModel(FaqCategory::class, $faq_category->id)
-        ->setAdmin(auth()->user()->id)
+        ->setAdmin(auth()->user()?->id)
         ->setData(
             [
                 "FAQ Category" => $faq_category->refresh()->toArray()

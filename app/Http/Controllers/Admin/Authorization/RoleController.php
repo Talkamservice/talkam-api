@@ -41,7 +41,7 @@ class RoleController extends Controller
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CREATED_ROLE)
             ->setModel(Role::class, $role->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 [
                     "Role" => $role->refresh()->toArray()
@@ -84,7 +84,7 @@ class RoleController extends Controller
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::UPDATED_ROLE)
             ->setModel(Role::class, $role->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "Role" => $role->refresh()->toArray()
             ])
@@ -104,7 +104,7 @@ class RoleController extends Controller
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::DELETED_ROLE)
             ->setModel(Role::class, $role->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "Role" => $old_role->toArray()
             ])

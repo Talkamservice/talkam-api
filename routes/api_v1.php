@@ -130,12 +130,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("trending", [SearchController::class, "trending"])->name("trending");
         });
 
-        Route::prefix("search")->as("search")->group(function () {
-            Route::get("/", [SearchController::class, "index"])->name("index");
-            Route::get("recent", [SearchController::class, "recent"])->name("recent");
-            Route::get("trending", [SearchController::class, "trending"])->name("trending");
-        });
-
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");

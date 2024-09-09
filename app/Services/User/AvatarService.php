@@ -80,7 +80,7 @@ class AvatarService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::UPDATED_AVATAR)
                 ->setModel(Avatar::class, $this->user->avatar->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData(
                     [
                         "Avatar" => $this->user->avatar->refresh()->toArray()
@@ -134,7 +134,7 @@ class AvatarService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CREATED_AVATAR)
             ->setModel(Avatar::class, $avatar->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 [
                     "Avatar" => $avatar->refresh()->toArray()
@@ -165,7 +165,7 @@ class AvatarService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::UPDATED_AVATAR)
             ->setModel(Avatar::class, $avatar->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 [
                     "Avatar" => $avatar->refresh()->toArray()
@@ -194,7 +194,7 @@ class AvatarService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::DELETED_AVATAR)
             ->setModel(Avatar::class, $avatar->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 [
                     "Old Avatar" => $old_avatar->toArray()

@@ -47,7 +47,7 @@ class TermAndConditionService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CREATED_TERMS_AND_CONDITION)
             ->setModel(TermAndCondition::class, $term_and_condition->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(["Terms and Condition" => $term_and_condition->refresh()->toArray()])
             ->setUrl(request()->fullUrl())
             ->log();
@@ -70,7 +70,7 @@ class TermAndConditionService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::UPDATED_TERMS_AND_CONDITION)
             ->setModel(TermAndCondition::class, $term_and_condition->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 [
                     "Terms and Condition" => $term_and_condition->refresh()->toArray()

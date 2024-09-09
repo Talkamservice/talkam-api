@@ -49,7 +49,7 @@ class GuidelineService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::GUIDELINE_CREATED)
             ->setModel(Guideline::class, $guideline->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 ["Guidline" => $guideline->refresh()->toArray()]
             )
@@ -73,7 +73,7 @@ class GuidelineService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::GUIDELINE_CREATED)
             ->setModel(Guideline::class, $guideline->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 ["Old Guidline" => $old_guideline->toArray()],
                 ["Guidline" => $guideline->refresh()->toArray()]
@@ -97,7 +97,7 @@ class GuidelineService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::GUIDELINE_CREATED)
             ->setModel(Guideline::class, $guideline->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 ["Old Guidline" => $old_guideline->toArray()],
             )

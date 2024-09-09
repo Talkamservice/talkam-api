@@ -68,7 +68,7 @@ class CommentReportService
 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
 ->setActivity(ActivitiesConstants::RESOLVED_REPORTED_COMMENT)
 ->setModel(CommentReport::class, $report->id)
-->setAdmin(auth()->user()->id)
+->setAdmin(auth()->user()?->id)
 ->setData(["Report comment" => $report->refresh()->toArray()])
 ->setUrl(request()->fullUrl())
 ->log();
@@ -94,7 +94,7 @@ class CommentReportService
         ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
         ->setActivity(ActivitiesConstants::DELETED_REPORTED_COMMENT)
         ->setModel(CommentReport::class, $reported_comment->id)
-        ->setAdmin(auth()->user()->id)
+        ->setAdmin(auth()->user()?->id)
         ->setData(["Reported comment" => $reported_comment->refresh()->toArray()])
         ->setUrl(request()->fullUrl())
         ->log();

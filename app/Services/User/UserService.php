@@ -100,12 +100,12 @@ class UserService
         }
         (new ActivityLogService)
             ->setEvent("created")
-            ->setTitle("User Account Updated")
+            ->setTitle("User Account Created")
             ->setDescription((auth()->user()?->full_name . " create a user account"))
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CREATED_USER_ACCOUNT)
             ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "User Data" => $user->refresh()->toArray(),
             ])
@@ -181,9 +181,9 @@ class UserService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::UPDATED_USER_ACCOUNT)
                 ->setModel(User::class, $user->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData([
-                    "Old User Data" =>  $oldUserData->toArray(),
+                    "Old User Data" => $oldUserData->toArray(),
                 ], [
                     "User Data" => $user->refresh()->toArray(),
                 ])
@@ -215,7 +215,7 @@ class UserService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::ERASED_USER_DATA)
                 ->setModel(User::class, $user->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData([
                     "User" => $erased_user_account->refresh()->toArray(),
                 ])
@@ -254,9 +254,9 @@ class UserService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::DELETED_USER_ACCOUNT)
                 ->setModel(User::class, $user->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData([
-                    "User" =>  $deleted_user_account->refresh()->toArray(),
+                    "User" => $deleted_user_account->refresh()->toArray(),
                 ])
                 ->setUrl(request()->fullUrl())
                 ->log();
@@ -277,19 +277,19 @@ class UserService
             $user->forceDelete();
 
             (new ActivityLogService)
-            ->setEvent("deleted")
-            ->setTitle("User Deleted")
-            ->setDescription((auth()->user()?->full_name . " delete a user"))
-            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
-            ->setActivity(ActivitiesConstants::DELETED_USER)
-            ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()->id)
-            ->setData([
-                "User" =>  $oldUserData->toArray(),
-                "User" => $user->refresh()->toArray(),
-            ])
-            ->setUrl(request()->fullUrl())
-            ->log();
+                ->setEvent("deleted")
+                ->setTitle("User Deleted")
+                ->setDescription((auth()->user()?->full_name . " delete a user"))
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::DELETED_USER)
+                ->setModel(User::class, $user->id)
+                ->setAdmin(auth()->user()?->id)
+                ->setData([
+                    "old_user" => $oldUserData->toArray(),
+                    "user" => $user->refresh()->toArray(),
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -324,7 +324,7 @@ class UserService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::SUSPEND_USER)
             ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "User" => $user->refresh()->toArray(),
             ])
@@ -348,7 +348,7 @@ class UserService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::STRIKED_USER)
             ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "User" => $user->refresh()->toArray(),
             ])
@@ -380,7 +380,7 @@ class UserService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::HIDE_USER_POST)
             ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "User Post(s)" => $user->posts()->withTrashed()->get()->toArray(),
             ])
@@ -409,7 +409,7 @@ class UserService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::HIDE_USER_POST)
             ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "User Post(s)" => $user->posts()->withTrashed()->get()->toArray(),
             ])
@@ -437,9 +437,9 @@ class UserService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::DELETE_USER_POST)
             ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
-                "User Post(s)" =>  $deletedPosts->toArray(),
+                "User Post(s)" => $deletedPosts->toArray(),
             ])
             ->setUrl(request()->fullUrl())
             ->log();

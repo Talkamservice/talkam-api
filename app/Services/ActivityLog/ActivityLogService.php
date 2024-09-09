@@ -184,7 +184,7 @@ class ActivityLogService
             "channel" => "nullable|string|" . Rule::in(ActivityLogConstants::CHANNELS),
             "model" => "nullable|string",
             "model_id" => "nullable|int|required_with:model",
-            "admin_id" => "required|exists:users,id",
+            "admin_id" => "nullable|exists:users,id",
             "previous_data" => "nullable|array",
             "metadata" => "nullable|array",
             "url" => "nullable",
@@ -221,11 +221,14 @@ class ActivityLogService
     }
 
     /**
-     * Save snitch record
+     * Save log record
      *  @return \App\Models\ActivityLog
      */
     public function log(): ActivityLog
     {
+        if (empty($this->admin_id)) {
+            return new ActivityLog;
+        }
         $data = $this->validate();
         $data = $this->sanitize($data);
         return ActivityLog::create($data);

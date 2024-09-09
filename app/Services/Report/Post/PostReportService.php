@@ -68,7 +68,7 @@ class PostReportService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::RESOLVED_REPORTED_POST)
                 ->setModel(PostReport::class, $report->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData(["Group" => $report->refresh()->toArray()])
                 ->setUrl(request()->fullUrl())
                 ->log();
@@ -93,7 +93,7 @@ class PostReportService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::DELETED_REPORTED_POST)
             ->setModel(PostReport::class, $reported_post->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(["Reported Post" => $reported_post->refresh()->toArray()])
             ->setUrl(request()->fullUrl())
             ->log();

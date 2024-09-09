@@ -103,8 +103,8 @@ class InviteController extends Controller
                 auth()->login($process["user"]);
 
                 // Send verify email link
-                // if (empty(auth()->user()->email_verified_at)) {
-                //     auth()->user()->sendEmailVerificationNotification();
+                // if (empty(auth()->user()?->email_verified_at)) {
+                //     auth()->user()?->sendEmailVerificationNotification();
                 // }
 
                 // Flash and redirect user to dashboard

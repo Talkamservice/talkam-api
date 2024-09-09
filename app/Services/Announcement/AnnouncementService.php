@@ -55,7 +55,7 @@ class AnnouncementService
     {
         // Validate the data
         $data = self::validate($data);
-        $data['user_id'] = auth()->user()->id;
+        $data['user_id'] = auth()->user()?->id;
 
         if (!empty($banner_image = $data["banner_image"] ?? null)) {
             $data["banner_image"] = $this->file_service->saveFromFileIntoStorage($banner_image, FileConstants::ANNOUNCEMENT_BANNER_PATH, null, auth()->id());
@@ -75,7 +75,7 @@ class AnnouncementService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::ANNOUNCEMENT_UPDATED)
                 ->setModel(Announcement::class, $announcement->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData(
                     ["Old Announcement" => $old_announcement],
                     ["Announcement" => $announcement->toArray()]
@@ -94,7 +94,7 @@ class AnnouncementService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::ANNOUNCEMENT_CREATED)
                 ->setModel(Announcement::class, $announcement->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData(
                     ["Announcement" => $announcement->toArray()]
                 )
@@ -133,7 +133,7 @@ class AnnouncementService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::ANNOUNCEMENT_DELETED)
             ->setModel(Announcement::class, $announcement->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 ["Old Announcement" => $old_announcement],
             )
@@ -167,7 +167,7 @@ class AnnouncementService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::ANNOUNCEMENT_UPDATED)
             ->setModel(Announcement::class, $announcement->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 ["Old Announcement" => $old_announcement],
                 ["Announcement" => $announcement->toArray()]

@@ -46,7 +46,7 @@ class PrivacyPolicyService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CREATED_PRIVACY_POLICY)
             ->setModel(PrivacyPolicy::class, $privacy_policy->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 [
                     "Privacy Policy" => $privacy_policy->refresh()->toArray()
@@ -70,7 +70,7 @@ class PrivacyPolicyService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::UPDATED_TERMS_AND_CONDITION)
             ->setModel(PrivacyPolicy::class, $privacy_policy->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 [
                     "Privacy Policy" => $privacy_policy->refresh()->toArray()

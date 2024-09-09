@@ -5,7 +5,7 @@
         <!-- Start::page-header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
             <div>
-                <p class="fw-semibold fs-18 mb-0">Welcome back, {{ auth()->user()->name }}</p>
+                <p class="fw-semibold fs-18 mb-0">Welcome back, {{ auth()->user()?->name }}</p>
             </div>
             {{-- <div class="btn-list mt-md-0 mt-2">
                 <button type="button" class="btn btn-primary btn-wave">
@@ -25,7 +25,7 @@
             <div class="col-xxl-12 col-xl-12">
                 <div class="row">
                     @foreach ($cards as $card)
-                        <div class="col-xxl-3 col-lg-3 col-md-6">
+                        <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-3">
                             <div class="card custom-card overflow-hidden">
                                 <div class="card-body">
                                     <div class="d-flex align-items-top justify-content-between">
@@ -64,7 +64,7 @@
                 </div>
                 
                 <div class="row">
-                    <div class="col-xl-7">
+                    <div class="col-12 col-md-7 col-lg-7 col-xl-7 col-xxl-7">
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">
@@ -131,7 +131,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xxl-12 col-xl-5">
+                    <div class="col-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">
@@ -179,122 +179,6 @@
                     </div>
                 </div>
             </div>
-            {{-- <div class="col-xxl-3 col-xl-12">
-                <div class="row">
-                    <div class="col-xxl-12 col-xl-12">
-                        <div class="row">
-                            <div class="col-xl-12 col-xl-6">
-                                <div class="card custom-card">
-                                    <div class="card-header justify-content-between">
-                                        <div class="card-title">
-                                            Therapists by Status
-                                        </div>
-                                    </div>
-                                    <div class="card-body p-0 overflow-hidden">
-                                        <div class="leads-source-chart d-flex align-items-center justify-content-center">
-                                            <canvas id="leads-source" class="chartjs-chart w-100 p-4"></canvas>
-                                            <div class="lead-source-value">
-                                                <span class="d-block fs-14">Total</span>
-                                                <span class="d-block fs-25 fw-bold">{{ formatNumber($total_therapists ?? 0) }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="row row-cols-12 border-top border-block-start-dashed">
-                                            <div class="col p-0">
-                                                <div class="ps-4 py-3 pe-3 text-center border-end border-inline-end-dashed">
-                                                    <span class="text-muted fs-12 mb-1 crm-lead-legend mobile d-inline-block">Pending
-                                                    </span>
-                                                    <div><span class="fs-16 fw-semibold">{{ formatNumber($chart['pending'] ?? 0) }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col p-0">
-                                                <div class="p-3 text-center border-end border-inline-end-dashed">
-                                                    <span class="text-muted fs-12 mb-1 crm-lead-legend desktop d-inline-block">Approved
-                                                    </span>
-                                                    <div><span class="fs-16 fw-semibold">{{ formatNumber($chart['approved'] ?? 0) }}</span></div>
-                                                </div>
-                                            </div>
-                                            <div class="col p-0">
-                                                <div class="p-3 text-center border-end border-inline-end-dashed">
-                                                    <span class="text-muted fs-12 mb-1 crm-lead-legend laptop d-inline-block">Declined
-                                                    </span>
-                                                    <div><span class="fs-16 fw-semibold">{{ formatNumber($chart['declined'] ?? 0) }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
         </div>
-        <!-- End::row-1 -->
-        {{-- <input type="hidden" id="therapist_chart_data" value="{{ json_encode($chart_data) }}"> --}}
     </div>
 @endsection
-
-{{-- @section('script')
-    <script>
-        let chart_data = $.parseJSON($("#therapist_chart_data").val());
-
-        var chartInstance = new Chart(document.getElementById("leads-source"), {
-            type: "doughnut",
-            data: {
-                datasets: [{
-                    label: "Therapist chart",
-                    data: chart_data,
-                    // data: [32, 27, 25, 16],
-                    backgroundColor: [
-                        "rgb(3,101,161)",
-                        "rgb(35, 183, 229)",
-                        "rgb(245, 184, 73)",
-                    ],
-                }, ],
-            },
-            plugins: [{
-                afterUpdate: function(chart) {
-                    const arcs = chart.getDatasetMeta(0).data;
-
-                    arcs.forEach(function(arc) {
-                        arc.round = {
-                            x: (chart.chartArea.left + chart.chartArea.right) / 2,
-                            y: (chart.chartArea.top + chart.chartArea.bottom) / 2,
-                            radius: (arc.outerRadius + arc.innerRadius) / 2,
-                            thickness: (arc.outerRadius - arc.innerRadius) / 2,
-                            backgroundColor: arc.options.backgroundColor,
-                        };
-                    });
-                },
-                afterDraw: (chart) => {
-                    const {
-                        ctx,
-                        canvas
-                    } = chart;
-
-                    chart.getDatasetMeta(0).data.forEach((arc) => {
-                        const startAngle = Math.PI / 2 - arc.startAngle;
-                        const endAngle = Math.PI / 2 - arc.endAngle;
-
-                        ctx.save();
-                        ctx.translate(arc.round.x, arc.round.y);
-                        ctx.fillStyle = arc.options.backgroundColor;
-                        ctx.beginPath();
-                        ctx.arc(
-                            arc.round.radius * Math.sin(endAngle),
-                            arc.round.radius * Math.cos(endAngle),
-                            arc.round.thickness,
-                            0,
-                            2 * Math.PI
-                        );
-                        ctx.closePath();
-                        ctx.fill();
-                        ctx.restore();
-                    });
-                },
-            }, ],
-        });
-    </script>
-@endsection --}}

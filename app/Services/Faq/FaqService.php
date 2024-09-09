@@ -49,7 +49,7 @@ class FaqService
         ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
         ->setActivity(ActivitiesConstants::CREATED_FAQ)
         ->setModel(Faq::class, $faq->id)
-        ->setAdmin(auth()->user()->id)
+        ->setAdmin(auth()->user()?->id)
         ->setData(
             [
                 "FAQ" => $faq->refresh()->toArray()
@@ -73,7 +73,7 @@ class FaqService
         ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
         ->setActivity(ActivitiesConstants::UPDATED_FAQ)
         ->setModel(Faq::class, $faq->id)
-        ->setAdmin(auth()->user()->id)
+        ->setAdmin(auth()->user()?->id)
         ->setData(
             [
                 "FAQ" => $faq->refresh()->toArray()

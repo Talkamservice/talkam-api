@@ -76,7 +76,7 @@ class PostCategoryService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CATEGORY_CREATED)
             ->setModel(PostCategory::class, $category->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData([
                 "Post Category" => $category->refresh()->toArray(),
             ])
@@ -117,7 +117,7 @@ class PostCategoryService
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CATEGORY_UPDATED)
             ->setModel(PostCategory::class, $category->id)
-            ->setAdmin(auth()->user()->id)
+            ->setAdmin(auth()->user()?->id)
             ->setData(
                 ["Old Category Data" => $old_category_data->toArray()],
                 ["Category" => $new_category_data->refresh()->toArray()]
@@ -144,7 +144,7 @@ class PostCategoryService
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::CATEGORY_DELETED)
                 ->setModel(PostCategory::class, $category->id)
-                ->setAdmin(auth()->user()->id)
+                ->setAdmin(auth()->user()?->id)
                 ->setData([
                     "Category" =>  $deleted_category->toArray()
                 ])
