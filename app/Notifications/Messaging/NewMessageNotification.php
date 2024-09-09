@@ -41,9 +41,10 @@ class NewMessageNotification extends Notification
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data["title"])
-            ->markdown('emails.general.index', [
+            ->markdown('emails.message.index', [
                 "title" => $data["title"],
                 "message" => $data["message"],
+                "userId" => $this->message->sender->id,
                 "recipient_name" => $notifiable->getName(),
             ]);
     }
