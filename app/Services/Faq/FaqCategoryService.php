@@ -16,7 +16,7 @@ class FaqCategoryService
     public static function getById($id): FaqCategory
     {
         $faq_category = FaqCategory::find($id);
-        if (empty($faq)) {
+        if (empty($faq_category)) {
             throw new ModelNotFoundException("Category not found");
         }
         return $faq_category;

@@ -33,7 +33,6 @@
                     </form>
                     <div class="pr-2">
                         <a href="{{ route('admin.faqs.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
-                        <a href="{{ route('admin.faq-categories.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Add Category</span></a>
                     </div>
                 </div>
                 <div class="card-body">

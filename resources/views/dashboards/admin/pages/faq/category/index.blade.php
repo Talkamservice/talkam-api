@@ -41,7 +41,7 @@
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
                                 <tr>
-                                    <th scope="col">NAMe</th>
+                                    <th scope="col">Name</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
@@ -50,7 +50,7 @@
                             <tbody>
                                 @forelse ($faq_categories as $faq_category)
                                     <tr>
-                                        <td>{{ $faq_category->question }}</td>
+                                        <td>{{ $faq_category->name }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($faq_category->status) }}-transparent">
                                                 {{ $faq_category->status }}
