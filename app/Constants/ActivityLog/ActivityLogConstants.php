@@ -26,7 +26,11 @@ class ActivityLogConstants
     const USER_ACCOUNT_DELETED = "account_deleted";
     const SUSPEND_USER = "suspend";
     const SENT = "sent";
-   
+    const SUSPENDED = "suspended";
+    const ACTIVATED = "activated";
+    const BANNED = "banned";
+    const RESOLVED = "resolved";
+
 
     const EVENTS = [
         self::EVENT_ACCEPTED,
@@ -47,10 +51,14 @@ class ActivityLogConstants
         self::EVENT_STRIKED,
         self::EVENT_HIDE_POST,
         self::EVENT_POST_RESTORE,
-        self:: EVENT_DATA_ERASED,
+        self::EVENT_DATA_ERASED,
         self::USER_ACCOUNT_DELETED,
         self::SUSPEND_USER,
         self::SENT,
+        self::SUSPENDED,
+        self::ACTIVATED,
+        self::BANNED,
+        self::RESOLVED,
     ];
 
     const CHANNEL_DEFAULT = "default";
@@ -96,7 +104,6 @@ class ActivityLogConstants
 
     public static function canShowMetadata($log): bool
     {
-        return in_array($log->activity, [
-        ]);
+        return in_array($log->activity, []);
     }
 }

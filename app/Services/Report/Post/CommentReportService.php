@@ -2,11 +2,14 @@
 
 namespace App\Services\Report\Post;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\CommentReport;
 use App\Notifications\User\CommentsRemovedFromApplicationNotification;
+use App\Services\ActivityLog\ActivityLogService;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -57,7 +60,18 @@ class CommentReportService
             $report->update([
                 'status' => StatusConstants::RESOLVED
             ]);
-
+// Log the activity
+(new ActivityLogService)
+->setEvent("resolved")
+->setTitle("Resolved Reported Comment")
+->setDescription(auth()->user()?->full_name . "resolved a reported comment")
+->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+->setActivity(ActivitiesConstants::RESOLVED_REPORTED_COMMENT)
+->setModel(CommentReport::class, $report->id)
+->setAdmin(auth()->user()->id)
+->setData(["Report comment" => $report->refresh()->toArray()])
+->setUrl(request()->fullUrl())
+->log();
             DB::commit();
             return $report->refresh();
         } catch (\Throwable $th) {
@@ -71,6 +85,19 @@ class CommentReportService
         $reported_comment = self::getById($reported_comment_id);
         $reported_comment->comment->delete();
         Notification::send($reported_comment->user, new CommentsRemovedFromApplicationNotification($reported_comment));
+
+        // Log the activity
+        (new ActivityLogService)
+        ->setEvent("deleted")
+        ->setTitle("Deleted Reported Comment")
+        ->setDescription(auth()->user()?->full_name . " deleted a reported comment")
+        ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+        ->setActivity(ActivitiesConstants::DELETED_REPORTED_COMMENT)
+        ->setModel(CommentReport::class, $reported_comment->id)
+        ->setAdmin(auth()->user()->id)
+        ->setData(["Reported comment" => $reported_comment->refresh()->toArray()])
+        ->setUrl(request()->fullUrl())
+        ->log();
         // return $reported_comment->refresh();
     }
 }

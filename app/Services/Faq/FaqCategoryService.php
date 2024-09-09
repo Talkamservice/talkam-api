@@ -2,16 +2,18 @@
 
 namespace App\Services\Faq;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Exceptions\General\ModelNotFoundException;
-use App\Models\Faq;
 use App\Models\FaqCategory;
+use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class FaqCategoryService
 {
 
-    public static function getById($id): Faq
+    public static function getById($id): FaqCategory
     {
         $faq_category = FaqCategory::find($id);
         if (empty($faq)) {
@@ -38,6 +40,20 @@ class FaqCategoryService
     {
         $data = self::validate($data);
         $faq_category =  FaqCategory::create($data);
+        (new ActivityLogService)
+        ->setEvent("created")
+        ->setTitle("Created FAQ Category")
+        ->setDescription(auth()->user()?->full_name . " created an FAQ category")
+        ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+        ->setActivity(ActivitiesConstants::CREATED_FAQ_CATEGORY)
+        ->setModel(FaqCategory::class, $faq_category->id)
+        ->setAdmin(auth()->user()->id)
+        ->setData(
+            [
+                "FAQ Category" => $faq_category->refresh()->toArray()
+            ])
+        ->setUrl(request()->fullUrl())
+        ->log();
         return $faq_category;
     }
 
@@ -45,8 +61,27 @@ class FaqCategoryService
     {
         $data = self::validate($data, $id);
         $faq_category = self::getById($id);
+        $old_faq_category = $faq_category;
 
         $faq_category->update($data);
+        (new ActivityLogService)
+        ->setEvent("updated")
+        ->setTitle("Updated FAQ Category")
+        ->setDescription(auth()->user()?->full_name . " updated an FAQ Category")
+        ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+        ->setActivity(ActivitiesConstants::UPDATED_FAQ_CATEGORY)
+        ->setModel(FaqCategory::class, $faq_category->id)
+        ->setAdmin(auth()->user()->id)
+        ->setData(
+            [
+                "FAQ Category" => $faq_category->refresh()->toArray()
+            ],
+            [
+                "Old FAQ Category" => $old_faq_category->toArray()
+            ]
+        )
+        ->setUrl(request()->fullUrl())
+        ->log();
         return $faq_category->refresh();
     }
 
