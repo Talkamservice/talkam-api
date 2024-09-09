@@ -62,14 +62,15 @@ class WaitlistService
             //     "subject" => "New Waitlist Member",
             // ]);
 
-            // AppMailerService::send([
-            //     "data" => [
-            //         'email' => $waitlist->email,
-            //     ],
-            //     "to" => $waitlist->email,
-            //     "template" => "emails.user.user-waitlist",
-            //     "subject" => "Talkam: Your Journey Begins Soon!",
-            // ]);
+            AppMailerService::send([
+                "data" => [
+                    'email' => $waitlist->email,
+                    "recipient_name" => $waitlist->name
+                ],
+                "to" => $waitlist->email,
+                "template" => "emails.waitlist.user-waitlist",
+                "subject" => "Talkam: Your Journey Begins Soon!",
+            ]);
 
 
             // $exists = (new HubspotService)->verifyContact($data["email"]);
