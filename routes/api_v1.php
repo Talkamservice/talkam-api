@@ -86,7 +86,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("follow", [PostCategoryController::class, "follow"])->name("follow");
             Route::get("following", [PostCategoryController::class, "following"])->name("following");
             Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
-            Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
             Route::get("following", [PostCategoryController::class, "following"])->name("following");
             Route::get("sub-categories", [PostCategoryController::class, "subCategories"])->name("sub-categories");
             Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
@@ -186,7 +185,7 @@ Route::get("user/terms-and-conditions", [TermAndConditionController::class, "ind
 Route::get("user/privacy-policies", [PrivacyPolicyController::class, "index"])->name("privacy-policies.list");
 Route::post("user/feedback", [FeedbackController::class, "save"])->name("feedback.save");
 Route::get("user/faqs", [FaqController::class, "index"])->name("faqs.index");
-Route::post("user/waitlist/save", [WaitlistController::class,  "save"])->name("waitlist.save");
+Route::post("user/waitlist/save", [WaitlistController::class, "save"])->name("waitlist.save");
 
 //Guest mode
 Route::prefix('user')->as('user.')->group(function () {
@@ -198,6 +197,10 @@ Route::prefix('user')->as('user.')->group(function () {
     Route::prefix('posts')->as('posts.')->group(function () {
         Route::get('/', [PostController::class, 'index'])->name('index');
         Route::get('/{post}', [PostController::class, 'show'])->name('show');
+    });
+
+    Route::prefix('groups')->as('groups.')->group(function () {
+        Route::get('/', [GroupController::class, 'index'])->name('index');
     });
 
     Route::prefix('post-comments')->as('post-comments.')->group(function () {
@@ -218,6 +221,9 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get("{id}/show", [AnnouncementController::class, "show"])->name('show');
     });
 
+    Route::prefix("post-categories")->as("post-categories.")->group(function () {
+        Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
+    });
 });
 
 Route::post('/broadcasting/auth', [AuthController::class, "authenticate"])->middleware('auth:sanctum');

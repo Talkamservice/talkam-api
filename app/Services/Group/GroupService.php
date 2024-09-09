@@ -164,12 +164,8 @@ class GroupService
 
         if (!empty($key = $data["recommend"] ?? null)) {
             if (auth("sanctum")->check()) {
-                $category_ids = auth("sanctum")->user()->interests()->pluck("category_id")->toArray();
-                if (count($category_ids) > 0) {
-                    $builder = $builder->whereIn("id", $category_ids ?? []);
-                } else {
-                    $builder = $builder->withCount("members")->orderBy("members_count", "desc");
-                }
+                $category_ids = auth("sanctum")->user()->interests->pluck("category_id")->toArray();
+                $builder = (count($category_ids) > 0) ? $builder->whereIn("id", $category_ids ?? []) : $builder->withCount("members")->orderBy("members_count", "desc");
             }
         }
 
@@ -260,7 +256,6 @@ class GroupService
                     "status" => StatusConstants::ACTIVE
                 ]);
             }
-
 
             if ($data["action"] == StatusConstants::DECLINED) {
                 Notification::send($member->user, new JoinGroupRequestStatusNotification($member, StatusConstants::DECLINED));
