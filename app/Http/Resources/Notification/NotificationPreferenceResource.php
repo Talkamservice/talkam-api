@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Notification;
 
-use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Users\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
