@@ -3,14 +3,12 @@
 namespace App\Notifications\Post;
 
 use App\Http\Resources\Post\PostAttachmentResource;
-use App\Http\Resources\Post\PostCommentResource;
-use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\UserPostReaction;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class NewPostReactionNotification extends Notification
@@ -32,7 +30,7 @@ class NewPostReactionNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**

@@ -5,7 +5,7 @@ namespace App\Notifications\Group;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class JoinGroupRequestNotification extends Notification
@@ -27,7 +27,7 @@ class JoinGroupRequestNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**

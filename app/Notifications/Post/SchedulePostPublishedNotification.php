@@ -5,7 +5,7 @@ namespace App\Notifications\Post;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class SchedulePostPublishedNotification extends Notification
@@ -27,7 +27,7 @@ class SchedulePostPublishedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**

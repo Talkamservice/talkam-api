@@ -5,7 +5,7 @@ namespace App\Notifications\Bulk;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class SendBulkUsersNotification extends Notification implements ShouldQueue
@@ -15,7 +15,7 @@ class SendBulkUsersNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $user, public $notification,)
+    public function __construct(public $user, public $notification)
     {
 
     }
@@ -27,7 +27,7 @@ class SendBulkUsersNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**

@@ -25,6 +25,9 @@ class NotificationPreferenceService
         $validator = Validator::make($data, [
             "talkam_news" => "nullable|numeric|in:0,1",
             "talkam_research" => "nullable|numeric|in:0,1",
+            "can_receive_sms" => "nullable|numeric|in:0,1",
+            "can_receive_mail" => "nullable|numeric|in:0,1",
+            "can_receive_push" => "nullable|numeric|in:0,1",
             "moderation_activities" => "nullable|numeric|in:0,1",
             "user_activities" => "nullable|numeric|in:0,1",
             "comments" => "nullable|string",

@@ -2,18 +2,13 @@
 
 namespace App\Notifications\Messaging;
 
-use App\Helpers\MethodsHelper;
-use App\Http\Resources\Therapist\TherapistResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\Message;
-use App\Models\User;
-use App\Services\Message\FcmPushNotificationService;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
-use Kutia\Larafirebase\Messages\FirebaseMessage;
 
 class NewMessageNotification extends Notification
 {
@@ -35,7 +30,7 @@ class NewMessageNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ["mail", "database", "firebase"];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**
