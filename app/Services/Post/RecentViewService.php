@@ -79,7 +79,7 @@ class RecentViewService
 
         $records = match ($sort_key) {
             'category' => PostCategory::status()->whereIn("id", $record_ids),
-            'post' => Post::status()->whereIn("id", $record_ids),
+            'post' => Post::status()->whereIn("id", $record_ids)->unblocked(),
             'group' => Group::status()->whereIn("id", $record_ids),
             'tag' => TrendingTag::status()->whereIn("id", $record_ids),
             default => collect([]),
