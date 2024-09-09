@@ -101,7 +101,7 @@ class UserService
         (new ActivityLogService)
             ->setEvent("created")
             ->setTitle("User Account Updated")
-            ->setDescription((auth()->user()?->full_name . " create A user account"))
+            ->setDescription((auth()->user()?->full_name . " create a user account"))
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CREATED_USER_ACCOUNT)
             ->setModel(User::class, $user->id)

@@ -2,11 +2,14 @@
 
 namespace App\Services\Report\Post;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostReport;
 use App\Notifications\User\PostsRemovedFromApplicationNotification;
+use App\Services\ActivityLog\ActivityLogService;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -57,7 +60,18 @@ class PostReportService
             $report->update([
                 'status' => StatusConstants::RESOLVED
             ]);
-
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("suspended")
+                ->setTitle("Resolved Reported Post")
+                ->setDescription(auth()->user()?->full_name . " resolved a reported post")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::RESOLVED_REPORTED_POST)
+                ->setModel(PostReport::class, $report->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData(["Group" => $report->refresh()->toArray()])
+                ->setUrl(request()->fullUrl())
+                ->log();
             DB::commit();
             return $report->refresh();
         } catch (\Throwable $th) {
@@ -70,7 +84,19 @@ class PostReportService
     {
         $reported_post = self::getById($reported_post_id);
         $reported_post->post->delete();
-        Notification::send( $reported_post, new PostsRemovedFromApplicationNotification($reported_post));
+        Notification::send($reported_post, new PostsRemovedFromApplicationNotification($reported_post));
+        // Log the activity
+        (new ActivityLogService)
+            ->setEvent("deleted")
+            ->setTitle("Deleted Reported Post")
+            ->setDescription(auth()->user()?->full_name . " deleted a reported post")
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::DELETED_REPORTED_POST)
+            ->setModel(PostReport::class, $reported_post->id)
+            ->setAdmin(auth()->user()->id)
+            ->setData(["Reported Post" => $reported_post->refresh()->toArray()])
+            ->setUrl(request()->fullUrl())
+            ->log();
         // return  $reported_post->refresh();
     }
 }

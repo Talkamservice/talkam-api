@@ -2,52 +2,63 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Constants\Account\User\UserConstants;
-use App\Constants\General\StatusConstants;
 use App\Http\Controllers\Controller;
-use App\Models\Post;
-use App\Models\PostCategory;
-use App\Models\Therapist;
+use App\Models\ActivityLog;
 use App\Models\User;
-use App\Models\WellnessCourse;
+use App\Services\Dashboard\DashboardService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    protected $dashboard_service;
+
+    public function __construct(DashboardService $dashboard_service)
+    {
+        $this->dashboard_service = $dashboard_service;
+    }
+
     public function index(Request $request)
     {
+        // Use the dashboard service class to get the dashboard data
+        $dashboardData = $this->dashboard_service->getDashboardData();
+
         $data = [
             "cards" => [
                 [
                     "icon" => "users",
                     "title" => "Total Users",
-                    "value" => User::where("role", UserConstants::USER)->count(),
+                    "value" => $dashboardData['totalUsersCurrentMonth'],
                     "class" => "primary",
-                    "url" => route("admin.users.index")
+                    "url" => route("admin.users.index"),
+                    "percentage" => $dashboardData['usersChangePercentage']
                 ],
                 [
                     "icon" => "books",
                     "title" => "Total Categories",
-                    "value" => PostCategory::status()->count(),
+                    "value" => $dashboardData['totalCategoriesCurrentMonth'],
                     "class" => "info",
-                    "url" => ""
+                    "url" => "",
+                    "percentage" => $dashboardData['categoriesChangePercentage']
                 ],
                 [
                     "icon" => "books",
                     "title" => "Total Posts",
-                    "value" => Post::status()->count(),
+                    "value" => $dashboardData['totalPostsCurrentMonth'],
                     "class" => "warning",
-                    "url" => ""
+                    "url" => "",
+                    "percentage" => $dashboardData['postsChangePercentage']
                 ],
                 [
                     "icon" => "books",
                     "title" => "Total Groups",
-                    "value" =>  0,
+                    "value" => $dashboardData['totalGroupsCurrentMonth'],
                     "class" => "primary",
-                    "url" => ""
+                    "url" => "",
+                    "percentage" => $dashboardData['groupsChangePercentage']
                 ]
             ],
-            "users" => User::latest()->limit(5)->get(),
+            "users" => User::latest()->paginate(5),
+            "activity_logs" => ActivityLog::latest()->limit(5)->get(),
         ];
 
         return view("dashboards.admin.pages.index", $data);
