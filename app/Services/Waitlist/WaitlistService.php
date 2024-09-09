@@ -53,14 +53,14 @@ class WaitlistService
                 "email" => $data["email"],
             ]);
 
-            // AppMailerService::send([
-            //     "data" => [
-            //         'email' => $waitlist->email,
-            //     ],
-            //     "to" => env("ADMIN_EMAIL", config("system.emails.sudo")),
-            //     "template" => "emails.user.waitlist",
-            //     "subject" => "New Waitlist Member",
-            // ]);
+            AppMailerService::send([
+                "data" => [
+                    'email' => $waitlist->email,
+                ],
+                "to" => env("ADMIN_EMAIL", config("system.emails.sudo")),
+                "template" => "emails.waitlist.admin",
+                "subject" => "New Waitlist Member",
+            ]);
 
             AppMailerService::send([
                 "data" => [

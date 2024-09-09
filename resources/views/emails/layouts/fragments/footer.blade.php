@@ -7,9 +7,9 @@
             <span><a class="https://web.talkam.prodevs.io/help&info/rules"> manage your email preferences.</a></span>
         </p>
 
-        {{-- <p class="detailCont-ps">
-            TalkAM Technologies, 230 Townsend Avenue, San Andreas NG 94433
-        </p> --}}
+        <p class="detailCont-ps">
+            TalkAM Technologies, 18 obagi street GRA, Portharcourt
+        </p>
     </td>
 </tr>
 
