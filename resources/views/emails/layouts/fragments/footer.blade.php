@@ -4,7 +4,7 @@
             This email was sent to you by
             <span><a class="link">{{ config("mail.from.address") }}</a></span> If you'd rather
             not receive this kind of email, you can
-            <span><a class="https://web.talkam.prodevs.io/help&info/rules"> manage your email preferences.</a></span>
+            <span><a class="{{ config("app.url") . "/settings/profile-notifications" }}"> manage your email preferences.</a></span>
         </p>
 
         <p class="detailCont-ps">
