@@ -9,7 +9,7 @@
         </p>
 
         <p class="detailCont-ps">
-            Click on this <span><a class="link" href="{{ config('app.url') . "/?messages&u=$userId" }}">link</a></span> to view the message.
+            Click on this <span><a class="link" href="{{ config('app.web_url') . "/?messages&u=$userId" }}">link</a></span> to view the message.
         </p>
 
         <p class="detailCont-p">
