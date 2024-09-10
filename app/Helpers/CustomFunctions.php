@@ -162,6 +162,6 @@ function carbon()
 
 function isBlocked($blocker, $blocked_user)
 {
-    return (new BlockUserService)->isBlocked($blocker->id, $blocked_user->id);
+    return (new BlockUserService)->isBlocked($blocker, $blocked_user);
 }
 
