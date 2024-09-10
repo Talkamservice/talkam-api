@@ -7,6 +7,7 @@ use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
+use App\Models\Feedback;
 use App\Models\Waitlist;
 use App\Services\Feedback\FeedbackService;
 use App\Services\Waitlist\WaitlistService;
@@ -27,9 +28,9 @@ class FeedbackController extends Controller
      */
     public function index(Request $request)
     {
-        $waitlist_services = Waitlist::latest()->paginate();
-        return view('dashboards.admin.pages.waitlist_services.index', [
-            "waitlist_services" => $waitlist_services,
+        $feedbacks = Feedback::latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        return view('dashboards.admin.pages.feedback.index', [
+            "feedbacks" => $feedbacks,
             "boolOptions" => AppConstants::BOOL_OPTIONS,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS
         ]);

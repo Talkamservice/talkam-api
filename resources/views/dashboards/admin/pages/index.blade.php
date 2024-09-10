@@ -1,31 +1,39 @@
 @extends('dashboards.admin.layout.app')
+
 @section('content')
     <div class="container-fluid">
+        <!-- ApexCharts -->
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
         <!-- Start::page-header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
             <div>
                 <p class="fw-semibold fs-18 mb-0">Welcome back, {{ auth()->user()?->name }}</p>
             </div>
-            {{-- <div class="btn-list mt-md-0 mt-2">
-                <button type="button" class="btn btn-primary btn-wave">
-                    <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>Filters
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-wave">
-                    <i class="ri-upload-cloud-line me-2 align-middle d-inline-block"></i>Export
-                </button>
-            </div> --}}
         </div>
-
         <!-- End::page-header -->
 
+        <div class="d-flex flex-wrap d-flex justify-content-end mb-2">
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="btn btn-primary btn-sm btn-wave waves-effect waves-light"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Sort By<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a class="dropdown-item" href="javascript:void(0);">Day</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);">Week</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);">Month</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);">Year</a></li>
+                </ul>
+            </div>
+        </div>
 
         <!-- Start::row-1 -->
-        <div class="row">
+        <div class="row" id="dashboard-content">
             <div class="col-xxl-12 col-xl-12">
                 <div class="row">
-                    @foreach ($cards as $card)
-                        <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-3">
+                    @foreach ($cards as $index => $card)
+                        <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-3" id="stats-content">
                             <div class="card custom-card overflow-hidden">
                                 <div class="card-body">
                                     <div class="d-flex align-items-top justify-content-between">
@@ -40,16 +48,20 @@
                                                     <p class="text-muted mb-0">{{ $card['title'] }}</p>
                                                     <h4 class="fw-semibold mt-1">{{ $card['value'] }}</h4>
                                                 </div>
+                                                <div id="crm-total-customers-{{ $index }}" class="chart"></div>
+                                                <!-- Unique ID -->
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-1">
                                                 <div>
                                                     <a class="text-{{ $card['class'] }}" href="{{ $card['url'] }}">
                                                         View All
-                                                        <i class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
+                                                        <i
+                                                            class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
                                                     </a>
                                                 </div>
                                                 <div class="text-end">
-                                                    <p class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
+                                                    <p
+                                                        class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
                                                         {{ $card['percentage'] >= 0 ? '+' : '' }}{{ $card['percentage'] }}%
                                                     </p>
                                                     <span class="text-muted op-7 fs-11">this month</span>
@@ -61,15 +73,14 @@
                             </div>
                         </div>
                     @endforeach
+
                 </div>
-                
+                <!-- Other Content Sections -->
                 <div class="row">
                     <div class="col-12 col-md-7 col-lg-7 col-xl-7 col-xxl-7">
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
-                                <div class="card-title">
-                                    Latest Users
-                                </div>
+                                <div class="card-title">Latest Users</div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -95,7 +106,8 @@
                                                     </td>
                                                     <td>{{ $user->email }}</td>
                                                     <td>
-                                                        <span class="badge bg-{{ pillClasses($user->status) }}-transparent">
+                                                        <span
+                                                            class="badge bg-{{ pillClasses($user->status) }}-transparent">
                                                             {{ $user->status }}
                                                         </span>
                                                     </td>
@@ -116,11 +128,12 @@
                                         </tbody>
                                     </table>
                                 </div>
-                
+
                                 <!-- Pagination -->
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <div class="text-muted">
-                                        Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
+                                        Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of
+                                        {{ $users->total() }} entries
                                     </div>
                                     <nav aria-label="Page navigation">
                                         <ul class="pagination">
@@ -134,17 +147,14 @@
                     <div class="col-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
-                                <div class="card-title">
-                                    Recent Activity
-                                </div>
+                                <div class="card-title">Recent Activity</div>
                                 <div class="dropdown">
-                                    <a href="{{route('admin.activity-logs.index')}}" class="p-2 fs-12 text-muted"
+                                    <a href="{{ route('admin.activity-logs.index') }}" class="p-2 fs-12 text-muted"
                                         aria-expanded="false">
-                                       @if ($activity_logs->count() >= 5)
-                                       View All
-                                       @endif
+                                        @if ($activity_logs->count() >= 5)
+                                            View All
+                                        @endif
                                     </a>
-
                                 </div>
                             </div>
                             <div class="card-body">
@@ -183,4 +193,190 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle dropdown selection and AJAX request
+            document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const period = this.textContent.toLowerCase().trim();
+                fetch(`{{ route('admin.home') }}?period=${encodeURIComponent(period)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data.html); 
+                        if (data.html) {
+                            document.getElementById('stats-content').innerHTML = '<p>Test HTML content</p>';
+                            initializeCharts(); // Ensure this function is defined
+                        } else {
+                            console.error('Invalid data format received');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+            });
+        });
+
+
+            // Initialize charts
+            function initializeCharts() {
+                @foreach ($cards as $index => $card)
+                    // Retrieve the data for the current card
+                    var data = @json($card['value']);
+                    console.log(data); // Add this before initializing the chart
+
+                    // Ensure data is an array
+                    if (!Array.isArray(data)) {
+                        console.error('Data for chart is not an array:', data);
+                        data = []; // Default to an empty array if data is not valid
+                    }
+
+                    // Calculate dynamic y-axis min and max if data is available
+                    var minValue = data.length ? Math.min(...data) - 10 : 0;
+                    var maxValue = data.length ? Math.max(...data) + 10 : 0;
+
+                    // Chart options for the current card
+                    var chartOptions = {
+                        chart: {
+                            type: 'line',
+                            height: 40,
+                            width: 50,
+                            sparkline: {
+                                enabled: true
+                            }
+                        },
+                        series: [{
+                            name: '{{ $card['title'] }}',
+                            data: data
+                        }],
+                        stroke: {
+                            curve: 'smooth',
+                            width: 2,
+                            height: 20
+                        },
+                        xaxis: {
+                            crosshairs: {
+                                show: false
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        },
+                        yaxis: {
+                            min: minValue,
+                            max: maxValue,
+                            labels: {
+                                show: false
+                            }
+                        },
+                        colors: ['#{{ $card['class'] }}']
+                    };
+
+                    // Render the chart
+                    new ApexCharts(document.querySelector('#crm-stats-{{ $index }}'),
+                            chartOptions)
+                        .render();
+                @endforeach
+            }
+            initializeCharts(); // Call the function to render charts initially
+        });
+
+        /* Total Customers chart */
+        @foreach ($cards as $index => $card)
+            // Retrieve the data for the current card
+            var data = @json($card['value']);
+            console.log(data); // Add this before initializing the chart
+
+            // Ensure data is an array
+            if (!Array.isArray(data)) {
+                console.error('Data for chart is not an array:', data);
+                data = []; // Default to an empty array if data is not valid
+            }
+
+            // Calculate dynamic y-axis min and max if data is available
+            var minValue = data.length ? Math.min(...data) - 10 : 0;
+            var maxValue = data.length ? Math.max(...data) + 10 : 0;
+            var crm1 = {
+                chart: {
+                    type: 'line',
+                    height: 40,
+                    width: 100,
+                    sparkline: {
+                        enabled: true
+                    }
+                },
+                stroke: {
+                    show: true,
+                    curve: 'smooth',
+                    lineCap: 'butt',
+                    colors: undefined,
+                    width: 1.5,
+                    dashArray: 0,
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        opacityFrom: 0.9,
+                        opacityTo: 0.9,
+                        stops: [0, 98],
+                    }
+                },
+                series: [{
+                    name: '{{ $card['title'] }}',
+                    data: [20, 14, 19, 10, 23, 20, 22, 9, 12]
+                }],
+                yaxis: {
+                    min: 0,
+                    show: false,
+                    axisBorder: {
+                        show: false
+                    },
+                },
+                xaxis: {
+                    show: false,
+                    axisBorder: {
+                        show: false
+                    },
+                },
+                tooltip: {
+                    enabled: false,
+                },
+                colors: ["rgb(132, 90, 223)"],
+            }
+            document.getElementById('crm-total-customers-{{ $index }}').innerHTML = '';
+            var crm1 = new ApexCharts(document.querySelector("#crm-total-customers-{{ $index }}"),
+                crm1);
+            crm1.render();
+
+            function crmtotalCustomers() {
+                crm1.updateOptions({
+                    colors: ["rgb(" + myVarVal + ")"],
+                });
+            }
+            /* Total Customers chart */
+
+            function leads(myVarVal) {
+
+                chartInstance.data.datasets[0] = {
+                    label: 'My First Dataset',
+                    data: [32, 27, 25, 16],
+                    backgroundColor: [
+                        `rgb(${myVarVal})`,
+                        'rgb(35, 183, 229)',
+                        'rgb(245, 184, 73)',
+                        'rgb(38, 191, 148)',
+                    ]
+                }
+                chartInstance.update();
+
+            }
+        @endforeach
+    </script>
 @endsection
