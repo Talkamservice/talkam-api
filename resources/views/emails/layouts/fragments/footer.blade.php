@@ -8,7 +8,7 @@
         </p>
 
         <p class="detailCont-ps">
-            TalkAM Technologies, 18 obagi street GRA, Portharcourt
+            TalkAM Technologies, 18 Obagi Street GRA, Portharcourt
         </p>
     </td>
 </tr>
