@@ -14,12 +14,10 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = Permission::latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-        $guards = AppConstants::PERMISSION_GUARDS;
         $sn = $permissions->firstItem();
-        return view("dashboards.authorization.permissions.index" , [
+        return view("dashboards.admin.pages.authorization.permissions.index" , [
             "permissions" => $permissions,
             "sn" => $sn,
-            "guards" => $guards,
         ]);
     }
 

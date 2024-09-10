@@ -182,9 +182,10 @@
                             <a href="{{ route('admin.authorization.roles.index') }}"
                                 class="side-menu__item list-item list-item-sub">Roles</a>
                         </li>
-                        {{-- <li class="slide">
-                             <a href="#" class="side-menu__item list-item">Permissions</a>
-                         </li> --}}
+                        <li class="slide">
+                            <a href="{{ route('admin.authorization.permissions.index') }}"
+                                class="side-menu__item list-item list-item-sub">Permissions</a>
+                        </li>
                     </ul>
                 </li>
                 {{-- <!-- Start::slide -->
