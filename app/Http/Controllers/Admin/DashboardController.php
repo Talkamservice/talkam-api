@@ -19,39 +19,43 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        // Use the dashboard service class to get the dashboard data
-        $dashboardData = $this->dashboard_service->getDashboardData();
-
+        $period = $request->get('period', 'month');
+        // Ensure period is valid
+        if (!in_array($period, ['day', 'week', 'month', 'year'])) {
+            $period = 'month';
+        }
+        $dashboardData = $this->dashboard_service->getDashboardData($period);
+        // dd($dashboardData);
         $data = [
             "cards" => [
                 [
                     "icon" => "users",
                     "title" => "Total Users",
-                    "value" => $dashboardData['totalUsersCurrentMonth'],
+                    "value" => array_sum($dashboardData['currentUsers']),
                     "class" => "primary",
                     "url" => route("admin.users.index"),
                     "percentage" => $dashboardData['usersChangePercentage']
                 ],
                 [
-                    "icon" => "books",
+                    "icon" => "categories",
                     "title" => "Total Categories",
-                    "value" => $dashboardData['totalCategoriesCurrentMonth'],
+                    "value" => array_sum($dashboardData['currentCategories']),
                     "class" => "info",
                     "url" => "",
                     "percentage" => $dashboardData['categoriesChangePercentage']
                 ],
                 [
-                    "icon" => "books",
+                    "icon" => "posts",
                     "title" => "Total Posts",
-                    "value" => $dashboardData['totalPostsCurrentMonth'],
+                    "value" => array_sum($dashboardData['currentPosts']),
                     "class" => "warning",
                     "url" => "",
                     "percentage" => $dashboardData['postsChangePercentage']
                 ],
                 [
-                    "icon" => "books",
+                    "icon" => "groups",
                     "title" => "Total Groups",
-                    "value" => $dashboardData['totalGroupsCurrentMonth'],
+                    "value" => array_sum($dashboardData['currentGroups']),
                     "class" => "primary",
                     "url" => "",
                     "percentage" => $dashboardData['groupsChangePercentage']
@@ -59,8 +63,15 @@ class DashboardController extends Controller
             ],
             "users" => User::latest()->paginate(5),
             "activity_logs" => ActivityLog::latest()->limit(5)->get(),
+            "period" => $period,
+            "dashboardData" => $dashboardData // Pass the raw data to the view
         ];
 
-        return view("dashboards.admin.pages.index", $data);
+        return view('dashboards.admin.pages.index', $data);
+
+        // return response()->json([
+        //     'html' => $html,
+        //     'data' => $data
+        // ]);
     }
 }
