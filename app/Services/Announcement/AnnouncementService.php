@@ -42,6 +42,7 @@ class AnnouncementService
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'status' => 'nullable|string',
             'published_at' => 'nullable|date',
+            'expired_at' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
@@ -61,12 +62,19 @@ class AnnouncementService
             $data["banner_image"] = $this->file_service->saveFromFileIntoStorage($banner_image, FileConstants::ANNOUNCEMENT_BANNER_PATH, null, auth()->id());
         }
 
+        // Ensure expired_at is correctly formatted for database storage
+        if (isset($data['expired_at'])) {
+            $data['expired_at'] = \Carbon\Carbon::parse($data['expired_at'])->format('Y-m-d H:i:s');
+        }
+
         if ($id) {
             $announcement = self::getById($id);
             $old_announcement = $announcement->toArray();
+
             // Update the announcement with validated data
             $announcement->update($data);
             $announcement->refresh();  // Refresh the announcement instance
+
             // Log the activity
             (new ActivityLogService)
                 ->setEvent("updated")
@@ -86,6 +94,7 @@ class AnnouncementService
             // Create new announcement
             $announcement = Announcement::create($data);
             $announcement->refresh();  // Refresh the announcement instance
+
             // Log the activity
             (new ActivityLogService)
                 ->setEvent("created")
@@ -104,6 +113,7 @@ class AnnouncementService
 
         return $announcement;
     }
+
 
     public static function list(array $data = [])
     {

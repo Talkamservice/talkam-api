@@ -38,6 +38,7 @@
                                         <th scope="col">Audience</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Published At</th>
+                                        <th scope="col">Expired At</th>
                                         <th scope="col">Action</th>
 
                                     </tr>
@@ -61,13 +62,31 @@
                                                     View
                                                 </button>
                                             </td>
-                                            <td> {{ ucwords(str_replace('_', ' ', strtolower($announcement->audience))) }}</td>
+                                            <td> {{ ucwords(str_replace('_', ' ', strtolower($announcement->audience))) }}
+                                            </td>
                                             <td>
                                                 <span class="badge bg-{{ pillClasses($announcement->status) }}-transparent">
                                                     {{ $announcement->status }}
                                                 </span>
                                             </td>
                                             <td>{{ $announcement->published_at ?? 'N/A' }}</td>
+                                            @php
+                                                $isExpired = \Carbon\Carbon::now()->greaterThan(
+                                                    $announcement->expired_at ?? now(),
+                                                );
+                                            @endphp
+
+                                            <td class="{{ $isExpired ? 'text-danger' : '' }}">
+                                                @if ($announcement->expired_at)
+                                                    {{ \Carbon\Carbon::parse($announcement->expired_at)->format('d/m/Y H:i') }}
+                                                    @if ($isExpired)
+                                                        <sub class="text-danger">(Expired)</sub>
+                                                    @endif
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+
                                             <td>
                                                 <div class="dropdown">
                                                     <a class="btn btn-outline-primary dropdown-toggle" href="#"

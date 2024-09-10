@@ -17,6 +17,7 @@ class Announcement extends Model
         'banner_image',
         'status',
         'published_at',
+        'expired_at',
     ];
 
     protected $casts = [

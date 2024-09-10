@@ -63,7 +63,7 @@
                                             <option value="" disabled selected>Select Audience</option>
                                             <option value="Group_Admins"
                                                 {{ (old('audience') ?? ($announcement->audience ?? '')) == 'Group_Admins' ? 'selected' : '' }}>
-                                               Group Admins
+                                                Group Admins
                                             </option>
                                             <option value="General"
                                                 {{ (old('audience') ?? ($announcement->audience ?? '')) == 'General' ? 'selected' : '' }}>
@@ -75,12 +75,28 @@
 
                                 <!-- Banner Image Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
-                                    <label for="banner_image" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Banner</label>
+                                    <label for="banner_image"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Banner</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <input type="file" class="form-control" name="banner_image" id="banner_image">
                                         {{-- @if (isset($announcement->banner_image))
                                             <img src="{{ asset('storage/' . $announcement->banner_image) }}" alt="Banner Image" class="img-fluid mt-2">
                                         @endif --}}
+                                    </div>
+                                </div>
+                                @php
+                                    $formattedExpiredAt =
+                                        isset($announcement) && $announcement->expired_at
+                                            ? \Carbon\Carbon::parse($announcement->expired_at)->format('Y-m-d\TH:i')
+                                            : '';
+                                @endphp
+
+                                <div class="row col-xl-9 col-sm-12 mb-3" id="expired_at">
+                                    <label for="expired_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Expired
+                                        Date (Optional)</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="datetime-local" class="form-control" name="expired_at" id="expired_at"
+                                            value="{{ old('expired_at') ?? $formattedExpiredAt }}">
                                     </div>
                                 </div>
 
@@ -107,7 +123,7 @@
                                     <label for="published_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Publish
                                         Date</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="datetime-local" class="form-control" name="published_at" 
+                                        <input type="datetime-local" class="form-control" name="published_at"
                                             id="published_at"
                                             value="{{ old('published_at') ?? (isset($announcement) && $announcement->published_at ? $announcement->published_at->format('Y-m-d\TH:i') : '') }}">
                                     </div>
