@@ -6,7 +6,7 @@ use App\Constants\General\StatusConstants;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class SuspendUserNotification extends Notification
@@ -28,7 +28,7 @@ class SuspendUserNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**

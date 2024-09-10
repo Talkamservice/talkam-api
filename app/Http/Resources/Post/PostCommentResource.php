@@ -34,7 +34,7 @@ class PostCommentResource extends JsonResource
         $reply_to = !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null;
         return [
             "id" => $this->id,
-            "post" => PostResource::custom($this->post),
+            "post" => !empty($this->post) ? PostResource::custom($this->post) : null,
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "comment" => $this->comment,
             "is_anonymous" => $this->is_anonymous,

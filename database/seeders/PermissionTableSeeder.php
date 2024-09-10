@@ -19,6 +19,14 @@ class PermissionTableSeeder extends Seeder
         $data = [
             UserConstants::ADMIN => array_merge(
                 $this->crud("user"),
+                $this->crud("category"),
+                $this->crud("sub_category"),
+                $this->crud("guideline"),
+                $this->crud("notification"),
+                $this->crud("announcement"),
+                $this->crud("faq"),
+                $this->crud("faq_category"),
+                $this->crud("avatar"),
                 $this->slugifyPerms([
                     "login into admin dashboard",
                 ]),

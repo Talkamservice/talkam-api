@@ -4,7 +4,7 @@ namespace App\Notifications\Group;
 
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class SuspendGroupMemberNotification extends Notification
@@ -19,7 +19,7 @@ class SuspendGroupMemberNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     public function toMail($notifiable): MailMessage

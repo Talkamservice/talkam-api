@@ -57,6 +57,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'web_url' => env('WEB_URL', 'https://web.talkam.prodevs.io/home/new'),
+
     'asset_url' => env('ASSET_URL'),
 
     /*

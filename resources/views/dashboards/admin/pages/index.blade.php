@@ -170,11 +170,14 @@
                                                         </span>
                                                     </div>
                                                     <div class="crm-timeline-content">
-                                                        <span class="fw-semibold">{{ $log->description }}</span>
+                                                        <span class="fw-semibold">
+                                                            {{ ucfirst($log->description) }}
+                                                        </span>
                                                     </div>
                                                     <div class="flex-fill text-end">
                                                         <span
-                                                            class="d-block text-muted fs-11 op-7">{{ $log->created_at->diffForHumans() }}</span>
+                                                            class="d-block text-muted fs-11 op-7">{{ $log->created_at->diffForHumans() }}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </li>

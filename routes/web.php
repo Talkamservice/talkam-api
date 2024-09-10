@@ -19,11 +19,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route("login");
-    // return view('welcome');
 });
 
-Route::as('web.')->namespace('Web')->group(function () {
+Route:: as('web.')->namespace('Web')->group(function () {
     Route::get('/', function () {
+        // return view("emails.waitlist.user-waitlist");
         return redirect()->route("login");
     })->name("index");
 

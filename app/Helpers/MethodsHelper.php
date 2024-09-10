@@ -416,19 +416,20 @@ class MethodsHelper
         }
     }
 
-    public static function therapistNotificationPreference($therapist)
+    public static function userNotificationPreference($user)
     {
         $preference = [];
+        $notification_preference = $user->notificationPreference;
 
-        // if ($therapist?->sms_notification == 1) {
+        // if ($user?->can_receive_sms == 1) {
         //     $preference[] = "sms";
         // }
 
-        if ($therapist?->push_notification == 1) {
+        if ($notification_preference?->can_receive_push == 1) {
             $preference[] = "firebase";
         }
 
-        if ($therapist?->email_notification == 1) {
+        if ($notification_preference?->can_receive_mail == 1) {
             $preference[] = "mail";
         }
 

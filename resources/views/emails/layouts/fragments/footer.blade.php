@@ -2,13 +2,13 @@
     <td>
         <p class="detailCont-p">
             This email was sent to you by
-            <span><a class="link">{{ env("MAIL_FROM_ADDRESS") }}</a></span> If you’d rather
+            <span><a class="link">{{ config("mail.from.address") }}</a></span> If you'd rather
             not receive this kind of email, you can
-            <span><a class="https://web.talkam.prodevs.io/help&info/rules"> manage your email preferences.</a></span>
+            <span><a class="{{ config("app.web_url") . "/settings/profile-notifications" }}"> manage your email preferences.</a></span>
         </p>
 
         <p class="detailCont-ps">
-            TalkAM Technologies, 230 Townsend Avenue, San Andreas NG 94433
+            TalkAM Technologies, 18 obagi street GRA, Portharcourt
         </p>
     </td>
 </tr>
