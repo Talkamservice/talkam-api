@@ -2,14 +2,19 @@
 
 namespace App\Services\Post;
 
+use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
+use App\Models\MergeMedia;
 use App\Models\Post;
+use App\Models\PostAttachment;
+use App\Models\PostComment;
 use App\Models\TrendingTag;
 use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostPollService;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -40,7 +45,7 @@ class PostService
     public static function validate($data, $id = null)
     {
         $validator = Validator::make($data, [
-            "category_id" => "nullable|numeric|exists:post_categories,id|". Rule::requiredIf(empty($id)),
+            "category_id" => "nullable|numeric|exists:post_categories,id|" . Rule::requiredIf(empty($id)),
             "group_id" => "nullable|numeric|exists:groups,id",
             "type" => "required|string|" . Rule::in(PostConstants::TYPES),
             "title" => "nullable|string",
@@ -186,7 +191,7 @@ class PostService
         if (!empty($key = $data["exclude_anonymous"] ?? null)) {
             $builder = $builder->where("is_anonymous", 0);
         }
-        
+
         if (!empty($key = $data["target"] ?? null)) {
             if ($key == "group") {
                 $builder = $builder->whereRelation("group", "group_access", StatusConstants::OPENED);
@@ -261,5 +266,97 @@ class PostService
         });
 
         return $builder;
+    }
+
+    public function getAllMedia(array $data = [])
+    {
+        try {
+            $validator = Validator::make($data, [
+                "user_id" => "required|exists:users,id|" . Rule::requiredIf(empty($id)),
+            ]);
+    
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+    
+            $data = $validator->validated();
+
+            $posts = $this->getPostAttachments($data);
+            $comments = $this->getCommentAttachments($data);
+
+            $postsCollection = collect($posts);
+            $commentsCollection = collect($comments);
+
+            $merged_media = $postsCollection->merge($commentsCollection);
+
+            $sortedMedia = $merged_media->sortByDesc('created_at');
+
+            $page = $data['page'] ?? 1;
+            $perPage = $data['per_page'] ?? AppConstants::API_PAGINATION_SIZE;
+
+            $paginated = $this->paginateCollection($sortedMedia, $perPage, $page);
+
+            $transformed = $paginated->map(function ($item) {
+                return new MergeMedia($item);
+            });
+
+            return new LengthAwarePaginator(
+                $transformed,
+                $sortedMedia->count(),
+                $perPage,
+                $page,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    protected function paginateCollection($collection, $perPage, $page)
+    {
+        $offset = ($page * $perPage) - $perPage;
+        return $collection->slice($offset, $perPage)->values();
+    }
+
+
+    public function getPostAttachments($data)
+    {
+        return PostAttachment::where("user_id", $data["user_id"])->whereHas("post", function ($post) use ($data) {
+            $post->status();
+            if (!empty($data["exclude_anonymous"] ?? null)) {
+                $post->where("is_anonymous", 0);
+            }
+        })->latest()->get()
+            ->map(function ($attachment) {
+                return [
+                    "id" => $attachment->id,
+                    "url" => $attachment->url,
+                    "type" => $attachment->type,
+                    "status" => $attachment->status,
+                    "created_at" => $attachment->created_at,
+                    "updated_at" => $attachment->created_at,
+                ];
+            });
+    }
+
+    public function getCommentAttachments($data)
+    {
+        $builder = PostComment::where("user_id", $data["user_id"])->whereNotNull("attachment");
+
+        if (!empty($data["exclude_anonymous"] ?? null)) {
+            $builder = $builder->where("is_anonymous", 0);
+        }
+
+        return $builder->latest()->get()
+            ->map(function ($comment) {
+                return [
+                    "id" => $comment->id,
+                    "url" => $comment->attachment,
+                    "type" => $comment->type ?? "Image",
+                    "status" => $comment->status,
+                    "created_at" => $comment->created_at,
+                    "updated_at" => $comment->created_at,
+                ];
+            });
     }
 }

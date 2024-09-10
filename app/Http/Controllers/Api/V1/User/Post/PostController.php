@@ -140,17 +140,12 @@ class PostController extends Controller
     public function media(Request $request)
     {
         try {
-            $attachments = PostAttachment::where("user_id", $request->user_id)->whereHas("post", function ($post) use ($request) {
-                $post->status();
-                if (!empty($request->exclude_anonymous)) {
-                    $post->where("is_anonymous", 0);
-                }
-            })->latest()->paginate(AppConstants::API_PAGINATION_SIZE)
-                ->appends($request->query());
-
+            $attachments = $this->post_service->getAllMedia($request->all());
             $data = collectPagination($attachments);
             $data["data"] = PostAttachmentResource::collection($data["data"]);
             return ApiHelper::validResponse("Media returned successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
