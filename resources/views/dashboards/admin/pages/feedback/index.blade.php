@@ -21,7 +21,7 @@
         <!-- Start::row-1 -->
         <div class="col-xl-12">
             <div class="card custom-card">
-                <div class="card-header d-flex justify-content-between">
+                {{-- <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
                             <label for="">Search</label>
@@ -32,7 +32,7 @@
                         </div>
                     </form>
                    
-                </div>
+                </div> --}}
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
@@ -42,7 +42,7 @@
                                     <th scope="col">Email</th>
                                     <th scope="col">Platform</th>
                                     <th scope="col">Content</th>
-                                    <th scope="col">Status</th>
+                                    {{-- <th scope="col">Status</th> --}}
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
                                 </tr>
@@ -54,15 +54,10 @@
                                         <td>{{ $feedback->email }}</td>
                                         <td>{{ $feedback->platform }}</td>
                                         <td>{{ str_limit($feedback->content, 50) }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ pillClasses($feedback->status) }}-transparent">
-                                                {{ $feedback->status }}
-                                            </span>
-                                        </td>
+                                        
                                         <td>{{ $feedback->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor" href="{{ route('admin.feedbacks.edit', $feedback->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
                                                 <form action="{{ route('admin.feedbacks.destroy', $feedback->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
                                                     <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
                                                 </form>

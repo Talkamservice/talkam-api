@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Feedback;
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
@@ -41,7 +42,7 @@ class FeedbackController extends Controller
      */
     public function create()
     {
-        return view('dashboards.admin.pages.waitlist_services.create', [
+        return view('dashboards.admin.pages.feedbacks.create', [
             "boolOptions" => AppConstants::BOOLEAN_OPTIONS,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS
         ]);
@@ -52,15 +53,15 @@ class FeedbackController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $this->feedback_service->create($request->all());
-            return redirect()->route("admin.emergency-contacts.index")->with(NotificationConstants::SUCCESS_MSG, "Emergency contact created successfully.");
-        } catch (ValidationException $th) {
-            throw $th;
-        } catch (\Throwable $th) {
-            // throw $th;
-            return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
-        }
+        // try {
+        //     $this->feedback_service->create($request->all());
+        //     return redirect()->route("admin.emergency-contacts.index")->with(NotificationConstants::SUCCESS_MSG, "Emergency contact created successfully.");
+        // } catch (ValidationException $th) {
+        //     throw $th;
+        // } catch (\Throwable $th) {
+        //     // throw $th;
+        //     return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+        // }
     }
 
     /**
@@ -68,12 +69,12 @@ class FeedbackController extends Controller
      */
     public function edit(string $id)
     {
-        $waitlist_service = Waitlist::findOrFail($id);
-        return view("dashboards.admin.pages.waitlist_services.create", [
-            "waitlist_service" => $waitlist_service,
-            "boolOptions" => AppConstants::BOOLEAN_OPTIONS,
-            "statusOptions" => StatusConstants::ACTIVE_OPTIONS
-        ]);
+        // $feedback = $this->feedback_service->getById($id);
+        // return view("dashboards.admin.pages.feedbacks.create", [
+        //     "feedback" => $feedback,
+        //     "boolOptions" => AppConstants::BOOLEAN_OPTIONS,
+        //     "statusOptions" => StatusConstants::ACTIVE_OPTIONS
+        // ]);
     }
 
     /**
@@ -81,16 +82,16 @@ class FeedbackController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        try {
-            $this->feedback_service->update($request->all(), $id);
-            return redirect()->route("admin.emergency-contacts.index")->with(NotificationConstants::SUCCESS_MSG, "Emergency contact updated successfully.");
-        } catch (ValidationException $th) {
-            throw $th;
-        } catch (ModelNotFoundException $th) {
-            return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
-        } catch (\Throwable $th) {
-            return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
-        }
+        // try {
+        //     $this->feedback_service->update($request->all(), $id);
+        //     return redirect()->route("admin.emergency-contacts.index")->with(NotificationConstants::SUCCESS_MSG, "Emergency contact updated successfully.");
+        // } catch (ValidationException $th) {
+        //     throw $th;
+        // } catch (ModelNotFoundException $th) {
+        //     return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        // } catch (\Throwable $th) {
+        //     return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+        // }
     }
 
     /**
@@ -99,14 +100,29 @@ class FeedbackController extends Controller
     public function destroy($id)
     {
         try {
-            $waitlist_service = $this->feedback_service->getById($id);
-            $waitlist_service->delete();
-            return redirect()->route("admin.emergency-contacts.index")->with(NotificationConstants::SUCCESS_MSG, "Emergency contact deleted successfully.");
+            $this->feedback_service->delete($id);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Feedback deleted successfully.");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            //throw $th;
+            // throw $th;
             return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
+
+    // public function updateStatus(Request $request, $comment_report_id)
+    // {
+    //     try {
+    //         $this->feedback_service->changeStatus($request->all(), $comment_report_id);
+    //         return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "feedback status updated successfully");
+    //     } catch (ModelNotFoundException $th) {
+    //         return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+    //     } catch (InvalidRequestException $th) {
+    //         return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+    //     } catch (\Throwable $th) {
+    //         throw $th;
+    //         return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+    //     }
+    // }
+
 }

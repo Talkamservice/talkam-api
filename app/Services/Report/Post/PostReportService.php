@@ -99,4 +99,27 @@ class PostReportService
             ->log();
         // return  $reported_post->refresh();
     }
+
+    public static function list(array $data = [])
+    {
+        $post_reports = PostReport::with(["user"]);
+
+        if (!empty($key = $data["search"] ?? null)) {
+            $post_reports = $post_reports->where("name", "LIKE", "%$key%");
+        }
+
+        if (!empty($key = $data["category_id"] ?? null)) {
+            $post_reports = $post_reports->where("category_id", $key);
+        } else {
+            $post_reports = $post_reports->whereNull("category_id");
+        }
+
+        if (!empty($key = $data["sort"] ?? null)) {
+            if ($key == "popular") {
+                $post_reports = $post_reports->withCount('posts')->orderBy('posts_count', 'desc');
+            }
+        }
+
+        return $post_reports;
+    }
 }

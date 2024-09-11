@@ -173,7 +173,7 @@
                 <li class="slide">
                     <a href="{{ route('admin.feedbacks.index') }}" class="side-menu__item list-item">
                         <i class="bx bx-message-dots side-menu__icon list-item-icon"></i>
-                        <span class="side-menu__label list-item-label">Feedback</span>
+                        <span class="side-menu__label list-item-label">Feedbacks</span>
                     </a>
                 </li>
 

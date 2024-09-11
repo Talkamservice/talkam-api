@@ -201,22 +201,15 @@
 @section('script')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.addEventListener('DOMContentLoaded', function() {
-                const dropdownItems = document.querySelectorAll('.dropdown-menu .dropdown-item');
-                dropdownItems.forEach(item => {
-                    item.addEventListener('click', function() {
-                        const period = this.getAttribute('data-period');
-                        alert(period);
-                        const form = this.closest('form');
-                        form.querySelector('#selected-period').value = period;
-                        alert(form);
-                        form.submit(); // Submit the form automatically
-                    });
+            // Handle dropdown item click
+            document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const period = this.getAttribute('data-period');
+                    const form = this.closest('form');
+                    form.querySelector('#selected-period').value = period;
+                    form.submit(); // Submit the form automatically
                 });
             });
-
-
-
             // Initialize charts
             function initializeCharts() {
                 @foreach ($cards as $index => $card)
