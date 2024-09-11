@@ -50,4 +50,19 @@ class PostComment extends Model
         return $this->hasMany(self::class, "comment_report_id");
     }
 
+    public function scopeUnblocked($query)
+    {
+        if (auth("sanctum")->check()) {
+            //All users that blocked me
+            $blocked_me_users = BlockedUser::where("blocked_user_id", auth("sanctum")->id())->pluck("blocker_id")->toArray();
+            //All users that I blocked
+            $blocked_users = BlockedUser::where("blocker_id", auth("sanctum")->id())->pluck("blocked_user_id")->toArray();
+
+            $query->whereNotIn('user_id', array_merge($blocked_me_users, $blocked_users));
+        }
+
+        return $query;
+    }
+
+
 }
