@@ -3,7 +3,6 @@
 namespace App\Http\Resources\Messaging;
 
 use App\Http\Resources\Users\UserResource;
-use App\Services\User\BlockUserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,6 +16,7 @@ class ConversationResource extends JsonResource
     public function toArray(Request $request): array
     {
         $other_member = $this->members()->whereNot("user_id", auth()->id())->first();
+
         return [
             "id" => $this->id,
             "members" => ConversationMemberResource::collection($this->members),
@@ -25,7 +25,8 @@ class ConversationResource extends JsonResource
             "notification_status" => $this->notification_status,
             "is_anonymous" => $this->is_anonymous,
             "requested_by" => UserResource::custom($this->user),
-            "user_blocked" => (new BlockUserService)->isBlocked(auth()->id(), $other_member?->user_id),
+            "user_blocked" => isBlocked(auth()->id(), $other_member?->user_id),
+            "i_am_blocked" => isBlocked($other_member?->user_id, auth()->id()),
             "status" => $this->status
         ];
     }

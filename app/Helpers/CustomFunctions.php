@@ -3,6 +3,7 @@
 use App\Constants\General\AppConstants;
 use App\Helpers\MethodsHelper;
 use App\Models\User;
+use App\Services\User\BlockUserService;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ function convertJsonStringToText($string)
 {
     return MethodsHelper::convertJsonStringToText($string);
 }
-function str_limit($string, $limit = 20, $end  = '...')
+function str_limit($string, $limit = 20, $end = '...')
 {
     return MethodsHelper::str_limit(strip_tags($string), $limit, $end);
 }
@@ -93,7 +94,7 @@ function groupAges($years, $currentYear, $intervals)
             continue;
         }
 
-        $age = $currentYear - (int)$year;
+        $age = $currentYear - (int) $year;
 
         foreach ($groupedAges as $range => &$count) {
             list($start, $end) = explode('-', $range);
@@ -140,20 +141,27 @@ function collectPagination(LengthAwarePaginator $pagination, $appendQuery = true
     return $buildResponse;
 }
 
-function ensureUniqueKeys(array $array) {
+function ensureUniqueKeys(array $array)
+{
     $uniqueArray = [];
-    
+
     foreach ($array as $key => $value) {
         // If the key doesn't exist in the uniqueArray, add it
         if (!array_key_exists($key, $uniqueArray)) {
             $uniqueArray[$key] = $value;
         }
     }
-    
+
     return $uniqueArray;
 }
 
-function carbon() {
-   return new Carbon;
+function carbon()
+{
+    return new Carbon;
+}
+
+function isBlocked($blocker, $blocked_user)
+{
+    return (new BlockUserService)->isBlocked($blocker, $blocked_user);
 }
 
