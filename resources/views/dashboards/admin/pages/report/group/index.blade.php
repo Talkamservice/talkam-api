@@ -18,6 +18,23 @@
         <!-- Reported Groups Section -->
         <div class="col-xl-12 mb-4">
             <div class="card custom-card">
+                <div class="card-header">
+                    <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
+                        <div class="form-group me-2">
+                            <label for="search">Search(status or reason)</label>
+                            <input class="form-control" type="text" value="{{ request()->search }}" placeholder="Search..." name="search">
+                        </div>
+                    
+                        <div class="form-group me-2">
+                            <label for="date">Date</label>
+                            <input class="form-control" type="date" value="{{ request()->date }}" name="date">
+                        </div>
+                        <div class="form-group me-2" style="margin-top: 20px;">
+                            <button class="btn btn-sm btn-success p-2">Filter</button>
+                        </div>
+                    </form>
+                    
+                </div>
                 <div class="card-body">
                     <div class="table-responsive" style="min-height: 250px">
                         <table class="table text-nowrap table-hover border table-bordered">

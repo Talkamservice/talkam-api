@@ -37,6 +37,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('members:update-status')->everyMinute();
         $schedule->command('notifications:send-pending')->everyMinute();
+        $schedule->command('announcements:update-expired')->everyMinute();
     }
 
     /**

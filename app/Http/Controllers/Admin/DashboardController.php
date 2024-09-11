@@ -68,10 +68,5 @@ class DashboardController extends Controller
         ];
 
         return view('dashboards.admin.pages.index', $data);
-
-        // return response()->json([
-        //     'html' => $html,
-        //     'data' => $data
-        // ]);
     }
 }

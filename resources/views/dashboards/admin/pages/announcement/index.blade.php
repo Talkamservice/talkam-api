@@ -107,18 +107,23 @@
                                                                     'label' => 'Mark As Inactive',
                                                                 ],
                                                             ];
+                                                            $isActive = $announcement->status === 'Active';
                                                         @endphp
-
+                                            
                                                         <li>
-                                                            @if ($announcement->status !== $Active)
+                                                            @if (!$isActive)
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('admin.announcements.edit', $announcement->id) }}">
                                                                     <i class="ri-edit-2-line"></i> | Edit
                                                                 </a>
                                                             @endif
                                                         </li>
-
+                                            
                                                         @foreach ($statuses as $status => $details)
+                                                            @if (($isActive && $status === 'Active') || (!$isActive && $status === 'Inactive'))
+                                                                <!-- Do not show the form for the current status -->
+                                                                @continue
+                                                            @endif
                                                             <li>
                                                                 <form
                                                                     id="updateStatus_{{ $status }}_{{ $announcement->id }}"
@@ -137,6 +142,7 @@
                                                                 </form>
                                                             </li>
                                                         @endforeach
+                                            
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="#"
                                                                 onclick="$('#deleteannouncementForm_{{ $announcement->id }}').submit()">
@@ -146,6 +152,7 @@
                                                     </ul>
                                                 </div>
                                             </td>
+                                            
                                         </tr>
                                         <!-- Hidden Delete Form -->
                                         <form id="deleteannouncementForm_{{ $announcement->id }}"

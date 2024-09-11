@@ -120,4 +120,9 @@ class Post extends Model
                 return ['title' => $this->title, 'body' => $this->body];
         }
     }
+
+    public function postReports()
+    {
+        return $this->hasMany(PostReport::class, 'post_id');
+    }
 }

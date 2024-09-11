@@ -21,96 +21,100 @@
                 <div class="col-xxl-12 col-xl-12">
                     <div class="card custom-card overflow-hidden">
                         <div class="card-body p-0">
-                            <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
-                                <div>
-                                    <span class="avatar avatar-xxl avatar-rounded ">
-                                        <img src="{{ $post_report->post->cover }}" alt="">
-                                    </span>
-                                </div>
-                                <div class="flex-fill main-profile-info">
-                                    <div class="d-flex align-items-center justify-content-end">
-                                        <button
-                                            class="btn bg-white btn-outline-{{ pillClasses($post_report->status) }} btn-sm btn-wave">
-                                            {{ $post_report->status }}
-                                        </button>
+                            @if ($post_report && $post_report->post)
+                                <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
+                                    <div>
+                                        <span class="avatar avatar-xxl avatar-rounded">
+                                            <img src="{{ $post_report->post->cover }}" alt="Post Cover">
+                                        </span>
                                     </div>
-                                    <div class="d-flex mb-0">
-                                        <div class="me-4">
-                                            <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">{{ $reasons_count }}
-                                            </p>
-                                            <p class="mb-0 fs-14 text-fixed-white">Reports</p>
+                                    <div class="flex-fill main-profile-info">
+                                        <div class="d-flex align-items-center justify-content-end">
+                                            <button
+                                                class="btn bg-white btn-outline-{{ pillClasses($post_report->status) }} btn-sm btn-wave">
+                                                {{ $post_report->status }}
+                                            </button>
+                                        </div>
+                                        <div class="d-flex mb-0">
+                                            <div class="me-4">
+                                                <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">
+                                                    {{ $reasons_count }}</p>
+                                                <p class="mb-0 fs-14 text-fixed-white">Reports</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="p-4 border-bottom border-block-end-dashed">
-                                <p class="fs-15 mb-2 me-4 fw-semibold">Post Information :</p>
-                                <div class="text-muted">
-                                    @if ($post_report->post->type == 'Poll')
-                                        <p class="mb-2">
-                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
-                                        </p>
-                                        <p class="mb-2">
-                                            <b>Poll Options:</b>
-                                            @if (isset($polls) && $polls->isNotEmpty())
-                                                @foreach ($polls as $pollResource)
-                                                    @php
-                                                        $poll = $pollResource->toArray(request());
-                                                    @endphp
-                                                    @if ($poll['type'] === 'Image')
+                                <div class="p-4 border-bottom border-block-end-dashed">
+                                    <p class="fs-15 mb-2 me-4 fw-semibold">Post Information :</p>
+                                    <div class="text-muted">
+                                        @if ($post_report->post->type == 'Poll')
+                                            <p class="mb-2">
+                                                <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                            </p>
+                                            <p class="mb-2">
+                                                <b>Poll Options:</b>
+                                                @if (isset($polls) && $polls->isNotEmpty())
+                                                    @foreach ($polls as $pollResource)
+                                                        @php
+                                                            $poll = $pollResource->toArray(request());
+                                                        @endphp
+                                                        @if ($poll['type'] === 'Image')
+                                                            <div>
+                                                                <img src="{{ $poll['option'] }}" alt="Poll Image"
+                                                                    style="max-width: 100%; height: auto;">
+                                                                <p>{{ $poll['percentage'] ?? '0' }}%</p>
+                                                            </div>
+                                                        @elseif ($poll['type'] === 'Text')
+                                                            <p>{{ $poll['option'] }} ({{ $poll['percentage'] ?? '0' }}%)</p>
+                                                        @else
+                                                            <p>Unknown poll type</p>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <p>No poll options available.</p>
+                                                @endif
+                                            </p>
+                                        @elseif ($post_report->post->type == 'Text')
+                                            <p class="mb-2">
+                                                <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                            </p>
+                                            <p class="mb-2">
+                                                <b>Body:</b> {{ $post_report->post->body ?? 'N/A' }}
+                                            </p>
+                                        @elseif ($post_report->post->type == 'File')
+                                            <p class="mb-2">
+                                                <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                            </p>
+                                            <p class="mb-2">
+                                                <b>Attachments:</b>
+                                                @if ($post_report->post->attachments && $post_report->post->attachments->isNotEmpty())
+                                                    @foreach ($post_report->post->attachments as $attachment)
                                                         <div>
-                                                            <img src="{{ $poll['option'] }}" alt="Poll Image"
-                                                                style="max-width: 100%; height: auto;">
-                                                            <p>{{ $poll['percentage'] ?? '0' }}%</p>
+                                                            <a href="{{ $attachment->url }}" target="_blank">
+                                                                <img src="{{ $attachment->url }}" alt="Attachment Image"
+                                                                    style="max-width: 100%; height: auto;">
+                                                            </a>
                                                         </div>
-                                                    @elseif ($poll['type'] === 'Text')
-                                                        <p>{{ $poll['option'] }} ({{ $poll['percentage'] ?? '0' }}%)</p>
-                                                    @else
-                                                        <p>Unknown poll type</p>
-                                                    @endif
-                                                @endforeach
-                                            @else
-                                                <p>No poll options available.</p>
-                                            @endif
-
-                                        </p>
-                                    @elseif ($post_report->post->type == 'Text')
-                                        <p class="mb-2">
-                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
-                                        </p>
-                                        <p class="mb-2">
-                                            <b>Body:</b> {{ $post_report->post->body ?? 'N/A' }}
-                                        </p>
-                                    @elseif ($post_report->post->type == 'File')
-                                        <p class="mb-2">
-                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
-                                        </p>
-                                        <p class="mb-2">
-                                            <b>Attachments:</b>
-                                            @if ($post_report->post->attachments && $post_report->post->attachments->isNotEmpty())
-                                                @foreach ($post_report->post->attachments as $attachment)
-                                                    <div>
-                                                        <a href="{{ $attachment->url }}" target="_blank">
-                                                            <img src="{{ $attachment->url }}" alt="Attachment Image"
-                                                                style="max-width: 100%; height: auto;">
-                                                        </a>
-                                                    </div>
-                                                @endforeach
-                                            @else
-                                                <p>No attachments available.</p>
-                                            @endif
-                                        </p>
-                                    @else
-                                        <p class="mb-2">
-                                            <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
-                                        </p>
-                                        <p class="mb-2">
-                                            <b>Description:</b> {{ $post_report->post->body ?? 'N/A' }}
-                                        </p>
-                                    @endif
+                                                    @endforeach
+                                                @else
+                                                    <p>No attachments available.</p>
+                                                @endif
+                                            </p>
+                                        @else
+                                            <p class="mb-2">
+                                                <b>Title:</b> {{ $post_report->post->title ?? 'N/A' }}
+                                            </p>
+                                            <p class="mb-2">
+                                                <b>Description:</b> {{ $post_report->post->body ?? 'N/A' }}
+                                            </p>
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
-
+                            @else
+                                <div class="alert alert-danger" role="alert">
+                                    Post report or post data not found.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -127,10 +131,11 @@
                                 <button class="btn btn-sm btn-success p-2">Filter</button>
                             </div>
                         </form>
-                        <div class="dropdown ms-auto me-auto">
+                         <div class="dropdown ms-auto me-auto">
                             <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Action
                             </a>
+                             @if ($post_report->post)
                             <ul  class="dropdown-menu ">
                                 <li>
                                     <form id="deleteUser_{{ $post_report->id }}" action="{{ route('admin.reports.post.update-status', $post_report->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
@@ -145,10 +150,10 @@
                                     <form id="suspendUser_{{ $post_report->post->user->id }}" action="{{ route('admin.users.suspend', $post_report->post->user->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')">
                                         @csrf
                                         @if ($post_report->post->user->status == 'Active')
-                                            <input type="hidden" name="status" value="Active">
+                                            <input type="hidden" name="status" value="Inactive">
                                             <a class="dropdown-item text-danger" href="#" onclick="$('#suspendUser_{{ $post_report->post->user->id }}').submit()"><i class="ri-close-line"></i> | Suspend User</a>
                                         @else
-                                            <input type="hidden" name="status" value="Inactive">
+                                            <input type="hidden" name="status" value="Active">
                                             <a class="dropdown-item text-success" href="#" onclick="$('#suspendUser_{{ $post_report->post->user->id }}').submit()"><i class="ri-check-line"></i> | Activate User</a>
                                         @endif
                                     </form>
@@ -163,53 +168,61 @@
                                     </form>
                                 </li>
                                 <li>
-                                    <form id="deletePost_{{ $post_report->post->id }}" action="{{ route('admin.reports.post.delete', $post_report->post->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
+                                    <form id="deletePost_{{ $post_report->id }}" action="{{ route('admin.reports.post.delete', $post_report->id) }}" method="POST" onsubmit="return confirm('Are you sure of this action?')">
                                         @csrf
                                         @method('delete')
-                                        <a class="dropdown-item text-danger" href="#" onclick="$('#deletePost_{{ $post_report->post->id }}').submit()">
+                                        <a class="dropdown-item text-danger" href="#" onclick="$('#deletePost_{{ $post_report->id }}').submit()">
                                             <i class="ri-delete-bin-line"></i> | Delete Post
                                         </a>
                                     </form>
                                 </li>
-
-                                
-
                             </ul>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table text-nowrap table-hover border table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Reporter</th>
-                                        <th scope="col">Reason</th>
-                                        <th scope="col">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($post_report_lists as $report)
-                                        <tr>
-                                            <td>
-                                                <a href="{{ route('admin.users.show', $report->user_id) }}">
-                                                    <div class="d-flex align-items-center fw-semibold">
-                                                        <span class="avatar avatar-sm me-2 avatar-rounded">
-                                                            <img src="{{ $report->user->avatarUrl() }}" alt="img">
-                                                        </span>{{ $report->user->full_name }}
-                                                    </div>
-                                                </a>
-                                            </td>
-                                            <td>{{ $report->reason }}</td>
-                                            <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="3" class="text-center">No record found</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                            @if ($post_report->post)
+                                @if ($post_report_lists->isNotEmpty())
+                                    <table class="table text-nowrap table-hover border table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Reporter</th>
+                                                <th scope="col">Reason</th>
+                                                <th scope="col">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($post_report_lists as $report)
+                                                <tr>
+                                                    <td>
+                                                        @if ($report->user)
+                                                            <a href="{{ route('admin.users.show', $report->user_id) }}">
+                                                                <div class="d-flex align-items-center fw-semibold">
+                                                                    <span class="avatar avatar-sm me-2 avatar-rounded">
+                                                                        <img src="{{ $report->user->avatarUrl() }}"
+                                                                            alt="img">
+                                                                    </span>{{ $report->user->full_name }}
+                                                                </div>
+                                                            </a>
+                                                        @else
+                                                            <p>User not found</p>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $report->reason }}</td>
+                                                    <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p class="text-center">No records found for this post.</p>
+                                @endif
+                            @else
+                                <p class="text-center">The reported post is not available.</p>
+                            @endif
                         </div>
+
                     </div>
                     <div class="card-footer">
                         <div class="d-flex align-items-center">
