@@ -156,11 +156,20 @@ class NotificationController extends Controller
                         });
                 })->count();
 
+            $notifications_query = $user->notifications()->whereNull('read_at');
+            
+            $unread_post_activities = $notifications_query->whereJsonDoesntContain('data->type', ['notification', 'conversation'])->count();
+            $unread_conversations = $notifications_query->whereJsonContains('data->type', 'conversation')->count();
+            $unread_admin_notifications = $notifications_query->whereJsonContains('data->type', 'notification')->count();
+
             $data = [
                 "notifications" => $notifications->count(),
-                "unread_notifications" => $notifications->whereNull("read_at")->count(),
+                "unread_notifications" => $notifications_query->count(),
                 "unread_messages" => $unread_messages,
-                "total_requests" => $total_requests
+                "total_requests" => $total_requests,
+                "post_activity" => $unread_post_activities,
+                "conversation" => $unread_conversations,
+                "system_admin" => $unread_admin_notifications,
             ];
             return ApiHelper::validResponse("Notification stats returned successfully", $data);
         } catch (ValidationException $th) {
