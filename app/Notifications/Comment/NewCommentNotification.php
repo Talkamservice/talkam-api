@@ -44,6 +44,7 @@ class NewCommentNotification extends Notification
                 "title" => $data["title"],
                 "message" => $data["message"],
                 "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
             ]);
     }
 
@@ -87,13 +88,15 @@ class NewCommentNotification extends Notification
             $message = "@{$commenter} and {$total_comments} others replied to your post.";
         }
 
+        $web_url = config("app.web_url") . "/comment/{$this->comment->post_id}";
+
         return [
             'data' => [
                 'id' => $this->comment->post_id,
             ],
             'title' => "New Comment",
             'message' => $message,
-            'link' => null,
+            'link' => $web_url,
             'type' => 'comment',
             'batch_no' => null,
             "extra" => [

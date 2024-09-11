@@ -44,6 +44,7 @@ class NewThreadCommentReactionNotification extends Notification
                 "title" => $data["title"],
                 "message" => $data["message"],
                 "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
             ]);
     }
 
@@ -78,13 +79,15 @@ class NewThreadCommentReactionNotification extends Notification
 
     public function buildData($notifiable)
     {
+        $web_url = config("app.web_url") . "/comment/{$this->comment_reaction->comment->post_id}";
+
         return [
             'data' => [
                 'id' => $this->comment_reaction?->comment?->post_id,
             ],
             'title' => "New {$this->comment_reaction->action}",
             'message' => "A comment just got {$this->comment_reaction->action}d",
-            'link' => null,
+            'link' => $web_url,
             'type' => 'comment',
             'batch_no' => null,
             "extra" => [

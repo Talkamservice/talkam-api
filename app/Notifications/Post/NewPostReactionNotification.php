@@ -45,6 +45,7 @@ class NewPostReactionNotification extends Notification
                 "title" => $data["title"],
                 "message" => $data["message"],
                 "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
             ]);
     }
 
@@ -90,13 +91,16 @@ class NewPostReactionNotification extends Notification
         }else {
             $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . "d your post.";
         }
+
+        $web_url = config("app.web_url") . "/comment/{$this->post_reaction->post_id}";
+
         return [
             'data' => [
                 'id' => $this->post_reaction->post_id,
             ],
             'title' => "New {$this->post_reaction->action}",
             'message' => $message,
-            'link' => null,
+            'link' => $web_url,
             'type' => 'post',
             'batch_no' => null,
             "extra" => [
