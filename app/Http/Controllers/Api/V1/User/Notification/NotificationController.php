@@ -147,8 +147,14 @@ class NotificationController extends Controller
             $user = !empty($request->user_id) ? User::find($request->user_id) : auth()->user();
             $notifications = $user->notifications;
             $unread_messages = Message::where('receiver_id', $user->id)->where('read', false)->count();
-            $total_requests = Conversation::whereHas("otherMembers")->whereHas("messages")->where("status", StatusConstants::AWAITING_RESPONSE)
-                ->whereNot('user_id', $user->id)->count();
+            $total_requests = Conversation::whereHas("otherMembers")->whereHas("messages")
+                ->where("status", StatusConstants::AWAITING_RESPONSE)
+                ->where(function ($q) use ($user) {
+                    $q->whereNot('user_id', $user->id)
+                        ->whereHas("members", function ($query) use ($user) {
+                            $query->where("user_id", $user->id);
+                        });
+                })->count();
 
             $data = [
                 "notifications" => $notifications->count(),
