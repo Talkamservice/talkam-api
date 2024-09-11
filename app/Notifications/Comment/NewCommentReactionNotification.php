@@ -45,6 +45,7 @@ class NewCommentReactionNotification extends Notification
                 "title" => $data["title"],
                 "message" => $data["message"],
                 "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
             ]);
     }
 
@@ -93,13 +94,15 @@ class NewCommentReactionNotification extends Notification
             $message = "{$action_by} and {$total_actions} others " . strtolower($this->comment_reaction->action) . "d your comment.";
         }
 
+        $web_url = config("app.web_url") . "/comment/{$this->comment_reaction->comment->post_id}";
+
         return [
             'data' => [
                 'id' => $this->comment_reaction->comment->post_id,
             ],
             'title' => "New {$this->comment_reaction->action}",
             'message' => $message,
-            'link' => null,
+            'link' => $web_url,
             'type' => 'post',
             'batch_no' => null,
             "extra" => [

@@ -44,6 +44,7 @@ class NewCommentMentionNotification extends Notification
                 "title" => $data["title"],
                 "message" => $data["message"],
                 "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
             ]);
     }
 
@@ -82,13 +83,15 @@ class NewCommentMentionNotification extends Notification
         $reply_commenter = ($this->comment->repliedComment->is_anonymous == 1) ? "Anonymous" : $this->comment->repliedComment->user->getName();
         $message = "@{$commenter} replied: @{$reply_commenter} \"{$this->comment->comment}\"";
 
+        $web_url = config("app.web_url") . "/comment/{$this->comment->post_id}";
+
         return [
             'data' => [
                 'id' => $this->comment->post_id,
             ],
             'title' => "Comment thread",
             'message' => $message,
-            'link' => null,
+            'link' => $web_url,
             'type' => 'mention',
             'batch_no' => null,
             "extra" => [

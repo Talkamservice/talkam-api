@@ -42,6 +42,7 @@ class SchedulePostNotification extends Notification
                 "title" => $data["title"],
                 "message" => $data["message"],
                 "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
             ]);
     }
 
@@ -76,13 +77,15 @@ class SchedulePostNotification extends Notification
 
     public function buildData($notifiable)
     {
+        $web_url = config("app.web_url") . "/comment/{$this->post->id}";
+
         return [
             'data' => [
                 'id' => $this->post->id,
             ],
             'title' => "New Scheduled Post",
             'message' => "You have scheduled a new post",
-            'link' => null,
+            'link' => $web_url,
             'type' => 'scheduled_post',
             'batch_no' => null,
             "extra" => []
