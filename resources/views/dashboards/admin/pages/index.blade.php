@@ -10,23 +10,26 @@
             <div>
                 <p class="fw-semibold fs-18 mb-0">Welcome back, {{ auth()->user()?->name }}</p>
             </div>
+            <form method="GET" action="{{ route('admin.home') }}" class="d-inline">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort By<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a class="dropdown-item" href="javascript:void(0);" data-period="day">Day</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" data-period="week">Week</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" data-period="month">Month</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" data-period="year">Year</a></li>
+                    </ul>
+                </div>
+
+                <!-- Hidden input to capture selected period -->
+                <input type="hidden" name="period" id="selected-period" value="{{ request('period', 'day') }}">
+            </form>
+
         </div>
         <!-- End::page-header -->
-
-        <div class="d-flex flex-wrap d-flex justify-content-end mb-2">
-            <div class="dropdown">
-                <a href="javascript:void(0);" class="btn btn-primary btn-sm btn-wave waves-effect waves-light"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    Sort By<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
-                </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a class="dropdown-item" href="javascript:void(0);">Day</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0);">Week</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0);">Month</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0);">Year</a></li>
-                </ul>
-            </div>
-        </div>
 
         <!-- Start::row-1 -->
         <div class="row" id="dashboard-content">
@@ -198,31 +201,20 @@
 @section('script')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Handle dropdown selection and AJAX request
-            document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const period = this.textContent.toLowerCase().trim();
-                fetch(`{{ route('admin.home') }}?period=${encodeURIComponent(period)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log(data.html); 
-                        if (data.html) {
-                            document.getElementById('stats-content').innerHTML = '<p>Test HTML content</p>';
-                            initializeCharts(); // Ensure this function is defined
-                        } else {
-                            console.error('Invalid data format received');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
+            document.addEventListener('DOMContentLoaded', function() {
+                const dropdownItems = document.querySelectorAll('.dropdown-menu .dropdown-item');
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const period = this.getAttribute('data-period');
+                        alert(period);
+                        const form = this.closest('form');
+                        form.querySelector('#selected-period').value = period;
+                        alert(form);
+                        form.submit(); // Submit the form automatically
                     });
+                });
             });
-        });
+
 
 
             // Initialize charts
