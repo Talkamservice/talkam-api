@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
-use App\Constants\Post\PostConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -13,8 +12,6 @@ use App\Http\Resources\Post\PostAttachmentResource;
 use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Post\TrendingResource;
-use App\Models\PostAttachment;
-use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostService;
 use App\Services\Post\RecentViewService;
 use Exception;

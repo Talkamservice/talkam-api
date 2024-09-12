@@ -165,3 +165,32 @@ function isBlocked($blocker, $blocked_user)
     return (new BlockUserService)->isBlocked($blocker, $blocked_user);
 }
 
+// Function to filter array and avoid duplicate words
+function filterUniqueWords($array) {
+    $unique_words = [];
+    $filtered_array = [];
+
+    foreach ($array as $string) {
+        $words_in_string = explode(' ', strtolower($string)); // Split string into words, convert to lowercase
+        $filtered_words = [];
+
+        foreach ($words_in_string as $word) {
+            if (!in_array($word, $unique_words)) {
+                $filtered_words[] = $word; // Keep the word if not seen before
+                $unique_words[] = $word;   // Add it to the list of seen words
+            }
+        }
+
+        // Join filtered words back into a string
+        $filtered_string = implode(' ', $filtered_words);
+
+        // Add the filtered string to the result array if it's not empty
+        if (!empty($filtered_string)) {
+            $filtered_array[] = $filtered_string;
+        }
+    }
+
+    return $filtered_array;
+}
+
+
