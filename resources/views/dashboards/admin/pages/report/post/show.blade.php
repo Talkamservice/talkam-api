@@ -122,15 +122,7 @@
             <div class="col-xxl-8 col-xl-8">
                 <div class="card custom-card">
                     <div class="card-header d-flex justify-content-between">
-                        <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
-                            <div class="form-group me-2">
-                                <label for="">Search</label>
-                                <input class="form-control" type="text" placeholder="Search...." name="search">
-                            </div>
-                            <div class="form-group me-2" style="margin-top: 20px;">
-                                <button class="btn btn-sm btn-success p-2">Filter</button>
-                            </div>
-                        </form>
+                       
                          <div class="dropdown ms-auto me-auto">
                             <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Action

@@ -34,11 +34,10 @@ class GroupReportController extends Controller
         // Paginate reported group lists
         $group_report_lists = $this->custom_service->listGroupReports($data)
             ->latest()
-            ->get()
-            ->unique("group_id");
+            ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
 
         return view('dashboards.admin.pages.report.group.index', [
-            'sn' => $group_report_lists,
+            "sn" => $group_report_lists->firstItem(),
             'group_report_lists' => $group_report_lists,
         ]);
     }

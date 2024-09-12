@@ -20,22 +20,29 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header">
-                    <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
-                        <div class="form-group me-2">
-                            <label for="search">Search(status or reason)</label>
-                            <input class="form-control" type="text" value="{{ request()->search }}" placeholder="Search..." name="search">
+                    <form action="{{ url()->current() }}" method="get" class="row g-3">
+                        <div class="col-12 col-md-5 col-xl-5 col-lg-5">
+                            <div class="form-group">
+                                <label for="search">Search (status or reason)</label>
+                                <input class="form-control" type="text" value="{{ request()->search }}" placeholder="Search..." name="search">
+                            </div>
                         </div>
-                    
-                        <div class="form-group me-2">
-                            <label for="date">Date</label>
-                            <input class="form-control" type="date" value="{{ request()->date }}" name="date">
+                        
+                        <div class="col-12 col-md-5 col-xl-5 col-lg-5">
+                            <div class="form-group">
+                                <label for="date">Date</label>
+                                <input class="form-control" type="date" value="{{ request()->date }}" name="date">
+                            </div>
                         </div>
-                        <div class="form-group me-2" style="margin-top: 20px;">
-                            <button class="btn btn-sm btn-success p-2">Filter</button>
+                        
+                        <div class="col-12 col-md-2 col-xl-2 col-lg-2 pt-4">
+                            <div class="form-group d-flex align-items-end">
+                                <button class="btn btn-sm btn-success w-100">Filter</button>
+                            </div>
                         </div>
                     </form>
-                    
                 </div>
+                
                 <div class="card-body">
                     <div class="table-responsive" style="min-height: 250px">
                         <table class="table text-nowrap table-hover border table-bordered">
@@ -163,13 +170,9 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center">
-                                            <img class="no-data-image"
-                                                src="{{ asset('admin_assets/images/empty/no-data-concept-illustration.jpg') }}"
-                                                alt="">
-                                        </td>
-                                    </tr>
+                                <div class="alert alert-info text-center">
+                                    No record found
+                                </div>
                                 @endforelse
                             </tbody>
                         </table>

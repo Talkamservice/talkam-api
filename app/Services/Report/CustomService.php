@@ -25,7 +25,6 @@ class CustomService
         if (!empty($date = $data["date"] ?? null)) {
             $query->whereDate('created_at', $date);
         }
-
         return $query;
     }
 
@@ -50,36 +49,51 @@ class CustomService
     }
 
     public static function listGroupReports(array $data = [])
-    {
-        $query = GroupReport::with(["user", "group"]);
+{
+    $query = GroupReport::with(["user", "group"]);
 
-        // Apply search filters
-        if (!empty($key = $data["search"] ?? null)) {
-            $query->where(function ($query) use ($key) {
-                $query->where("reason", "LIKE", "%$key%")
-                    ->orWhere("status", "LIKE", "%$key%");
-            });
-        }
-
-        // Apply date filters
-        if (!empty($date = $data["date"] ?? null)) {
-            $query->whereDate('created_at', $date);
-        }
-
-        return $query;
+    // Apply search filters
+    if (!empty($key = $data["search"] ?? null)) {
+        $query->where(function ($query) use ($key) {
+            $query->where("reason", "LIKE", "%$key%")
+                ->orWhere("status", "LIKE", "%$key%")
+                ->orWhereHas('group', function ($query) use ($key) {
+                    $query->where('name', 'LIKE', "%$key%")
+                    ->orWhere('status', 'LIKE', "%$key%");
+                });
+        });
     }
+
+    // Apply date filters
+    if (!empty($date = $data["date"] ?? null)) {
+        $query->whereDate('created_at', $date);
+    }
+
+    return $query;
+}
+
 
     public static function listGroupMemberReports(array $data = [])
     {
-        $query = GroupMemberReport::with(["user", "groupMember"]);
+        $query = GroupMemberReport::with(["user", "groupMember", "groupMember.user"]);
 
         // Apply search filters
         if (!empty($key = $data["search"] ?? null)) {
             $query->where(function ($query) use ($key) {
                 $query->where("reason", "LIKE", "%$key%")
-                    ->orWhere("status", "LIKE", "%$key%");
+                    ->orWhere("status", "LIKE", "%$key%")
+                    ->orWhereHas('groupMember', function ($query) use ($key) {
+                        $query->where('suspension_count', 'LIKE', "%$key%")
+                        ->orWhereHas('user', function ($query) use ($key) {
+                            $query->where('username', 'LIKE', "%$key%")
+                                  ->orWhere('first_name', 'LIKE', "%$key%")
+                                  ->orWhere('last_name', 'LIKE', "%$key%")
+                                  ->orWhere('status', 'LIKE', "%$key%");
+                        });
+                    });
             });
         }
+        
 
         // Apply date filters
         if (!empty($date = $data["date"] ?? null)) {
