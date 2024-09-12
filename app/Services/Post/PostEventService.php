@@ -85,6 +85,7 @@ class PostEventService
             return !empty($trimmedKey) && strlen($trimmedKey) > 3;
         }, ARRAY_FILTER_USE_KEY);
 
+        TrendingTag::whereNull("category_id")->delete();
         foreach (ensureUniqueKeys($filtered_array) as $word => $count) {
             TrendingTag::create([
                 'tag' => trim(ucwords($word)),
@@ -152,6 +153,7 @@ class PostEventService
                         return !empty($trimmedKey) && strlen($trimmedKey) > 3;
                     }, ARRAY_FILTER_USE_KEY);
 
+                    TrendingTag::whereNotNull("category_id")->delete();
                     foreach (ensureUniqueKeys($filtered_array) as $word => $count) {
                         TrendingTag::create([
                             "category_id" => $category->id,
