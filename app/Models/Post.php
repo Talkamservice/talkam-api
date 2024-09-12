@@ -72,6 +72,7 @@ class Post extends Model
                 ->orWhere("body", "LIKE", "%$key%")
                 ->orWhere("type", "LIKE", "%$key%")
                 ->orWhere("uuid", "LIKE", "%$key%")
+                ->orWhere("tags", "LIKE", "%$key%")
                 ->orWhereHas("user", function ($user) use ($key) {
                     $user->search($key);
                 })->orWhereHas("category", function ($category) use ($key) {
