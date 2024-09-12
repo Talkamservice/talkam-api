@@ -15,6 +15,7 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
+    
     public function index()
     {
         $roles = Role::paginate(AppConstants::ADMIN_PAGINATION_SIZE);
