@@ -67,7 +67,7 @@
                                                         class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
                                                         {{ $card['percentage'] >= 0 ? '+' : '' }}{{ $card['percentage'] }}%
                                                     </p>
-                                                    <span class="text-muted op-7 fs-11">this month</span>
+                                                    <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -200,6 +200,9 @@
 
 @section('script')
     <script>
+        // Inject PHP dashboard data into JavaScript
+        const dashboardData = @json($dashboardData);
+
         document.addEventListener('DOMContentLoaded', function() {
             // Handle dropdown item click
             document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
@@ -210,12 +213,38 @@
                     form.submit(); // Submit the form automatically
                 });
             });
-            // Initialize charts
+
+            // Define a mapping from card class names to actual colors (RGB values)
+            const colorMap = {
+                'primary': '132, 90, 223',
+                'info': '23, 162, 184',
+                'warning': '255, 193, 7',
+                'danger': '220, 53, 69',
+                'success': '40, 167, 69'
+            };
+
+            // Check if dashboardData exists and has necessary data
+            if (typeof dashboardData === 'undefined') {
+                console.error('dashboardData is not defined.');
+                return;
+            }
+
+            // Function to initialize charts
             function initializeCharts() {
                 @foreach ($cards as $index => $card)
-                    // Retrieve the data for the current card
-                    var data = @json($card['value']);
-                    console.log(data); // Add this before initializing the chart
+                    // Initialize data as an empty array
+                    var data = [];
+
+                    // Use the card title to decide which data to use
+                    if ("{{ $card['title'] }}" === "Total Users") {
+                        data = dashboardData.currentUsers;
+                    } else if ("{{ $card['title'] }}" === "Total Categories") {
+                        data = dashboardData.currentCategories;
+                    } else if ("{{ $card['title'] }}" === "Total Posts") {
+                        data = dashboardData.currentPosts;
+                    } else if ("{{ $card['title'] }}" === "Total Groups") {
+                        data = dashboardData.currentGroups;
+                    }
 
                     // Ensure data is an array
                     if (!Array.isArray(data)) {
@@ -227,141 +256,80 @@
                     var minValue = data.length ? Math.min(...data) - 10 : 0;
                     var maxValue = data.length ? Math.max(...data) + 10 : 0;
 
-                    // Chart options for the current card
-                    var chartOptions = {
+                    var crm1 = {
                         chart: {
                             type: 'line',
                             height: 40,
-                            width: 50,
+                            width: 100,
                             sparkline: {
                                 enabled: true
                             }
                         },
-                        series: [{
-                            name: '{{ $card['title'] }}',
-                            data: data
-                        }],
                         stroke: {
+                            show: true,
                             curve: 'smooth',
-                            width: 2,
-                            height: 20
+                            lineCap: 'butt',
+                            colors: undefined, // Leave undefined to be dynamically updated
+                            width: 1.5,
+                            dashArray: 0,
                         },
-                        xaxis: {
-                            crosshairs: {
-                                show: false
-                            },
-                            tooltip: {
-                                enabled: false
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                opacityFrom: 0.9,
+                                opacityTo: 0.9,
+                                stops: [0, 98],
                             }
                         },
+                        series: [{
+                            name: '{{ $card['title'] }}',
+                            data: data // Pass the dynamic data here
+                        }],
                         yaxis: {
                             min: minValue,
                             max: maxValue,
-                            labels: {
+                            show: false,
+                            axisBorder: {
                                 show: false
-                            }
+                            },
                         },
-                        colors: ['#{{ $card['class'] }}']
-                    };
+                        xaxis: {
+                            show: false,
+                            axisBorder: {
+                                show: false
+                            },
+                        },
+                        tooltip: {
+                            enabled: false,
+                        },
+                        colors: ["rgb(132, 90, 223)"], // Default color, will be updated
+                    }
 
                     // Render the chart
-                    new ApexCharts(document.querySelector('#crm-stats-{{ $index }}'),
-                            chartOptions)
-                        .render();
+                    document.getElementById('crm-total-customers-{{ $index }}').innerHTML = '';
+                    var crm1Chart = new ApexCharts(document.querySelector(
+                        "#crm-total-customers-{{ $index }}"), crm1);
+                    crm1Chart.render();
+
+                    // Function to update the chart color dynamically after chart is rendered
+                    function crmtotalCustomers(cardClass) {
+                        // Retrieve the color value from the colorMap based on cardClass
+                        const colorValue = colorMap[cardClass] || '132, 90, 223'; // Default color if no match
+                        crm1Chart.updateOptions({
+                            colors: ["rgb(" + colorValue + ")"],
+                            stroke: {
+                                colors: ["rgb(" + colorValue + ")"] // Dynamically set stroke color
+                            }
+                        });
+                    }
+
+                    // Call the function to update the chart color with the current card's class
+                    crmtotalCustomers("{{ $card['class'] }}");
                 @endforeach
             }
-            initializeCharts(); // Call the function to render charts initially
+
+            // Call the initializeCharts function after the page has loaded
+            initializeCharts();
         });
-
-        /* Total Customers chart */
-        @foreach ($cards as $index => $card)
-            // Retrieve the data for the current card
-            var data = @json($card['value']);
-            console.log(data); // Add this before initializing the chart
-
-            // Ensure data is an array
-            if (!Array.isArray(data)) {
-                console.error('Data for chart is not an array:', data);
-                data = []; // Default to an empty array if data is not valid
-            }
-
-            // Calculate dynamic y-axis min and max if data is available
-            var minValue = data.length ? Math.min(...data) - 10 : 0;
-            var maxValue = data.length ? Math.max(...data) + 10 : 0;
-            var crm1 = {
-                chart: {
-                    type: 'line',
-                    height: 40,
-                    width: 100,
-                    sparkline: {
-                        enabled: true
-                    }
-                },
-                stroke: {
-                    show: true,
-                    curve: 'smooth',
-                    lineCap: 'butt',
-                    colors: undefined,
-                    width: 1.5,
-                    dashArray: 0,
-                },
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        opacityFrom: 0.9,
-                        opacityTo: 0.9,
-                        stops: [0, 98],
-                    }
-                },
-                series: [{
-                    name: '{{ $card['title'] }}',
-                    data: [20, 14, 19, 10, 23, 20, 22, 9, 12]
-                }],
-                yaxis: {
-                    min: 0,
-                    show: false,
-                    axisBorder: {
-                        show: false
-                    },
-                },
-                xaxis: {
-                    show: false,
-                    axisBorder: {
-                        show: false
-                    },
-                },
-                tooltip: {
-                    enabled: false,
-                },
-                colors: ["rgb(132, 90, 223)"],
-            }
-            document.getElementById('crm-total-customers-{{ $index }}').innerHTML = '';
-            var crm1 = new ApexCharts(document.querySelector("#crm-total-customers-{{ $index }}"),
-                crm1);
-            crm1.render();
-
-            function crmtotalCustomers() {
-                crm1.updateOptions({
-                    colors: ["rgb(" + myVarVal + ")"],
-                });
-            }
-            /* Total Customers chart */
-
-            function leads(myVarVal) {
-
-                chartInstance.data.datasets[0] = {
-                    label: 'My First Dataset',
-                    data: [32, 27, 25, 16],
-                    backgroundColor: [
-                        `rgb(${myVarVal})`,
-                        'rgb(35, 183, 229)',
-                        'rgb(245, 184, 73)',
-                        'rgb(38, 191, 148)',
-                    ]
-                }
-                chartInstance.update();
-
-            }
-        @endforeach
     </script>
 @endsection

@@ -34,7 +34,8 @@ class DashboardController extends Controller
                     "value" => array_sum($dashboardData['currentUsers']),
                     "class" => "primary",
                     "url" => route("admin.users.index"),
-                    "percentage" => $dashboardData['usersChangePercentage']
+                    "percentage" => $dashboardData['usersChangePercentage'],
+                    'period' =>  $period,
                 ],
                 [
                     "icon" => "categories",
@@ -42,7 +43,8 @@ class DashboardController extends Controller
                     "value" => array_sum($dashboardData['currentCategories']),
                     "class" => "info",
                     "url" => "",
-                    "percentage" => $dashboardData['categoriesChangePercentage']
+                    "percentage" => $dashboardData['categoriesChangePercentage'],
+                    'period' =>  $period,
                 ],
                 [
                     "icon" => "posts",
@@ -50,7 +52,8 @@ class DashboardController extends Controller
                     "value" => array_sum($dashboardData['currentPosts']),
                     "class" => "warning",
                     "url" => "",
-                    "percentage" => $dashboardData['postsChangePercentage']
+                    "percentage" => $dashboardData['postsChangePercentage'],
+                    'period' =>  $period,
                 ],
                 [
                     "icon" => "groups",
@@ -58,7 +61,8 @@ class DashboardController extends Controller
                     "value" => array_sum($dashboardData['currentGroups']),
                     "class" => "primary",
                     "url" => "",
-                    "percentage" => $dashboardData['groupsChangePercentage']
+                    "percentage" => $dashboardData['groupsChangePercentage'],
+                    'period' =>  $period,
                 ]
             ],
             "users" => User::latest()->paginate(5),
