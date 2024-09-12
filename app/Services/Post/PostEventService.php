@@ -36,7 +36,8 @@ class PostEventService
             ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
                 foreach ($posts as $post) {
 
-                    $content = implode(" ", array_unique($post->tags));
+                    $content = implode(" ", filterUniqueWords($post->tags));
+
                     // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
 
                     // Tokenize the content into words
@@ -79,8 +80,6 @@ class PostEventService
         // Get the top trending words (e.g., top 10)
         $top_trending_words = array_slice($word_frequency, 0, 10, true);
 
-        TrendingTag::whereNull("category_id")->delete();
-
         $filtered_array = array_filter($top_trending_words, function ($key) {
             $trimmedKey = trim($key);
             return !empty($trimmedKey) && strlen($trimmedKey) > 3;
@@ -106,7 +105,7 @@ class PostEventService
                 ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
                     foreach ($posts as $post) {
 
-                        $content = implode(" ", array_unique($post->tags));
+                        $content = implode(" ", filterUniqueWords($post->tags));
                         // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
 
                         // Tokenize the content into words
@@ -148,14 +147,13 @@ class PostEventService
                     // Get the top trending words (e.g., top 10)
                     $top_trending_words = array_slice($word_frequency, 0, 10, true);
 
-                    $category->trendingTags()->delete();
 
                     $filtered_array = array_filter($top_trending_words, function ($key) {
                         $trimmedKey = trim($key);
                         return !empty($trimmedKey) && strlen($trimmedKey) > 3;
                     }, ARRAY_FILTER_USE_KEY);
 
-                    TrendingTag::whereNotNull("category_id")->delete();
+                    $category->trendingTags()->delete();
                     foreach (ensureUniqueKeys($filtered_array) as $word => $count) {
                         TrendingTag::create([
                             "category_id" => $category->id,
