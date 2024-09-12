@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CategoryTableSeeder::class,
             UserTableSeeder::class,
-            // PermissionTableSeeder::class,
+            PermissionTableSeeder::class,
             // AvatarTableSeeder::class
         ]);
     }

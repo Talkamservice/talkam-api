@@ -19,7 +19,7 @@ class RoleController extends Controller
     {
         $roles = Role::paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         $sn = $roles->firstItem();
-        return view("dashboards.admin.pages.authorization.roles", [
+        return view("dashboards.admin.pages.authorization.roles.index", [
             "roles" => $roles,
             "sn" => $sn,
         ]);
@@ -62,7 +62,7 @@ class RoleController extends Controller
             $builder = $builder->where("name", "LIKE", "%$name%");
         }
         $permissions = $builder->get();
-        return view("dashboards.authorization.roles.permissions", [
+        return view("dashboards.admin.pages.authorization.roles.permissions", [
             "role" => $role,
             "permissions" => $permissions,
             "sn" => 1

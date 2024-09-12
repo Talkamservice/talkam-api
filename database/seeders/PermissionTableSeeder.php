@@ -29,6 +29,17 @@ class PermissionTableSeeder extends Seeder
                 $this->crud("avatar"),
                 $this->slugifyPerms([
                     "login into admin dashboard",
+                    "suspend a user",
+                    "unsuspend a user",
+                    "strike a user",
+                    "hide all posts of a user",
+                    "invite a new admin",
+                    "add term and condition",
+                    "add privacy policy",
+                    "update feedback",
+                    "delete feedback",
+                    "view deactivation request",
+                    "take action on deactivation request",
                 ]),
             ),
         ];

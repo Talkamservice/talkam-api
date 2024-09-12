@@ -52,6 +52,9 @@
                                         <td>{{ $role->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
+                                                <a href="{{ route('admin.authorization.roles.show', $role->id) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">
+                                                    Permissions
+                                                </a>
                                                 <a aria-label="anchor" data-bs-toggle="modal" data-bs-target="#editRoleModal_{{ $role->id }}"
                                                     class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
                                                         class="ri-edit-line"></i></a>
