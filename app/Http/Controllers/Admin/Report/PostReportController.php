@@ -10,22 +10,30 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Post\PostPollResource;
 use App\Models\PostReport;
+use App\Services\Report\CustomService;
 use App\Services\Report\Post\PostReportService;
 use Illuminate\Http\Request;
 
 class PostReportController extends Controller
 {
     protected $post_report_service;
+    protected $custom_service;
 
     public function __construct()
     {
         $this->post_report_service = new PostReportService;
+        $this->custom_service = new CustomService;
     }
 
-    public function reportList()
+    public function reportList(Request $request)
     {
-        $post_report_lists = PostReport::with('post', 'user')->latest()
+        $data = [
+            'search' => $request->get('search'),
+            'date' => $request->get('date')
+        ];
+        $post_report_lists = $this->custom_service->listPostReports($data)->latest()
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        // dd(  $post_report_lists);
         return view('dashboards.admin.pages.report.post.index', [
             "sn" => $post_report_lists->firstItem(),
             'post_report_lists' => $post_report_lists,
@@ -34,13 +42,16 @@ class PostReportController extends Controller
 
     public function show($id)
     {
-        // Fetch the specific post report with associated post
-        $post_report = PostReport::with('post.polls')->findOrFail($id);
+        // Fetch the specific post report with associated post and polls
+        $post_report = PostReport::with('post.polls')->find($id);
 
-        // If the post type is Poll, fetch the poll details using the resource
-        $polls = $post_report->post->type == 'Poll'
-            ? PostPollResource::collection($post_report->post->polls)
-            : null;
+        // Initialize polls as null
+        $polls = null;
+
+        // Check if the post type is Poll and fetch poll details if applicable
+        if ($post_report->post && $post_report->post->type == 'Poll') {
+            $polls = PostPollResource::collection($post_report->post->polls);
+        }
 
         // Count the number of reports for the specific post
         $reasons_count = PostReport::where('post_id', $post_report->post_id)->count();
@@ -51,6 +62,7 @@ class PostReportController extends Controller
             ->with('user')
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
 
+        // Return the view with data
         return view('dashboards.admin.pages.report.post.show', [
             'post_report' => $post_report,
             'polls' => $polls,
@@ -58,6 +70,7 @@ class PostReportController extends Controller
             'post_report_lists' => $post_report_lists,
         ]);
     }
+
 
     public function updateStatus(Request $request, $post_report_id)
     {
@@ -78,7 +91,8 @@ class PostReportController extends Controller
     {
         try {
             $this->post_report_service->delete($post_report_id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Reported post deleted successfully");
+            dd('"Post report deleted successfully. Redirecting...');
+            return redirect()->route('admin.reports.post.lists')->with(NotificationConstants::SUCCESS_MSG, "Reported post deleted successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {
@@ -88,7 +102,4 @@ class PostReportController extends Controller
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
-
-  
-   
 }

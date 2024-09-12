@@ -75,6 +75,10 @@ class AnnouncementService
             $announcement->update($data);
             $announcement->refresh();  // Refresh the announcement instance
 
+            // Check if the announcement has expired and update status
+            if ($announcement->expired_at && \Carbon\Carbon::parse($announcement->expired_at)->isPast()) {
+                $announcement->update(['status' => StatusConstants::INACTIVE]);
+            }
             // Log the activity
             (new ActivityLogService)
                 ->setEvent("updated")

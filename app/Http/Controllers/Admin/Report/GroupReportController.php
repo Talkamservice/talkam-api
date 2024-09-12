@@ -9,6 +9,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\GroupMemberReport;
 use App\Models\GroupReport;
+use App\Services\Report\CustomService;
 use App\Services\Report\Group\GroupReportService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,16 +17,22 @@ use Illuminate\Http\Request;
 class GroupReportController extends Controller
 {
     protected $group_report_service;
+    protected $custom_service;
 
     public function __construct()
     {
         $this->group_report_service = new GroupReportService;
+        $this->custom_service = new CustomService;
     }
 
-    public function reportList()
+    public function reportList(Request $request)
     {
+        $data = [
+            'search' => $request->get('search'),
+            'date' => $request->get('date')
+        ];
         // Paginate reported group lists
-        $group_report_lists = GroupReport::with('group')
+        $group_report_lists = $this->custom_service->listGroupReports($data)
             ->latest()
             ->get()
             ->unique("group_id");
@@ -36,10 +43,14 @@ class GroupReportController extends Controller
         ]);
     }
 
-    public function groupReportList()
+    public function groupReportList(Request $request)
     {
+        $data = [
+            'search' => $request->get('search'),
+            'date' => $request->get('date')
+        ];
         // Paginate reported group members
-        $reported_members = GroupMemberReport::with('groupMember')
+        $reported_members = $this->custom_service->listGroupMemberReports($data)
             ->latest()
             ->get()
             ->unique("group_id");
@@ -127,7 +138,7 @@ class GroupReportController extends Controller
         try {
             $group_report = $this->group_report_service->getById($group_report_id);
             $message = $this->group_report_service->deleteGroup($group_report->group);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, $message);
+            return redirect()->route('admin.reports.group.lists')->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {

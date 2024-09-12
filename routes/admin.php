@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\Web\PrivacyPolicyController;
 use App\Http\Controllers\Admin\Web\TermAndConditionController;
 use App\Http\Controllers\Web\InviteController;
+use App\Models\Feedback;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(["auth"])->group(
@@ -45,6 +46,7 @@ Route::middleware(["auth"])->group(
             "faq-categories" => FaqCategoryController::class,
             "feedbacks" => FeedbackController::class
         ]);
+
 
         Route::prefix("users")->as("users.")->group(function () {
             Route::post('{id}/suspend', [UserController::class, "suspend"])->name("suspend");
@@ -98,7 +100,7 @@ Route::middleware(["auth"])->group(
             Route::get('post/lists', [PostReportController::class, "reportList"])->name("post.lists");
             Route::get('post/show/{id}', [PostReportController::class, "show"])->name("post.show");
             Route::post('post/update-status/{id}', [PostReportController::class, "updateStatus"])->name('post.update-status');
-            Route::delete('post/delete/{id}', [PostReportController::class, "deleteReport"])->name('post.delete');
+            Route::delete('post/delete/{id}', [PostReportController::class, "deleteReportedPost"])->name('post.delete');
 
             Route::get('group/lists', [GroupReportController::class, "reportList"])->name("group.lists");
             Route::get('group/show/{id}', [GroupReportController::class, "show"])->name("group.show");
@@ -125,5 +127,7 @@ Route::middleware(["auth"])->group(
         Route::post('announcements/update-status/{id}', [AnnouncementController::class, 'changeStatus'])->name('announcements.update-status');
 
         Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+         Route::delete('{id}/change-status', [FeedbackController::class, 'changeStatus'])->name('change-status');
     }
 );

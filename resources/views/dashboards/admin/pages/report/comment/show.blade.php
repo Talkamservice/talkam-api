@@ -22,7 +22,7 @@
                 <div class="col-xxl-12 col-xl-12">
                     <div class="card custom-card overflow-hidden">
                         <div class="card-body p-0">
-                            @if ($comment_report)
+                            @if ($comment_report && $comment_report->comment)
                                 <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
                                     <div>
                                         <span class="avatar avatar-xxl avatar-rounded online me-3">
@@ -87,6 +87,7 @@
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 Action
                             </a>
+                            @if ($comment_report && $comment_report->comment)
                             <ul class="dropdown-menu ">
                                 <li>
                                     <form id="updateStatus_{{ $comment_report->id }}"
@@ -139,20 +140,23 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item text-danger" href="#"
-                                        onclick="event.preventDefault(); document.getElementById('deleteUser_{{ $comment_report->comment->id }}').submit();">
+                                        onclick="event.preventDefault(); document.getElementById('deleteUser_{{  $comment_report->id }}').submit();">
                                         <i class="ri-delete-bin-line"></i> | Delete
                                     </a>
-                                    <form id="deleteUser_{{ $comment_report->comment->id }}"
-                                        action="{{ route('admin.reports.comment.delete', $comment_report->comment->id) }}"
-                                        method="POST" onsubmit="return confirm('Are you sure of this action?')">
+                                    <form id="deleteUser_{{  $comment_report->id }}"
+                                        action="{{ route('admin.reports.comment.delete', $comment_report->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure of this action?')">
                                         @csrf
                                         @method('delete')
                                     </form>
                                 </li>
                             </ul>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body">
+                        @if($comment_report && $comment_report->comment)
                         <div class="table-responsive">
                             <table class="table text-nowrap table-hover border table-bordered">
                                 <thead>
@@ -185,6 +189,11 @@
                                 </tbody>
                             </table>
                         </div>
+                        @else
+                        <div class="alert " role="alert">
+                            The reported comment is not available.
+                        </div>
+                    @endif
                     </div>
                     <div class="card-footer">
                         <div class="d-flex align-items-center">
