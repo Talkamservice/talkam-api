@@ -26,7 +26,7 @@ class PostComment extends Model
 
     public function threadNotifications()
     {
-        return $this->hasMany(ThreadNotification::class, "post_id");
+        return $this->hasMany(ThreadNotification::class, "comment_id");
     }
 
 

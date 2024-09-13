@@ -32,6 +32,8 @@ class PostCommentResource extends JsonResource
         ])->exists();
 
         $reply_to = !empty($this->repliedComment?->user) ? UserResource::custom($this->repliedComment?->user) : null;
+        $enabled_notification = $this->threadNotifications->where("user_id", auth("sanctum")->id());
+
         return [
             "id" => $this->id,
             "post" => !empty($this->post) ? PostResource::custom($this->post) : null,
@@ -43,6 +45,7 @@ class PostCommentResource extends JsonResource
             "is_reported" => $is_reported,
             "reply_to" => ($this->repliedComment?->is_anonymous != 1) ? $reply_to : null,
             "attachment" => $this->attachment,
+            "enabled_notification" => !empty($enabled_notification),
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
             "children" => self::collection($this->whenLoaded("children", $this->children)),
             "created_at" => formatDate($this->created_at),
