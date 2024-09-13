@@ -42,7 +42,7 @@ class DashboardController extends Controller
                     "title" => "Total Categories",
                     "value" => array_sum($dashboardData['currentCategories']),
                     "class" => "info",
-                    "url" => "",
+                    "url" => route('admin.post-categories.index'),
                     "percentage" => $dashboardData['categoriesChangePercentage'],
                     'period' =>  $period,
                 ],

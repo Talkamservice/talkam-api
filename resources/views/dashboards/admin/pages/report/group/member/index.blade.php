@@ -24,17 +24,18 @@
                         <div class="col-12 col-md-5 col-xl-5 col-lg-5">
                             <div class="form-group">
                                 <label for="search">Search (suspension,status)</label>
-                                <input class="form-control" type="text" value="{{ request()->search }}" placeholder="Search..." name="search">
+                                <input class="form-control" type="text" value="{{ request()->search }}"
+                                    placeholder="Search..." name="search">
                             </div>
                         </div>
-                        
+
                         <div class="col-12 col-md-5 col-xl-5 col-lg-5">
                             <div class="form-group">
                                 <label for="date">Date</label>
                                 <input class="form-control" type="date" value="{{ request()->date }}" name="date">
                             </div>
                         </div>
-                        
+
                         <div class="col-12 col-md-2 col-xl-2 col-lg-2 pt-4">
                             <div class="form-group d-flex align-items-end">
                                 <button class="btn btn-sm btn-success w-100">Filter</button>
@@ -42,7 +43,7 @@
                         </div>
                     </form>
                 </div>
-                
+
                 <div class="card-body">
                     <div class="table-responsive" style="min-height: 250px">
                         <table class="table text-nowrap table-hover border table-bordered">
@@ -95,20 +96,25 @@
                                         <td>
                                             <div class="dropdown">
                                                 <a class="btn btn-outline-primary dropdown-toggle" href="#"
-                                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Show Actions">
                                                     Action
                                                 </a>
                                                 <ul class="dropdown-menu">
                                                     <li>
                                                         <a class="dropdown-item"
-                                                            href="{{ route('admin.reports.group-member.show', $report->id) }}">
+                                                            href="{{ route('admin.reports.group-member.show', $report->id) }}"
+                                                            data-bs-toggle="tooltip" data-bs-placement="right"
+                                                            title="View Report">
                                                             <i class="ri-eye-line"></i> View
                                                         </a>
                                                     </li>
                                                     @if ($report->user->banned)
                                                         <li>
-                                                            <a class="dropdown-item text-danger" href="#">
-                                                                <i class="ri-error-warning-line"></i>  User Banned
+                                                            <a class="dropdown-item text-danger" href="#"
+                                                                data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                title="This user is banned">
+                                                                <i class="ri-error-warning-line"></i> User Banned
                                                             </a>
                                                         </li>
                                                     @elseif ($report->groupMember->suspension_end && $report->groupMember->suspension_end > now())
@@ -119,26 +125,31 @@
                                                                 onsubmit="return confirm('Are you sure you want to lift this suspension?')">
                                                                 @csrf
                                                                 <a class="dropdown-item text-primary" href="#"
-                                                                    onclick="document.getElementById('undoSuspensionForm_{{ $report->groupMember->id }}').submit()">
+                                                                    onclick="document.getElementById('undoSuspensionForm_{{ $report->groupMember->id }}').submit()"
+                                                                    data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                    title="Undo Suspension ">
                                                                     <i class="ri-alert-line"></i> Undo Suspension
                                                                 </a>
                                                             </form>
                                                         </li>
                                                     @endif
                                                     <li>
-                                                        <a class="dropdown-item text-danger suspend-btn" href="#" onclick="openModal('{{ $report->groupMember->id }}')">
-                                                            <i class="ri-alert-line"></i> Suspend/Ban
+                                                        <a class="dropdown-item text-danger suspend-btn" href="#"
+                                                            onclick="openModal('{{ $report->id }}')"
+                                                            data-bs-toggle="tooltip" data-bs-placement="right"
+                                                            title="Suspend User from this group">
+                                                            <i class="ri-alert-line"></i> Suspend
                                                         </a>
                                                     </li>
-                                                   
                                                 </ul>
                                             </div>
                                         </td>
+
                                     </tr>
                                 @empty
-                                <div class="alert alert-info text-center">
-                                    No record found
-                                </div>
+                                    <div class="alert alert-info text-center">
+                                        No record found
+                                    </div>
                                 @endforelse
                             </tbody>
                         </table>
@@ -149,5 +160,14 @@
 
     </div>
 
-  @include('dashboards.admin.pages.report.group.member.suspend-ban-modal')
+    @include('dashboards.admin.pages.report.group.member.suspend-ban-modal')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
 @endsection

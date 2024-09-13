@@ -78,13 +78,16 @@
                                         <td>
                                             <div class="dropdown">
                                                 <a class="btn btn-outline-primary dropdown-toggle" href="#"
-                                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Show Actions">
                                                     Action
                                                 </a>
                                                 <ul class="dropdown-menu">
                                                     <li>
                                                         <a class="dropdown-item"
-                                                            href="{{ route('admin.reports.group.show', $group_report->id) }}">
+                                                            href="{{ route('admin.reports.group.show', $group_report->id) }}"
+                                                            data-bs-toggle="tooltip" data-bs-placement="right"
+                                                            title="View Report">
                                                             <i class="ri-eye-line"></i> View
                                                         </a>
                                                     </li>
@@ -96,7 +99,9 @@
                                                             onsubmit="return confirm('Are you sure you want to lift this suspension?')">
                                                             @csrf
                                                             <a class="dropdown-item text-primary" href="#"
-                                                                onclick="document.getElementById('undoSuspensionForm_{{ $group_report->id }}').submit()">
+                                                                onclick="document.getElementById('undoSuspensionForm_{{ $group_report->id }}').submit()"
+                                                                data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                title="Undo Suspension">
                                                                 <i class="ri-alert-line"></i> Undo Suspension
                                                             </a>
                                                         </form>
@@ -108,22 +113,28 @@
                                                             onsubmit="return confirm('Are you sure you want to permanently delete this group?')">
                                                             @csrf
                                                             <a class="dropdown-item text-danger" href="#"
-                                                                onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()">
+                                                                onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()"
+                                                                data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                title="Delete Group">
                                                                 <i class="ri-alert-line"></i> Delete
                                                             </a>
                                                         </form>
 
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="#"
-                                                                onclick="openModal('{{ $group_report->group->id }}')">
-                                                                <i class="ri-alert-line"></i> Suspend/Ban
+                                                                onclick="openModal('{{ $group_report->group->id }}')"
+                                                                data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                title="Suspend Group">
+                                                                <i class="ri-alert-line"></i> Suspend
                                                             </a>
                                                         </li>
                                                     @else
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="#"
-                                                                onclick="openModal('{{ $group_report->group->id }}')">
-                                                                <i class="ri-alert-line"></i> Suspend/Ban
+                                                                onclick="openModal('{{ $group_report->group->id }}')"
+                                                                data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                title="Suspend Group">
+                                                                <i class="ri-alert-line"></i> Suspend
                                                             </a>
                                                         </li>
                                                         <!-- Delete Group Form -->
@@ -133,7 +144,9 @@
                                                             onsubmit="return confirm('Are you sure you want to permanently delete this group?')">
                                                             @csrf
                                                             <a class="dropdown-item text-danger" href="#"
-                                                                onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()">
+                                                                onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()"
+                                                                data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                title="Delete Group">
                                                                 <i class="ri-alert-line"></i> Delete
                                                             </a>
                                                         </form>
@@ -141,6 +154,7 @@
                                                 </ul>
                                             </div>
                                         </td>
+
                                     </tr>
                                 @empty
                                     <div class="alert alert-info text-center">
@@ -163,4 +177,13 @@
     </div>
 
     @include('dashboards.admin.pages.report.group.suspend-ban-modal')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
 @endsection

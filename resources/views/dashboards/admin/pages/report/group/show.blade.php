@@ -30,7 +30,8 @@
                                 <div class="flex-fill main-profile-info" style="margin-left: 15px;">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <h6 class="fw-semibold mb-1 text-fixed-white">{{ $group_report->group?->name }}</h6>
-                                        <button class="btn bg-white btn-outline-{{ pillClasses($group_report->group?->status) }} btn-sm btn-wave">
+                                        <button
+                                            class="btn bg-white btn-outline-{{ pillClasses($group_report->group?->status) }} btn-sm btn-wave">
                                             {{ $group_report->group?->status }}
                                         </button>
                                     </div>
@@ -67,16 +68,18 @@
             <div class="col-xxl-8 col-xl-8">
                 <div class="card custom-card">
                     <div class="card-header d-flex justify-content-between">
-                        
+
                         <div class="dropdown ms-auto me-auto">
-                            <a class="btn btn-outline-primary dropdown-toggle" href="#"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Show Actions">
                                 Action
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
                                     <a class="dropdown-item"
-                                        href="{{ route('admin.reports.group.show', $group_report->id) }}">
+                                        href="{{ route('admin.reports.group.show', $group_report->id) }}"
+                                        data-bs-toggle="tooltip" data-bs-placement="right" title="View Report">
                                         <i class="ri-eye-line"></i> View
                                     </a>
                                 </li>
@@ -88,7 +91,8 @@
                                         onsubmit="return confirm('Are you sure you want to lift this suspension?')">
                                         @csrf
                                         <a class="dropdown-item text-primary" href="#"
-                                            onclick="document.getElementById('undoSuspensionForm_{{ $group_report->id }}').submit()">
+                                            onclick="document.getElementById('undoSuspensionForm_{{ $group_report->id }}').submit()"
+                                            data-bs-toggle="tooltip" data-bs-placement="right" title="Undo Suspension">
                                             <i class="ri-alert-line"></i> Undo Suspension
                                         </a>
                                     </form>
@@ -100,21 +104,24 @@
                                         onsubmit="return confirm('Are you sure you want to permanently delete this group?')">
                                         @csrf
                                         <a class="dropdown-item text-danger" href="#"
-                                            onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()">
+                                            onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()"
+                                            data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Group">
                                             <i class="ri-alert-line"></i> Delete
                                         </a>
                                     </form>
 
                                     <li>
                                         <a class="dropdown-item text-danger" href="#"
-                                            onclick="openModal('{{ $group_report->group->id }}')">
+                                            onclick="openModal('{{ $group_report->group->id }}')" data-bs-toggle="tooltip"
+                                            data-bs-placement="right" title="Suspend/Ban Group">
                                             <i class="ri-alert-line"></i> Suspend/Ban
                                         </a>
                                     </li>
                                 @else
                                     <li>
                                         <a class="dropdown-item text-danger" href="#"
-                                            onclick="openModal('{{ $group_report->group->id }}')">
+                                            onclick="openModal('{{ $group_report->group->id }}')" data-bs-toggle="tooltip"
+                                            data-bs-placement="right" title="Suspend/Ban Group">
                                             <i class="ri-alert-line"></i> Suspend/Ban
                                         </a>
                                     </li>
@@ -125,13 +132,15 @@
                                         onsubmit="return confirm('Are you sure you want to permanently delete this group?')">
                                         @csrf
                                         <a class="dropdown-item text-danger" href="#"
-                                            onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()">
+                                            onclick="document.getElementById('deleteGroupForm_{{ $group_report->id }}').submit()"
+                                            data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Group">
                                             <i class="ri-alert-line"></i> Delete
                                         </a>
                                     </form>
                                 @endif
                             </ul>
                         </div>
+
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -159,9 +168,11 @@
                                             <td>{{ $report->created_at->format('Y-m-d h:i A') }}</td>
                                         </tr>
                                     @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center"><img class="no-data-image" src="{{asset('admin_assets/images/empty/no-data-concept-illustration.jpg')}}" alt=""></td>
-                                    </tr>
+                                        <tr>
+                                            <td colspan="5" class="text-center"><img class="no-data-image"
+                                                    src="{{ asset('admin_assets/images/empty/no-data-concept-illustration.jpg') }}"
+                                                    alt=""></td>
+                                        </tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -179,4 +190,13 @@
         </div>
     </div>
     @include('dashboards.admin.pages.report.group.suspend-ban-modal')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
 @endsection

@@ -122,22 +122,10 @@
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide">
-                                <a href="{{ route('admin.reports.post.lists') }}" class="side-menu__item list-item list-item-sub">Post</a>
-                                <a href="{{ route('admin.reports.comment.lists') }}" class="side-menu__item list-item list-item-sub">Comment</a>
-
-                            </li>
-                            <li class="slide has-sub">
-                                <a href="javascript:void(0);" class="side-menu__item list-item">
-                                    {{-- <i class="bx bx-user-plus side-menu__icon list-item-icon"></i> --}}
-                                    <span class="side-menu__label list-item-label">Group</span>
-                                    <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
-                                </a>
-                                <ul class="slide-menu child1">
-                                    <li class="slide">
-                                        <a href="{{ route('admin.reports.group.lists') }}" class="side-menu__item list-item list-item-sub">Group</a>
-                                        <a href="{{ route('admin.reports.group.member.lists') }}" class="side-menu__item list-item list-item-sub">Members</a>
-                                    </li>
-                                </ul>
+                                <a href="{{ route('admin.reports.post.lists') }}" class="side-menu__item list-item list-item-sub">General Post</a>
+                                <a href="{{ route('admin.reports.comment.lists') }}" class="side-menu__item list-item list-item-sub">General Comment</a>
+                                    <a href="{{ route('admin.reports.group.lists') }}" class="side-menu__item list-item list-item-sub">Group Post</a>
+                                    <a href="{{ route('admin.reports.group.member.lists') }}" class="side-menu__item list-item list-item-sub">Group Members</a>
                             </li>
                         </ul>
                     </li>
