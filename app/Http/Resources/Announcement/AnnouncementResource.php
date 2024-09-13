@@ -31,7 +31,8 @@ class AnnouncementResource extends JsonResource
             "status" => $this->status,
             "published_at" => formatDate($this->published_at ?? null),
             "created_at" => formatDate($this->created_at),
-            "updated_at" => formatDate($this->updated_at)
+            "updated_at" => formatDate($this->updated_at),
+            "expired_at" => formatDate($this->expired_at ?? null)
         ];
     }
 

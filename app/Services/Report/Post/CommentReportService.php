@@ -84,7 +84,7 @@ class CommentReportService
     {
         $reported_comment = self::getById($reported_comment_id);
         $reported_comment->comment->delete();
-        Notification::send($reported_comment->user, new CommentsRemovedFromApplicationNotification($reported_comment));
+        Notification::send($reported_comment->comment->user, new CommentsRemovedFromApplicationNotification($reported_comment));
 
         // Log the activity
         (new ActivityLogService)

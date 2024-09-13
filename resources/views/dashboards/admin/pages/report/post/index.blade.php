@@ -63,9 +63,6 @@
                                         $first_report = $post_reports->first();
                                     @endphp
                                     @if ($first_report->post)
-                                    @php
-                                    $hasRecords = true;
-                                @endphp
                                         <tr>
                                             <td>
                                                 <a class="text-primary"
@@ -198,18 +195,11 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                   
                                     @endif
                                 @empty
-                               
-                                <tr>
-                                    <td colspan="5" class="text-center">
-                                        <div class="alert alert-info">
-                                            No record found.
-                                        </div>
-                                    </td>
-                                </tr>
-                          
+                                    <div class="alert alert-info text-center">
+                                        No record found
+                                    </div>
                                 @endforelse
                             </tbody>
                         </table>

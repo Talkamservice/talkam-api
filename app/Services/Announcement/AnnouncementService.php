@@ -42,7 +42,7 @@ class AnnouncementService
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'status' => 'nullable|string',
             'published_at' => 'nullable|date',
-            'expired_at' => 'nullable|date',
+            'expired_at' => 'required|date',
         ]);
 
         if ($validator->fails()) {

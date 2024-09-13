@@ -192,7 +192,7 @@
                                             action="{{ route('admin.reports.post.delete', $post_report->id) }}" method="POST"
                                             onsubmit="return confirm('Are you sure of this action?')">
                                             @csrf
-                                            @method('delete')
+                                            @method('DELETE')
                                             <a class="dropdown-item text-danger" href="#"
                                                 onclick="event.preventDefault(); document.getElementById('deletePost_{{ $post_report->id }}').submit()"
                                                 data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Post">

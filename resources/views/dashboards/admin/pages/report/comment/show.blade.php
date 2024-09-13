@@ -143,7 +143,7 @@
                                                 action="{{ route('admin.reports.comment.delete', $comment_report->id) }}"
                                                 method="POST" onsubmit="return confirm('Are you sure of this action?')">
                                                 @csrf
-                                                @method('delete')
+                                                @method('DELETE')
                                             </form>
                                         </li>
                                     @endif

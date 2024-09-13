@@ -87,12 +87,7 @@
                             MANAGEMENT</span></li>
                     <!-- End::slide__category -->
 
-                    <li class="slide">
-                        <a href="{{ route('admin.guidelines.index') }}" class="side-menu__item list-item">
-                            <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
-                            <span class="side-menu__label list-item-label">Community Guidelines</span>
-                        </a>
-                    </li>
+                   
                 @endcan
 
                 @canAny(slugPermission('read notification'), slugPermission('read announcement'))
@@ -132,6 +127,12 @@
                 @endcan
 
                 @can(slugPermission('read term and condition'))
+                <li class="slide">
+                    <a href="{{ route('admin.guidelines.index') }}" class="side-menu__item list-item">
+                        <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
+                        <span class="side-menu__label list-item-label">Community Guidelines</span>
+                    </a>
+                </li>
                     <li class="slide">
                         <a href="{{ route('admin.terms-and-conditions.create') }}" class="side-menu__item list-item">
                             <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
