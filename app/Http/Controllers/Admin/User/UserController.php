@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\User;
 
+use App\Constants\Account\User\UserConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
@@ -28,7 +29,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = UserQueryBuilder::filterList($request)->role()->latest()
+        $this->authorize(slugPermission("read user"));
+        $users = UserQueryBuilder::filterList($request)->where("role", UserConstants::USER)->latest()
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE)
             ->appends($request->query());
         return view("dashboards.admin.pages.user.index", [
