@@ -28,7 +28,7 @@ class SuspendUserNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return MethodsHelper::userNotificationPreference($notifiable);
+        return ['mail', 'database', 'firebase'];
     }
 
     /**
@@ -86,7 +86,7 @@ class SuspendUserNotification extends Notification
             'title' => $title,
             'message' => $message,
             'link' => null,
-            'type' => 'user',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];

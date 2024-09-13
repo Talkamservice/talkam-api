@@ -27,7 +27,7 @@ class StrikeUserNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return MethodsHelper::userNotificationPreference($notifiable);
+        return ['mail', 'database', 'firebase'];
     }
 
     /**
@@ -80,10 +80,10 @@ class StrikeUserNotification extends Notification
             'data' => [
                 'id' => $this->user->id,
             ],
-            'title' => "Strike Received!",
+            'title' => "Warning Issued!",
             'message' => "You have received a strike for failing to comply with Talkam's rules and policies.",
             'link' => null,
-            'type' => 'user',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];

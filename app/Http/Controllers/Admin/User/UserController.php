@@ -136,7 +136,7 @@ class UserController extends Controller
         $this->authorize(slugPermission("strike a user"));
         try {
             $this->user_service->strike($id);
-            return back()->with(NotificationConstants::SUCCESS_MSG, "Strike issued successfully");
+            return back()->with(NotificationConstants::SUCCESS_MSG, "Warning issued successfully");
         } catch (ModelNotFoundException | InvalidRequestException $th) {
             return back()
                 ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
