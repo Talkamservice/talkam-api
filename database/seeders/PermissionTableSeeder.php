@@ -33,6 +33,8 @@ class PermissionTableSeeder extends Seeder
                     "unsuspend a user",
                     "strike a user",
                     "hide all posts of a user",
+                    "restore all posts of a user",
+                    "remove all posts of a user",
                     "invite a new admin",
                     "read term and condition",
                     "read privacy policy",

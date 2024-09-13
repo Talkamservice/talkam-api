@@ -60,6 +60,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
+        $this->authorize(slugPermission("read user"));
         $user = User::findOrFail($id);
         $avatars = Avatar::status()->get();
         return view("dashboards.admin.pages.user.show", [
@@ -81,6 +82,7 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $this->authorize(slugPermission("update user"));
         try {
             $this->user_service->update($request->all(), $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User updated successfully");
@@ -100,6 +102,7 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->authorize(slugPermission("delete user"));
         try {
             $this->user_service->delete($id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User deleted successfully");
@@ -115,6 +118,7 @@ class UserController extends Controller
 
     public function suspend(Request $request, string $id)
     {
+        ($request->status == StatusConstants::ACTIVE) ? $this->authorize(slugPermission("suspend a user")) : $this->authorize(slugPermission("unsuspend a user"));
         try {
             $this->user_service->suspend($request->status, $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User status updated successfully");
@@ -129,8 +133,9 @@ class UserController extends Controller
 
     public function strike(Request $request, string $id)
     {
+        $this->authorize(slugPermission("strike a user"));
         try {
-            $this->user_service->strike($request->status, $id);
+            $this->user_service->strike($id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "Strike issued successfully");
         } catch (ModelNotFoundException | InvalidRequestException $th) {
             return back()
@@ -144,6 +149,7 @@ class UserController extends Controller
 
     public function hideUserPost(Request $request, string $id)
     {
+        $this->authorize(slugPermission("hide all posts of a user"));
         try {
             $this->user_service->hidePost($request, $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User post hidden successfully");
@@ -151,7 +157,7 @@ class UserController extends Controller
             return back()
                 ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-        Log::error('InvalidRequestException: ' . $th->getMessage() . ' for user ID: ' . $id);
+            Log::error('InvalidRequestException: ' . $th->getMessage() . ' for user ID: ' . $id);
 
             // throw $th;
             return back()->withInput($request->all())
@@ -161,6 +167,7 @@ class UserController extends Controller
 
     public function restoreUserPost(Request $request, string $id)
     {
+        $this->authorize(slugPermission("restore all posts of a user"));
         try {
             $this->user_service->restorePost($request, $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User posts restored successfully");
@@ -176,6 +183,7 @@ class UserController extends Controller
 
     public function removeUserPosts(Request $request, string $id)
     {
+        $this->authorize(slugPermission("remove all posts of a user"));
         try {
             $this->user_service->deleteUserPostsPermanently($request, $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User posts permanently removed successfully");

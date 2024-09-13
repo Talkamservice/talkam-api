@@ -12,7 +12,7 @@
                 <input class="form-control" required name="name" placeholder="Enter role name..."  />
             </div>
             <div class="modal-footer">
-                <button class="btn" data-bs-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
+                <button class="btn" type="button" data-bs-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>

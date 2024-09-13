@@ -5,7 +5,7 @@
                 @method('Put')
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Edit Role</h5>
-                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <i data-feather="x"></i>
                     </button>
                 </div>
@@ -13,7 +13,7 @@
                     <input class="form-control" value="{{ str_replace('_', ' ', $role->name) }}" required name="name" placeholder="Enter role name..." />
                 </div>
                 <div class="modal-footer">
-                    <button class="btn" data-bs-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
+                    <button class="btn" type="button" data-bs-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
                 <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>

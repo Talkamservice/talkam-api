@@ -35,6 +35,7 @@ class RoleController extends Controller
         $role = Role::create($data);
         AuthorizationService::enableLoginPermission($role);
         AuthorizationService::syncSudoRoles();
+        
         (new ActivityLogService)
             ->setEvent("created")
             ->setTitle("Created A Role")
@@ -76,8 +77,11 @@ class RoleController extends Controller
             "name" => "required|string|unique:roles,name,$id",
         ]);
         $data["name"] = str_replace(" ", "_", $data["name"]);
-        $role = Role::findorfail($id)->update($data);
-        // AuthorizationService::syncSudoRoles();
+        $role = Role::findorfail($id);
+        
+        $role->update($data);
+        AuthorizationService::syncSudoRoles();
+
         (new ActivityLogService)
             ->setEvent("updated")
             ->setTitle("Updated A Role")
@@ -91,6 +95,7 @@ class RoleController extends Controller
             ])
             ->setUrl(request()->fullUrl())
             ->log();
+
         return back()->with(NotificationConstants::SUCCESS_MSG, "Role updated successfully!");
     }
 
