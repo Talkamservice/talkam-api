@@ -150,4 +150,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(ActivityLog::class, 'user_id');
     }
+
+    public function isDisabled()
+    {
+        if (in_array(
+            $this->accountDeactivation?->status,
+            [StatusConstants::PROCESSING, StatusConstants::APPROVED]
+        ) || in_array(
+            $this->status,
+            [StatusConstants::INACTIVE, StatusConstants::DISABLED]
+        )) {
+            return true;
+        } else {
+            return false;
+        };
+    }
 }

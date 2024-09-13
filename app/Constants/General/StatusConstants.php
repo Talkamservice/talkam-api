@@ -5,6 +5,7 @@ namespace App\Constants\General;
 class StatusConstants
 {
     const ACTIVE = "Active";
+    const DISABLED = "Disabled";
     const AWAITING_APPROVAL = "Awaiting_Approval";
     const AWAITING_RESPONSE = "Awaiting_Response";
     const REVIEWING = "Reviewing";

@@ -103,6 +103,12 @@ class LoginController extends Controller
                     "email_verified_at" => now()
                 ]);
             }
+
+            if (!empty($token = $data["fcm_token"] ?? null)) {
+                $user->update([
+                    "fcm_token" => $token
+                ]);
+            }
             
             $data["user"] =  UserResource::make($user)->toArray($request);
             $data["token"] = $user->createToken('api')->plainTextToken;

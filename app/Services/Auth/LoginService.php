@@ -51,6 +51,10 @@ class LoginService
             throw new AuthException("Incorrect password provided.");
         }
 
+        if ($user->isDisabled()) {
+            throw new AuthException("Account disabled");
+        }
+        
         if (!empty($token = $data["fcm_token"] ?? null)) {
             $user->update([
                 "fcm_token" => $token
