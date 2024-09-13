@@ -30,12 +30,11 @@ class TestCommand extends Command
     public function handle()
     {
         (new FirebaseNotificationService)
-            ->setTitle($data["title"])
-            ->setBody($data["message"])
-            ->setType($data["type"])
-            ->byUserToken($notifiable->fcm_token)
+            ->setTitle("Test notification")
+            ->setBody("Message")
+            ->setType("Test")
+            ->byUserId(11)
             ->setMetadata([
-                "id" => $this->message?->conversation_id,
                 "type" => "conversation",
             ])
             ->initiate();
