@@ -193,4 +193,8 @@ function filterUniqueWords($array) {
     return $filtered_array;
 }
 
+function slugPermission(string $string)
+{
+    return "can_" . str_replace("-", "_", slugify($string));
+}
 

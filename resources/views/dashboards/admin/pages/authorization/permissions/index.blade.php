@@ -14,7 +14,6 @@
                 </div>
             </div>
         </div>
-        @include('general.notifications.flash_messages')
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-between">
@@ -27,10 +26,10 @@
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
-                    <div class="">
+                    {{-- <div class="">
                         <a href="javascript:void{}" data-bs-toggle="modal" data-bs-target="#addNewPermissionModal" class="btn btn-primary"><i class="fe fe-plus"></i>
                             <span class="ml-3">Add New</span></a>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

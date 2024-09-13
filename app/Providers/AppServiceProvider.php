@@ -6,6 +6,7 @@ use App\Channels\FirebaseChannel;
 use App\Models\User;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -42,6 +43,14 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 "global_notifications" => sudo()->notifications ?? $global_notifications
             ]);
+        });
+
+        Blade::if('canAll', function (...$permissions) {
+            return auth()->user()->hasAllPermissions($permissions);
+        });
+    
+        Blade::if('canAny', function (...$permissions) {
+            return auth()->user()->hasAnyPermission($permissions);
         });
     }
 }
