@@ -37,6 +37,7 @@ class GroupResource extends JsonResource
             "user_role" => $group_member?->role,
             "has_requested" => $group_member?->status == StatusConstants::PENDING,
             "is_suspended" => $group_member?->status == StatusConstants::SUSPENDED,
+            "is_banned" => $group_member?->status == StatusConstants::BANNED,
             "total_members" => $this->members?->count(),
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
             "guidelines" => GuidelineResource::collection($this->whenLoaded("guidelines", $this->guidelines)),

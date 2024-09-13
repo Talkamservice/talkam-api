@@ -334,7 +334,7 @@ class UserService
         return $user;
     }
 
-    public function strike($status, $id)
+    public function strike($id)
     {
         $user = $this->getById($id);
         $user->increment("strike");

@@ -15,13 +15,19 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
-    public function index()
+    
+    public function index(Request $request)
     {
-        $roles = Role::paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-        $sn = $roles->firstItem();
-        return view("dashboards.admin.pages.authorization.roles", [
+        $builder = Role::query();
+
+        if (!empty($key = $request->search)) {
+            $builder = $builder->where("name", "LIKE", "%$key%");
+        }
+        
+        $roles = $builder->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        return view("dashboards.admin.pages.authorization.roles.index", [
             "roles" => $roles,
-            "sn" => $sn,
+            "sn" => $roles->firstItem(),
         ]);
     }
 
@@ -34,6 +40,7 @@ class RoleController extends Controller
         $role = Role::create($data);
         AuthorizationService::enableLoginPermission($role);
         AuthorizationService::syncSudoRoles();
+        
         (new ActivityLogService)
             ->setEvent("created")
             ->setTitle("Created A Role")
@@ -62,7 +69,7 @@ class RoleController extends Controller
             $builder = $builder->where("name", "LIKE", "%$name%");
         }
         $permissions = $builder->get();
-        return view("dashboards.authorization.roles.permissions", [
+        return view("dashboards.admin.pages.authorization.roles.permissions", [
             "role" => $role,
             "permissions" => $permissions,
             "sn" => 1
@@ -75,8 +82,11 @@ class RoleController extends Controller
             "name" => "required|string|unique:roles,name,$id",
         ]);
         $data["name"] = str_replace(" ", "_", $data["name"]);
-        $role = Role::findorfail($id)->update($data);
-        // AuthorizationService::syncSudoRoles();
+        $role = Role::findorfail($id);
+
+        $role->update($data);
+        AuthorizationService::syncSudoRoles();
+
         (new ActivityLogService)
             ->setEvent("updated")
             ->setTitle("Updated A Role")
@@ -90,6 +100,7 @@ class RoleController extends Controller
             ])
             ->setUrl(request()->fullUrl())
             ->log();
+
         return back()->with(NotificationConstants::SUCCESS_MSG, "Role updated successfully!");
     }
 

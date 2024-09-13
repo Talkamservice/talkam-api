@@ -118,8 +118,11 @@ class GroupReportService
 
                 $group->update(['status' => StatusConstants::BANNED]);
 
-                $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
-                Notification::send($user, new SuspendGroupNotification($group, null, "You have been permanently banned from the group for the following reason: {$reason}."));
+                $user = $group->creator;
+
+                if (!empty($user)) {
+                    Notification::send($user, new SuspendGroupNotification($group, null, "Your group has been banned for the following reason: {$reason}."));
+                }
 
                 // Log the activity
                 (new ActivityLogService)
