@@ -23,7 +23,7 @@ class AnnouncementResource extends JsonResource
             "user" =>  UserResource::custom($this->user),
             "banner_image" => $this->bannerUrl(),
             "title" => $this->title,
-            "description" => $this->body,
+            "description" => strip_tags($this->body),
             "audience" => [
                 "type" => $this->audience,
                 "data" => $this->getTargetedUsers()
