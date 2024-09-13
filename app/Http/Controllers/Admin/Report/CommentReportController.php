@@ -24,7 +24,7 @@ class CommentReportController extends Controller
 
     public function reportList(Request $request)
     {
-       
+
         $data = [
             'search' => $request->get('search'),
             'date' => $request->get('date')
@@ -42,13 +42,15 @@ class CommentReportController extends Controller
         // Fetch the specific comment report
         $comment_report = CommentReport::with('comment')->find($id);
     
-        if (!$comment_report || !$comment_report->comment) {
-            // If the comment report or its comment is not found, redirect to a suitable page with a message
-            return redirect()->route('admin.reports.post.lists')->with('error', 'Comment Report or associated comment not found.');
+        if (!$comment_report) {
+            return redirect()->route('admin.reports.comment.lists')->with(NotificationConstants::ERROR_MSG, 'Report not found.');
         }
     
-        // Count the number of reports for the specific comment
-        $reasons_count = CommentReport::where('comment_id', $comment_report->comment_id)->count();
+        $reasons_count = 0;
+        if ($comment_report->comment) {
+            // Count the number of reports for the specific comment
+            $reasons_count = CommentReport::where('comment_id', $comment_report->comment_id)->count();
+        }
     
         // Fetch all reports related to the specific comment for pagination
         $comment_report_lists = CommentReport::where('comment_id', $comment_report->comment_id)
@@ -64,6 +66,7 @@ class CommentReportController extends Controller
     }
     
 
+
     public function updateStatus(Request $request, $comment_report_id)
     {
         try {
@@ -74,7 +77,7 @@ class CommentReportController extends Controller
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
@@ -89,7 +92,7 @@ class CommentReportController extends Controller
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            throw $th;
+            // throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }

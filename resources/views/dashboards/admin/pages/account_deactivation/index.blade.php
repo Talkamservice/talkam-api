@@ -61,7 +61,7 @@
                                             <div class="hstack gap-2 fs-15">
                                                 <form action="{{ route('admin.account-deactivation-requests.submit', $deactivation_request->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf
                                                     <input type="hidden" name="deactivation_request_id" value="{{ $deactivation_request->id }}">
-                                                    <button type="submit" class="btn btn-wave waves-effect waves-light btn-sm btn-danger-light" {{ $deactivation_request->status == "Disabled" ? "disabled" : "" }}>Approve</button>
+                                                    <button type="submit" class="btn btn-wave waves-effect waves-light btn-sm btn-danger-light" {{ $deactivation_request->status == "Disabled" ? "disabled" : "" }}>Disabled</button>
                                                 </form>
                                             </div>
                                         </td>

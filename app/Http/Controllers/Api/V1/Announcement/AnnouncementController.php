@@ -24,10 +24,6 @@ class AnnouncementController extends Controller
         try {
             $announcements = $this->announcement_service->list($request->all())
                 ->where('status', StatusConstants::ACTIVE)
-                ->where(function ($query) {
-                    $query->whereNull('expired_at')
-                        ->orWhere('expired_at', '>', now());
-                })
                 ->get();
             $data = AnnouncementResource::collection($announcements);
             return ApiHelper::validResponse("Announcements returned successfully", $data);

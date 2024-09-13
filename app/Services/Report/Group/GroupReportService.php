@@ -20,6 +20,7 @@ use App\Notifications\Group\SuspendGroupMemberNotification;
 use App\Notifications\Group\UndoGroupSuspensionNotification;
 use App\Services\ActivityLog\ActivityLogService;
 use App\Services\User\UserService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -105,11 +106,7 @@ class GroupReportService
 
             $actionType = $request->input('action_type');
             $reason = $request->input('suspension_reason');
-            $suspensionDurations = [
-                1 => now()->addHours(24),
-                2 => now()->addDays(7),
-                3 => now()->addDays(30),
-            ];
+            $suspensionDuration = $request->input('duration');
 
             if ($actionType === 'ban') {
                 if ($group->status === StatusConstants::BANNED) {
@@ -144,9 +141,16 @@ class GroupReportService
                     return 'Group is already suspended.';
                 }
 
-                $suspensionEnd = $suspensionDurations[$request->input('duration')] ?? now()->addHours(24);
-                $duration = $suspensionEnd->diffForHumans();
+                // Calculate the number of suspension days
+                $suspensionEnd = Carbon::parse($suspensionDuration); // Convert input date to Carbon
+                $now = Carbon::now(); // Current date
 
+                if ($suspensionEnd->lessThanOrEqualTo($now)) {
+                    return 'Invalid suspension date. The date must be in the future.';
+                }
+
+                $days = $now->diffInDays($suspensionEnd); // Get the number of days between now and the suspension end date
+                $duration = "{$days} days"; // Duration in days
                 $group->update(['status' => StatusConstants::SUSPENDED]);
 
                 $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
@@ -241,12 +245,13 @@ class GroupReportService
     }
 
 
+
     public function suspendOrBanMember(Request $request, $group_member_report_id)
     {
         DB::beginTransaction();
         try {
             $group_member_report = GroupMemberReport::find($group_member_report_id);
-
+            // dd($group_member_report_id);
             if (!$group_member_report) {
                 throw new ModelNotFoundException('Group member report not found.');
             }
@@ -259,11 +264,7 @@ class GroupReportService
 
             $actionType = $request->input('action_type');
             $suspensionReason = $request->input('suspension_reason');
-            $suspensionDurations = [
-                1 => now()->addHours(24),
-                2 => now()->addDays(7),
-                3 => now()->addDays(30),
-            ];
+            $suspensionDuration = $request->input('duration'); // Date input for suspension end
 
             if ($group_member->suspension_count >= 3 || $actionType === 'ban') {
                 if ($group_member->banned) {
@@ -288,7 +289,7 @@ class GroupReportService
                     ->setActivity(ActivitiesConstants::GROUP_MEMBER_BANNED)
                     ->setModel(GroupMember::class, $group_member->id)
                     ->setAdmin(auth()->user()?->id)
-                    ->setData(["Group" => $group_member->refresh()->toArray()])
+                    ->setData(["Group Member" => $group_member->refresh()->toArray()])
                     ->setUrl(request()->fullUrl())
                     ->log();
 
@@ -296,7 +297,16 @@ class GroupReportService
                 return 'User has been banned permanently.';
             } else {
                 $newSuspensionCount = $group_member->suspension_count + 1;
-                $suspensionEnd = $suspensionDurations[$request->input('duration')] ?? now()->addHours(24);
+
+                // Calculate the suspension end date from the input duration
+                $suspensionEnd = Carbon::parse($suspensionDuration); // Convert input date to Carbon
+                $now = Carbon::now();
+
+                if ($suspensionEnd->lessThanOrEqualTo($now)) {
+                    return 'Invalid suspension date. The date must be in the future.';
+                }
+
+                $days = $now->diffInDays($suspensionEnd); // Calculate the number of days
 
                 $group_member->update([
                     'suspension_reason' => $suspensionReason,
@@ -305,7 +315,7 @@ class GroupReportService
                     'status' => StatusConstants::SUSPENDED,
                 ]);
 
-                $message = "You have been suspended until {$suspensionEnd->diffForHumans()} for the following reason: {$suspensionReason}.";
+                $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
 
                 Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
 
@@ -323,13 +333,14 @@ class GroupReportService
                     ->log();
 
                 DB::commit();
-                return 'User has been suspended.';
+                return 'User has been suspended for ' . $days . ' days.';
             }
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
     }
+
 
 
     public function undoGroupMemberSuspension($group_member_id)

@@ -56,11 +56,13 @@
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-1">
                                                 <div>
-                                                    <a class="text-{{ $card['class'] }}" href="{{ $card['url'] }}">
-                                                        View All
-                                                        <i
-                                                            class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
-                                                    </a>
+                                                    @if (!empty($card['url']))
+                                                        <a class="text-{{ $card['class'] }}" href="{{ $card['url'] }}">
+                                                            View All
+                                                            <i
+                                                                class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
+                                                        </a>
+                                                    @endif
                                                 </div>
                                                 <div class="text-end">
                                                     <p
@@ -84,6 +86,10 @@
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">Latest Users</div>
+                                <a href="{{ route('admin.users.index') }}" class="p-2 fs-12 text-muted"
+                                    aria-expanded="false">
+                                    View All
+                                </a>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -132,18 +138,6 @@
                                     </table>
                                 </div>
 
-                                <!-- Pagination -->
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <div class="text-muted">
-                                        Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of
-                                        {{ $users->total() }} entries
-                                    </div>
-                                    <nav aria-label="Page navigation">
-                                        <ul class="pagination">
-                                            {{ $users->links('pagination::bootstrap-4') }}
-                                        </ul>
-                                    </nav>
-                                </div>
                             </div>
                         </div>
                     </div>

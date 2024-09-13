@@ -63,17 +63,19 @@
             <div class="col-xxl-8 col-xl-8">
                 <div class="card custom-card">
                     <div class="card-header d-flex justify-content-between">
-                        
+
                         <div class="dropdown ms-auto me-auto">
-                            <a class="btn btn-outline-primary dropdown-toggle" href="#"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Show Actions">
                                 Action
                             </a>
                             <ul class="dropdown-menu">
-                               
+
                                 @if ($group_member_report->user->banned)
                                     <li>
-                                        <a class="dropdown-item text-danger" href="#">
+                                        <a class="dropdown-item text-danger" href="#" data-bs-toggle="tooltip"
+                                            data-bs-placement="right" title="This user is banned">
                                             <i class="ri-error-warning-line"></i> User Banned
                                         </a>
                                     </li>
@@ -85,22 +87,25 @@
                                             onsubmit="return confirm('Are you sure you want to lift this suspension?')">
                                             @csrf
                                             <a class="dropdown-item text-primary" href="#"
-                                                onclick="document.getElementById('undoSuspensionForm_{{ $group_member_report->groupMember->id }}').submit()">
+                                                onclick="document.getElementById('undoSuspensionForm_{{ $group_member_report->groupMember->id }}').submit()"
+                                                data-bs-toggle="tooltip" data-bs-placement="right" title="Lift User Suspension">
                                                 <i class="ri-alert-line"></i> Undo Suspension
                                             </a>
                                         </form>
                                     </li>
                                 @endif
                                 <li>
-                                    <a class="dropdown-item text-danger suspend-btn" href="#" onclick="openModal('{{ $group_member_report->id }}')">
-                                        <i class="ri-alert-line"></i> Suspend/Ban
+                                    <a class="dropdown-item text-danger suspend-btn" href="#"
+                                        onclick="openModal('{{ $group_member_report->id }}')" data-bs-toggle="tooltip"
+                                        data-bs-placement="right" title="Suspend user from this group">
+                                        <i class="ri-alert-line"></i> Suspend
                                     </a>
                                 </li>
-                               
                             </ul>
                         </div>
+
                     </div>
-                   
+
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table text-nowrap table-hover border table-bordered">
@@ -115,7 +120,8 @@
                                     @forelse ($group_member_report_lists as $group_member_report)
                                         <tr>
                                             <td>
-                                                <a class="text-primary" href="{{ route('admin.users.show', $group_member_report->user_id) }}">
+                                                <a class="text-primary"
+                                                    href="{{ route('admin.users.show', $group_member_report->user_id) }}">
                                                     <div class="d-flex align-items-center fw-semibold">
                                                         <span class="avatar avatar-sm me-2 avatar-rounded">
                                                             <!-- Check if image exists, otherwise use a default image -->
@@ -151,4 +157,12 @@
         </div>
     </div>
     @include('dashboards.admin.pages.report.group.member.suspend-ban-modal')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
 @endsection

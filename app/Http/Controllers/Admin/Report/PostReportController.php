@@ -91,14 +91,13 @@ class PostReportController extends Controller
     {
         try {
             $this->post_report_service->delete($post_report_id);
-            dd('"Post report deleted successfully. Redirecting...');
             return redirect()->route('admin.reports.post.lists')->with(NotificationConstants::SUCCESS_MSG, "Reported post deleted successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            // throw $th;
+            throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }

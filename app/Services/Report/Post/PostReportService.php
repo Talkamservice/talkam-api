@@ -84,7 +84,7 @@ class PostReportService
     {
         $reported_post = self::getById($reported_post_id);
         $reported_post->post->delete();
-        Notification::send($reported_post, new PostsRemovedFromApplicationNotification($reported_post));
+        Notification::send($reported_post->post->user, new PostsRemovedFromApplicationNotification($reported_post));
         // Log the activity
         (new ActivityLogService)
             ->setEvent("deleted")
