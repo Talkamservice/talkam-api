@@ -51,6 +51,7 @@ Route::middleware(["auth"])->group(
         Route::prefix("users")->as("users.")->group(function () {
             Route::post('{id}/suspend', [UserController::class, "suspend"])->name("suspend");
             Route::post('{id}/strike', [UserController::class, "strike"])->name("strike");
+            Route::post('{id}/ban', [UserController::class, "ban"])->name("ban");
             Route::post('{id}/hide-posts', [UserController::class, 'hideUserPost'])->name('hide-posts');
             Route::post('{id}/restore-posts', [UserController::class, 'restoreUserPost'])->name('restore-posts');
             Route::delete('{id}/remove-posts', [UserController::class, 'removeUserPosts'])->name('remove-posts');

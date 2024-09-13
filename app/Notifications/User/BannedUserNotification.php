@@ -5,10 +5,10 @@ namespace App\Notifications\User;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class StrikeUserNotification extends Notification
+class BannedUserNotification extends Notification
 {
     use Queueable;
 
@@ -80,8 +80,8 @@ class StrikeUserNotification extends Notification
             'data' => [
                 'id' => $this->user->id,
             ],
-            'title' => "Warning Issued!",
-            'message' => "You have received a strike for failing to comply with Talkam's rules and policies. If you feel this was ",
+            'title' => "Account Banned!",
+            'message' => "You have been banned for failing to comply with Talkam's rules and policies.",
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,
