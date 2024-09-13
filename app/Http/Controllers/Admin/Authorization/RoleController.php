@@ -16,13 +16,18 @@ use Spatie\Permission\Models\Permission;
 class RoleController extends Controller
 {
     
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-        $sn = $roles->firstItem();
+        $builder = Role::query();
+
+        if (!empty($key = $request->search)) {
+            $builder = $builder->where("name", "LIKE", "%$key%");
+        }
+        
+        $roles = $builder->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view("dashboards.admin.pages.authorization.roles.index", [
             "roles" => $roles,
-            "sn" => $sn,
+            "sn" => $roles->firstItem(),
         ]);
     }
 
@@ -78,7 +83,7 @@ class RoleController extends Controller
         ]);
         $data["name"] = str_replace(" ", "_", $data["name"]);
         $role = Role::findorfail($id);
-        
+
         $role->update($data);
         AuthorizationService::syncSudoRoles();
 
