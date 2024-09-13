@@ -84,6 +84,10 @@
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">Latest Users</div>
+                                 <a href="{{ route('admin.users.index') }}" class="p-2 fs-12 text-muted"
+                                        aria-expanded="false">
+                                            View All
+                                    </a>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -131,19 +135,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-
-                                <!-- Pagination -->
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <div class="text-muted">
-                                        Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of
-                                        {{ $users->total() }} entries
-                                    </div>
-                                    <nav aria-label="Page navigation">
-                                        <ul class="pagination">
-                                            {{ $users->links('pagination::bootstrap-4') }}
-                                        </ul>
-                                    </nav>
-                                </div>
+           
                             </div>
                         </div>
                     </div>
