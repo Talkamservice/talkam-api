@@ -12,6 +12,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\AccountDeactivation;
 use App\Models\User;
+use App\Notifications\User\BannedUserNotification;
 use App\Notifications\User\PostRestorationNotification;
 use App\Notifications\User\PostsRemovedFromApplicationNotification;
 use App\Notifications\User\PostSuspensionNotification;
@@ -345,6 +346,34 @@ class UserService
             ->setEvent("striked")
             ->setTitle("User Striked")
             ->setDescription((auth()->user()?->full_name . " strike a user"))
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::STRIKED_USER)
+            ->setModel(User::class, $user->id)
+            ->setAdmin(auth()->user()?->id)
+            ->setData([
+                "User" => $user->refresh()->toArray(),
+            ])
+            ->setUrl(request()->fullUrl())
+            ->log();
+
+        return $user;
+    }
+
+    public function ban($id)
+    {
+        $user = $this->getById($id);
+
+        $user->status([
+            "status" => StatusConstants::BANNED
+        ]);
+
+        Notification::send($user, new BannedUserNotification($user));
+        $user->refresh();
+
+        (new ActivityLogService)
+            ->setEvent("banned")
+            ->setTitle("User banned")
+            ->setDescription((auth()->user()?->full_name . " banned a user"))
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::STRIKED_USER)
             ->setModel(User::class, $user->id)

@@ -147,6 +147,22 @@ class UserController extends Controller
         }
     }
 
+    public function ban(Request $request, string $id)
+    {
+        $this->authorize(slugPermission("ban a user"));
+        try {
+            $this->user_service->ban($id);
+            return back()->with(NotificationConstants::SUCCESS_MSG, "User banned successfully");
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return back()
+                ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            // throw $th;
+            return back()->withInput($request->all())
+                ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
+        }
+    }
+
     public function hideUserPost(Request $request, string $id)
     {
         $this->authorize(slugPermission("hide all posts of a user"));
