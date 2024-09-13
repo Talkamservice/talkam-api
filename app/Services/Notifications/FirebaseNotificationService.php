@@ -125,7 +125,10 @@ class FirebaseNotificationService
         }
 
         $this->post_data = $post_data;
-        $this->initiate();
+        $this->authenticate();
+        $this->setHeaders();
+        $this->setConfigs();
+        $this->notify();
     }
 
     public function parseNotificationPayload($m_fcm_token = null)
@@ -159,6 +162,7 @@ class FirebaseNotificationService
                 'data' => $this->cleanMetadata($this->meta_data) ?? null,
             ]
         ];
+
         return $this->post_data = array($data);
     }
 
@@ -199,7 +203,7 @@ class FirebaseNotificationService
         try {
             $job_payload = [
                 "post_data" => $this->post_data,
-                "url" => "https://fcm.googleapis.com/v1/projects/catholicpayapp/messages:send",
+                "url" => "https://fcm.googleapis.com/v1/projects/talkam-temp/messages:send",
                 "headers" => $this->headers,
                 "configs" => $this->configs,
                 "meta_data" => $this->meta_data,
@@ -218,6 +222,7 @@ class FirebaseNotificationService
             $this->authenticate();
             $this->setHeaders();
             $this->setConfigs();
+            $this->parseNotificationPayload();
             $this->notify();
             // return $this;
         } catch (\Throwable $th) {
