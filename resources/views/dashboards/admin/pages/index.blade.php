@@ -14,7 +14,7 @@
                 <div class="dropdown">
                     <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        Sort By<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                        Sort Stats By<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li><a class="dropdown-item" href="javascript:void(0);" data-period="day">Day</a></li>

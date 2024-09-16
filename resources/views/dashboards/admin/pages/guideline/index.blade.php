@@ -66,14 +66,12 @@
                                                     href="{{ route('admin.guidelines.edit', $guideline->id) }}"
                                                     class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
                                                         class="ri-edit-line"></i></a>
-                                                <form action="{{ route('admin.guidelines.destroy', $guideline->id) }}"
-                                                    method="post"
-                                                    onsubmit="return confirm('Are you sure of this action?')"> @csrf
-                                                    @method('delete')
-                                                    <button data-bs-toggle="tooltip" title="Delete guideline" type="submit"
-                                                        class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i
-                                                            class="ri-delete-bin-line"></i></button>
-                                                </form>
+                                                
+                                                <a data-bs-toggle="tooltip" title="Delete guideline"
+                                                class="dropdown-item text-danger" href="#"
+                                                onclick="openDeleteModal('{{ route('admin.guidelines.destroy', $guideline->id) }}')">
+                                                <i class="ri-delete-bin-line"></i> | Delete
+                                            </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -96,4 +94,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.delete-modal')
 @endsection

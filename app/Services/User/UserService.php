@@ -310,7 +310,6 @@ class UserService
         if (!in_array($status, [StatusConstants::ACTIVE, StatusConstants::INACTIVE])) {
             throw new InvalidRequestException("Invalid status provided");
         }
-
         $user = $this->getById($id);
         $user->update([
             "status" => $status

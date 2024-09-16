@@ -58,9 +58,12 @@
                                         <td>{{ $feedback->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <form action="{{ route('admin.feedbacks.destroy', $feedback->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
-                                                    <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
-                                                </form>
+                                               
+                                                <a data-bs-toggle="tooltip" title="Delete feedback"
+                                                class="dropdown-item text-danger" href="#"
+                                                onclick="openDeleteModal('{{ route('admin.feedbacks.destroy', $feedback->id) }}')">
+                                                <i class="ri-delete-bin-line"></i> | Delete
+                                            </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -87,4 +90,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.delete-modal')
 @endsection

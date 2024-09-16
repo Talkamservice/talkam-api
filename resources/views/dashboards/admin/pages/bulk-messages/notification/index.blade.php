@@ -78,13 +78,12 @@
                                                         @endif
 
                                                         <li>
-                                                            <a class="dropdown-item text-danger" href="#" onclick="$('#deleteNotificationForm_{{ $notification->id }}').submit()" onsubmit="return confim('Are you sure of this action?')">
-                                                                <i class="ri-delete-bin-line"></i> | Delete
-                                                            </a>
-                                                            <form id="deleteNotificationForm_{{ $notification->id }}" action="{{ route('admin.notifications.send-bulk-notification.destroy', $notification->id) }}" method="POST" style="display: none;">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                            </form>
+                                                            <a data-bs-toggle="tooltip" title="Delete Notification" class="dropdown-item text-danger" href="#"
+                                                            onclick="openDeleteModal('{{ route('admin.notifications.send-bulk-notification.destroy', $notification->id) }}')">
+                                                             <i class="ri-delete-bin-line"></i> | Delete
+                                                         </a>
+                                                         
+                                                           
                                                         </li>
 
                                                     </ul>
@@ -114,4 +113,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.delete-modal')
 @endsection
