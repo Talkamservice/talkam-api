@@ -158,7 +158,7 @@ class User extends Authenticatable
             [StatusConstants::PROCESSING, StatusConstants::APPROVED]
         ) || in_array(
             $this->status,
-            [StatusConstants::INACTIVE, StatusConstants::DISABLED]
+            [StatusConstants::INACTIVE, StatusConstants::DISABLED, StatusConstants::BANNED]
         )) {
             return true;
         } else {

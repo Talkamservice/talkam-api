@@ -81,7 +81,7 @@ class BannedUserNotification extends Notification
                 'id' => $this->user->id,
             ],
             'title' => "Account Banned!",
-            'message' => "You have been banned for failing to comply with Talkam's rules and policies.",
+            'message' => "You have been banned for failing to comply with Talkam's rules and policies. You can appeal this action by contacting our support.",
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,
