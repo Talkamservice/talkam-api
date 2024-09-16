@@ -9,13 +9,13 @@
             <!-- Start::header-element -->
             <div class="header-element">
                 <div class="horizontal-logo">
-                    <a href="index.html" class="header-logo">
-                        <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="desktop-logo">
-                        <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="toggle-logo">
-                        <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="desktop-dark">
-                        <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="toggle-dark">
-                        <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="desktop-white">
-                        <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="toggle-white">
+                    <a href="{{ route('admin.home') }}" class="header-logo">
+                        {{-- <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="desktop-logo"> --}}
+                        {{-- <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="toggle-logo"> --}}
+                        <img src="{{ $admin_assets }}/images/authentication/logo_white_text.svg" alt="logo" class="desktop-dark">
+                        {{-- <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="toggle-dark"> --}}
+                        {{-- <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="desktop-white"> --}}
+                        {{-- <img src="{{ $admin_assets }}/images/authentication/logo.svg" alt="logo" class="toggle-white"> --}}
                     </a>
                 </div>
             </div>

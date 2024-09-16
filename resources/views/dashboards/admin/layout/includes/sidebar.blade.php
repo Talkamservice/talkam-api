@@ -2,7 +2,7 @@
 
     <!-- Start::main-sidebar-header -->
     <div style="background-color: #0365A1;" class="main-sidebar-header">
-        <a href="index.html" class="header-logo">
+        <a href="{{ route('admin.home') }}" class="header-logo">
             {{-- <img src="{{ $admin_assets }}/images/authentication/logo_text.svg" alt="logo" class="desktop-logo"> --}}
             {{-- <img src="{{ $admin_assets }}/images/authentication/logo_text.png" alt="logo" class="toggle-logo"> --}}
             <img src="{{ $admin_assets }}/images/authentication/logo_white_text.svg" alt="logo" class="desktop-dark">

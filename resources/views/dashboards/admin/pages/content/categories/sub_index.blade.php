@@ -8,7 +8,8 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route("admin.post-categories.index") }}">Categories</b></a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.post-categories.index') }}">Categories</b></a>
+                        </li>
                         <li class="breadcrumb-item active" aria-current="page">Index</li>
                     </ol>
                 </nav>
@@ -33,12 +34,14 @@
                                 <div class="flex-fill main-profile-info">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <h6 class="fw-semibold mb-1 text-fixed-white">{{ $category->name }}</h6>
-                                        <button class="btn bg-white btn-outline-{{ pillClasses($category->status) }} btn-sm btn-wave">
+                                        <button
+                                            class="btn bg-white btn-outline-{{ pillClasses($category->status) }} btn-sm btn-wave">
                                             {{ $category->status }}</button>
                                     </div>
                                     <div class="d-flex mb-0">
                                         <div class="me-4">
-                                            <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">{{ $category->posts?->count() }}</p>
+                                            <p class="fw-bold fs-23 text-fixed-white text-shadow mb-0">
+                                                {{ $category->posts?->count() }}</p>
                                             <p class="mb-0 fs-14 text-fixed-white">Posts</p>
                                         </div>
                                     </div>
@@ -72,7 +75,8 @@
                             </div>
                         </form>
                         <div class="">
-                            <a href="{{ route('admin.categories.sub-categories.create-sub-category', $category->id) }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                            <a href="{{ route('admin.categories.sub-categories.create-sub-category', $category->id) }}"
+                                class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -93,11 +97,15 @@
                                     @forelse ($categories as $subcategory)
                                         <tr>
                                             <td class="d-flex justify-content-center">
-                                                <img src="{{ $subcategory->image }}" alt="" style="width: 50px; height:50px; border-radius:10px">
+                                                <img src="{{ $subcategory->image }}" alt=""
+                                                    style="width: 50px; height:50px; border-radius:10px">
                                             </td>
-                                            <td><img src="{{ $subcategory->icon_image }}" alt="" style="width: 30px; height:30px; border-radius:10px"></td>
+                                            <td><img src="{{ $subcategory->icon_image }}" alt=""
+                                                    style="width: 30px; height:30px; border-radius:10px"></td>
                                             <td>{{ $subcategory->name }}</td>
-                                            <td><span class="fw-normal"><a data-bs-toggle="modal" data-bs-target="#responseModal_{{ $subcategory->id }}" class="btn btn-primary btn-sm">Description</a></span></td>
+                                            <td><span class="fw-normal"><a data-bs-toggle="modal"
+                                                        data-bs-target="#responseModal_{{ $subcategory->id }}"
+                                                        class="btn btn-primary btn-sm">Description</a></span></td>
                                             <td>
                                                 <span class="badge bg-{{ pillClasses($subcategory->status) }}-transparent">
                                                     {{ $subcategory->status }}
@@ -106,10 +114,17 @@
                                             <td>{{ $subcategory->created_at->format('Y-m-d h:i A') }}</td>
                                             <td>
                                                 <div class="hstack gap-2 fs-15">
-                                                    <a aria-label="anchor" href="{{ route('admin.categories.sub-categories.edit-sub-category', [$category->id, $subcategory->id]) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                    <form action="{{ route('admin.categories.sub-categories.delete-sub-category', [$category->id, $subcategory->id]) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
-                                                        <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
-                                                    </form>
+                                                    <a aria-label="anchor"
+                                                        href="{{ route('admin.categories.sub-categories.edit-sub-category', [$category->id, $subcategory->id]) }}"
+                                                        class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
+                                                            class="ri-edit-line"></i></a>
+                                                    <!-- Delete Subcategory Button -->
+                                                    <button data-bs-toggle="tooltip" title="Delete Subcategory"
+                                                        type="button"
+                                                        class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light ms-2"
+                                                        onclick="openDeleteModal('{{ route('admin.categories.sub-categories.delete-sub-category', [$category->id, $subcategory->id]) }}')">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -137,4 +152,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.delete-modal')
 @endsection

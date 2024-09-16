@@ -32,7 +32,8 @@
                         </div>
                     </form>
                     <div class="">
-                        <a href="{{ route('admin.post-categories.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                        <a href="{{ route('admin.post-categories.create') }}" class="btn btn-primary"><i
+                                class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
 
                 </div>
@@ -40,7 +41,8 @@
                 <div class="card-body">
                     <div class="p-2">
                         <p class="text-danger text-center fw-bold">
-                            <span class="fw-bold">Disclaimer!!!</span>: Deleting a category will remove all posts and other content associated with it.
+                            <span class="fw-bold">Disclaimer!!!</span>: Deleting a category will remove all posts and other
+                            content associated with it.
                         </p>
                     </div>
 
@@ -62,10 +64,12 @@
                                     <tr>
                                         <td class="d-flex justify-content-center">
                                             <span>
-                                                <img src="{{ $category->image }}" alt="" style="width: 50px; height:50px: border-radius:10px">
+                                                <img src="{{ $category->image }}" alt=""
+                                                    style="width: 50px; height:50px: border-radius:10px">
                                             </span>
                                         </td>
-                                        <td><img src="{{ $category->icon_image }}" alt="" style="width: 30px; height:30px: border-radius:10px"></td>
+                                        <td><img src="{{ $category->icon_image }}" alt=""
+                                                style="width: 30px; height:30px: border-radius:10px"></td>
                                         <td>{{ $category->name }}</td>
                                         <td>{{ str_limit($category->description, 30) }}</td>
                                         <td>
@@ -76,11 +80,20 @@
                                         <td>{{ $category->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a data-bs-toggle="tooltip" title="Sub Categories" aria-label="anchor" href="{{ route('admin.categories.sub-categories.index', $category->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"><i class="ri-eye-line"></i></a>
-                                                <a data-bs-toggle="tooltip" title="Edit Category" aria-label="anchor" href="{{ route('admin.post-categories.edit', $category->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                <form action="{{ route('admin.post-categories.destroy', $category->id) }}" method="post" onsubmit="return confirm('Are you sure of this action? Please note that this action is permanent and cannot be undone.')"> @csrf @method('delete')
-                                                    <button data-bs-toggle="tooltip" title="Delete Category" type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
-                                                </form>
+                                                <a data-bs-toggle="tooltip" title="Sub Categories" aria-label="anchor"
+                                                    href="{{ route('admin.categories.sub-categories.index', $category->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"><i
+                                                        class="ri-eye-line"></i></a>
+                                                <a data-bs-toggle="tooltip" title="Edit Category" aria-label="anchor"
+                                                    href="{{ route('admin.post-categories.edit', $category->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
+                                                        class="ri-edit-line"></i></a>
+                                                <!-- Delete Button -->
+                                                <button data-bs-toggle="tooltip" title="Delete Category" type="button"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light ms-2"
+                                                    onclick="openDeleteModal('{{ route('admin.post-categories.destroy', $category->id) }}')">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -103,4 +116,28 @@
             </div>
         </div>
     </div>
+    <!-- Modal HTML -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalMessage">
+                    <!-- Dynamic confirmation message -->
+                </div>
+                <div class="modal-footer">
+                    <form id="confirmationForm" action="" method="POST" style="display:inline;">
+                        @csrf
+                        <div id="methodFieldContainer"></div> <!-- Placeholder for method spoofing -->
+                        <button type="submit" class="btn btn-primary">Yes, Proceed</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  @include('dashboards.admin.pages.delete-modal')
 @endsection

@@ -90,7 +90,7 @@
                                             <td>
                                                 <div class="dropdown">
                                                     <a class="btn btn-outline-primary dropdown-toggle" href="#"
-                                                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                         Actions
                                                     </a>
                                                     <ul class="dropdown-menu">
@@ -100,11 +100,13 @@
                                                                     'icon' => 'ri-check-line',
                                                                     'class' => 'text-success',
                                                                     'label' => 'Mark As Active',
+                                                                    'tooltip' => 'Activate the announcement',
                                                                 ],
                                                                 'Inactive' => [
                                                                     'icon' => 'ri-close-line',
                                                                     'class' => 'text-danger',
                                                                     'label' => 'Mark As Inactive',
+                                                                    'tooltip' => 'Deactivate the announcement',
                                                                 ],
                                                             ];
                                                             $isActive = $announcement->status === 'Active';
@@ -113,7 +115,7 @@
                                                         <li>
                                                             @if (!$isActive)
                                                                 <a class="dropdown-item"
-                                                                    href="{{ route('admin.announcements.edit', $announcement->id) }}">
+                                                                   href="{{ route('admin.announcements.edit', $announcement->id) }}">
                                                                     <i class="ri-edit-2-line"></i> | Edit
                                                                 </a>
                                                             @endif
@@ -125,27 +127,22 @@
                                                                 @continue
                                                             @endif
                                                             <li>
-                                                                <form
-                                                                    id="updateStatus_{{ $status }}_{{ $announcement->id }}"
-                                                                    action="{{ route('admin.announcements.update-status', $announcement->id) }}"
-                                                                    method="POST"
-                                                                    onsubmit="return confirm('Are you sure you want to {{ strtolower($details['label']) }}?')">
-                                                                    @csrf
-                                                                    <input type="hidden" name="status"
-                                                                        value="{{ $status }}">
-                                                                    <a class="dropdown-item {{ $details['class'] }}"
-                                                                        onclick="event.preventDefault(); document.getElementById('updateStatus_{{ $status }}_{{ $announcement->id }}').submit()"
-                                                                        href="#">
-                                                                        <i class="{{ $details['icon'] }}"></i> |
-                                                                        {{ $details['label'] }}
-                                                                    </a>
-                                                                </form>
+                                                                <a class="dropdown-item {{ $details['class'] }}"
+                                                                   href="#"
+                                                                   onclick="openActionModal('{{ strtolower($status) }}-announcement', '{{ route('admin.announcements.update-status', $announcement->id) }}', '{{ $status }}', '{{ $details['label'] }}', '{{ $details['icon'] }}')"
+                                                                   data-bs-toggle="tooltip"
+                                                                   title="{{ $details['tooltip'] }}">
+                                                                    <i class="{{ $details['icon'] }}"></i> | {{ $details['label'] }}
+                                                                </a>
                                                             </li>
                                                         @endforeach
                                             
                                                         <li>
-                                                            <a class="dropdown-item text-danger" href="#"
-                                                                onclick="$('#deleteannouncementForm_{{ $announcement->id }}').submit()">
+                                                            <a class="dropdown-item text-danger"
+                                                               href="#"
+                                                               onclick="openActionModal('delete-announcement', '{{ route('admin.announcements.destroy', $announcement->id) }}')"
+                                                               data-bs-toggle="tooltip"
+                                                               title="Delete the announcement">
                                                                 <i class="ri-delete-bin-line"></i> | Delete
                                                             </a>
                                                         </li>
@@ -153,6 +150,7 @@
                                                 </div>
                                             </td>
                                             
+
                                         </tr>
                                         <!-- Hidden Delete Form -->
                                         <form id="deleteannouncementForm_{{ $announcement->id }}"
@@ -186,4 +184,6 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.announcement.actions-modal')
+ 
 @endsection

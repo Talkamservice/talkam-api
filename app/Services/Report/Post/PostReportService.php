@@ -48,6 +48,7 @@ class PostReportService
 
     public function changeStatus(array $data, $report_id)
     {
+
         DB::beginTransaction();
         try {
             $data = self::validate($data);
@@ -62,7 +63,7 @@ class PostReportService
             ]);
             // Log the activity
             (new ActivityLogService)
-                ->setEvent("suspended")
+                ->setEvent("resolved")
                 ->setTitle("Resolved Reported Post")
                 ->setDescription(auth()->user()?->full_name . " resolved a reported post")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
