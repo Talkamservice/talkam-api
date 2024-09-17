@@ -136,9 +136,7 @@ class GroupService
             throw $th;
         }
     }
-    public function notify($group)
-    {
-    }
+    public function notify($group) {}
 
     public function generateUniqueId($length = 6)
     {
@@ -188,17 +186,17 @@ class GroupService
     {
         $builder = self::list($data);
 
-        if (!empty($type = $data["type"] ?? null)) {
-            $builder = $builder->whereRelation("members", function ($q) use ($type) {
+        $builder = $builder->whereRelation("members", function ($q) {
+            $q->where(["user_id" => auth()->id()]);
+            if (!empty($type = $data["type"] ?? null)) {
                 if ($type == "all") {
-                    $q->where(["user_id" => auth()->id()])
-                        ->whereNotIn("status", [StatusConstants::BANNED]);
+                    $q->whereNotIn("status", [StatusConstants::BANNED]);
                 } else {
                     $q->where(["user_id" => auth()->id()])
                         ->whereNotIn("status", [StatusConstants::SUSPENDED, StatusConstants::BANNED]);
                 }
-            });
-        }
+            }
+        });
 
         return $builder;
     }
