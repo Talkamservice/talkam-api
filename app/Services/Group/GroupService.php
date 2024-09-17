@@ -4,6 +4,7 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
@@ -228,6 +229,9 @@ class GroupService
             }
 
             Notification::send($users, new JoinGroupRequestNotification($member));
+            foreach ($users as $key => $user) {
+                broadcast(new RefreshNotification($user->id));
+            }
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -265,6 +269,8 @@ class GroupService
                     "status" => StatusConstants::DECLINED
                 ]);
             }
+
+            broadcast(new RefreshNotification($member->user_id));
 
             DB::commit();
         } catch (\Throwable $th) {

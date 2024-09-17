@@ -297,7 +297,6 @@ class UserService
             DB::rollBack();
             throw $th;
         }
-
     }
 
     public function clearUserData($user)
@@ -316,8 +315,9 @@ class UserService
             "status" => $status
         ]);
 
-        broadcast(new RefreshNotification($user->id));
         Notification::send($user, new SuspendUserNotification($user, $user->status));
+        broadcast(new RefreshNotification($user->id));
+
         $user->refresh();
         (new ActivityLogService)
             ->setEvent("suspend")
@@ -342,6 +342,8 @@ class UserService
         $user->increment("strike");
 
         Notification::send($user, new StrikeUserNotification($user));
+        broadcast(new RefreshNotification($user->id));
+
         $user->refresh();
         (new ActivityLogService)
             ->setEvent("striked")
@@ -369,6 +371,8 @@ class UserService
         ]);
 
         Notification::send($user, new BannedUserNotification($user));
+        broadcast(new RefreshNotification($user->id));
+
         $user->refresh();
 
         (new ActivityLogService)
@@ -398,6 +402,7 @@ class UserService
             $user->posts()->delete();
             // Send notification about the post suspension
             Notification::send($user, new PostSuspensionNotification($user));
+            broadcast(new RefreshNotification($user->id));
         }
         // Refresh the user model
         $user->refresh();
@@ -428,6 +433,7 @@ class UserService
         $user->posts()->onlyTrashed()->restore();
         // Send notification about the post restoration
         Notification::send($user, new PostRestorationNotification($user));
+        broadcast(new RefreshNotification($user->id));
 
         // Refresh the user model
         $user->refresh();
@@ -456,6 +462,7 @@ class UserService
         $user->posts()->onlyTrashed()->forceDelete();
         // Send notification about the post restoration
         Notification::send($user, new PostsRemovedFromApplicationNotification($user));
+        broadcast(new RefreshNotification($user->id));
 
         // Refresh the user model
         $user->refresh();

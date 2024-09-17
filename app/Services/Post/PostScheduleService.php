@@ -3,6 +3,7 @@
 namespace App\Services\Post;
 
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Models\Post;
 use App\Notifications\Post\SchedulePostNotification;
 use Illuminate\Support\Facades\Notification;
@@ -16,6 +17,7 @@ class PostScheduleService
         ]);
 
         Notification::send($post->user, new SchedulePostNotification($post));
+        broadcast(new RefreshNotification($post->user_id));
     }
 
     public static function list(array $data = [])
