@@ -81,7 +81,7 @@ class JoinGroupRequestNotification extends Notification
                 'id' => $this->member->group_id,
             ],
             'title' => "Join Group Request",
-            'message' => "{$this->member->user->username} has requested to join your group. Please log in to your account to accept or decline the request.",
+            'message' => "{$this->member->user->getName()} has requested to join your group. Please log in to your account to accept or decline the request.",
             'link' => null,
             'type' => 'group',
             'batch_no' => null,
