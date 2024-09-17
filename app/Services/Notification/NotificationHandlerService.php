@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\Comment\NewCommentMentionNotification;
 use App\Notifications\Comment\NewCommentNotification;
 use App\Notifications\Comment\NewCommentReactionNotification;
+use App\Notifications\Comment\NewCommentTagMentionNotification;
 use App\Notifications\Post\NewPostReactionNotification;
 use App\Notifications\Comment\NewThreadCommentNotification;
 use App\Notifications\Comment\NewThreadCommentReactionNotification;
@@ -54,7 +55,7 @@ class NotificationHandlerService
         if ($this->comments_notifications_type == "mentions") {
             return $this;
         }
-        
+
         if ($this->user->id != $comment->user_id) {
             Notification::send($comment->post->user, new NewCommentNotification($comment));
             broadcast(new RefreshNotification($comment->post->user_id));
@@ -126,6 +127,27 @@ class NotificationHandlerService
                 Notification::send($comment_reaction->comment->user, new NewCommentReactionNotification($comment_reaction));
                 broadcast(new RefreshNotification($comment_reaction->comment->user_id));
             }
+        }
+
+        return $this;
+    }
+
+    public function notifyMentionOfNewComment($comment)
+    {
+        if ($this->user->id != $comment->user_id) {
+            Notification::send($comment->user, new NewCommentTagMentionNotification($comment));
+            broadcast(new RefreshNotification($comment->user_id));
+        }
+
+        return $this;
+    }
+
+    public function notifyMentionOfNewPost($comment)
+    {
+        $reply_comment = $comment->repliedComment;
+        if ($comment->user_id != $reply_comment->user_id) {
+            Notification::send($reply_comment->user, new NewCommentMentionNotification($comment));
+            broadcast(new RefreshNotification($reply_comment->user_id));
         }
 
         return $this;

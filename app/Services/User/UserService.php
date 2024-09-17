@@ -54,6 +54,11 @@ class UserService
         return $model;
     }
 
+    public static function getByUsername($username)
+    {
+        $model = User::where("username", $username)->first();
+        return $model;
+    }
 
     public function validate(array $data, $id = null): array
     {
