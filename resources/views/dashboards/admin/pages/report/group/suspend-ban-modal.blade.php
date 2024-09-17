@@ -40,7 +40,7 @@
       function openModal(groupId) {
           document.getElementById('groupId').value = groupId;
           document.getElementById('suspendOrBanForm').action =
-              `{{ url('admin/reports/group/suspend-or-ban') }}/${groupId}`;
+              `{{ url('admin/reports/group/suspend') }}/${groupId}`;
           new bootstrap.Modal(document.getElementById('suspendOrBanModal')).show();
       }
   </script>

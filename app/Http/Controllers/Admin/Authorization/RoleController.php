@@ -114,7 +114,7 @@ class RoleController extends Controller
             ->setDescription(auth()->user()?->full_name . " deleted a role")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::DELETED_ROLE)
-            ->setModel(Role::class, $role->id)
+            ->setModel(Role::class, $id)
             ->setAdmin(auth()->user()?->id)
             ->setData([
                 "Role" => $old_role->toArray()

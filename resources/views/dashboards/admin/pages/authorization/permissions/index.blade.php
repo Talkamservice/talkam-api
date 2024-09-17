@@ -59,9 +59,12 @@
                                         <td>
                                             <div class="btn-group">
                                                 <a aria-label="anchor" data-bs-toggle="modal" data-bs-target="#editPermissionModal_{{ $permission->id }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                <form action="{{ route('admin.authorization.permissions.destroy', $permission->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
-                                                    <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
-                                                </form>
+                                               
+                                                <a data-bs-toggle="tooltip" title="Delete permission"
+                                                class="dropdown-item text-danger" href="#"
+                                                onclick="openDeleteModal('{{ route('admin.authorization.permissions.destroy', $permission->id) }}')">
+                                                <i class="ri-delete-bin-line"></i> | Delete
+                                            </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -78,5 +81,6 @@
         </div>
     
         @include('dashboards.admin.pages.authorization.modals.permissions.add')
+        @include('dashboards.admin.pages.delete-modal')
     </div>
 @endsection

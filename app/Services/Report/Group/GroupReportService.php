@@ -180,17 +180,18 @@ class GroupReportService
         }
     }
 
-    public function deleteGroup(Group $group, $reason = null)
+    public function deleteGroup($group_id)
     {
         DB::beginTransaction();
         try {
-            $admins = $group->members()->where('role', UserConstants::OWNER)->first()->user;
-
-            $group->delete();
-
-            foreach ($admins as $admin) {
-                Notification::send($admin, new DeleteGroupNotification($group, null));
+            $group = Group::find($group_id);
+            if (empty($group)) {
+                throw new ModelNotFoundException('Group not found.');
             }
+            $admin = $group->members()->where('role', UserConstants::OWNER)->first()->user;
+            $group->delete();
+            Notification::send($admin, new DeleteGroupNotification($group));
+
 
             // Log the activity
             (new ActivityLogService)
@@ -266,75 +267,45 @@ class GroupReportService
             $suspensionReason = $request->input('suspension_reason');
             $suspensionDuration = $request->input('duration'); // Date input for suspension end
 
-            if ($group_member->suspension_count >= 3 || $actionType === 'ban') {
-                if ($group_member->banned) {
-                    DB::commit();
-                    return 'User has already been banned.';
-                }
 
-                $group_member->update([
-                    'banned' => true,
-                    'suspension_end' => null,
-                    'status' => StatusConstants::BANNED,
-                ]);
+            $newSuspensionCount = $group_member->suspension_count + 1;
 
-                Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, "You have been permanently banned from the group for the following reason: {$suspensionReason}."));
+            // Calculate the suspension end date from the input duration
+            $suspensionEnd = Carbon::parse($suspensionDuration); // Convert input date to Carbon
+            $now = Carbon::now();
 
-                // Log the activity
-                (new ActivityLogService)
-                    ->setEvent("banned")
-                    ->setTitle("Group Member Banned")
-                    ->setDescription(auth()->user()?->full_name . " banned a group member")
-                    ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
-                    ->setActivity(ActivitiesConstants::GROUP_MEMBER_BANNED)
-                    ->setModel(GroupMember::class, $group_member->id)
-                    ->setAdmin(auth()->user()?->id)
-                    ->setData(["Group Member" => $group_member->refresh()->toArray()])
-                    ->setUrl(request()->fullUrl())
-                    ->log();
-
-                DB::commit();
-                return 'User has been banned permanently.';
-            } else {
-                $newSuspensionCount = $group_member->suspension_count + 1;
-
-                // Calculate the suspension end date from the input duration
-                $suspensionEnd = Carbon::parse($suspensionDuration); // Convert input date to Carbon
-                $now = Carbon::now();
-
-                if ($suspensionEnd->lessThanOrEqualTo($now)) {
-                    return 'Invalid suspension date. The date must be in the future.';
-                }
-
-                $days = $now->diffInDays($suspensionEnd); // Calculate the number of days
-
-                $group_member->update([
-                    'suspension_reason' => $suspensionReason,
-                    'suspension_count' => $newSuspensionCount,
-                    'suspension_end' => $suspensionEnd,
-                    'status' => StatusConstants::SUSPENDED,
-                ]);
-
-                $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
-
-                Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
-
-                // Log the activity
-                (new ActivityLogService)
-                    ->setEvent("suspended")
-                    ->setTitle("Group Member Suspended")
-                    ->setDescription(auth()->user()?->full_name . " suspended a group member")
-                    ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
-                    ->setActivity(ActivitiesConstants::GROUP_MEMBER_SUSPENDED)
-                    ->setModel(GroupMember::class, $group_member->id)
-                    ->setAdmin(auth()->user()?->id)
-                    ->setData(["Group Member" => $group_member->refresh()->toArray()])
-                    ->setUrl(request()->fullUrl())
-                    ->log();
-
-                DB::commit();
-                return 'User has been suspended for ' . $days . ' days.';
+            if ($suspensionEnd->lessThanOrEqualTo($now)) {
+                return 'Invalid suspension date. The date must be in the future.';
             }
+
+            $days = $now->diffInDays($suspensionEnd); // Calculate the number of days
+
+            $group_member->update([
+                'suspension_reason' => $suspensionReason,
+                'suspension_count' => $newSuspensionCount,
+                'suspension_end' => $suspensionEnd,
+                'status' => StatusConstants::SUSPENDED,
+            ]);
+
+            $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
+
+            Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
+
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("suspended")
+                ->setTitle("Group Member Suspended")
+                ->setDescription(auth()->user()?->full_name . " suspended a group member")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::GROUP_MEMBER_SUSPENDED)
+                ->setModel(GroupMember::class, $group_member->id)
+                ->setAdmin(auth()->user()?->id)
+                ->setData(["Group Member" => $group_member->refresh()->toArray()])
+                ->setUrl(request()->fullUrl())
+                ->log();
+
+            DB::commit();
+            return 'User has been suspended for ' . $days . ' days.';
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;

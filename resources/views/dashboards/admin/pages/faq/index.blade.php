@@ -32,7 +32,8 @@
                         </div>
                     </form>
                     <div class="pr-2">
-                        <a href="{{ route('admin.faqs.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                        <a href="{{ route('admin.faqs.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span
+                                class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -53,7 +54,7 @@
                                     <tr>
                                         <td>{{ $faq->question }}</td>
                                         <td>{{ str_limit($faq->answer) }}</td>
-                                        <td>{{ str_limit($faq->category->name ?? "N/A") }}</td>
+                                        <td>{{ str_limit($faq->category->name ?? 'N/A') }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($faq->status) }}-transparent">
                                                 {{ $faq->status }}
@@ -62,10 +63,15 @@
                                         <td>{{ $faq->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor" href="{{ route('admin.faqs.edit', $faq->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                <form action="{{ route('admin.faqs.destroy', $faq->id) }}" method="post" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
-                                                    <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
-                                                </form>
+                                                <a aria-label="anchor" href="{{ route('admin.faqs.edit', $faq->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
+                                                        class="ri-edit-line"></i></a>
+
+                                                <a data-bs-toggle="tooltip" title="Delete Faq"
+                                                    class="dropdown-item text-danger" href="#"
+                                                    onclick="openDeleteModal('{{ route('admin.faqs.destroy', $faq->id) }}')">
+                                                    <i class="ri-delete-bin-line"></i> | Delete
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -88,4 +94,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.delete-modal')
 @endsection

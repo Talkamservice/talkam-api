@@ -88,10 +88,16 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            {{ $activity_logs->links('pagination::bootstrap-4') }}
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="text-muted">
+                            Showing {{$activity_logs->firstItem() }} to {{ $activity_logs->lastItem() }} of {{ $activity_logs->total() }} entries
                         </div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {{ $activity_logs->links('pagination::bootstrap-4') }}
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>

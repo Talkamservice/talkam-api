@@ -135,15 +135,14 @@ class GroupReportController extends Controller
     public function deleteReportedGroup(Request $request, $group_report_id)
     {
         try {
-            $group_report = $this->group_report_service->getById($group_report_id);
-            $message = $this->group_report_service->deleteGroup($group_report->group);
+            $message = $this->group_report_service->deleteGroup($group_report_id);
             return redirect()->route('admin.reports.group.lists')->with(NotificationConstants::SUCCESS_MSG, $message);
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
-            // throw $th;
+            throw $th;
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }

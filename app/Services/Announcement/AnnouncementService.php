@@ -157,6 +157,7 @@ class AnnouncementService
 
     public function changeStatus(Request $request, $id)
     {
+
         $status = $request->input('status');
         if (!in_array($status, [StatusConstants::ACTIVE, StatusConstants::INACTIVE])) {
             throw new InvalidRequestException("Invalid status provided");
@@ -171,6 +172,7 @@ class AnnouncementService
         if ($announcement->status === StatusConstants::ACTIVE) {
             $announcement->update([
                 'published_at' => now(),
+                'expired_at' => null,
             ]);
             $announcement->refresh();  // Refresh the announcement instance again if needed
         }
