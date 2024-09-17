@@ -64,10 +64,10 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
             'data' => [
                 'id' => $this->group->id,
             ],
-            'title' => "Group Suspension Notification!",
+            'title' => "Group Suspension Notice!",
             'message' => "Your group '{$this->group->name}' has been suspended due to reported violations for '{$this->duration}'. Reason: {$this->reason}",
             'link' => null,
-            'type' => 'group',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];
