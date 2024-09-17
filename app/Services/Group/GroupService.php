@@ -214,6 +214,10 @@ class GroupService
                 "status" => StatusConstants::PENDING
             ]);
 
+            $member->update([
+                "status" => StatusConstants::PENDING
+            ]);
+
             $admins = GroupMember::where([
                 "group_id" => $id,
             ])->whereIn("role", [UserConstants::ADMIN, UserConstants::OWNER])
