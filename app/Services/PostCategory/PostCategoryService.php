@@ -9,6 +9,7 @@ use App\Constants\Media\FileConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Group;
+use App\Models\GroupMember;
 use App\Models\MergeCategory;
 use App\Models\PostCategory;
 use App\Models\User;
@@ -246,11 +247,17 @@ class PostCategoryService
     public function parseMergedCategories($parent_category)
     {
         $categories = PostCategory::where("category_id", $parent_category->id)->withCount("interests")->status()->get();
+        $interests = UserInterest::where("user_id", auth("sanctum")->id())->pluck("category_id")->toArray();
 
-        return $categories->map(function ($category) use ($parent_category) {
+        return $categories->map(function ($category) use ($parent_category, $interests) {
+            $is_following = in_array($category->id, $interests ?? []);
             return [
                 "id" => $category->id,
                 "name" => $category->name,
+                "background_image" => $category->image,
+                "icon_image" => $category->icon_image,
+                "description" => $category->description,
+                "is_following" => $is_following,
                 "parent_category" => [
                     "id" => $parent_category->id,
                     "name" => $parent_category->name
@@ -264,12 +271,28 @@ class PostCategoryService
 
     public function parseMergedGroups($parent_category)
     {
+        $group_members = GroupMember::where([
+            "user_id" => auth("sanctum")->id(),
+        ])->get();
+
         $groups = Group::where("category_id", $parent_category->id)->withCount("members")->status()->get();
-        return $groups->map(function ($group) use ($parent_category) {
+        return $groups->map(function ($group) use ($parent_category, $group_members) {
+            $is_following = $group_members->where([
+                "group_id" => $group->id,
+                "status", StatusConstants::ACTIVE
+            ]);
             return [
                 "id" => $group->id,
                 "type" => "Group",
                 "name" => $group->name,
+                "background_image" => $group->image,
+                "icon_image" => null,
+                "description" => $group->description,
+                "is_following" => $is_following->isNotEmpty(),
+                "parent_category" => [
+                    "id" => $parent_category->id,
+                    "name" => $parent_category->name
+                ],
                 "followers_count" => $group->members_count,
                 "created_at" => formatDate($group->created_at),
             ];

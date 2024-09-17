@@ -158,13 +158,13 @@ class NotificationController extends Controller
 
             $notifications_query = $user->notifications()->whereNull('read_at');
             
-            $unread_post_activities = $notifications_query->whereJsonDoesntContain('data->type', ['notification', 'conversation'])->count();
-            $unread_conversations = $notifications_query->whereJsonContains('data->type', 'conversation')->count();
-            $unread_admin_notifications = $notifications_query->whereJsonContains('data->type', 'notification')->count();
+            $unread_post_activities = $notifications_query->clone()->whereJsonDoesntContain('data->type', ['notification', 'conversation'])->count();
+            $unread_conversations = $notifications_query->clone()->whereJsonContains('data->type', 'conversation')->count();
+            $unread_admin_notifications = $notifications_query->clone()->whereJsonContains('data->type', 'notification')->count();
 
             $data = [
                 "notifications" => $notifications->count(),
-                "unread_notifications" => $notifications_query->count(),
+                "unread_notifications" => $notifications_query->clone()->count(),
                 "unread_messages" => $unread_messages,
                 "total_requests" => $total_requests,
                 "post_activity" => $unread_post_activities,
