@@ -7,6 +7,7 @@ use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
@@ -315,6 +316,7 @@ class UserService
             "status" => $status
         ]);
 
+        broadcast(new RefreshNotification($user->id));
         Notification::send($user, new SuspendUserNotification($user, $user->status));
         $user->refresh();
         (new ActivityLogService)
