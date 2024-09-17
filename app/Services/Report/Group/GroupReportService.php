@@ -305,7 +305,7 @@ class GroupReportService
                 ->log();
 
             DB::commit();
-            return 'User has been suspended for ' . $days . ' days.';
+            return 'Group member has been suspended for ' . $days . ' days.';
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
