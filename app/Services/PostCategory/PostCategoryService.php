@@ -113,7 +113,7 @@ class PostCategoryService
         (new ActivityLogService)
             ->setEvent("updated")
             ->setTitle("Category Updated")
-            ->setDescription(auth()->user()?->full_name . " updated a category")
+            ->setDescription((auth()->user()->email) . " updated a category")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CATEGORY_UPDATED)
             ->setModel(PostCategory::class, $category->id)

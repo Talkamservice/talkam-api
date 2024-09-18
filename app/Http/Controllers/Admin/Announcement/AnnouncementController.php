@@ -112,6 +112,7 @@ class AnnouncementController extends Controller
         } catch (InvalidRequestException $th) {
             return redirect()->back()->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
+            throw $th;
             return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while processing your request.");
         }
     }

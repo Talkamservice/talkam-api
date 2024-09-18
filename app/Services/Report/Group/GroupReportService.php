@@ -77,7 +77,11 @@ class GroupReportService
             $data = $validator->validated();
             $data["user_id"] = auth()->id();
             $report = GroupReport::create($data);
-
+            if ($report) {
+                $report->group->update([
+                    'is_reported' => true,
+                ]);
+            }
             DB::commit();
             return $report;
         } catch (\Throwable $th) {
@@ -125,7 +129,7 @@ class GroupReportService
                 (new ActivityLogService)
                     ->setEvent("banned")
                     ->setTitle("Group Banned")
-                    ->setDescription(auth()->user()?->full_name . " banned a group")
+                    ->setDescription((auth()->user()->email) . " banned a group")
                     ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                     ->setActivity(ActivitiesConstants::GROUP_BANNED)
                     ->setModel(Group::class, $group->id)
@@ -160,7 +164,7 @@ class GroupReportService
                 (new ActivityLogService)
                     ->setEvent("suspended")
                     ->setTitle("Group Suspended")
-                    ->setDescription(auth()->user()?->full_name . " suspended a group")
+                    ->setDescription((auth()->user()->email) . " suspended a group")
                     ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                     ->setActivity(ActivitiesConstants::GROUP_SUSPENDED)
                     ->setModel(Group::class, $group->id)
@@ -197,7 +201,7 @@ class GroupReportService
             (new ActivityLogService)
                 ->setEvent("deleted")
                 ->setTitle("Group Activated")
-                ->setDescription(auth()->user()?->full_name . " deleted a group")
+                ->setDescription((auth()->user()->email) . " deleted a group")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::GROUP_DELETED)
                 ->setModel(Group::class, $group->id)
@@ -228,7 +232,7 @@ class GroupReportService
             (new ActivityLogService)
                 ->setEvent("activated")
                 ->setTitle("Group Activated")
-                ->setDescription(auth()->user()?->full_name . " activated a group")
+                ->setDescription((auth()->user()->email) . " activated a group")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::GROUP_ACTIVATED)
                 ->setModel(Group::class, $group->id)
@@ -295,7 +299,7 @@ class GroupReportService
             (new ActivityLogService)
                 ->setEvent("suspended")
                 ->setTitle("Group Member Suspended")
-                ->setDescription(auth()->user()?->full_name . " suspended a group member")
+                ->setDescription((auth()->user()->email) . " suspended a group member")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::GROUP_MEMBER_SUSPENDED)
                 ->setModel(GroupMember::class, $group_member->id)
@@ -336,7 +340,7 @@ class GroupReportService
         (new ActivityLogService)
             ->setEvent("activated")
             ->setTitle("Group Member Activated")
-            ->setDescription(auth()->user()?->full_name . " activated a group member")
+            ->setDescription((auth()->user()->email) . " activated a group member")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::GROUP_MEMBER_ACTIVATED)
             ->setModel(GroupMember::class, $group_member->id)

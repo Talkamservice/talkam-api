@@ -90,7 +90,7 @@ class CommentReportService
         (new ActivityLogService)
         ->setEvent("deleted")
         ->setTitle("Deleted Reported Comment")
-        ->setDescription(auth()->user()?->full_name . " deleted a reported comment")
+        ->setDescription((auth()->user()->email) . " deleted a reported comment")
         ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
         ->setActivity(ActivitiesConstants::DELETED_REPORTED_COMMENT)
         ->setModel(CommentReport::class, $reported_comment->id)
