@@ -83,7 +83,7 @@ class JoinGroupRequestNotification extends Notification
             'title' => "Group Request",
             'message' => "{$this->member->user->getName()} has requested to join \"{$this->member->group->name}\". Kindly go to the request page to accept or decline.",
             'link' => null,
-            'type' => 'group',
+            'type' => 'group_request',
             'batch_no' => null,
             "extra" => []
         ];

@@ -29,6 +29,7 @@ class ActivitiesConstants
     const STRIKED_USER = "STRIKED_USER";
     const BANNED_USER = "BANNED_USER";
     const SUSPEND_USER = "SUSPEND_USER";
+    const UNSUSPEND_USER = "UNSUSPEND_USER";
     const DELETED_USER = "DELETED_USER";
     const HIDE_USER_POST = "HIDE_USER_POST";
     const RESTORE_USER_POST = "RESTORE_USER_POST";

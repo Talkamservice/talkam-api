@@ -109,7 +109,7 @@ class UserService
         (new ActivityLogService)
             ->setEvent("created")
             ->setTitle("User Account Created")
-            ->setDescription((auth()->user()?->full_name . " create a user account"))
+            ->setDescription((auth()->user()->email) . " create a user account")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::CREATED_USER_ACCOUNT)
             ->setModel(User::class, $user->id)
@@ -185,7 +185,7 @@ class UserService
             (new ActivityLogService)
                 ->setEvent("updated")
                 ->setTitle("User Account Updated")
-                ->setDescription((auth()->user()?->full_name . " update their account"))
+                ->setDescription((auth()->user()->email) . " update their account")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::UPDATED_USER_ACCOUNT)
                 ->setModel(User::class, $user->id)
@@ -219,7 +219,7 @@ class UserService
             (new ActivityLogService)
                 ->setEvent("data_erased")
                 ->setTitle("User Data Erased")
-                ->setDescription((auth()->user()?->full_name . " erased their data"))
+                ->setDescription((auth()->user()->email) . " erased their data")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::ERASED_USER_DATA)
                 ->setModel(User::class, $user->id)
@@ -258,7 +258,7 @@ class UserService
             (new ActivityLogService)
                 ->setEvent("account_deleted")
                 ->setTitle("User Account Deleted")
-                ->setDescription((auth()->user()?->full_name . " deleted their account"))
+                ->setDescription((auth()->user()->email) . " deleted their account")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::DELETED_USER_ACCOUNT)
                 ->setModel(User::class, $user->id)
@@ -287,7 +287,7 @@ class UserService
             (new ActivityLogService)
                 ->setEvent("deleted")
                 ->setTitle("User Deleted")
-                ->setDescription((auth()->user()?->full_name . " delete a user"))
+                ->setDescription((auth()->user()->email) . " delete a user")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::DELETED_USER)
                 ->setModel(User::class, $user->id)
@@ -316,7 +316,7 @@ class UserService
         if (!in_array($status, [StatusConstants::ACTIVE, StatusConstants::INACTIVE])) {
             throw new InvalidRequestException("Invalid status provided");
         }
-        $user = $this->getById($id);  
+        $user = $this->getById($id);
         $suspension_reason = $request->input('suspend_reason');
         $suspension_duration = $request->input('duration'); // Date input for suspension end
         // Calculate the suspension end date from the input duration
@@ -334,30 +334,41 @@ class UserService
             ]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, $suspension_reason, $suspension_end->toFormattedDateString()));
             broadcast(new RefreshNotification($user->id));
+            $user->refresh();
+            (new ActivityLogService)
+                ->setEvent("suspend")
+                ->setTitle("User Suspended")
+                ->setDescription((auth()->user()->email) . " suspend a user")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::SUSPEND_USER)
+                ->setModel(User::class, $user->id)
+                ->setAdmin(auth()->user()?->id)
+                ->setData([
+                    "User" => $user->refresh()->toArray(),
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
         } else {
             $user->update([
                 "status" => $status
             ]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, null, null));
             broadcast(new RefreshNotification($user->id));
+            $user->refresh();
+            (new ActivityLogService)
+                ->setEvent("unsuspend")
+                ->setTitle("User Unsuspended")
+                ->setDescription((auth()->user()->email) . " unsuspend a user")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::UNSUSPEND_USER)
+                ->setModel(User::class, $user->id)
+                ->setAdmin(auth()->user()?->id)
+                ->setData([
+                    "User" => $user->refresh()->toArray(),
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
         }
-
-        $user->refresh();
-        (new ActivityLogService)
-            ->setEvent("suspend")
-            ->setTitle("User Suspended")
-            ->setDescription((auth()->user()?->full_name . " suspend a user"))
-            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
-            ->setActivity(ActivitiesConstants::SUSPEND_USER)
-            ->setModel(User::class, $user->id)
-            ->setAdmin(auth()->user()?->id)
-            ->setData([
-                "User" => $user->refresh()->toArray(),
-            ])
-            ->setUrl(request()->fullUrl())
-            ->log();
-
-        return 'User has been suspended for ' . $days . ' days.';
     }
 
     public function strike($id)
@@ -372,7 +383,7 @@ class UserService
         (new ActivityLogService)
             ->setEvent("striked")
             ->setTitle("User Striked")
-            ->setDescription((auth()->user()?->full_name . " strike a user"))
+            ->setDescription((auth()->user()->email) . " strike a user")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::STRIKED_USER)
             ->setModel(User::class, $user->id)
@@ -404,7 +415,7 @@ class UserService
         (new ActivityLogService)
             ->setEvent("banned")
             ->setTitle("User banned")
-            ->setDescription((auth()->user()?->full_name . " banned a user"))
+            ->setDescription((auth()->user()->email) . " banned a user")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::STRIKED_USER)
             ->setModel(User::class, $user->id)
@@ -437,7 +448,7 @@ class UserService
         (new ActivityLogService)
             ->setEvent("hide_post")
             ->setTitle("Hide User Post")
-            ->setDescription((auth()->user()?->full_name . " hide user post"))
+            ->setDescription((auth()->user()->email) . " hide user post")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::HIDE_USER_POST)
             ->setModel(User::class, $user->id)
@@ -467,7 +478,7 @@ class UserService
         (new ActivityLogService)
             ->setEvent("restore_post")
             ->setTitle("Restore User Post")
-            ->setDescription((auth("admin")->user()?->name . " restore user post"))
+            ->setDescription((auth()->user()->email) . " restore user post")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::HIDE_USER_POST)
             ->setModel(User::class, $user->id)
@@ -496,7 +507,7 @@ class UserService
         (new ActivityLogService)
             ->setEvent("deleted")
             ->setTitle("Deleted User Post(s)")
-            ->setDescription((auth("admin")->user()?->name . " deleted user post(s)"))
+            ->setDescription((auth()->user()->email) . " deleted user post(s)")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::DELETE_USER_POST)
             ->setModel(User::class, $user->id)
