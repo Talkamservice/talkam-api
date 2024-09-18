@@ -15,11 +15,11 @@
 
 <tr>
     <td class="footerlogo">
-        <span> <img class="flogo" src="{{ asset('email/assets/talkamlogo.svg') }}" /></span>
+        <span> <img class="flogo" src="{{ asset('email/assets/talkamlogo.svg') . "?v=1" }}" /></span>
         <span class="iconsCont">
-            <img class="icon1" src="{{ asset("email/assets/twitterIconB.svg") }}" />
-            <img class="icon1" src="{{ asset("email/assets/facebookIconB.svg") }}" />
-            <img src="{{ asset("email/assets/instagramIcon.svg") }}" />
+            <img class="icon1" src="{{ asset("email/assets/twitterIconB.svg") . "?v=1" }}" />
+            <img class="icon1" src="{{ asset("email/assets/facebookIconB.svg") . "?v=1" }}" />
+            <img src="{{ asset("email/assets/instagramIcon.svg") . "?v=1" }}" />
         </span>
     </td>
 </tr>
