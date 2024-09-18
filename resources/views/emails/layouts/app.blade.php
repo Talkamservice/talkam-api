@@ -6,7 +6,7 @@
     <table class="container">
         <tr>
             <td class="logoCont">
-                <img src="{{ asset('email/assets/talkamlogo.svg') . "?v=1" }}" />
+                <img src="{{ asset('email/assets/talkamlogo1.svg') . "?v=2" }}" />
             </td>
         </tr>
 
