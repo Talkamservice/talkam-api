@@ -271,16 +271,21 @@ class PostCategoryService
 
     public function parseMergedGroups($parent_category)
     {
+        // Fetch group members in one query
         $group_members = GroupMember::where([
             "user_id" => auth("sanctum")->id(),
-        ])->get();
+        ])->get()->keyBy('group_id'); // Key by group_id for faster lookups
 
-        $groups = Group::where("category_id", $parent_category->id)->withCount("members")->status()->get();
+        // Fetch groups with their member count in one query
+        $groups = Group::where("category_id", $parent_category->id)
+            ->withCount("members")
+            ->status()
+            ->get();
+
         return $groups->map(function ($group) use ($parent_category, $group_members) {
-            $is_following = $group_members->where([
-                "group_id" => $group->id,
-                "status", StatusConstants::ACTIVE
-            ]);
+            // Fetch the member from the preloaded group members
+            $member = $group_members->get($group->id);
+
             return [
                 "id" => $group->id,
                 "type" => "Group",
@@ -288,7 +293,9 @@ class PostCategoryService
                 "background_image" => $group->image,
                 "icon_image" => null,
                 "description" => $group->description,
-                "is_following" => $is_following->isNotEmpty(),
+                "is_following" => $member?->status == StatusConstants::ACTIVE,
+                "is_suspended" => $member?->status == StatusConstants::SUSPENDED,
+                "group_access" => $group->group_access,
                 "parent_category" => [
                     "id" => $parent_category->id,
                     "name" => $parent_category->name

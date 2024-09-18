@@ -111,7 +111,7 @@ class SearchService
         $records = match ($data["sort"]) {
             'post' => Post::status()->search($data["search"])->unblocked()->anonymous(),
             'group' => Group::status()->search($data["search"]),
-            'media' => Post::status()->search($data["search"])->where("type", PostConstants::FILE),
+            'media' => Post::status()->search($data["search"])->whereIn("type", [PostConstants::FILE, PostConstants::IMAGE, PostConstants::VIDEO]),
             default => collect([]),
         };
 
@@ -136,7 +136,7 @@ class SearchService
         $records = match ($data["sort"]) {
             'post' => Post::status()->unblocked()->inRandomOrder(),
             'group' => Group::status()->unblocked()->inRandomOrder(),
-            'media' => Post::status()->unblocked()->inRandomOrder()->where("type", PostConstants::FILE),
+            'media' => Post::status()->unblocked()->inRandomOrder()->whereIn("type", [PostConstants::FILE, PostConstants::IMAGE, PostConstants::VIDEO]),
             default => collect([]),
         };
 
