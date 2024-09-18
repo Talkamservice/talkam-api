@@ -16,7 +16,7 @@ class SuspendUserNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $user, public $status = null)
+    public function __construct(public $user, public $status = null, public $suspension_reason, public $duration)
     {
         //
     }
@@ -78,7 +78,7 @@ class SuspendUserNotification extends Notification
     public function buildData($notifiable)
     {
         $title = $this->status == StatusConstants::ACTIVE ? "Supension Removed!" : "Suspension Received";
-        $message = $this->status == StatusConstants::ACTIVE ? "Your suspension has been removed and your account is now active. Ensure to abide by Talkam's rules and policies." : "You have received a strike for failing to comply with Talkam's rules and policies.";
+        $message = $this->status == StatusConstants::ACTIVE ? "Your suspension has been removed and your account is now active. Ensure to abide by Talkam's rules and policies." : "You have been suspended till {$this->duration} for failing to comply with Talkam's rules and policies. {$this->suspension_reason}";
         return [
             'data' => [
                 'id' => $this->user->id,
