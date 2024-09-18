@@ -8,6 +8,7 @@ use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Group;
@@ -119,6 +120,7 @@ class GroupReportService
 
                 if (!empty($user)) {
                     Notification::send($user, new SuspendGroupNotification($group, null, "Your group has been banned for the following reason: {$reason}."));
+                    broadcast(new RefreshNotification($user->id));
                 }
 
                 // Log the activity
@@ -155,6 +157,7 @@ class GroupReportService
 
                 $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
                 Notification::send($user, new SuspendGroupNotification($group, $duration, $reason));
+                broadcast(new RefreshNotification($user->id));
 
                 // Log the activity
                 (new ActivityLogService)
@@ -191,7 +194,7 @@ class GroupReportService
             $admin = $group->members()->where('role', UserConstants::OWNER)->first()->user;
             $group->delete();
             Notification::send($admin, new DeleteGroupNotification($group));
-
+            broadcast(new RefreshNotification($admin->id));
 
             // Log the activity
             (new ActivityLogService)
@@ -223,6 +226,7 @@ class GroupReportService
             $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
 
             Notification::send($user, new UndoGroupSuspensionNotification($group));
+            broadcast(new RefreshNotification($user->id));
 
             // Log the activity
             (new ActivityLogService)
@@ -290,6 +294,7 @@ class GroupReportService
             $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
 
             Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
+            broadcast(new RefreshNotification($group_member->user_id));
 
             // Log the activity
             (new ActivityLogService)
@@ -333,6 +338,8 @@ class GroupReportService
 
         // Optionally, send a notification to the user
         Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, 'Your suspension has been lifted. Failure to comply may lead to a longer suspension from the group or banned.'));
+        broadcast(new RefreshNotification($group_member->user_id));
+
         (new ActivityLogService)
             ->setEvent("activated")
             ->setTitle("Group Member Activated")

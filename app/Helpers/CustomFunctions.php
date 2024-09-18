@@ -198,3 +198,14 @@ function slugPermission(string $string)
     return "can_" . str_replace("-", "_", slugify($string));
 }
 
+function findSpecialWords($string) {
+    // Regular expression to match words starting and ending with $
+    $pattern = '/\$@(\w+)\$/';
+
+    // Find all matches
+    preg_match_all($pattern, $string, $matches);
+
+    // Return the matched words
+    return $matches[1];
+}
+

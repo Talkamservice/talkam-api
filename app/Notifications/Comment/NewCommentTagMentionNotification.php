@@ -1,21 +1,23 @@
 <?php
 
-namespace App\Notifications\Post;
+namespace App\Notifications\Comment;
 
+use App\Http\Resources\Post\PostCommentResource;
+use App\Models\UserCommentReaction;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
-class SchedulePostNotification extends Notification
+class NewCommentTagMentionNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $post)
+    public function __construct(public $comment)
     {
         //
     }
@@ -77,18 +79,22 @@ class SchedulePostNotification extends Notification
 
     public function buildData($notifiable)
     {
-        $web_url = config("app.web_url") . "/comment/{$this->post->id}";
+        $commenter = ($this->comment->is_anonymous == 1) ? "Anonymous" : $this->comment->user->getName();
+        $message = !empty($comment->reply_comment_id) ? "$commenter mentioned you to a comment" : "$commenter mentioned you to a post";
+        $web_url = config("app.web_url") . "/comment/{$this->comment->post_id}";
 
         return [
             'data' => [
-                'id' => $this->post->id,
+                'id' => $this->comment->post_id,
             ],
-            'title' => "New Scheduled Post",
-            'message' => "You have scheduled a new post",
+            'title' => "Comment on a post",
+            'message' => $message,
             'link' => $web_url,
-            'type' => 'post',
+            'type' => 'mention',
             'batch_no' => null,
-            "extra" => []
+            "extra" => [
+                "comment" => PostCommentResource::custom($this->comment),
+            ]
         ];
     }
 }

@@ -7,6 +7,7 @@ use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
@@ -54,6 +55,11 @@ class UserService
         return $model;
     }
 
+    public static function getByUsername($username)
+    {
+        $model = User::where("username", $username)->first();
+        return $model;
+    }
 
     public function validate(array $data, $id = null): array
     {
@@ -327,12 +333,15 @@ class UserService
                 "status" => $status
             ]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, $suspension_reason, $suspension_end->toFormattedDateString()));
+            broadcast(new RefreshNotification($user->id));
         } else {
             $user->update([
                 "status" => $status
             ]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, null, null));
+            broadcast(new RefreshNotification($user->id));
         }
+
         $user->refresh();
         (new ActivityLogService)
             ->setEvent("suspend")
@@ -357,6 +366,8 @@ class UserService
         $user->increment("strike");
 
         Notification::send($user, new StrikeUserNotification($user));
+        broadcast(new RefreshNotification($user->id));
+
         $user->refresh();
         (new ActivityLogService)
             ->setEvent("striked")
@@ -386,6 +397,9 @@ class UserService
         ]);
 
         Notification::send($user, new BannedUserNotification($user, $ban_reason));
+        broadcast(new RefreshNotification($user->id));
+
+        $user->refresh();
 
         (new ActivityLogService)
             ->setEvent("banned")
@@ -414,6 +428,7 @@ class UserService
             $user->posts()->delete();
             // Send notification about the post suspension
             Notification::send($user, new PostSuspensionNotification($user));
+            broadcast(new RefreshNotification($user->id));
         }
         // Refresh the user model
         $user->refresh();
@@ -444,6 +459,7 @@ class UserService
         $user->posts()->onlyTrashed()->restore();
         // Send notification about the post restoration
         Notification::send($user, new PostRestorationNotification($user));
+        broadcast(new RefreshNotification($user->id));
 
         // Refresh the user model
         $user->refresh();
@@ -472,6 +488,7 @@ class UserService
         $user->posts()->onlyTrashed()->forceDelete();
         // Send notification about the post restoration
         Notification::send($user, new PostsRemovedFromApplicationNotification($user));
+        broadcast(new RefreshNotification($user->id));
 
         // Refresh the user model
         $user->refresh();

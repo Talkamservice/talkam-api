@@ -2,11 +2,13 @@
 
 namespace App\Services\Notification;
 
+use App\Events\RefreshNotification;
 use App\Models\ThreadNotification;
 use App\Models\User;
 use App\Notifications\Comment\NewCommentMentionNotification;
 use App\Notifications\Comment\NewCommentNotification;
 use App\Notifications\Comment\NewCommentReactionNotification;
+use App\Notifications\Comment\NewCommentTagMentionNotification;
 use App\Notifications\Post\NewPostReactionNotification;
 use App\Notifications\Comment\NewThreadCommentNotification;
 use App\Notifications\Comment\NewThreadCommentReactionNotification;
@@ -53,9 +55,10 @@ class NotificationHandlerService
         if ($this->comments_notifications_type == "mentions") {
             return $this;
         }
-        
+
         if ($this->user->id != $comment->user_id) {
             Notification::send($comment->post->user, new NewCommentNotification($comment));
+            broadcast(new RefreshNotification($comment->post->user_id));
         }
 
         return $this;
@@ -63,7 +66,9 @@ class NotificationHandlerService
 
     public function notifyThreadUser($model, $type)
     {
+        $notify_me = null;
         if ($type == "comment") {
+            $notify_me = $this->thread_notification_builder->where("comment_id", $model->id)->first();
             if (!empty($notify_me) && $model->post->user_id != $model->user_id) {
                 Notification::send($notify_me->user, new NewThreadCommentNotification($model));
             }
@@ -83,6 +88,10 @@ class NotificationHandlerService
             }
         }
 
+        if (!empty($notify_me)) {
+            broadcast(new RefreshNotification($notify_me->user_id));
+        }
+
         return $this;
     }
 
@@ -91,6 +100,7 @@ class NotificationHandlerService
         if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
             if ($this->user->id != $post_reaction->user_id) {
                 Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
+                broadcast(new RefreshNotification($post_reaction->post->user_id));
             }
         }
 
@@ -103,6 +113,7 @@ class NotificationHandlerService
             $reply_comment = $comment->repliedComment;
             if ($comment->user_id != $reply_comment->user_id) {
                 Notification::send($reply_comment->user, new NewCommentMentionNotification($comment));
+                broadcast(new RefreshNotification($reply_comment->user_id));
             }
         }
 
@@ -114,7 +125,29 @@ class NotificationHandlerService
         if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
             if ($this->user->id != $comment_reaction->user_id) {
                 Notification::send($comment_reaction->comment->user, new NewCommentReactionNotification($comment_reaction));
+                broadcast(new RefreshNotification($comment_reaction->comment->user_id));
             }
+        }
+
+        return $this;
+    }
+
+    public function notifyMentionOfNewComment($comment)
+    {
+        if ($this->user->id != $comment->user_id) {
+            Notification::send($comment->user, new NewCommentTagMentionNotification($comment));
+            broadcast(new RefreshNotification($comment->user_id));
+        }
+
+        return $this;
+    }
+
+    public function notifyMentionOfNewPost($comment)
+    {
+        $reply_comment = $comment->repliedComment;
+        if ($comment->user_id != $reply_comment->user_id) {
+            Notification::send($reply_comment->user, new NewCommentMentionNotification($comment));
+            broadcast(new RefreshNotification($reply_comment->user_id));
         }
 
         return $this;

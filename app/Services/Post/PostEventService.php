@@ -4,6 +4,7 @@ namespace App\Services\Post;
 
 use App\Constants\General\StatusConstants;
 use App\Constants\Post\PostConstants;
+use App\Events\RefreshNotification;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\TrendingTag;
@@ -24,6 +25,7 @@ class PostEventService
             ]);
 
             Notification::send($post->user, new SchedulePostPublishedNotification($post));
+            broadcast(new RefreshNotification($post->user_id));
         }
     }
 
