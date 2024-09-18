@@ -42,6 +42,7 @@ class JoinGroupRequestStatusNotification extends Notification
                 "title" => $data["title"],
                 "message" => $data["message"],
                 "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
             ]);
     }
 
@@ -76,13 +77,15 @@ class JoinGroupRequestStatusNotification extends Notification
 
     public function buildData($notifiable)
     {
+        $web_url = config("app.web_url") . "/group/{$this->member->group_id}/new";
+
         return [
             'data' => [
                 'id' => $this->member->group_id,
             ],
-            'title' => "Join Group Request Status",
-            'message' => "We wish to inform you that your request to join the group:{$this->member->group->name} has been {$this->status}",
-            'link' => null,
+            'title' => "Group Request Status",
+            'message' => "We wish to inform you that your request to join {$this->member->group->name} has been {$this->status}",
+            'link' => $web_url,
             'type' => 'group_request',
             'batch_no' => null,
             "extra" => []

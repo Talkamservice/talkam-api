@@ -9,6 +9,8 @@ class PostConstants
     const TEXT = "Text";
     const POLL = "Poll";
     const FILE = "File";
+    const IMAGE = "Image";
+    const VIDEO = "Video";
 
     const LIKE = "Like";
     const DISLIKE = "Dislike";
@@ -17,6 +19,8 @@ class PostConstants
         self::TEXT => self::TEXT,
         self::POLL => self::POLL,
         self::FILE => self::FILE,
+        self::VIDEO => self::VIDEO,
+        self::IMAGE => self::IMAGE,
     ];
 
     const REACTIONS = [

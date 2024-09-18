@@ -91,7 +91,7 @@ class User extends Authenticatable
         });
     }
 
-    public function isUser()
+    public function isUser()    
     {
         return $this->role == UserConstants::USER;
     }

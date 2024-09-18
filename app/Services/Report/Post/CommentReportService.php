@@ -5,6 +5,7 @@ namespace App\Services\Report\Post;
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\CommentReport;
@@ -85,6 +86,7 @@ class CommentReportService
         $reported_comment = self::getById($reported_comment_id);
         $reported_comment->comment->delete();
         Notification::send($reported_comment->comment->user, new CommentsRemovedFromApplicationNotification($reported_comment));
+        broadcast(new RefreshNotification($reported_comment->comment->user_id));
 
         // Log the activity
         (new ActivityLogService)

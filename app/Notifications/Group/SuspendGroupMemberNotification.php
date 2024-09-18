@@ -64,10 +64,10 @@ class SuspendGroupMemberNotification extends Notification
             'data' => [
                 'id' => $this->group_member->group_id,
             ],
-            'title' => "Suspension Notification",
+            'title' => "Suspension Notice",
             'message' => $this->message,
             'link' => null,
-            'type' => 'group',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];

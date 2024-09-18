@@ -5,6 +5,7 @@ namespace App\Services\Report\Post;
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostReport;
@@ -86,6 +87,8 @@ class PostReportService
         $reported_post = self::getById($reported_post_id);
         $reported_post->post->delete();
         Notification::send($reported_post->post->user, new PostsRemovedFromApplicationNotification($reported_post));
+        broadcast(new RefreshNotification($reported_post->post->user_id));
+
         // Log the activity
         (new ActivityLogService)
             ->setEvent("deleted")

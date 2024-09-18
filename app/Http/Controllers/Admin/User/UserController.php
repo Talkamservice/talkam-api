@@ -120,12 +120,13 @@ class UserController extends Controller
     {
         ($request->status == StatusConstants::ACTIVE) ? $this->authorize(slugPermission("suspend a user")) : $this->authorize(slugPermission("unsuspend a user"));
         try {
-            $this->user_service->suspend($request->status, $id);
+            $this->user_service->suspend($request, $request->status, $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User status updated successfully");
         } catch (ModelNotFoundException | InvalidRequestException $th) {
             return back()
                 ->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (\Throwable $th) {
+            throw $th;
             return back()->withInput($request->all())
                 ->with(NotificationConstants::ERROR_MSG, $this->serverErrorMessage);
         }
@@ -151,7 +152,7 @@ class UserController extends Controller
     {
         $this->authorize(slugPermission("ban a user"));
         try {
-            $this->user_service->ban($id);
+            $this->user_service->ban($request, $id);
             return back()->with(NotificationConstants::SUCCESS_MSG, "User banned successfully");
         } catch (ModelNotFoundException | InvalidRequestException $th) {
             return back()

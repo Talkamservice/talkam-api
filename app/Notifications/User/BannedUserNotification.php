@@ -15,7 +15,7 @@ class BannedUserNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $user)
+    public function __construct(public $user, public $ban_reason)
     {
         //
     }
@@ -81,7 +81,7 @@ class BannedUserNotification extends Notification
                 'id' => $this->user->id,
             ],
             'title' => "Account Banned!",
-            'message' => "You have been banned for failing to comply with Talkam's rules and policies. You can appeal this action by contacting our support.",
+            'message' => "You have been banned for failing to comply with Talkam's rules and policies. {$this->ban_reason}. You can appeal this action by contacting our support.",
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,

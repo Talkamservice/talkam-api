@@ -4,6 +4,7 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
@@ -136,9 +137,7 @@ class GroupService
             throw $th;
         }
     }
-    public function notify($group)
-    {
-    }
+    public function notify($group) {}
 
     public function generateUniqueId($length = 6)
     {
@@ -188,17 +187,17 @@ class GroupService
     {
         $builder = self::list($data);
 
-        if (!empty($type = $data["type"] ?? null)) {
-            $builder = $builder->whereRelation("members", function ($q) use ($type) {
+        $builder = $builder->whereRelation("members", function ($q) {
+            $q->where(["user_id" => auth()->id()]);
+            if (!empty($type = $data["type"] ?? null)) {
                 if ($type == "all") {
-                    $q->where(["user_id" => auth()->id()])
-                        ->whereNotIn("status", [StatusConstants::BANNED]);
+                    $q->whereNotIn("status", [StatusConstants::BANNED]);
                 } else {
                     $q->where(["user_id" => auth()->id()])
                         ->whereNotIn("status", [StatusConstants::SUSPENDED, StatusConstants::BANNED]);
                 }
-            });
-        }
+            }
+        });
 
         return $builder;
     }
@@ -214,6 +213,10 @@ class GroupService
                 "status" => StatusConstants::PENDING
             ]);
 
+            $member->update([
+                "status" => StatusConstants::PENDING
+            ]);
+
             $admins = GroupMember::where([
                 "group_id" => $id,
             ])->whereIn("role", [UserConstants::ADMIN, UserConstants::OWNER])
@@ -226,6 +229,9 @@ class GroupService
             }
 
             Notification::send($users, new JoinGroupRequestNotification($member));
+            foreach ($users as $key => $user) {
+                broadcast(new RefreshNotification($user->id));
+            }
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -263,6 +269,8 @@ class GroupService
                     "status" => StatusConstants::DECLINED
                 ]);
             }
+
+            broadcast(new RefreshNotification($member->user_id));
 
             DB::commit();
         } catch (\Throwable $th) {

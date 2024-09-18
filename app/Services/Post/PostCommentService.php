@@ -8,6 +8,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostComment;
 use App\Models\UserCommentReaction;
 use App\Services\Notification\NotificationHandlerService;
+use App\Services\User\UserService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -53,6 +54,14 @@ class PostCommentService
 
         if (!empty($data["reply_comment_id"] ?? null)) {
             $notification->notifyCommentOwnerOfNewComment($comment);
+        }
+
+        $tag = findSpecialWords($comment->comment);
+        $user = (new UserService)->getByUsername($tag);
+
+        if (!empty($tag && $user)) {
+            (new NotificationHandlerService)->init($user->id)
+                ->notifyMentionOfNewComment($comment);
         }
 
         return $comment;
