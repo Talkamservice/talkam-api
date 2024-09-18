@@ -20,6 +20,7 @@ use App\Notifications\User\PostSuspensionNotification;
 use App\Notifications\User\StrikeUserNotification;
 use App\Notifications\User\SuspendUserNotification;
 use App\Services\ActivityLog\ActivityLogService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -310,18 +311,36 @@ class UserService
         optional($user->pins())->delete();
     }
 
-    public function suspend($status, $id)
+    public function suspend(Request $request, $status, $id)
     {
         if (!in_array($status, [StatusConstants::ACTIVE, StatusConstants::INACTIVE])) {
             throw new InvalidRequestException("Invalid status provided");
         }
-        $user = $this->getById($id);
-        $user->update([
-            "status" => $status
-        ]);
-
-        Notification::send($user, new SuspendUserNotification($user, $user->status));
-        broadcast(new RefreshNotification($user->id));
+        $user = $this->getById($id);  
+        $suspension_reason = $request->input('suspend_reason');
+        $suspension_duration = $request->input('duration'); // Date input for suspension end
+        // Calculate the suspension end date from the input duration
+        $suspension_end = Carbon::parse($suspension_duration); // Convert input date to Carbon
+        $now = Carbon::now();
+        if (!$suspension_end && $suspension_end->lessThanOrEqualTo($now)) {
+            return 'Invalid suspension date. The date must be in the future.';
+        }
+        $days = $now->diffInDays($suspension_end); // Calculate the number of days
+        if ($status === StatusConstants::INACTIVE) {
+            $user->update([
+                'suspend_ban_reason' => $suspension_reason,
+                'suspension_duration' => $suspension_end,
+                "status" => $status
+            ]);
+            Notification::send($user, new SuspendUserNotification($user, $user->status, $suspension_reason, $suspension_end->toFormattedDateString()));
+            broadcast(new RefreshNotification($user->id));
+        } else {
+            $user->update([
+                "status" => $status
+            ]);
+            Notification::send($user, new SuspendUserNotification($user, $user->status, null, null));
+            broadcast(new RefreshNotification($user->id));
+        }
 
         $user->refresh();
         (new ActivityLogService)
@@ -338,7 +357,7 @@ class UserService
             ->setUrl(request()->fullUrl())
             ->log();
 
-        return $user;
+        return 'User has been suspended for ' . $days . ' days.';
     }
 
     public function strike($id)
@@ -367,15 +386,17 @@ class UserService
         return $user;
     }
 
-    public function ban($id)
+    public function ban(Request $request, $id)
     {
         $user = $this->getById($id);
-
-        $user->status([
+        $ban_reason = $request->input('suspend_ban_reason');
+        // No need for duration; the ban will be permanent
+        $user->update([
+            'suspend_ban_reason' => $ban_reason,
             "status" => StatusConstants::BANNED
         ]);
 
-        Notification::send($user, new BannedUserNotification($user));
+        Notification::send($user, new BannedUserNotification($user, $ban_reason));
         broadcast(new RefreshNotification($user->id));
 
         $user->refresh();
@@ -388,14 +409,14 @@ class UserService
             ->setActivity(ActivitiesConstants::STRIKED_USER)
             ->setModel(User::class, $user->id)
             ->setAdmin(auth()->user()?->id)
-            ->setData([
-                "User" => $user->refresh()->toArray(),
-            ])
+            ->setData(["User" => $user->refresh()->toArray()])
             ->setUrl(request()->fullUrl())
             ->log();
 
         return $user;
     }
+
+
 
     public function hidePost(Request $request, $id)
     {

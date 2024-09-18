@@ -12,6 +12,7 @@
             <div class="modal-footer">
                 <form id="confirmationForm" action="" method="POST" style="display:inline;">
                     @csrf
+                    <input type="hidden" id="actionType" name="status" value="Active">
                     <div id="methodFieldContainer"></div> <!-- Placeholder for method spoofing -->
                     <button type="submit" class="btn btn-primary">Yes, Proceed</button>
                 </form>
@@ -24,11 +25,18 @@
     function openActionsModal(action, formAction) {
         let message = '';
         let methodFieldContainer = document.getElementById('methodFieldContainer');
+        let actionTypeField = document.getElementById('actionType');
 
+        // Reset actionTypeField
+        actionTypeField.value = '';
         switch (action) {
             case 'suspend':
                 message = 'Are you sure you want to suspend this group member?';
                 methodFieldContainer.innerHTML = '';
+                break;
+            case 'activate':
+                message = 'Are you sure you want to activate this user?';
+                actionTypeField.value = 'Active';
                 break;
             case 'undo':
                 message = 'Are you sure you want to lift the suspension?';
@@ -38,7 +46,7 @@
                 message = 'Are you sure you want to strike this user?';
                 methodFieldContainer.innerHTML = '';
                 break;
-                case 'ban':
+            case 'ban':
                 message = 'Are you sure you want to ban this user?';
                 methodFieldContainer.innerHTML = '';
                 break;
