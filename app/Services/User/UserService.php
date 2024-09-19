@@ -546,4 +546,10 @@ class UserService
 
         return $result;
     }
+
+    public static function search($username)
+    {
+        $users = User::search($username)->unblocked()->get();
+        return $users;
+    }
 }

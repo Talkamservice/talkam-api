@@ -78,10 +78,10 @@ class RecentViewService
         $record_ids = $builder->pluck($record_key)->toArray();
 
         $records = match ($sort_key) {
-            'category' => PostCategory::status()->whereIn("id", $record_ids),
-            'post' => Post::status()->whereIn("id", $record_ids)->unblocked(),
-            'group' => Group::status()->whereIn("id", $record_ids),
-            'tag' => TrendingTag::status()->whereIn("id", $record_ids),
+            'category' => PostCategory::status()->whereIn("id", $record_ids)->latest(),
+            'post' => Post::status()->whereIn("id", $record_ids)->unblocked()->latest(),
+            'group' => Group::status()->whereIn("id", $record_ids)->latest(),
+            'tag' => TrendingTag::status()->whereIn("id", $record_ids)->latest(),
             default => collect([]),
         };
 

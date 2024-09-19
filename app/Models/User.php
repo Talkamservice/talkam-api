@@ -151,6 +151,20 @@ class User extends Authenticatable
         return $this->hasMany(ActivityLog::class, 'user_id');
     }
 
+    public function scopeUnblocked($query)
+    {
+        if (auth("sanctum")->check()) {
+            //All users that blocked me
+            $blocked_me_users = BlockedUser::where("blocked_user_id", $this->id)->pluck("blocker_id")->toArray();
+            //All users that I blocked
+            $blocked_users = BlockedUser::where("blocker_id", $this->id)->pluck("blocked_user_id")->toArray();
+
+            $query->whereNotIn('user_id', array_merge($blocked_me_users, $blocked_users));
+        }
+
+        return $query;
+    }
+    
     public function isDisabled()
     {
         if (in_array(
