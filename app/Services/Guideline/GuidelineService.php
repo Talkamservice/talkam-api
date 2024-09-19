@@ -67,9 +67,9 @@ class GuidelineService
 
         // Log the activity
         (new ActivityLogService)
-            ->setEvent("created")
-            ->setTitle("Guideline Created")
-            ->setDescription((auth()->user()->email) . " created a guideline")
+            ->setEvent("updated")
+            ->setTitle("Guideline Updated")
+            ->setDescription((auth()->user()->email) . " updated a guideline")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::GUIDELINE_CREATED)
             ->setModel(Guideline::class, $guideline->id)
@@ -91,9 +91,9 @@ class GuidelineService
         $guideline->delete();
         // Log the activity
         (new ActivityLogService)
-            ->setEvent("created")
-            ->setTitle("Guideline Created")
-            ->setDescription((auth()->user()->email) . " created a guideline")
+            ->setEvent("deleted")
+            ->setTitle("Guideline Deleted")
+            ->setDescription((auth()->user()->email) . " deleted a guideline")
             ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
             ->setActivity(ActivitiesConstants::GUIDELINE_CREATED)
             ->setModel(Guideline::class, $guideline->id)

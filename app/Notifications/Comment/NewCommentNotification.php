@@ -94,7 +94,7 @@ class NewCommentNotification extends Notification
             'data' => [
                 'id' => $this->comment->post_id,
             ],
-            'title' => "New Comment",
+            'title' => "Comment",
             'message' => $message,
             'link' => $web_url,
             'type' => 'comment',

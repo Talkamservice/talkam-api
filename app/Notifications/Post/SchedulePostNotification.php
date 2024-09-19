@@ -83,7 +83,7 @@ class SchedulePostNotification extends Notification
             'data' => [
                 'id' => $this->post->id,
             ],
-            'title' => "New Scheduled Post",
+            'title' => "Scheduled Post",
             'message' => "You have scheduled a new post",
             'link' => $web_url,
             'type' => 'post',

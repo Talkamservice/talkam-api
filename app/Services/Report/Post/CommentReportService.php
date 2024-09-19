@@ -61,18 +61,18 @@ class CommentReportService
             $report->update([
                 'status' => StatusConstants::RESOLVED
             ]);
-// Log the activity
-(new ActivityLogService)
-->setEvent("resolved")
-->setTitle("Resolved Reported Comment")
-->setDescription(auth()->user()?->full_name . "resolved a reported comment")
-->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
-->setActivity(ActivitiesConstants::RESOLVED_REPORTED_COMMENT)
-->setModel(CommentReport::class, $report->id)
-->setAdmin(auth()->user()?->id)
-->setData(["Report comment" => $report->refresh()->toArray()])
-->setUrl(request()->fullUrl())
-->log();
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("resolved")
+                ->setTitle("Resolved Reported Comment")
+                ->setDescription(auth()->user()?->full_name . "resolved a reported comment")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::RESOLVED_REPORTED_COMMENT)
+                ->setModel(CommentReport::class, $report->id)
+                ->setAdmin(auth()->user()?->id)
+                ->setData(["Report comment" => $report->refresh()->toArray()])
+                ->setUrl(request()->fullUrl())
+                ->log();
             DB::commit();
             return $report->refresh();
         } catch (\Throwable $th) {
@@ -90,16 +90,16 @@ class CommentReportService
 
         // Log the activity
         (new ActivityLogService)
-        ->setEvent("deleted")
-        ->setTitle("Deleted Reported Comment")
-        ->setDescription((auth()->user()->email) . " deleted a reported comment")
-        ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
-        ->setActivity(ActivitiesConstants::DELETED_REPORTED_COMMENT)
-        ->setModel(CommentReport::class, $reported_comment->id)
-        ->setAdmin(auth()->user()?->id)
-        ->setData(["Reported comment" => $reported_comment->refresh()->toArray()])
-        ->setUrl(request()->fullUrl())
-        ->log();
+            ->setEvent("deleted")
+            ->setTitle("Deleted Reported Comment")
+            ->setDescription((auth()->user()->email) . " deleted a reported comment")
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::DELETED_REPORTED_COMMENT)
+            ->setModel(CommentReport::class, $reported_comment->id)
+            ->setAdmin(auth()->user()?->id)
+            ->setData(["Reported comment" => $reported_comment->refresh()->toArray()])
+            ->setUrl(request()->fullUrl())
+            ->log();
         // return $reported_comment->refresh();
     }
 }
