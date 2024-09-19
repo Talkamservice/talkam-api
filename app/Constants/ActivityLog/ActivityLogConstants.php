@@ -25,6 +25,7 @@ class ActivityLogConstants
     const EVENT_DATA_ERASED = "data_erased";
     const USER_ACCOUNT_DELETED = "account_deleted";
     const SUSPEND_USER = "suspend";
+    const UNSUSPEND_USER = "unsuspend";
     const SENT = "sent";
     const SUSPENDED = "suspended";
     const ACTIVATED = "activated";
@@ -54,6 +55,7 @@ class ActivityLogConstants
         self::EVENT_DATA_ERASED,
         self::USER_ACCOUNT_DELETED,
         self::SUSPEND_USER,
+        self::UNSUSPEND_USER,
         self::SENT,
         self::SUSPENDED,
         self::ACTIVATED,

@@ -84,22 +84,6 @@
                                         @endif --}}
                                     </div>
                                 </div>
-                                @php
-                                    $formattedExpiredAt =
-                                        isset($announcement) && $announcement->expired_at
-                                            ? \Carbon\Carbon::parse($announcement->expired_at)->format('Y-m-d\TH:i')
-                                            : '';
-                                @endphp
-
-                                <div class="row col-xl-9 col-sm-12 mb-3" id="expired_at">
-                                    <label for="expired_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Expired
-                                        Date (Optional)</label>
-                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="datetime-local" class="form-control" name="expired_at" id="expired_at"
-                                            value="{{ old('expired_at') ?? $formattedExpiredAt }}">
-                                    </div>
-                                </div>
-
                                 <!-- Status Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3">
                                     <label for="status"
@@ -114,10 +98,8 @@
                                                 </option>
                                             @endforeach
                                         </select>
-
                                     </div>
                                 </div>
-
                                 <!-- Published At Field -->
                                 <div class="row col-xl-9 col-sm-12 mb-3" id="published_at_wrapper">
                                     <label for="published_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Publish
@@ -128,7 +110,20 @@
                                             value="{{ old('published_at') ?? (isset($announcement) && $announcement->published_at ? $announcement->published_at->format('Y-m-d\TH:i') : '') }}">
                                     </div>
                                 </div>
-
+                                @php
+                                    $formattedExpiredAt =
+                                        isset($announcement) && $announcement->expired_at
+                                            ? \Carbon\Carbon::parse($announcement->expired_at)->format('Y-m-d\TH:i')
+                                            : '';
+                                @endphp
+                                <div class="row col-xl-9 col-sm-12 mb-3" id="expired_at">
+                                    <label for="expired_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Expiry
+                                        Date (Optional)</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="datetime-local" class="form-control" name="expired_at" id="expired_at"
+                                            value="{{ old('expired_at') ?? $formattedExpiredAt }}">
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="mt-3">
