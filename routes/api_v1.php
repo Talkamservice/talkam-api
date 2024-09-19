@@ -127,6 +127,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("/", [SearchController::class, "index"])->name("index");
             Route::get("recent", [SearchController::class, "recent"])->name("recent");
             Route::get("trending", [SearchController::class, "trending"])->name("trending");
+            Route::get("/username", [UserController::class, "search"])->name("search");
         });
 
         Route::prefix("groups")->as("groups.")->group(function () {

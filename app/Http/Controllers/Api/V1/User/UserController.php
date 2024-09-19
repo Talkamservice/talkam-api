@@ -196,4 +196,17 @@ class UserController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
+    public function search(Request $request)
+    {
+        try {
+            $response = $this->user_service->search($request->search);
+            $data = UserResource::customCollection($response);
+            return ApiHelper::validResponse("Users returned successfully", $data);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
 }

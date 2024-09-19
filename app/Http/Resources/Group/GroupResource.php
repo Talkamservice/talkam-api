@@ -7,6 +7,7 @@ use App\Http\Resources\Guideline\GuidelineResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\GroupMember;
+use App\Models\GroupReport;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Predis\Response\Status;
 
@@ -26,6 +27,12 @@ class GroupResource extends JsonResource
             "user_id" => auth("sanctum")->id(),
         ])->first();
 
+        $group_reported = GroupReport::where([
+            "group_id" => $this->id,
+            "user_id" => auth("sanctum")->id(),
+            "status" => StatusConstants::PENDING
+        ])->latest()->first();
+
         return [
             "id" => $this->id,
             "name" => $this->name,
@@ -38,6 +45,7 @@ class GroupResource extends JsonResource
             "has_requested" => in_array($group_member?->status, [StatusConstants::PENDING, StatusConstants::DECLINED]),
             "is_suspended" => $group_member?->status == StatusConstants::SUSPENDED,
             "is_banned" => $group_member?->status == StatusConstants::BANNED,
+            "is_reported" => !empty($group_reported),
             "group_member_status" => $group_member?->status ?? null,
             "total_members" => $this->members?->count(),
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),

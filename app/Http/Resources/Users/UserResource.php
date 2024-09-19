@@ -24,7 +24,7 @@ class UserResource extends JsonResource
             "blocker_id" => $this->id,
             "blocked_user_id" => auth("sanctum")->id(),
         ])->exists();
-        
+
         return [
             "id" => (int) $this->id,
             "avatar" => $this->avatar,
@@ -56,5 +56,12 @@ class UserResource extends JsonResource
             "username" => $model->username,
             "email" => (string) $model->email,
         ];
+    }
+
+    public static function customCollection($collections)
+    {
+        return $collections->map(function ($model) {
+            return self::custom($model);
+        });
     }
 }
