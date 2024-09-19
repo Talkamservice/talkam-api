@@ -141,6 +141,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("members/list", [GroupMemberController::class, "list"])->name("members.list");
             Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
             Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
+            Route::post("members/{id}/suspend", [GroupMemberController::class, "suspendMember"])->name("members.suspend");
+
+            // Route::post("member/suspend", [GroupMemberController::class, "suspend"])->name("members.suspend");
         });
 
         Route::prefix("recents")->as("recents")->group(function () {
@@ -221,9 +224,13 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get("{id}/show", [AnnouncementController::class, "show"])->name('show');
     });
 
+    Route::prefix("announcements")->as("announcements.")->group(function () {
+        Route::get("/", [AnnouncementController::class, "index"]);
+        Route::get("{id}/show", [AnnouncementController::class, "show"])->name('show');
+    });
+
     Route::prefix("post-categories")->as("post-categories.")->group(function () {
         Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
     });
 });
-
 Route::post('/broadcasting/auth', [AuthController::class, "authenticate"])->middleware('auth:sanctum');

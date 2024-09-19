@@ -4,15 +4,22 @@ namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Resources\Group\GroupMemberResource;
 use App\Models\GroupMember;
 use App\Models\GroupMemberReport;
 use App\Models\User;
+use App\Notifications\Group\SuspendGroupMemberNotification;
 use App\Services\Group\GroupService;
 use App\Services\User\UserService;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -194,7 +201,7 @@ class GroupMemberService
             $data = $validator->validated();
 
             $group_member = self::getById($data["group_member_id"]);
-           
+
             $report = GroupMemberReport::create([
                 "user_id" => $group_member->user_id,
                 "group_member_id" => $group_member->id,
@@ -207,6 +214,55 @@ class GroupMemberService
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
+        }
+    }
+
+    public function suspendMember(array $data = [], $id)
+    {
+        DB::beginTransaction();
+        try {
+
+            $validator = Validator::make($data, [
+                "suspension_reason" => "required|string",
+                'suspension_end'  => "required|date_format:Y-m-d",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $group_member = self::getById($id);
+            $suspensionReason = $data['suspension_reason'];
+            $suspensionDuration = $data['suspension_end']; // Date input for suspension end
+            // Calculate the suspension end date from the input duration
+            $suspensionEnd = Carbon::parse($suspensionDuration); // Convert input date to Carbon
+            $now = Carbon::now();
+
+            if ($suspensionEnd->lessThanOrEqualTo($now)) {
+                return 'Invalid suspension date. The date must be in the future.';
+            }
+
+            $days = $now->diffInDays($suspensionEnd); // Calculate the number of days
+
+            $group_member->update([
+                'suspension_reason' => $data['suspension_reason'],
+                'suspension_end' => $data['suspension_end'],
+                'status' => StatusConstants::SUSPENDED,
+            ]);
+            Log::info('Group Member User: ', [$group_member->user]);
+
+            $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
+            Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
+            broadcast(new RefreshNotification($group_member->user_id));
+
+
+            DB::commit();
+            return 'Group member has been suspended for ' . $days . ' days.';
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
     }
 }

@@ -4,18 +4,17 @@ namespace App\Notifications\Group;
 
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
+use Illuminate\Notifications\Messages\MailMessage;
+use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class SuspendGroupMemberNotification extends Notification
 {
     use Queueable;
 
 
-    public function __construct(public $group_member, public $message)
-    {
-    
-    }
+    public function __construct(public $group_member, public $message) {}
 
     public function via($notifiable): array
     {
@@ -72,5 +71,4 @@ class SuspendGroupMemberNotification extends Notification
             "extra" => []
         ];
     }
-    
 }
