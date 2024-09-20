@@ -100,7 +100,7 @@ class NewCommentReactionNotification extends Notification
             'data' => [
                 'id' => $this->comment_reaction->comment->post_id,
             ],
-            'title' => "New {$this->comment_reaction->action}",
+            'title' => "{$this->comment_reaction->action}d" .' '. " comment",
             'message' => $message,
             'link' => $web_url,
             'type' => 'post',

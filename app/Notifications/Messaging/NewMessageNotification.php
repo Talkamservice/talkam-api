@@ -85,14 +85,14 @@ class NewMessageNotification extends Notification
 
     public function buildData($notifiable)
     {
-        $title = "New Message from " . $this->message->sender->getName();
+        $title = "Message from " . $this->message->sender->getName();
 
         return [
             'data' => [
                 'id' => $this->message->conversation_id,
             ],
             'title' => $title,
-            'message' => "{$this->message->sender->getName()} sent you a new message",
+            'message' => "{$this->message->sender->getName()} sent you a message",
             'link' => null,
             'type' => 'conversation',
             'batch_no' => null,

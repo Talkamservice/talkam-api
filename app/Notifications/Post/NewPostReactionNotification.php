@@ -98,7 +98,7 @@ class NewPostReactionNotification extends Notification
             'data' => [
                 'id' => $this->post_reaction->post_id,
             ],
-            'title' => "New {$this->post_reaction->action}",
+            'title' => "{$this->post_reaction->action}d" .' '. "post",
             'message' => $message,
             'link' => $web_url,
             'type' => 'post',
