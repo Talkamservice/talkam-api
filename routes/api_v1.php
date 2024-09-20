@@ -68,7 +68,7 @@ Route::get("profile/avatars", [UserController::class, "listAvatars"])->name("ava
 Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
         Route::get("/me", [UserController::class, "me"])->name("me");
-        Route::get("/get-by-username", [UserController::class, "getByUsername"])->name("get-by-username");
+        Route::get("/get-by-username/{username}", [UserController::class, "getByUsername"])->name("get-by-username");
 
         Route::prefix("profile")->as("profile.")->group(function () {
             Route::post("/upload-avatar", [UserController::class, "uploadAvatar"])->name("upload.avatar");
