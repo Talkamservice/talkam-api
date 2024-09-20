@@ -57,7 +57,6 @@ class GroupMemberService
         return $validator->validated();
     }
 
-
     public static function create(array $data)
     {
         $data = self::validate($data);
