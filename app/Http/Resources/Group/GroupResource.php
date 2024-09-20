@@ -52,6 +52,7 @@ class GroupResource extends JsonResource
             "guidelines" => GuidelineResource::collection($this->whenLoaded("guidelines", $this->guidelines)),
             "description" => $this->description,
             "owner" => !empty($this->creator) ? UserResource::custom($this->creator) : null,
+            "pending_count" => $this->members()->status(StatusConstants::PENDING)->count(),
             "about" => $this->about,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
