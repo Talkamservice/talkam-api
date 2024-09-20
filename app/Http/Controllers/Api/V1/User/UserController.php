@@ -210,10 +210,10 @@ class UserController extends Controller
         }
     }
 
-    public function getByUsername(Request $request)
+    public function getByUsername(Request $request, $username)
     {
         try {
-            $response = $this->user_service->getByUsername($request->search);
+            $response = $this->user_service->getByUsername($username);
             $data = UserResource::custom($response);
             return ApiHelper::validResponse("User returned successfully", $data);
         } catch (ModelNotFoundException $th) {
