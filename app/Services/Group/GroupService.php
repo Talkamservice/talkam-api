@@ -280,7 +280,10 @@ class GroupService
             broadcast(new RefreshNotification($member->user_id));
 
             if ($data["action"] == StatusConstants::DECLINED) {
-                $member->delete();
+                GroupMember::where([
+                    "user_id" =>  $member->user_id,
+                    "group_id" =>  $member->group_id,
+                ])->delete();
             }
 
             DB::commit();
