@@ -279,7 +279,7 @@ class GroupService
 
             broadcast(new RefreshNotification($member->user_id));
 
-            if ($member->status == StatusConstants::DECLINED) {
+            if ($data["action"] == StatusConstants::DECLINED) {
                 $member->delete();
             }
 
