@@ -195,7 +195,7 @@ class FirebaseNotificationService
         } catch (Exception $e) {
             logger($e->getMessage(), $e->getTrace());
             throw $e;
-        }
+        }n
     }
 
     public function notify()

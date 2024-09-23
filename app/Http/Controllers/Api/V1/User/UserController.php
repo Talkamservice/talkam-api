@@ -214,7 +214,7 @@ class UserController extends Controller
     {
         try {
             $response = $this->user_service->getByUsername($username);
-            $data = UserResource::make($response);
+            $data = !empty($response) ? UserResource::make($response) : null;
             return ApiHelper::validResponse("User returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
