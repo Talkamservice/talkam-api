@@ -41,7 +41,7 @@ class PostRestorationNotification extends Notification
             ->markdown('emails.posts.suspension-remove', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "recipient_name" => $notifiable->full_name,
+                "recipient_name" => $notifiable->getName(),
             ]);
     }
 

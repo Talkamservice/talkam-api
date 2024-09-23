@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="">
-        <p>Hello {{ $recipient_name }},</p>
+        <p>Dear {{ $recipient_name }},</p>
 
         <p class="detailCont-p">
             {{ $message }}
