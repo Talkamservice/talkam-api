@@ -206,12 +206,19 @@ class GroupService
     {
         DB::beginTransaction();
         try {
-            $member = (new GroupMemberService)->create([
+            $member = GroupMember::where([
                 "group_id" => $id,
                 "user_id" => auth()->id(),
-                "role" => UserConstants::MEMBER,
-                "status" => StatusConstants::PENDING
-            ]);
+            ])->first();
+
+            if (empty($member)) {
+                $member = (new GroupMemberService)->create([
+                    "group_id" => $id,
+                    "user_id" => auth()->id(),
+                    "role" => UserConstants::MEMBER,
+                    "status" => StatusConstants::PENDING
+                ]);
+            }
 
             $member->update([
                 "status" => StatusConstants::PENDING
@@ -271,6 +278,13 @@ class GroupService
             }
 
             broadcast(new RefreshNotification($member->user_id));
+
+            if ($data["action"] == StatusConstants::DECLINED) {
+                GroupMember::where([
+                    "user_id" =>  $member->user_id,
+                    "group_id" =>  $member->group_id,
+                ])->delete();
+            }
 
             DB::commit();
         } catch (\Throwable $th) {

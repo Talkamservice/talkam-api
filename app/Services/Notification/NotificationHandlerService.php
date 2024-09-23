@@ -135,8 +135,8 @@ class NotificationHandlerService
     public function notifyMentionOfNewComment($comment)
     {
         if ($this->user->id != $comment->user_id) {
-            Notification::send($comment->user, new NewCommentTagMentionNotification($comment));
-            broadcast(new RefreshNotification($comment->user_id));
+            Notification::send($this->user, new NewCommentTagMentionNotification($comment));
+            broadcast(new RefreshNotification($this->user->id));
         }
 
         return $this;
