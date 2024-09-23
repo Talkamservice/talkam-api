@@ -45,6 +45,13 @@ class PostComment extends Model
         return $this->belongsTo(self::class, "reply_comment_id");
     }
 
+    // This method here is used to count top-level comment only
+    public function scopeTopLevel($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+
+
     public function reportedComment()
     {
         return $this->hasMany(self::class, "comment_report_id");
@@ -63,6 +70,4 @@ class PostComment extends Model
 
         return $query;
     }
-
-
 }
