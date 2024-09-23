@@ -157,7 +157,11 @@ class UserController extends Controller
     public function getProfile(Request $request)
     {
         try {
-            $response = $this->user_service->getById($request->user_id);
+            if (!empty($username = $request->username)) {
+                $response = $this->user_service->getById($username, "username");
+            } else {
+                $response = $this->user_service->getById($request->user_id);
+            }
             $data = UserResource::make($response);
             return ApiHelper::validResponse("Profile returned successfully", $data);
         } catch (ValidationException $th) {
