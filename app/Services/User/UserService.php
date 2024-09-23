@@ -145,11 +145,16 @@ class UserService
                 "avatar" => "nullable|string",
                 "interests" => "nullable|array",
                 "interests.*" => "required|exists:post_categories,id",
-                "username" => "nullable|unique:users,username,$id",
+                "username" => [
+                    'nullable',
+                    'unique:users,username,' . $id,
+                    'regex:/^[\w-]*$/', // Alphanumeric characters, underscores, and dashes allowed
+                ],
                 "age" => "nullable|numeric",
                 "password" => "nullable|string|confirmed",
             ], [
-                "username.unique" => "The username has already been taken"
+                "username.unique" => "The username has already been taken",
+                "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",
             ]);
 
             if ($validator->fails()) {
@@ -411,6 +416,9 @@ class UserService
         broadcast(new RefreshNotification($user->id));
 
         $user->refresh();
+
+        // Revoke all access tokens (for API-based logout)
+        $user->tokens()->delete();
 
         (new ActivityLogService)
             ->setEvent("banned")
