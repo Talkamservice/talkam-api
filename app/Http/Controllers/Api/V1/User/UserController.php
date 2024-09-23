@@ -213,8 +213,8 @@ class UserController extends Controller
     public function getByUsername(Request $request, $username)
     {
         try {
-            $response = $this->user_service->getByUsername($username);
-            $data = !empty($response) ? UserResource::make($response) : null;
+            $response = $this->user_service->getById($username, "username");
+            $data = UserResource::make($response);
             return ApiHelper::validResponse("User returned successfully", $data);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);

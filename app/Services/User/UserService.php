@@ -46,9 +46,9 @@ class UserService
         return app()->make(self::class);
     }
 
-    public static function getById($id): User
+    public static function getById($key, $column = "id"): User
     {
-        $model = User::where("id", $id)->first();
+        $model = User::where($column, $key)->first();
         if (empty($model)) {
             throw new ModelNotFoundException("User not found");
         }
