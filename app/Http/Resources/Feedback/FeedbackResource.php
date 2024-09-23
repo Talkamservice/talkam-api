@@ -20,6 +20,7 @@ class FeedbackResource extends JsonResource
             'email' => $this->email,
             'platform' => $this->platform,
             'content' => $this->content,
+            'feedback_type' => $this->feedback_type,
             "attachments" => FeedbackAttachmentResource::collection($this->attachments),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)

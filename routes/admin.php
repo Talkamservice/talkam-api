@@ -129,6 +129,7 @@ Route::middleware(["auth"])->group(
 
         Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
-         Route::delete('{id}/change-status', [FeedbackController::class, 'changeStatus'])->name('change-status');
+        Route::put('feedback{id}/update-status', [FeedbackController::class, 'resolveFeedback'])->name('feedback.update-status');
+        Route::post('feedback/respond/{id}', [FeedbackController::class, 'respondFeedback'])->name('feedback.respond');
     }
 );

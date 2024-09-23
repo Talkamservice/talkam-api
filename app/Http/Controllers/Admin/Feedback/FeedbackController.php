@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Feedback;
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
@@ -106,19 +107,35 @@ class FeedbackController extends Controller
         }
     }
 
-    // public function updateStatus(Request $request, $comment_report_id)
-    // {
-    //     try {
-    //         $this->feedback_service->changeStatus($request->all(), $comment_report_id);
-    //         return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "feedback status updated successfully");
-    //     } catch (ModelNotFoundException $th) {
-    //         return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
-    //     } catch (InvalidRequestException $th) {
-    //         return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
-    //     } catch (\Throwable $th) {
-    //         throw $th;
-    //         return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
-    //     }
-    // }
+    public function resolveFeedback(Request $request, $comment_report_id)
+    {
+        try {
+            $this->feedback_service->changeStatus($request->all(), $comment_report_id);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "feedback resolved successfully");
+        } catch (ModelNotFoundException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (InvalidRequestException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            // throw $th;
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+        }
+    }
+
+    public function respondFeedback(Request $request, $feedback_id)
+    {
+        try {
+            $this->feedback_service->respond($request, $feedback_id);
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "message sent successfully");
+        } catch (ModelNotFoundException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (InvalidRequestException $th) {
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
+        } catch (\Throwable $th) {
+            // throw $th;
+            return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+        }
+    }
+
 
 }

@@ -2,11 +2,22 @@
 
 namespace App\Services\Feedback;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
+use App\Constants\ActivityLog\ActivityLogConstants;
+use App\Constants\General\StatusConstants;
+use App\Events\RefreshNotification;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Mail\ResponseToFeedbackMail;
 use App\Models\Feedback;
+use App\Notifications\Feedback\ResponseToFeedbackNotification;
+use App\Services\ActivityLog\ActivityLogService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Notification;
 
 class FeedbackService
 {
@@ -19,7 +30,7 @@ class FeedbackService
 
     public static function getById($id)
     {
-        $feedback = Feedback::where("id", $id)->first();
+        $feedback = Feedback::find($id);
 
         if (empty($feedback)) {
             throw new ModelNotFoundException("Feedback not found");
@@ -36,6 +47,7 @@ class FeedbackService
             "content" => 'required|string',
             "platform" => 'required|string',
             "attachments" => "nullable|array",
+            "feedback_type" => "required|string",
         ]);
 
         if ($validator->fails()) {
@@ -56,6 +68,7 @@ class FeedbackService
                 "email" => $data["email"],
                 "content" => $data["content"],
                 "platform" => $data["platform"],
+                "feedback_type" => $data[" feedback_type"],
             ]);
 
             $attachments = $data["attachments"] ?? null;
@@ -107,11 +120,66 @@ class FeedbackService
         }
     }
 
-    public function delete($feedback_service_id)
+    public function respond(Request $request, $feedback_id)
     {
-        $feedback_service = self::getById($feedback_service_id);
-        $feedback_service->delete();
+        DB::beginTransaction();
+        try {
+            // Fetch the feedback and get user details (assuming feedback contains user info)
+            $feedback = self::getById($feedback_id);
+
+            $feedback = self::getById($feedback_id);
+            $message = $request->input('message');
+            $email = $feedback->email; // Email from feedback data
+            $recipientName = $feedback->name; // Assuming you have the recipient's name in feedback
+
+            // Send the email directly
+            Mail::to($email)->send(new ResponseToFeedbackMail($message, $recipientName));
+
+            DB::commit();
+            return $feedback->refresh();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
-    
+    public function delete($feedback_id)
+    {
+        $feedback = self::getById($feedback_id);
+        dd($feedback);
+        $feedback->delete();
+    }
+
+    public function changeStatus(array $data, $report_id)
+    {
+        DB::beginTransaction();
+        try {
+            $feedback = self::getById($report_id);
+
+            if ($feedback->status === StatusConstants::RESOLVED) {
+                throw new InvalidRequestException("You cannot make changes when you resolved a report");
+            }
+
+            $feedback->update([
+                'status' => StatusConstants::RESOLVED
+            ]);
+            // Log the activity
+            (new ActivityLogService)
+                ->setEvent("resolved")
+                ->setTitle("Resolved Feedback")
+                ->setDescription(auth()->user()?->full_name . "resolved a feedback")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::RESOLVED_FEEDBACK)
+                ->setModel(Feedback::class, $feedback->id)
+                ->setAdmin(auth()->user()?->id)
+                ->setData(["Feedback" => $feedback->refresh()->toArray()])
+                ->setUrl(request()->fullUrl())
+                ->log();
+            DB::commit();
+            return $feedback->refresh();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
 }
