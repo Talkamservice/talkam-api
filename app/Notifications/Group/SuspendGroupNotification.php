@@ -5,7 +5,8 @@ namespace App\Notifications\Group;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
+use Illuminate\Notifications\Messages\MailMessage;
+use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class SuspendGroupNotification extends Notification implements ShouldQueue
@@ -13,14 +14,16 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
     use Queueable;
 
 
-    public function __construct(public $group, public $reason, public $duration)
+    public function __construct(public $group, public $duration, public $reason)
     {
-         // No need for extra assignment; public properties are automatically assigned
+        // dd($group, $duration, $reason);
+        // No need for extra assignment; public properties are automatically assigned
     }
 
     public function via(object $notifiable): array
     {
-        return MethodsHelper::userNotificationPreference($notifiable);
+        return ['mail', 'database', 'firebase'];
+        // return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -60,12 +63,13 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
 
     protected function buildData($notifiable): array
     {
+        $message = "Your group has been suspended for {$this->duration} days.<br>The suspension is due to the following reason:<br>{$this->reason}.";
         return [
             'data' => [
                 'id' => $this->group->id,
             ],
             'title' => "Group Suspension Notice!",
-            'message' => "Your group '{$this->group->name}' has been suspended due to reported violations for '{$this->duration}'. Reason: {$this->reason}",
+            'message' => $message,
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,

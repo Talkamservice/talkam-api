@@ -5,7 +5,7 @@
         <p>Hello {{ $recipient_name }},</p>
 
         <p class="detailCont-p">
-            We wanted to inform you that your group "<strong>{{ $group_name }}</strong>" has been unsuspended.
+            {!! $message !!}
         </p>
 
         <p class="detailCont-ps">
