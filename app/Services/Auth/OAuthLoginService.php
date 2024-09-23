@@ -62,7 +62,7 @@ class OAuthLoginService
 
             $payload = [
                 "email" => $userData->email,
-                "name" => trim($userData->user['given_name'] . " " . $userData->user['family_name'] ?? null),
+                "name" => trim($userData->user['given_name'] . " " . ($userData->user['family_name'] ?? null)),
             ];
 
             return $payload;
