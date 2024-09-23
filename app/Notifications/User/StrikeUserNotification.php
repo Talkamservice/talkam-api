@@ -41,7 +41,7 @@ class StrikeUserNotification extends Notification
             ->markdown('emails.rules.index', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "recipient_name" => $notifiable->full_name,
+                "recipient_name" => $notifiable->getName(),
             ]);
     }
 

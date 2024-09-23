@@ -9,11 +9,11 @@
         </p>
 
         <p class="detailCont-ps">
-            Click on this <span><a class="link" href="{{ config("app.web_url") . "/help&info/rules" }}">link</a></span> to view TalkAM rules and privacy policies.
+            To appeal, visit <span><a class="link" href="{{ config("app.web_url") . "/help&info/feedback" }}"></a></span>.
         </p>
 
         <p class="detailCont-p">
-            Regards, <br>Talkam Team
+            Sincerely, <br>Talkam Team
         </p>
     </div>
 @endsection

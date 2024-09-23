@@ -38,10 +38,10 @@ class BannedUserNotification extends Notification
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data["title"])
-            ->markdown('emails.rules.index', [
+            ->markdown('emails.user.ban', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "recipient_name" => $notifiable->full_name,
+                "recipient_name" => $notifiable->getName(),
             ]);
     }
 
@@ -81,7 +81,7 @@ class BannedUserNotification extends Notification
                 'id' => $this->user->id,
             ],
             'title' => "Account Banned!",
-            'message' => "You have been banned for failing to comply with Talkam's rules and policies. {$this->ban_reason}. You can appeal this action by contacting our support.",
+            'message' => "Your" . config('app.name') . "account have been banned for. {$this->ban_reason}.",
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,

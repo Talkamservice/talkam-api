@@ -41,7 +41,7 @@ class PostSuspensionNotification extends Notification
             ->markdown('emails.posts.suspended', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "recipient_name" => $notifiable->full_name ?? $notifiable->username,
+                "recipient_name" => $notifiable->getName(),
             ]);
     }
 
