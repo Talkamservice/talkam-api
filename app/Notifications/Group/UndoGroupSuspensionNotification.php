@@ -20,7 +20,8 @@ class UndoGroupSuspensionNotification extends Notification implements ShouldQueu
 
     public function via(object $notifiable): array
     {
-        return MethodsHelper::userNotificationPreference($notifiable);
+        return ['mail', 'database', 'firebase'];
+        // return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -28,7 +29,7 @@ class UndoGroupSuspensionNotification extends Notification implements ShouldQueu
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data['title'])
-            ->markdown('emails.group.suspend-group', [
+            ->markdown('emails.group.unsuspend-group', [
                 'title' => $data['title'],
                 'message' => $data['message'],
                 "group_name" => $this->group->name,

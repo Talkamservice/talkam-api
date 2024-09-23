@@ -101,6 +101,7 @@ class GroupReportService
 
     public function suspendOrBanGroup(Request $request, $group_id)
     {
+        // dd($request->all());
         DB::beginTransaction();
         try {
             $group = Group::find($group_id);
@@ -121,7 +122,7 @@ class GroupReportService
                 $group->update(['status' => StatusConstants::BANNED]);
 
                 $user = $group->creator;
-
+               
                 if (!empty($user)) {
                     Notification::send($user, new SuspendGroupNotification($group, null, "Your group has been banned for the following reason: {$reason}."));
                     broadcast(new RefreshNotification($user->id));
@@ -160,6 +161,7 @@ class GroupReportService
                 $group->update(['status' => StatusConstants::SUSPENDED]);
 
                 $user = $group->members()->where('role', UserConstants::OWNER)->first()->user;
+                // dd($user);
                 Notification::send($user, new SuspendGroupNotification($group, $duration, $reason));
                 broadcast(new RefreshNotification($user->id));
 

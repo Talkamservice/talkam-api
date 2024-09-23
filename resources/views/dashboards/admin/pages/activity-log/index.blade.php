@@ -45,7 +45,7 @@
                                     @foreach ($activity_logs as $log)
                                         <tr>
                                             <td>{{ $sn++ }}</td>
-                                            <td>{{ $log->user->full_name ?? 'N/A' }}</td>
+                                            <td>{{ $log->user->email ?? 'N/A' }}</td>
                                             <td>{{ $log->title }}</td>
                                             <td>{{ $log->channel }}</td>
                                             <td>{{ $log->model }}</td>

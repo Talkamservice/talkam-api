@@ -102,7 +102,7 @@ class PostCommentService
         }
 
         if (($data["type"] ?? null) != "all") {
-            $builder = $builder->whereNull("parent_id");
+            $builder = $builder->where("parent_id");
         }
 
         return $builder;

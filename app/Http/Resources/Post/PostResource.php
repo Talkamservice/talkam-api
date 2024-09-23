@@ -46,7 +46,7 @@ class PostResource extends JsonResource
             "tags" => $this->tags,
             "is_reported" => $is_reported,
             "views_count" => $this->views_count,
-            "comments_count" => $this->comments?->count(),
+            "comments_count" => $this->comments()->topLevel()->count(),  // Counts only top-level comments
             "likes_count" => $likes,
             "status" => $this->status,
             "publish_at" => $this->publish_at,
