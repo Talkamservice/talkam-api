@@ -189,6 +189,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
 Route::get("user/terms-and-conditions", [TermAndConditionController::class, "index"])->name("terms-and-conditions.list");
 Route::get("user/privacy-policies", [PrivacyPolicyController::class, "index"])->name("privacy-policies.list");
 Route::post("user/feedback", [FeedbackController::class, "save"])->name("feedback.save");
+Route::post("user/feedback-options", [FeedbackController::class, "feedbackOptions"])->name("feedback-options");
 Route::get("user/faqs", [FaqController::class, "index"])->name("faqs.index");
 Route::post("user/waitlist/save", [WaitlistController::class, "save"])->name("waitlist.save");
 

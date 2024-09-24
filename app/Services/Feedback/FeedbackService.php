@@ -181,4 +181,20 @@ class FeedbackService
             throw $th;
         }
     }
+
+    public static function list(array $data = [])
+    {
+        $query = Feedback::query();
+
+        // Apply search filters
+        if (!empty($key = $data["search"] ?? null)) {
+            $query->where(function ($query) use ($key) {
+                $query->where("feedback_type", "LIKE", "%$key%")
+                ->orWhere("platform", "LIKE", "%$key%")
+                    ->orWhere("status", "LIKE", "%$key%");
+            });
+        }
+
+        return $query;
+    }
 }

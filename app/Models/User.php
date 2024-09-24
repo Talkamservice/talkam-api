@@ -179,4 +179,14 @@ class User extends Authenticatable
             return false;
         };
     }
+
+    public function isBanned()
+    {
+        return $this->status === StatusConstants::BANNED;
+    }
+
+    public function isSuspended()
+    {
+        return $this->status === StatusConstants::INACTIVE;
+    }
 }

@@ -21,8 +21,8 @@ class GroupMemberResource extends JsonResource
             "id" => $this->id,
             "role" => $this->role,
             "status" => $this->status,
-            "suspension_ends_at" => $this->suspension_ends_at,
-            "is_suspended" => $this?->status == StatusConstants::SUSPENDED,
+            "suspension_ends_at" => $this->suspension_end,
+            "is_suspended" => $this->isSuspended(),
             "is_banned" => $this?->status == StatusConstants::BANNED,
             "group" => GroupResource::custom($this->group),
             "user" => UserResource::custom($this->user),
@@ -30,4 +30,5 @@ class GroupMemberResource extends JsonResource
             "updated_at" => formatDate($this->updated_at)
         ];
     }
+
 }

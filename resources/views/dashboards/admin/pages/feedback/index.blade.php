@@ -25,13 +25,14 @@
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
                             <label for="">Search(Type, Status, or Platform)</label>
-                            <input class="form-control" type="text" placeholder="Search...." name="search">
+                            <input class="form-control" type="text" value="{{ request('search') }}" placeholder="Search...."
+                                name="search">
                         </div>
                         <div class="form-group me-2" style="margin-top: 20px;">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
-                   
+
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -54,7 +55,7 @@
                                         <td>{{ $feedback->name }}</td>
                                         <td>{{ $feedback->email }}</td>
                                         <td>{{ $feedback->platform }}</td>
-                                        <td>{{ $feedback->feedback_type ?? "N/A" }}</td>
+                                        <td>{{ $feedback->feedback_type ?? 'N/A' }}</td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#feedbackContent_{{ $feedback->id }}">

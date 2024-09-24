@@ -71,7 +71,11 @@ class UserService
             "last_name" => "nullable|string",
             "role" => "nullable|" . Rule::in(UserConstants::ROLES),
             "email" => "required|email|unique:users,email,$id|" . Rule::requiredIf(empty($id)),
-            "username" => "nullable|string|unique:users,username,$id",
+            "username" => [
+                    'nullable',
+                    'unique:users,username,' . $id,
+                    'regex:/^[\w-]*$/', // Alphanumeric characters, underscores, and dashes allowed
+                ],
             "status" => "nullable|string",
             'password' => [Rule::requiredIf(empty($id))],
             "phone_number" => "nullable",
@@ -79,6 +83,7 @@ class UserService
         ], [
             'email.unique' => "The email address has already been used by another user",
             'username.unique' => "The email address has already been used by another user",
+            "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",
         ]);
 
         if ($validator->fails()) {
@@ -334,7 +339,7 @@ class UserService
         if ($status === StatusConstants::INACTIVE) {
             $user->update([
                 'suspend_ban_reason' => $suspension_reason,
-                'suspension_duration' => $suspension_end,
+                'suspension_end' => $suspension_end,
                 "status" => $status
             ]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, $suspension_reason, $suspension_end->toFormattedDateString()));
@@ -355,6 +360,8 @@ class UserService
                 ->log();
         } else {
             $user->update([
+                'suspend_ban_reason' => null,
+                'suspension_end' => null,
                 "status" => $status
             ]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, null, null));

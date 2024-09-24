@@ -26,7 +26,11 @@ class FeedbackController extends Controller
      */
     public function index(Request $request)
     {
-        $feedbacks = Feedback::latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $data = [
+            'search' => $request->get('search'),
+            'date' => $request->get('date')
+        ];
+        $feedbacks = $this->feedback_service->list($data)->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view('dashboards.admin.pages.feedback.index', [
             "feedbacks" => $feedbacks,
             "boolOptions" => AppConstants::BOOL_OPTIONS,
@@ -136,6 +140,4 @@ class FeedbackController extends Controller
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
-
-
 }
