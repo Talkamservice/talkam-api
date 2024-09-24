@@ -91,13 +91,13 @@
                                                             <i class="ri-alert-line"></i> | Respond
                                                         </a>
                                                     </li>
-                                                    {{-- <li>
+                                                    <li>
                                                         <a class="dropdown-item text-danger" href="#"
-                                                            onclick="openDeleteModal('delete', '{{ route('admin.feedbacks.destroy', $feedback->id) }}')"
+                                                            onclick="openDeleteModal('{{ route('admin.feedbacks.destroy', $feedback->id) }}')"
                                                             data-bs-toggle="tooltip" title="Mark this report as resolved">
                                                             <i class="ri-delete-bin-line"></i> | Delete
                                                         </a>
-                                                    </li> --}}
+                                                    </li>
                                             </div>
                                         </td>
                                     </tr>
