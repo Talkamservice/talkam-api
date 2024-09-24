@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Feedback;
 
+use App\Constants\General\AppConstants;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class FeedbackResource extends JsonResource
@@ -21,6 +22,7 @@ class FeedbackResource extends JsonResource
             'platform' => $this->platform,
             'content' => $this->content,
             'feedback_type' => $this->feedback_type,
+            'feedback_type_options' => AppConstants::FEEDBACK_TYPE_OPTIONS, // Reference the constant
             "attachments" => FeedbackAttachmentResource::collection($this->attachments),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)

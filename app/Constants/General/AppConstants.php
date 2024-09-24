@@ -28,7 +28,7 @@ class AppConstants
     const PILL_CLASSES = [
         StatusConstants::COMPLETED => "success",
         StatusConstants::SUCCESSFUL => "success",
-        StatusConstants::PENDING => "primary",
+        StatusConstants::PENDING => "warning",
         StatusConstants::PROCESSING => "info",
         StatusConstants::SUSPENDED => "warning",
         StatusConstants::ACTIVE => "success",
@@ -62,5 +62,11 @@ class AppConstants
     const BOOLEAN_OPTIONS = [
         true => "Yes",
         false => "No"
+    ];
+
+    const FEEDBACK_TYPE_OPTIONS = [
+        'Unban Request',
+        'Bugs',
+        'Other',
     ];
 }
