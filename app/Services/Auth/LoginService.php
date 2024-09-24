@@ -50,11 +50,18 @@ class LoginService
         if (!Hash::check($data["password"], $user->password)) {
             throw new AuthException("Incorrect password provided.");
         }
+        // Return this response when user account is banned
+        if ($user->isBanned()) {
+            throw new AuthException("This account is currently banned");
+        }
+        if ($user->isSuspended()) {
+            throw new AuthException("This account is currently suspended till " . $user->suspension_end->toFormattedDateString());
+        }
 
         if ($user->isDisabled()) {
             throw new AuthException("Account disabled");
         }
-        
+
         if (!empty($token = $data["fcm_token"] ?? null)) {
             $user->update([
                 "fcm_token" => $token

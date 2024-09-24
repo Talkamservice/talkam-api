@@ -250,7 +250,6 @@ class GroupMemberService
                 'suspension_end' => $data['suspension_end'],
                 'status' => StatusConstants::SUSPENDED,
             ]);
-            Log::info('Group Member User: ', [$group_member->user]);
 
             $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
             Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));

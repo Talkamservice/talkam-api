@@ -36,50 +36,43 @@
             <div class="col-xxl-12 col-xl-12">
                 <div class="row">
                     @foreach ($cards as $index => $card)
-                        <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-3" id="stats-content">
-                            <div class="card custom-card overflow-hidden">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-top justify-content-between">
+                        <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-3" id="stats-content">
+                            <div class="card custom-card h-100 overflow-hidden">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
                                         <div>
                                             <span class="avatar avatar-md avatar-rounded bg-{{ $card['class'] }}">
                                                 <i class="ti ti-{{ $card['icon'] ?? 'udrtd' }} fs-16"></i>
                                             </span>
                                         </div>
                                         <div class="flex-fill ms-3">
-                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                <div>
-                                                    <p class="text-muted mb-0">{{ $card['title'] }}</p>
-                                                    <h4 class="fw-semibold mt-1">{{ $card['value'] }}</h4>
-                                                </div>
-                                                <div id="crm-total-customers-{{ $index }}" class="chart"></div>
-                                                <!-- Unique ID -->
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-between mt-1">
-                                                <div>
-                                                    @if (!empty($card['url']))
-                                                        <a class="text-{{ $card['class'] }}" href="{{ $card['url'] }}">
-                                                            View All
-                                                            <i
-                                                                class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
-                                                        </a>
-                                                    @endif
-                                                </div>
-                                                <div class="text-end">
-                                                    <p
-                                                        class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
-                                                        {{ $card['percentage'] >= 0 ? '+' : '' }}{{ $card['percentage'] }}%
-                                                    </p>
-                                                    <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span>
-                                                </div>
-                                            </div>
+                                            <p class="text-muted mb-0">{{ $card['title'] }}</p>
+                                            <h4 class="fw-semibold mt-1">{{ $card['value'] }}</h4>
+                                        </div>
+                                        <div id="crm-total-customers-{{ $index }}" class="chart"></div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between mt-auto">
+                                        <div>
+                                            @if (!empty($card['url']))
+                                                <a class="text-{{ $card['class'] }}" href="{{ $card['url'] }}">
+                                                    View All
+                                                    <i class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
+                                                </a>
+                                            @endif
+                                        </div>
+                                        <div class="text-end">
+                                            <p class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
+                                                {{ $card['percentage'] >= 0 ? '+' : '' }}{{ $card['percentage'] }}%
+                                            </p>
+                                            <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @endforeach
-
                 </div>
+                
                 <!-- Other Content Sections -->
                 <div class="row">
                     <div class="col-12 col-md-7 col-lg-7 col-xl-7 col-xxl-7">

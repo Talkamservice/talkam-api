@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Feedback;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
 use App\Exceptions\General\GeneralException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -48,6 +49,16 @@ class FeedbackController extends Controller
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE,  $request, $e);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $e);
+        }
+    }
+
+    public function feedbackOptions(Request $request)
+    {
+        try {
+            $data = AppConstants::FEEDBACK_TYPE_OPTIONS;
+            return ApiHelper::validResponse("Feedback options returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, $request, $e);
         }
     }
 }

@@ -189,7 +189,7 @@ class PostCategoryService
 
     public static function subCategoryList(array $data = [])
     {
-        $categories = PostCategory::with(["user"])->whereNotNull("category_id");
+        $categories = PostCategory::with(["user"])->whereNotNull("category_id")->latest();
 
         if (!empty($key = $data["search"] ?? null)) {
             $categories = $categories->where("name", "LIKE", "%$key%");

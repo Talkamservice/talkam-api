@@ -32,9 +32,18 @@ class GroupMember extends Model
             $query->whereHas("user", function ($user) use ($key) {
                 $user->search($key);
             })
-            ->orwhereHas("group", function ($group) use ($key) {
-                $group->search($key);
-            });
+                ->orwhereHas("group", function ($group) use ($key) {
+                    $group->search($key);
+                });
         });
+    }
+
+    public function isSuspended()
+    {
+        if ($this->status === StatusConstants::INACTIVE) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
