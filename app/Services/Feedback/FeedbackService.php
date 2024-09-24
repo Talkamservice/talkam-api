@@ -68,7 +68,7 @@ class FeedbackService
                 "email" => $data["email"],
                 "content" => $data["content"],
                 "platform" => $data["platform"],
-                "feedback_type" => $data[" feedback_type"],
+                "feedback_type" => $data["feedback_type"],
             ]);
 
             $attachments = $data["attachments"] ?? null;
@@ -146,7 +146,6 @@ class FeedbackService
     public function delete($feedback_id)
     {
         $feedback = self::getById($feedback_id);
-        dd($feedback);
         $feedback->delete();
     }
 
