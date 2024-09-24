@@ -21,10 +21,10 @@
         <!-- Start::row-1 -->
         <div class="col-xl-12">
             <div class="card custom-card">
-                {{-- <div class="card-header d-flex justify-content-between">
+                <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
-                            <label for="">Search</label>
+                            <label for="">Search(Type, Status, or Platform)</label>
                             <input class="form-control" type="text" placeholder="Search...." name="search">
                         </div>
                         <div class="form-group me-2" style="margin-top: 20px;">
@@ -32,7 +32,7 @@
                         </div>
                     </form>
                    
-                </div> --}}
+                </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
@@ -41,8 +41,9 @@
                                     <th scope="col">Name</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Platform</th>
+                                    <th scope="col">Type</th>
                                     <th scope="col">Content</th>
-                                    {{-- <th scope="col">Status</th> --}}
+                                    <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
                                 </tr>
@@ -53,6 +54,7 @@
                                         <td>{{ $feedback->name }}</td>
                                         <td>{{ $feedback->email }}</td>
                                         <td>{{ $feedback->platform }}</td>
+                                        <td>{{ $feedback->feedback_type ?? "N/A" }}</td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#feedbackContent_{{ $feedback->id }}">
