@@ -26,7 +26,7 @@ class ConversationResource extends JsonResource
             "notification_status" => $this->notification_status,
             "is_anonymous" => $this->is_anonymous,
             "requested_by" => UserResource::custom($this->user),
-            "user_is_banned" => $other_member?->status == StatusConstants::BANNED,
+            "user_is_banned" => $other_member?->user?->status == StatusConstants::BANNED,
             "user_blocked" => isBlocked(auth()->id(), $other_member?->user_id),
             "i_am_blocked" => isBlocked($other_member?->user_id, auth()->id()),
             "status" => $this->status
