@@ -29,7 +29,7 @@ class SuspendGroupMemberNotification extends Notification
             ->markdown('emails.group.suspend-member', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                'recipient_name' => $notifiable->full_name,
+                'recipient_name' => $notifiable->getName(),
             ]);
     }
 
@@ -63,7 +63,7 @@ class SuspendGroupMemberNotification extends Notification
             'data' => [
                 'id' => $this->group_member->group_id,
             ],
-            'title' => "Suspension Notice",
+            'title' => "Group Suspension Notice",
             'message' => $this->message,
             'link' => null,
             'type' => 'notification',

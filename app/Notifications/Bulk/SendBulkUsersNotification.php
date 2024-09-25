@@ -41,7 +41,7 @@ class SendBulkUsersNotification extends Notification implements ShouldQueue
             ->markdown('emails.bulk.notification', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "recipient_name" => $notifiable->full_name,
+                "recipient_name" => $notifiable->getName(),
             ]);
     }
 

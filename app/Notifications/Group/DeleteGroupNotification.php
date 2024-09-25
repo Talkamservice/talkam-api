@@ -32,7 +32,7 @@ class DeleteGroupNotification extends Notification implements ShouldQueue
                 'title' => $data['title'],
                 'message' => $data['message'],
                 "group_name" => $this->group->name,
-                'recipient_name' => $notifiable->full_name,
+                'recipient_name' => $notifiable->getName(),
             ]);
     }
 

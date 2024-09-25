@@ -81,7 +81,7 @@ class BannedUserNotification extends Notification
                 'id' => $this->user->id,
             ],
             'title' => "Account Banned!",
-            'message' => "Your " . config('app.name') . " account have been banned for {$this->ban_reason}.",
+            'message' => "We are writing to inform you that your " . config('app.name') . " account has been banned due to {$this->ban_reason}.",
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,

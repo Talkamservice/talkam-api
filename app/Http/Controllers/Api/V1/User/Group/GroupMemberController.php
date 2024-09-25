@@ -184,8 +184,8 @@ class GroupMemberController extends Controller
     public function suspendMember(Request $request, $id)
     {
         try {
-           $message = $this->group_member_service->suspendMember($request->all(), $id);
-            return ApiHelper::validResponse($message);
+           $this->group_member_service->suspendMember($request->all(), $id);
+            return ApiHelper::validResponse("Group member has been suspended successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {

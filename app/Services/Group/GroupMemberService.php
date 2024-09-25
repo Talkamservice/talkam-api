@@ -216,48 +216,19 @@ class GroupMemberService
         }
     }
 
-    public function suspendMember(array $data = [], $id)
+    public function suspendMember($id)
     {
         DB::beginTransaction();
         try {
-
-            $validator = Validator::make($data, [
-                "suspension_reason" => "required|string",
-                'suspension_end'  => "required|date_format:Y-m-d",
-            ]);
-
-            if ($validator->fails()) {
-                throw new ValidationException($validator);
-            }
-
-            $data = $validator->validated();
-
             $group_member = self::getById($id);
-            $suspensionReason = $data['suspension_reason'];
-            $suspensionDuration = $data['suspension_end']; // Date input for suspension end
-            // Calculate the suspension end date from the input duration
-            $suspensionEnd = Carbon::parse($suspensionDuration); // Convert input date to Carbon
-            $now = Carbon::now();
-
-            if ($suspensionEnd->lessThanOrEqualTo($now)) {
-                return 'Invalid suspension date. The date must be in the future.';
-            }
-
-            $days = $now->diffInDays($suspensionEnd); // Calculate the number of days
-
             $group_member->update([
-                'suspension_reason' => $data['suspension_reason'],
-                'suspension_end' => $data['suspension_end'],
                 'status' => StatusConstants::SUSPENDED,
             ]);
-
-            $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
+            $message = "You have been suspended until by {$group_member->group->name} group moderator for failing to comply with " . config('app.name') . " rules and guidelines.";
             Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
             broadcast(new RefreshNotification($group_member->user_id));
-
-
             DB::commit();
-            return 'Group member has been suspended for ' . $days . ' days.';
+            return $group_member;
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
