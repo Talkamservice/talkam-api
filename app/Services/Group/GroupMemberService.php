@@ -177,7 +177,7 @@ class GroupMemberService
         $builder = GroupMember::where("group_id", $group_id);
 
         $data = array_map(function ($role) use ($builder) {
-            $group_members = $builder->clone()->where("role", $role)->with("user")->status()->get()->sortByDesc("name");
+            $group_members = $builder->clone()->where("role", $role)->with("user")->whereIn("status", [StatusConstants::ACTIVE, StatusConstants::SUSPENDED])->get()->sortByDesc("name");
             return GroupMemberResource::collection($group_members);
         }, UserConstants::GROUP_ROLES);
 
