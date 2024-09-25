@@ -240,7 +240,7 @@ class GroupMemberService
             Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
             broadcast(new RefreshNotification($group_member->user_id));
             DB::commit();
-            return $group_member;
+            return $group_member->refresh();
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
