@@ -29,7 +29,7 @@ class LoginService
 
     public static function authenticate($data)
     {
-        $type = filter_var($data["input"], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $type = filter_var($data["input"] ?? null, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $validator = Validator::make($data, [
             'fcm_token' => 'nullable|string',
