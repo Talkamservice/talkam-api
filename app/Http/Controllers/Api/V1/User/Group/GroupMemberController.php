@@ -185,8 +185,8 @@ class GroupMemberController extends Controller
     public function suspendMember(Request $request, $id)
     {
         try {
-          $group_member = $this->group_member_service->suspendMember($id);
-           $status = $group_member->status == StatusConstants::SUSPENDED ? strtolower(StatusConstants::SUSPENDED) : strtolower(StatusConstants::UNSUSPENDED);
+            $group_member = $this->group_member_service->suspendMember($id);
+            $status = $group_member->status == StatusConstants::SUSPENDED ? strtolower(StatusConstants::SUSPENDED) : strtolower(StatusConstants::UNSUSPENDED);
             return ApiHelper::validResponse("Group member has been $status successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
