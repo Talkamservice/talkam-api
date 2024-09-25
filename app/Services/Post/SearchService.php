@@ -61,6 +61,18 @@ class SearchService
         $search->delete();
     }
 
+    public static function deleteAll(array $data = [])
+    {
+        $builder = TrendingSearch::query();
+        // Check if a user_id is provided in the data and filter the results accordingly
+        if (!empty($data["user_id"])) {
+            $builder->where("user_id", $data["user_id"]);
+        }
+        // Perform the delete operation for the filtered results
+        $builder->delete();
+    }
+    
+
     public static function trending()
     {
         $builder = TrendingSearch::whereBetween('created_at', [now()->copy()->subDays(2)->format("Y-m-d H:i:s"), now()->format("Y-m-d H:i:s")])
