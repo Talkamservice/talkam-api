@@ -240,18 +240,17 @@ class GroupMemberService
             $now = Carbon::now();
 
             if ($suspensionEnd->lessThanOrEqualTo($now)) {
-                return 'Invalid suspension date. The date must be in the future.';
+                throw new InvalidRequestException('Invalid suspension date. The date must be in the future.');
             }
 
-            $days = $now->diffInDays($suspensionEnd); // Calculate the number of days
-
+            $days = $now->diffInDays($suspensionEnd) + 1; // Calculate the number of days
             $group_member->update([
                 'suspension_reason' => $data['suspension_reason'],
                 'suspension_end' => $data['suspension_end'],
                 'status' => StatusConstants::SUSPENDED,
             ]);
 
-            $message = "You have been suspended for {$days} days until {$suspensionEnd->toFormattedDateString()} for the following reason: {$suspensionReason}.";
+            $message = "You have been suspended until {$suspensionEnd->toFormattedDateString()} by {$group_member->group->name} group moderator for failing to comply with " . config('app.name') . " rules and guidelines: {$suspensionReason}.";
             Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
             broadcast(new RefreshNotification($group_member->user_id));
 

@@ -87,7 +87,7 @@ class NewPostReactionNotification extends Notification
             ->count();
 
         if ($total_actions == 0) {
-            $message = "{$action_by} " . strtolower($this->post_reaction->action) . " your post.";
+            $message = "{$action_by} " . strtolower($this->post_reaction->action) . "d your post.";
         }else {
             $message = "{$action_by} and {$total_actions} others " . strtolower($this->post_reaction->action) . "d your post.";
         }
