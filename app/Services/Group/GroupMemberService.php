@@ -191,7 +191,7 @@ class GroupMemberService
         $builder = GroupMember::where("group_id", $group_id);
 
         $data = array_map(function ($role) use ($builder) {
-            $group_members = $builder->clone()->where("role", $role)->with("user")->status()->get()->sortByDesc("name");
+            $group_members = $builder->clone()->where("role", $role)->with("user")->whereIn("status", [StatusConstants::ACTIVE, StatusConstants::SUSPENDED])->get()->sortByDesc("name");
             return GroupMemberResource::collection($group_members);
         }, UserConstants::GROUP_ROLES);
 
@@ -235,14 +235,26 @@ class GroupMemberService
         DB::beginTransaction();
         try {
             $group_member = self::getById($id);
+
+            if ($group_member->status == StatusConstants::SUSPENDED) {
+                $status = StatusConstants::ACTIVE;
+            } else {
+                $status = StatusConstants::SUSPENDED;
+            }
+
             $group_member->update([
-                'status' => StatusConstants::SUSPENDED,
+                'status' => $status,
             ]);
-            $message = "You have been suspended until by {$group_member->group->name} group moderator for failing to comply with " . config('app.name') . " rules and guidelines.";
+
+            if ($group_member->status == StatusConstants::SUSPENDED) {
+                $message = "You have been suspended by {$group_member->group->name} group moderator for failing to comply with " . config('app.name') . " rules and guidelines.";
+            } else {
+                $message = "You have been unsuspended by {$group_member->group->name} group moderator. Please ensure that you comply with the rules and guidelines of " . config('app.name') . " moving forward to avoid any further actions.";
+            }
             Notification::send($group_member->user, new SuspendGroupMemberNotification($group_member, $message));
             broadcast(new RefreshNotification($group_member->user_id));
             DB::commit();
-            return $group_member;
+            return $group_member->refresh();
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;

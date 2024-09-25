@@ -44,6 +44,7 @@ class StatusConstants
     const ACTIVATED = "Activated";
     const CLOSED = "Closed";
     const BANNED = "Banned";
+    const UNSUSPENDED = "Unsuspended";
     const ACTIVE_OPTIONS = [
         self::ACTIVE => "Active",
         self::INACTIVE => "Inactive",

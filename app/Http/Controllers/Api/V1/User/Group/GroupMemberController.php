@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User\Group;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
+use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -184,8 +185,9 @@ class GroupMemberController extends Controller
     public function suspendMember(Request $request, $id)
     {
         try {
-           $this->group_member_service->suspendMember($request->all(), $id);
-            return ApiHelper::validResponse("Group member has been suspended successfully");
+          $group_member = $this->group_member_service->suspendMember($id);
+           $status = $group_member->status == StatusConstants::SUSPENDED ? strtolower(StatusConstants::SUSPENDED) : strtolower(StatusConstants::UNSUSPENDED);
+            return ApiHelper::validResponse("Group member has been $status successfully");
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {

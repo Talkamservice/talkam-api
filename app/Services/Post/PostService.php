@@ -215,7 +215,7 @@ class PostService
                         $query->orWhere('title', 'like', "%{$tag}%")
                             ->orWhere('body', 'like', "%{$tag}%");
                     }
-                });
+                })->latest();
             }
 
             if ($key == "featured") {
@@ -224,7 +224,7 @@ class PostService
                         $query->orWhere('title', 'like', "%{$tag}%")
                             ->orWhere('body', 'like', "%{$tag}%");
                     }
-                })->limit(10);
+                })->latest()->limit(10);
             }
         }
 
