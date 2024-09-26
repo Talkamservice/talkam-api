@@ -7,6 +7,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Group;
 use App\Models\Post;
 use App\Models\TrendingSearch;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -63,15 +64,22 @@ class SearchService
 
     public static function deleteAll(array $data = [])
     {
-        $builder = TrendingSearch::query();
-        // Check if a user_id is provided in the data and filter the results accordingly
+        // Check if user_id is provided
         if (!empty($data["user_id"])) {
-            $builder->where("user_id", $data["user_id"]);
+            // Build the query and filter by user_id
+            $builder = TrendingSearch::where("user_id", $data["user_id"]);
+            $deleted = $builder->delete();
+            if ($deleted) {
+                return "Items deleted successfully.";
+            } else {
+                return "No search items found for this user.";
+            }
+        } else {
+            throw new Exception("User ID is required to delete searches.");
         }
-        // Perform the delete operation for the filtered results
-        $builder->delete();
     }
-    
+
+
 
     public static function trending()
     {
@@ -89,7 +97,7 @@ class SearchService
         $builder = TrendingSearch::query();
 
         if (!empty($key = $data["user_id"] ?? null)) {
-           $builder = $builder->where("user_id", $key);
+            $builder = $builder->where("user_id", $key);
         }
 
         $builder = $builder->latest();
@@ -163,7 +171,7 @@ class SearchService
         $builder = TrendingSearch::query();
 
         if (!empty($key = $data["search"] ?? null)) {
-           $builder = $builder->search($key);
+            $builder = $builder->search($key);
         }
 
         $builder = $builder->latest();
