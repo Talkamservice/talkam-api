@@ -221,6 +221,7 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get("suggestions", [SearchController::class, "suggestions"])->name("suggestions");
         Route::delete("{id}/delete", [SearchController::class, "destroy"])->name("destroy");
         Route::get("/username", [UserController::class, "search"])->name("search");
+        Route::delete("delete-all", [SearchController::class, "DeleteAllSearch"])->name("recent.delete-all");
     });
 
     Route::prefix("announcements")->as("announcements.")->group(function () {

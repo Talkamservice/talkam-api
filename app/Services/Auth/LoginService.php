@@ -54,9 +54,15 @@ class LoginService
         if ($user->isBanned()) {
             throw new AuthException("This account is currently banned");
         }
+        
         if ($user->isSuspended()) {
-            throw new AuthException("This account is currently suspended till " . $user->suspension_end->toFormattedDateString());
+            $suspensionEnd = $user->suspension_end 
+                ? $user->suspension_end->toFormattedDateString() 
+                : 'indefinitely';
+        
+            throw new AuthException("This account is currently suspended till " . $suspensionEnd);
         }
+        
 
         if ($user->isDisabled()) {
             throw new AuthException("Account disabled");
