@@ -147,18 +147,14 @@ class GroupMemberService
             $data = $validator->validated();
 
             $member = $this->getById($id);
-            // Check if the role is changing from Admin to Member
-            if ($member->role === UserConstants::ADMIN && isset($data['role']) && $data['role'] === UserConstants::MEMBER) {
-                // Update the member's role
-                $member->update($data);
-
-                // Send notification about the role change
-                Notification::send($member->user, new ChangedGroupMemberRoleNotification($member));
-            } else {
-                // If role hasn't changed from Admin to Member, just update without sending notification
-                $member->update($data);
+            $oldRole = $member->role; // Get the old role before updating
+            // Update the member's role
+            $member->update($data);
+            $newRole = $data['role'] ?? $oldRole; // Get the new role, or default to the old role
+            // Determine if the role has changed from Admin to Member or vice versa
+            if ($oldRole !== $newRole) {
+                Notification::send($member->user, new ChangedGroupMemberRoleNotification($member, $oldRole));
             }
-            Notification::send($member->user, new ChangedGroupMemberRoleNotification($member));
             DB::commit();
             return $member;
         } catch (\Throwable $th) {
