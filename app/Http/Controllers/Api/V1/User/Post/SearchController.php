@@ -29,7 +29,7 @@ class SearchController extends Controller
     {
         try {
             $response = $this->search_service->search($request->all());
-            $records = $response["records"]->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $records = $response["records"]->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query())->latest();
 
             $data = collectPagination($records);
 

@@ -205,6 +205,11 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get('/{post}', [PostController::class, 'show'])->name('show');
     });
 
+    Route::prefix('guidelines')->as('guidelines.')->group(function () {
+        Route::get('/', [GuidelineController::class, 'index'])->name('index');
+        Route::get('/{guideline}', [GuidelineController::class, 'show'])->name('show');
+    });
+
     Route::prefix('groups')->as('groups.')->group(function () {
         Route::get('/', [GroupController::class, 'index'])->name('index');
     });
