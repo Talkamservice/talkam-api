@@ -90,4 +90,16 @@ class SearchController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
+    public function DeleteAllSearch(Request $request, $id)
+    {
+        try {
+            $this->search_service->deleteAll($id);
+            return ApiHelper::validResponse("Items deleted successfully");
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
 }

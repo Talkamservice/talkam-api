@@ -11,6 +11,9 @@ use App\Http\Resources\Group\GroupMemberResource;
 use App\Models\GroupMember;
 use App\Models\GroupMemberReport;
 use App\Models\User;
+use App\Notifications\Group\ChangedGroupMemberRoleNotification;
+use App\Notifications\Group\ChangedGroupMemberStatusNotification;
+use App\Notifications\Group\RemoveGroupMemberNotification;
 use App\Notifications\Group\SuspendGroupMemberNotification;
 use App\Services\Group\GroupService;
 use App\Services\User\UserService;
@@ -119,7 +122,7 @@ class GroupMemberService
             if (empty($member)) {
                 throw new InvalidRequestException("You are not a member of the group");
             }
-
+            Notification::send($member->user, new RemoveGroupMemberNotification($member, StatusConstants::INACTIVE));
             $member->delete();
             DB::commit();
             return $member;
@@ -144,7 +147,18 @@ class GroupMemberService
             $data = $validator->validated();
 
             $member = $this->getById($id);
-            $member->update($data);
+            // Check if the role is changing from Admin to Member
+            if ($member->role === UserConstants::ADMIN && isset($data['role']) && $data['role'] === UserConstants::MEMBER) {
+                // Update the member's role
+                $member->update($data);
+
+                // Send notification about the role change
+                Notification::send($member->user, new ChangedGroupMemberRoleNotification($member));
+            } else {
+                // If role hasn't changed from Admin to Member, just update without sending notification
+                $member->update($data);
+            }
+            Notification::send($member->user, new ChangedGroupMemberRoleNotification($member));
             DB::commit();
             return $member;
         } catch (\Throwable $th) {

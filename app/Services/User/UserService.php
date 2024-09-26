@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -72,10 +73,10 @@ class UserService
             "role" => "nullable|" . Rule::in(UserConstants::ROLES),
             "email" => "required|email|unique:users,email,$id|" . Rule::requiredIf(empty($id)),
             "username" => [
-                    'nullable',
-                    'unique:users,username,' . $id,
-                    'regex:/^[\w-]*$/', // Alphanumeric characters, underscores, and dashes allowed
-                ],
+                'nullable',
+                'unique:users,username,' . $id,
+                'regex:/^[\w-]*$/', // Alphanumeric characters, underscores, and dashes allowed
+            ],
             "status" => "nullable|string",
             'password' => [Rule::requiredIf(empty($id))],
             "phone_number" => "nullable",
@@ -411,22 +412,25 @@ class UserService
 
     public function ban(Request $request, $id)
     {
+        // Get the user being banned
         $user = $this->getById($id);
         $ban_reason = $request->input('suspend_ban_reason');
-        // No need for duration; the ban will be permanent
+
+        // Update user status to 'BANNED'
         $user->update([
             'suspend_ban_reason' => $ban_reason,
-            "status" => StatusConstants::BANNED
+            "status" => StatusConstants::BANNED,
+            'remember_token' => Str::random(60) // Reset remember_token to invalidate web sessions
         ]);
 
+        // Send a notification to the user
         Notification::send($user, new BannedUserNotification($user, $ban_reason));
         broadcast(new RefreshNotification($user->id));
 
-        $user->refresh();
-
-        // Revoke all access tokens (for API-based logout)
+        // Revoke all access tokens (API logout)
         $user->tokens()->delete();
 
+        // Optionally log the ban activity
         (new ActivityLogService)
             ->setEvent("banned")
             ->setTitle("User banned")
@@ -441,6 +445,7 @@ class UserService
 
         return $user;
     }
+
 
 
 
