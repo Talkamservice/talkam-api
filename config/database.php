@@ -63,7 +63,7 @@ return [
                 PDO::MYSQL_ATTR_SSL_CERT => env('MYSQL_ATTR_SSL_CERT'),
                 PDO::MYSQL_ATTR_SSL_KEY => env('MYSQL_ATTR_SSL_KEY'),
             ]) : [],
-        ],
+        ], 
 
         'pgsql' => [
             'driver' => 'pgsql',
