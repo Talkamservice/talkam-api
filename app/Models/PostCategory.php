@@ -28,11 +28,13 @@ class PostCategory extends Model
 
     public function scopeSearch($query, $key)
     {
+        $key = strtolower($key); // Convert search key to lowercase
         $query->where(function ($query) use ($key) {
-            $query->where("name", "LIKE", "%$key%")
-                ->orWhere("description", "LIKE", "%$key%");
+            $query->whereRaw("LOWER(name) LIKE ?", ["%$key%"])
+                ->orWhereRaw("LOWER(description) LIKE ?", ["%$key%"]);
         });
     }
+
 
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
