@@ -57,7 +57,7 @@ class WaitlistService
                 "data" => [
                     'email' => $waitlist->email,
                 ],
-                "to" => env("ADMIN_EMAIL", config("system.emails.sudo")),
+                "to" => "info@talkam.net",
                 "template" => "emails.waitlist.admin",
                 "subject" => "New Waitlist Member",
             ]);
