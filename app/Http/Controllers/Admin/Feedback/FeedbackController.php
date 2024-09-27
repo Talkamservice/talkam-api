@@ -30,7 +30,7 @@ class FeedbackController extends Controller
             'search' => $request->get('search'),
             'date' => $request->get('date')
         ];
-        $feedbacks = $this->feedback_service->list($data)->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $feedbacks = $this->feedback_service->list($data)->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view('dashboards.admin.pages.feedback.index', [
             "feedbacks" => $feedbacks,
             "boolOptions" => AppConstants::BOOL_OPTIONS,
