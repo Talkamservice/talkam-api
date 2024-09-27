@@ -84,7 +84,7 @@ class NewThreadPostReactionNotification extends Notification
             'data' => [
                 'id' => $this->post_reaction->post_id,
             ],
-            'title' => "{$this->post_reaction->action}",
+            'title' => "{$this->post_reaction->action}d" .' '. "post",
             'message' => "A post just got {$this->post_reaction->action}d",
             'link' => $web_url,
             'type' => 'post',
