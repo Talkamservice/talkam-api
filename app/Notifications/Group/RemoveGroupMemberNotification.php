@@ -25,7 +25,7 @@ class RemoveGroupMemberNotification extends Notification
     {
         $data = $this->buildData($notifiable);
         return (new MailMessage)
-            ->subject('Group Suspension Notification')
+            ->subject('Memeber Remover Notice')
             ->markdown('emails.group.suspend-member', [
                 "title" => $data["title"],
                 "message" => $data["message"],

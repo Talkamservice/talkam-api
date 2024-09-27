@@ -26,7 +26,7 @@ class ChangedGroupMemberRoleNotification extends Notification
     {
         $data = $this->buildData($notifiable);
         return (new MailMessage)
-            ->subject('Group Suspension Notification')
+            ->subject('Member Role Notice')
             ->markdown('emails.group.suspend-member', [
                 "title" => $data["title"],
                 "message" => $data["message"],
