@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Group;
 
+use App\Constants\Account\User\UserConstants;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,7 +15,7 @@ class ChangedGroupMemberRoleNotification extends Notification
     use Queueable;
 
 
-    public function __construct(public $group_member) {}
+    public function __construct(public $group_member, public $oldRole) {}
 
     public function via($notifiable): array
     {
@@ -25,7 +26,7 @@ class ChangedGroupMemberRoleNotification extends Notification
     {
         $data = $this->buildData($notifiable);
         return (new MailMessage)
-            ->subject('Group Suspension Notification')
+            ->subject('Member Role Notice')
             ->markdown('emails.group.suspend-member', [
                 "title" => $data["title"],
                 "message" => $data["message"],
@@ -60,10 +61,15 @@ class ChangedGroupMemberRoleNotification extends Notification
     public function buildData($notifiable)
     {
         // Determine if the user was made or removed as a Moderator
-        $message = $this->group_member->role === 'Moderator'
-            ? "You have been made a Moderator in {$this->group_member->group->name}"
-            : "You have been removed from the Moderator role in {$this->group_member->group->name}";
+        $message = '';
 
+        if ($this->oldRole === UserConstants::ADMIN && $this->group_member->role !== UserConstants::ADMIN) {
+            $message = "You have been removed from the Moderator role in {$this->group_member->group->name}.";
+        } elseif ($this->oldRole !== UserConstants::ADMIN && $this->group_member->role === UserConstants::ADMIN) {
+            $message = "You have been made a Moderator in {$this->group_member->group->name}.";
+        } else {
+            $message = "Your role in {$this->group_member->group->name} has been changed.";
+        }
         return [
             'data' => [
                 'id' => $this->group_member->group_id,
@@ -71,7 +77,7 @@ class ChangedGroupMemberRoleNotification extends Notification
             'title' => "Member Role Notice",
             'message' => $message, 
             'link' => null,
-            'type' => 'notification',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => []
         ];

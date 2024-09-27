@@ -29,7 +29,7 @@ class SearchController extends Controller
     {
         try {
             $response = $this->search_service->search($request->all());
-            $records = $response["records"]->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $records = $response["records"]->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query())->latest();
 
             $data = collectPagination($records);
 
@@ -94,8 +94,8 @@ class SearchController extends Controller
     public function DeleteAllSearch(Request $request, $id)
     {
         try {
-            $this->search_service->deleteAll($id);
-            return ApiHelper::validResponse("Items deleted successfully");
+            $message = $this->search_service->deleteAll(['user_id' => $id]);
+            return ApiHelper::validResponse($message);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $e) {
