@@ -11,7 +11,7 @@
         <a href="{{ $action_url }}" class="clickBtn">{{ $action_text }}</a>
 
         <p class="detailCont-p">
-            Regards, <br>Talkam Team
+            Regards, <br>TalkAM Team
         </p>
     </div>
 @endsection

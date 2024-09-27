@@ -81,7 +81,7 @@ class StrikeUserNotification extends Notification
                 'id' => $this->user->id,
             ],
             'title' => "Warning Issued!",
-            'message' => "You have received a strike for failing to comply with Talkam's rules and policies.",
+            'message' => "You have received a strike for failing to comply with TalkAM's rules and policies.",
             'link' => null,
             'type' => 'notification',
             'batch_no' => null,

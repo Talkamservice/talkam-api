@@ -16,7 +16,7 @@
         </p>
 
         <p class="detailCont-p">
-            Regards, <br>Talkam Team
+            Regards, <br>TalkAM Team
         </p>
         </td>
     </div>

@@ -13,7 +13,7 @@
                 </span>
                 <p class="h5 fw-semibold mb-2 mt-3 text-center">You got an invite from <b>{{ $invite->inviterName() }}</p>
                 <p class="mb-4 op-7 fw-normal text-center">You have been invited by {{ $invite->inviter->name }} to access
-                    their Talkam account.</p>
+                    their TalkAM account.</p>
             </div>
             <div class="row mb-0">
                 <div class="d-flex justify-content-center">
