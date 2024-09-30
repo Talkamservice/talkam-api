@@ -25,8 +25,8 @@
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
                             <label for="">Search(Type, Status, or Platform)</label>
-                            <input class="form-control" type="text" value="{{ request('search') }}" placeholder="Search...."
-                                name="search">
+                            <input class="form-control" type="text" value="{{ request('search') }}"
+                                placeholder="Search...." name="search">
                         </div>
                         <div class="form-group me-2" style="margin-top: 20px;">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
@@ -44,6 +44,12 @@
                                     <th scope="col">Platform</th>
                                     <th scope="col">Type</th>
                                     <th scope="col">Content</th>
+                                    <th scope="col">
+                                        Attachment(s)
+                                        <i class="ri-question-line" data-bs-toggle="tooltip" data-bs-placement="top" title="Click on the image to see the full-sized image or navigate through all images." style="cursor: pointer;"></i>
+                                    </th>
+                                    
+                                    </th>                                    
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
@@ -58,10 +64,32 @@
                                         <td>{{ $feedback->feedback_type ?? 'N/A' }}</td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                data-bs-target="#feedbackContent_{{ $feedback->id }}">
-                                                View
-                                            </button>
+                                            data-bs-target="#feedbackContent_{{ $feedback->id }}">
+                                            View
+                                        </button>
                                         </td>
+                                        <td>
+                                            @if ($feedback->attachments->isNotEmpty())
+                                                @php
+                                                    $firstAttachment = $feedback->attachments->first();
+                                                @endphp
+                                        
+                                                <!-- Display the first attachment -->
+                                                <a href="{{ $firstAttachment->url }}" data-fancybox="gallery_{{ $feedback->id }}" data-caption="{{ $feedback->name }}">
+                                                    <img src="{{ $firstAttachment->url }}" alt="Attachment" class="img-thumbnail" style="width: 60px; height: auto;">
+                                                </a>
+                                        
+                                                <!-- Add other attachments to the gallery -->
+                                                @foreach ($feedback->attachments->skip(1) as $attachment)
+                                                    <a href="{{ $attachment->url }}" data-fancybox="gallery_{{ $feedback->id }}" data-caption="{{ $feedback->name }}">
+                                                        <img src="{{ $attachment->url }}" alt="Attachment" style="display: none;"> <!-- Hidden from view but included in gallery -->
+                                                    </a>
+                                                @endforeach
+                                            @else
+                                                No attachments
+                                            @endif
+                                        </td>
+                                        
                                         <td>
                                             <span class="badge bg-{{ pillClasses($feedback->status) }}-transparent">
                                                 {{ $feedback->status }}
@@ -97,10 +125,11 @@
                                                     <li>
                                                         <a class="dropdown-item text-danger" href="#"
                                                             onclick="openDeleteModal('{{ route('admin.feedbacks.destroy', $feedback->id) }}')"
-                                                            data-bs-toggle="tooltip" title="Mark this report as resolved">
+                                                            data-bs-toggle="tooltip" title="Delete this feedback">
                                                             <i class="ri-delete-bin-line"></i> | Delete
                                                         </a>
                                                     </li>
+                                                </ul>
                                             </div>
                                         </td>
                                     </tr>
@@ -112,9 +141,13 @@
                                         ]
                                     )
                                 @empty
-                                    <div class="alert alert-info text-center">
-                                        No record found
-                                    </div>
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            <div class="alert alert-info">
+                                                No record found
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
