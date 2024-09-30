@@ -77,7 +77,7 @@ class ChangedGroupMemberRoleNotification extends Notification
             'title' => "Member Role Notice",
             'message' => $message, 
             'link' => null,
-            'type' => 'group',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => []
         ];

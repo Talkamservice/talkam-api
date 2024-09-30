@@ -66,9 +66,9 @@ class UndoGroupSuspensionNotification extends Notification implements ShouldQueu
                 'id' => $this->group->id,
             ],
             'title' => "Group Suspension Notice!",
-            'message' => " We wanted to inform you that your group '{$this->group}' has been unsuspended.",
+            'message' => " We wanted to inform you that your group '{$this->group->name}' has been unsuspended.",
             'link' => null,
-            'type' => 'notification',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => []
         ];

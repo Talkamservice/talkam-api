@@ -89,6 +89,11 @@ class PostService
                 "type" => $data["type"]
             ], $data);
 
+            // JSON encode the tags field if it is set
+            if (isset($data['tags']) && is_array($data['tags'])) {
+                $data['tags'] = json_encode($data['tags']);
+            }
+
             $attachments = $data["attachments"] ?? null;
             $poll = $data["poll"] ?? null;
             unset($data["poll"], $data["attachments"]);
@@ -128,6 +133,11 @@ class PostService
     {
         $data = self::validate($data, $id);
         $post = self::getById($id);
+
+         // JSON encode the tags field if it is set
+         if (isset($data['tags']) && is_array($data['tags'])) {
+            $data['tags'] = json_encode($data['tags']);
+        }
 
         $attachments = $data["attachments"] ?? null;
         $poll = $data["poll"] ?? null;
@@ -274,11 +284,11 @@ class PostService
             $validator = Validator::make($data, [
                 "user_id" => "required|exists:users,id|" . Rule::requiredIf(empty($id)),
             ]);
-    
+
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
-    
+
             $data = $validator->validated();
 
             $posts = $this->getPostAttachments($data);

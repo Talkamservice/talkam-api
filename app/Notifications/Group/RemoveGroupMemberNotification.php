@@ -63,10 +63,10 @@ class RemoveGroupMemberNotification extends Notification
             'data' => [
                 'id' => $this->group_member->group_id,
             ],
-            'title' => "Memeber Remover Notice",
+            'title' => "Group Member Notice",
             'message' => "You have been removed from {$this->group_member->group->name} by the group moderator",
             'link' => null,
-            'type' => 'notification',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => []
         ];
