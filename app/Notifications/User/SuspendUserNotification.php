@@ -78,7 +78,7 @@ class SuspendUserNotification extends Notification
     public function buildData($notifiable)
     {
         $title = $this->status == StatusConstants::ACTIVE ? "Supension Removed!" : "Suspension Received";
-        $message = $this->status == StatusConstants::ACTIVE ? "Your suspension has been removed and your account is now active. Ensure to abide by Talkam's rules and policies." : "You have been suspended till {$this->duration} for failing to comply with Talkam's rules and policies. {$this->suspension_reason}";
+        $message = $this->status == StatusConstants::ACTIVE ? "Your suspension has been removed and your account is now active. Ensure to abide by TalkAM's rules and policies." : "You have been suspended till {$this->duration} for failing to comply with TalkAM's rules and policies. {$this->suspension_reason}";
         return [
             'data' => [
                 'id' => $this->user->id,

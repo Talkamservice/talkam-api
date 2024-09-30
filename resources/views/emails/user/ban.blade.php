@@ -17,7 +17,7 @@
             Thank you for your understanding.
         </p>
         <p class="detailCont-p">
-            Sincerely, The Talkam Team
+            Sincerely, The TalkAM Team
         </p>
     </div>
 @endsection

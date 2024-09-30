@@ -69,7 +69,7 @@ class WaitlistService
                 ],
                 "to" => $waitlist->email,
                 "template" => "emails.waitlist.user-waitlist",
-                "subject" => "Talkam: Your Journey Begins Soon!",
+                "subject" => "TalkAM: Your Journey Begins Soon!",
             ]);
 
 

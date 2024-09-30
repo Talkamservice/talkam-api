@@ -7,9 +7,9 @@
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title> Admin - Talkam. </title>
+    <title> Admin - TalkAM. </title>
     <meta name="Description" content="Find interesting posts and discussions on talkam.">
-    <meta name="Author" content="Talkam">
+    <meta name="Author" content="TalkAM">
     <meta name="keywords" content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
 
     <!-- Favicon -->

@@ -67,7 +67,7 @@ class Post extends Model
 
     public function scopeSearch($query, $key)
     {
-        $query->where(function ($query) use ($key) {
+        return $query->where(function ($query) use ($key) {
             $query->where("title", "LIKE", "%$key%")
                 ->orWhere("body", "LIKE", "%$key%")
                 ->orWhere("type", "LIKE", "%$key%")
