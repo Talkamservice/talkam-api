@@ -68,13 +68,12 @@ class Post extends Model
 
     public function scopeSearch($query, $key)
     {
-        return $query->where(function ($query) use ($key) {
+       return $query->where(function ($query) use ($key) {
             $query->where("title", "LIKE", "%$key%")
                 ->orWhere("body", "LIKE", "%$key%")
                 ->orWhere("type", "LIKE", "%$key%")
                 ->orWhere("uuid", "LIKE", "%$key%")
-                // Use a raw SQL query to check for wildcards inside JSON column "tags"
-                ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(tags, '$')) LIKE ?", ["%$key%"])
+                ->orWhere("tags", "LIKE", "%$key%")
                 ->orWhereHas("user", function ($user) use ($key) {
                     $user->search($key);
                 })->orWhereHas("category", function ($category) use ($key) {
