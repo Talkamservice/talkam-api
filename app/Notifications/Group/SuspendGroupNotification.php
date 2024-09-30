@@ -71,7 +71,7 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
             'title' => "Group Suspension Notice!",
             'message' => $message,
             'link' => null,
-            'type' => 'group',
+            'type' => 'post',
             'batch_no' => null,
             "extra" => []
         ];
