@@ -122,6 +122,11 @@ class GroupMemberService
             if (empty($member)) {
                 throw new InvalidRequestException("You are not a member of the group");
             }
+
+            if ($member->role == UserConstants::OWNER) {
+                throw new InvalidRequestException("You cannot remove the owner of the group");
+            }
+
             Notification::send($member->user, new RemoveGroupMemberNotification($member, StatusConstants::INACTIVE));
             $member->delete();
             DB::commit();
