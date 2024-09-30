@@ -28,7 +28,6 @@ class FeedbackController extends Controller
     {
         $data = [
             'search' => $request->get('search'),
-            'date' => $request->get('date')
         ];
         $feedbacks = $this->feedback_service->list($data)->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view('dashboards.admin.pages.feedback.index', [
