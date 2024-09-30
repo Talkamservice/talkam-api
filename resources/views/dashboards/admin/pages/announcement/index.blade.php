@@ -159,9 +159,7 @@
                                             @csrf
                                             @method('DELETE')
                                         </form>
-                                        @include(
-                                            'dashboards.admin.pages.bulk-messages.modal.notification_content_modal',
-                                            [
+                                        @include('dashboards.admin.pages.bulk-messages.modal.notification_content_modal',[
                                                 'modalKey' => "announcementContent_$announcement->id",
                                                 'modalContent' => $announcement->body,
                                             ]
