@@ -66,7 +66,7 @@ class SuspendGroupMemberNotification extends Notification
             'title' => "Group Suspension Notice",
             'message' => $this->message,
             'link' => null,
-            'type' => 'notification',
+            'type' => 'group',
             'batch_no' => null,
             "extra" => []
         ];
