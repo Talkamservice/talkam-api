@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Faq\FaqCategoryController;
 use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Feedback\FeedbackController;
+use App\Http\Controllers\Admin\Finance\Plan\PlanBenefitsController;
+use App\Http\Controllers\Admin\Finance\Plan\PlanController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
@@ -44,7 +46,8 @@ Route::middleware(["auth"])->group(
             "privacy-policies" => PrivacyPolicyController::class,
             "faqs" => FaqController::class,
             "faq-categories" => FaqCategoryController::class,
-            "feedbacks" => FeedbackController::class
+            "feedbacks" => FeedbackController::class,
+            'plans' => PlanController::class
         ]);
 
 
@@ -86,6 +89,11 @@ Route::middleware(["auth"])->group(
             Route::post('roles/{id}/update-permissions', [RoleController::class, "updatePermissions"])->name("roles.update_permissions");
             Route::post('roles/assign', [RoleController::class, "assignRole"])->name("roles.assign");
             Route::resource('permissions', PermissionController::class);
+        });
+
+
+        Route::prefix("plans/{plan}")->as("plans.")->group(function () {
+            Route::resource('/plan-benefits', PlanBenefitsController::class);
         });
 
         Route::as("notifications.")->prefix("notifications")->group(function () {
