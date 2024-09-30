@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" data-toggled="close">
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" data-toggled="close">
 
 <head>
     <meta charset="UTF-8">
@@ -46,7 +47,10 @@
 
     <link rel="stylesheet" href="{{ $admin_assets }}/libs/swiper/swiper-bundle.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset("admin_assets/css/dynamic_select.css") }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/dynamic_select.css') }}">
+    <!-- In your Blade file -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
 
     <style>
         .list-head-cont {
@@ -90,7 +94,8 @@
         .list-item-sub:hover {
             color: #000000 !important;
         }
-        .no-data-image{
+
+        .no-data-image {
             height: 50vh;
             width: 40%;
         }
@@ -127,10 +132,14 @@
                 <div class="modal-content">
                     <div class="modal-body">
                         <div class="input-group">
-                            <a href="javascript:void(0);" class="input-group-text" id="Search-Grid"><i class="fe fe-search header-link-icon fs-18"></i></a>
-                            <input type="search" class="form-control border-0 px-2" placeholder="Search" aria-label="Username">
-                            <a href="javascript:void(0);" class="input-group-text" id="voice-search"><i class="fe fe-mic header-link-icon"></i></a>
-                            <a href="javascript:void(0);" class="btn btn-light btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a href="javascript:void(0);" class="input-group-text" id="Search-Grid"><i
+                                    class="fe fe-search header-link-icon fs-18"></i></a>
+                            <input type="search" class="form-control border-0 px-2" placeholder="Search"
+                                aria-label="Username">
+                            <a href="javascript:void(0);" class="input-group-text" id="voice-search"><i
+                                    class="fe fe-mic header-link-icon"></i></a>
+                            <a href="javascript:void(0);" class="btn btn-light btn-icon" data-bs-toggle="dropdown"
+                                aria-expanded="false">
                                 <i class="fe fe-more-vertical"></i>
                             </a>
                             <ul class="dropdown-menu">
@@ -145,24 +154,31 @@
                         </div>
                         <div class="mt-4">
                             <p class="font-weight-semibold text-muted mb-2">Are You Looking For...</p>
-                            <span class="search-tags"><i class="fe fe-user me-2"></i>People<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
-                            <span class="search-tags"><i class="fe fe-file-text me-2"></i>Pages<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
-                            <span class="search-tags"><i class="fe fe-align-left me-2"></i>Articles<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
-                            <span class="search-tags"><i class="fe fe-server me-2"></i>Tags<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
+                            <span class="search-tags"><i class="fe fe-user me-2"></i>People<a href="javascript:void(0)"
+                                    class="tag-addon"><i class="fe fe-x"></i></a></span>
+                            <span class="search-tags"><i class="fe fe-file-text me-2"></i>Pages<a
+                                    href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
+                            <span class="search-tags"><i class="fe fe-align-left me-2"></i>Articles<a
+                                    href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
+                            <span class="search-tags"><i class="fe fe-server me-2"></i>Tags<a
+                                    href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
                         </div>
                         <div class="my-4">
                             <p class="font-weight-semibold text-muted mb-2">Recent Search :</p>
                             <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
                                 <a href="notifications.html"><span>Notifications</span></a>
-                                <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+                                <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert"
+                                    aria-label="Close"><i class="fe fe-x text-muted"></i></a>
                             </div>
                             <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
                                 <a href="alerts.html"><span>Alerts</span></a>
-                                <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+                                <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert"
+                                    aria-label="Close"><i class="fe fe-x text-muted"></i></a>
                             </div>
                             <div class="p-2 border br-5 d-flex align-items-center text-muted mb-0 alert">
                                 <a href="mail.html"><span>Mail</span></a>
-                                <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+                                <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert"
+                                    aria-label="Close"><i class="fe fe-x text-muted"></i></a>
                             </div>
                         </div>
                     </div>
@@ -189,7 +205,8 @@
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
 
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+        crossorigin="anonymous"></script>
 
     <!-- Popper JS -->
     <script src="{{ $admin_assets }}/libs/@popperjs/core/umd/popper.min.js"></script>
@@ -238,7 +255,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-    <script src="{{ asset("admin_assets/js/dynamic_select.js") }}"></script>
+    <script src="{{ asset('admin_assets/js/dynamic_select.js') }}"></script>
 
     <script>
         $(document).ready(function() {
