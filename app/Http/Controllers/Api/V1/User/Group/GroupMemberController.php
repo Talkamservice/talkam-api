@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\User\Group;
 
+use App\Constants\Account\User\UserConstants;
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
@@ -115,9 +116,14 @@ class GroupMemberController extends Controller
     public function destroy($id)
     {
         try {
-            $group = $this->group_member_service->getById($id);
-            $group->delete();
-            return ApiHelper::validResponse("Group deleted successfully");
+            $member = $this->group_member_service->getById($id);
+
+            if ($member->role == UserConstants::OWNER) {
+                throw new ModelNotFoundException("You cannot remove the owner of the group");
+            }
+
+            $member->delete();
+            return ApiHelper::validResponse("Member removed successfully");
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
