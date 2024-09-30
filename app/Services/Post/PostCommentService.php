@@ -27,7 +27,7 @@ class PostCommentService
     public static function validate($data, $id = null)
     {
         $validator = Validator::make($data, [
-            "comment" => "required|string",
+            "comment" => "nullable|string",
             "attachment" => "nullable|string",
             "post_id" => "required|exists:posts,id",
             "parent_id" => "nullable|exists:post_comments,id",

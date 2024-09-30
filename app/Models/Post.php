@@ -65,24 +65,21 @@ class Post extends Model
         return $this->hasMany(UserPollChoice::class, "post_id");
     }
 
-
     public function scopeSearch($query, $key)
     {
         $query->where(function ($query) use ($key) {
-            $query->whereRaw("LOWER(title) LIKE ?", ['%' . strtolower($key) . '%'])
-                ->orWhereRaw("LOWER(body) LIKE ?", ['%' . strtolower($key) . '%'])
-                ->orWhereRaw("LOWER(type) LIKE ?", ['%' . strtolower($key) . '%'])
-                ->orWhereRaw("LOWER(uuid) LIKE ?", ['%' . strtolower($key) . '%'])
-                ->orWhereRaw("LOWER(tags) LIKE ?", ['%' . strtolower($key) . '%'])
+            $query->where("title", "LIKE", "%$key%")
+                ->orWhere("body", "LIKE", "%$key%")
+                ->orWhere("type", "LIKE", "%$key%")
+                ->orWhere("uuid", "LIKE", "%$key%")
+                ->orWhere("tags", "LIKE", "%$key%")
                 ->orWhereHas("user", function ($user) use ($key) {
                     $user->search($key);
-                })
-                ->orWhereHas("category", function ($category) use ($key) {
+                })->orWhereHas("category", function ($category) use ($key) {
                     $category->search($key);
                 });
         });
     }
-
 
     public function scopeUnblocked($query)
     {

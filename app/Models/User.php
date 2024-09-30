@@ -82,18 +82,16 @@ class User extends Authenticatable
 
     public function scopeSearch($query, $key)
     {
-        $key = strtolower($key); // Convert search key to lowercase
         $query->where(function ($query) use ($key) {
-            $query->whereRaw("LOWER(first_name) LIKE ?", ["%$key%"])
-                ->orWhereRaw("LOWER(last_name) LIKE ?", ["%$key%"])
-                ->orWhereRaw("LOWER(email) LIKE ?", ["%$key%"])
-                ->orWhereRaw("LOWER(phone_number) LIKE ?", ["%$key%"])
-                ->orWhereRaw("LOWER(username) LIKE ?", ["%$key%"]);
+            $query->where("first_name", "LIKE", "%$key%")
+                ->orWhere("last_name", "LIKE", "%$key%")
+                ->orWhere("email", "LIKE", "%$key%")
+                ->orWhere("phone_number", "LIKE", "%$key%")
+                ->orWhere("username", "LIKE", "%$key%");
         });
     }
 
-
-    public function isUser()
+    public function isUser()    
     {
         return $this->role == UserConstants::USER;
     }
@@ -139,14 +137,13 @@ class User extends Authenticatable
         return $this->hasOne(NotificationPreference::class, 'user_id');
     }
 
-    public function sendBulkNotifications()
-    {
+    public function sendBulkNotifications() {
         return $this->belongsToMany(SendBulkNotification::class, 'bulk_notification_user', 'user_id', 'send_bulk_notification_id');
     }
-
+    
     public function announcement()
     {
-        return $this->hasMany(Announcement::class);
+       return $this->hasMany(Announcement::class);
     }
 
     public function activityLogs()
@@ -167,7 +164,7 @@ class User extends Authenticatable
 
         return $query;
     }
-
+    
     public function isDisabled()
     {
         if (in_array(

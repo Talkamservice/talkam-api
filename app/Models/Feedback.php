@@ -15,4 +15,9 @@ class Feedback extends Model
     {
         return $this->hasMany(FeedbackAttachment::class, "feedback_id");
     }
+
+    public function getAttachment()
+    {
+        
+    }
 }
