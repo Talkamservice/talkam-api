@@ -85,7 +85,7 @@ class PostsRemovedFromApplicationNotification extends Notification
             'title' => "Post(s) Removed Notification",
             'message' => "Your posts has been removed completely due to a guideline violation. For safety of our community, deleted post(s) can never be undo.",
             'link' => null,
-            'type' => 'post',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];
