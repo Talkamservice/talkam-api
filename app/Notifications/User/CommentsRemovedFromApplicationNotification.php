@@ -98,7 +98,7 @@ class CommentsRemovedFromApplicationNotification extends Notification
             'title' => 'Comment Removed Notification',
             'message' => 'Your comment has been removed completely due to a guideline violation. For the safety of our community, deleted comments cannot be undone.',
             'link' => null,
-            'type' => 'comment',
+            'type' => 'notification',
             'batch_no' => null,
             'extra' => [],
         ];

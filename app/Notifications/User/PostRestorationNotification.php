@@ -85,7 +85,7 @@ class PostRestorationNotification extends Notification
             'title' => "Post Restored Notification",
             'message' => "Your post has been removed from suspension and can now appear on our platform.",
             'link' => null,
-            'type' => 'post',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];
