@@ -63,7 +63,7 @@ class SuspendGroupNotification extends Notification implements ShouldQueue
 
     protected function buildData($notifiable): array
     {
-        $message = "Your group has been suspended for {$this->duration} days.<br>The suspension is due to the following reason:<br>{$this->reason}.";
+        $message = "Your group {$this->group->name} has been suspended for {$this->duration} days.<br>The suspension is due to the following reason:<br>{$this->reason}.";
         return [
             'data' => [
                 'id' => $this->group->id,
