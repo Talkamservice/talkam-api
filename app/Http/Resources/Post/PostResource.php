@@ -43,7 +43,7 @@ class PostResource extends JsonResource
             "group" => !empty($this->group) ? GroupResource::custom($this->group) : null,
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
-            "tags" => $this->tags,
+            "tags" => is_string($this->tags) ? json_decode($this->tags, true) : $this->tags,
             "is_reported" => $is_reported,
             "views_count" => $this->views_count,
             "comments_count" => $this->comments()->topLevel()->count(),  // Counts only top-level comments
