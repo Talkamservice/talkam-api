@@ -67,7 +67,7 @@ class DeleteGroupNotification extends Notification implements ShouldQueue
             'title' => "Group Deletion Notification!",
             'message' => "Your group '{$this->group->name}' has been Deleted due to reported violations",
             'link' => null,
-            'type' => 'post',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];
