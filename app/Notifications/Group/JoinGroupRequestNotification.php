@@ -76,13 +76,14 @@ class JoinGroupRequestNotification extends Notification
 
     public function buildData($notifiable)
     {
+        $web_url = config("app.web_url") . "/group/{$this->member->group->id}";
         return [
             'data' => [
                 'id' => $this->member->group_id,
             ],
             'title' => "Group Request",
             'message' => "{$this->member->user->getName()} has requested to join \"{$this->member->group->name}\". Kindly go to the request page to accept or decline.",
-            'link' => null,
+            'link' => $web_url,
             'type' => 'group_request',
             'batch_no' => null,
             "extra" => []
