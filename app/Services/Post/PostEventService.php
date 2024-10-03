@@ -21,6 +21,7 @@ class PostEventService
 
         foreach ($posts as $key => $post) {
             $post->update([
+                "created_at" => now(),
                 "status" => StatusConstants::ACTIVE
             ]);
 
