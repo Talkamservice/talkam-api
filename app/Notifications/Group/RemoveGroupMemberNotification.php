@@ -59,6 +59,7 @@ class RemoveGroupMemberNotification extends Notification
 
     public function buildData($notifiable)
     {
+        $web_url = config("app.web_url") . "/group/{$this->group_member->group->id}";
         return [
             'data' => [
                 'id' => $this->group_member->group_id,

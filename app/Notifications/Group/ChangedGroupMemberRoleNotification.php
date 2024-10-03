@@ -70,13 +70,14 @@ class ChangedGroupMemberRoleNotification extends Notification
         } else {
             $message = "Your role in {$this->group_member->group->name} has been changed.";
         }
+        $web_url = config("app.web_url") . "/group/{$this->group_member->group->id}";
         return [
             'data' => [
                 'id' => $this->group_member->group_id,
             ],
             'title' => "Member Role Notice",
             'message' => $message, 
-            'link' => null,
+            'link' => $web_url,
             'type' => 'post',
             'batch_no' => null,
             "extra" => []

@@ -61,13 +61,14 @@ class UndoGroupSuspensionNotification extends Notification implements ShouldQueu
 
     protected function buildData($notifiable): array
     {
+        $web_url = config("app.web_url") . "/group/{$this->group->id}";
         return [
             'data' => [
                 'id' => $this->group->id,
             ],
             'title' => "Group Suspension Notice!",
             'message' => " We wanted to inform you that your group '{$this->group->name}' has been unsuspended.",
-            'link' => null,
+            'link' => $web_url,
             'type' => 'notification',
             'batch_no' => null,
             "extra" => []
