@@ -102,7 +102,9 @@ class PostController extends Controller
     public function trending(Request $request)
     {
         try {
-            $trends = $this->post_service->trends($request->all())->distinct("tag")->whereNotNull("category_id")->where("count", ">", 1)->status()->orderByDesc("count")->get();
+            $trends = $this->post_service->trends($request->all())->whereNotNull("category_id")->where("count", ">", 1)->status()
+            ->groupBy("tag")->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")->orderByDesc("count")
+            ->get();
             $data = TrendingResource::collection($trends);
             return ApiHelper::validResponse("Trends returned successfully", $data);
         } catch (Exception $e) {
