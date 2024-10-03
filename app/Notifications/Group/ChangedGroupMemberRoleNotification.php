@@ -19,7 +19,7 @@ class ChangedGroupMemberRoleNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     public function toMail($notifiable): MailMessage
