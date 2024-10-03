@@ -2,7 +2,9 @@
 
 namespace App\Services\ActivityLog;
 
+use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
+use App\Exceptions\General\ModelNotFoundException;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -238,5 +240,31 @@ class ActivityLogService
     {
         $builder = ActivityLog::latest();
         return $builder;
+    }
+
+    public static function delete(string $id)
+    {
+        $log = ActivityLog::find($id);
+        if ($log) {
+            $old_log = $log->toArray();
+            $log->delete();
+        } else {
+            throw new ModelNotFoundException("Log not found");
+        }
+
+
+        (new ActivityLogService)
+            ->setEvent("deleted")
+            ->setTitle("log Deleted")
+            ->setDescription((auth()->user()?->full_name ?? auth()->user()?->email) . " deleted a log")
+            ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+            ->setActivity(ActivitiesConstants::LOG_DELETED)
+            ->setModel(ActivityLog::class, $log->id)
+            ->setAdmin(auth()->user()?->id)
+            ->setData(
+                ["Old log" => $old_log],
+            )
+            ->setUrl(request()->fullUrl())
+            ->log();
     }
 }

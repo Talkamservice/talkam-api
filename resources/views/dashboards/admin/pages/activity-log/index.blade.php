@@ -64,8 +64,9 @@
                                                     <ul class="dropdown-menu">
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="#"
-                                                                onclick="$('#deleteLogForm_{{ $log->id }}').submit()">
-                                                                {{-- <i class="ri-delete-bin-line"></i> | Delete --}}
+                                                                onclick="openDeleteModal('{{ route('admin.activity-logs.destroy', $log->id) }}')"
+                                                                data-bs-toggle="tooltip" title="Delete this Log">
+                                                                <i class="ri-delete-bin-line"></i> | Delete
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -103,4 +104,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.delete-modal')
 @endsection
