@@ -55,6 +55,9 @@ class UndoGroupSuspensionNotification extends Notification implements ShouldQueu
             ->setBody($data['message'])
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                "extra" => []
+            ])
             ->initiate();
     }
 

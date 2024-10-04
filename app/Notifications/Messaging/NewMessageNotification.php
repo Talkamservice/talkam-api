@@ -79,6 +79,9 @@ class NewMessageNotification extends Notification
             ->setMetadata([
                 "id" => $this->message?->conversation_id,
                 "type" => "conversation",
+                "extra" => [
+                    "sender" => UserResource::custom($this->message->sender)
+                ]
             ])
             ->initiate();
     }

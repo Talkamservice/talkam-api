@@ -74,6 +74,11 @@ class NewCommentTagMentionNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                "extra" => [
+                    "comment" => PostCommentResource::custom($this->comment),
+                ]
+            ])
             ->initiate();
     }
 
