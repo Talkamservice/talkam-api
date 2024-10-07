@@ -55,6 +55,9 @@ class DeleteGroupNotification extends Notification implements ShouldQueue
             ->setBody($data['message'])
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                "extra" => []
+            ])
             ->initiate();
     }
 

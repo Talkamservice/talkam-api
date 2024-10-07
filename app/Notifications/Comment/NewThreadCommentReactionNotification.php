@@ -74,6 +74,12 @@ class NewThreadCommentReactionNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                "extra" => [
+                    "comment" => PostCommentResource::custom($this->comment_reaction->comment),
+                    "post_attachements" => !empty($this->comment_reaction?->comment?->post?->attachments) ? PostAttachmentResource::collection($this->comment_reaction?->comment?->post?->attachments) : null
+                ]
+            ])
             ->initiate();
     }
 
