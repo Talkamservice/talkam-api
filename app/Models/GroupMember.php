@@ -40,7 +40,7 @@ class GroupMember extends Model
 
     public function isSuspended()
     {
-        if ($this->status === StatusConstants::INACTIVE) {
+        if ($this->status === StatusConstants::SUSPENDED) {
             return true;
         } else {
             return false;

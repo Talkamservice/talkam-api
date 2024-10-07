@@ -17,6 +17,7 @@ use App\Services\Group\GroupMemberService;
 use App\Services\Group\GroupService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
@@ -124,6 +125,7 @@ class GroupMemberController extends Controller
                 throw new ModelNotFoundException("You cannot remove the owner of the group");
             }
             Notification::send($member->user, new RemoveGroupMemberNotification($member));
+
             $member->delete();
             return ApiHelper::validResponse("Member removed successfully");
         } catch (ModelNotFoundException $th) {
