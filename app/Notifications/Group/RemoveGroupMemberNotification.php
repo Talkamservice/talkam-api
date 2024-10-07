@@ -14,7 +14,7 @@ class RemoveGroupMemberNotification extends Notification
     use Queueable;
 
 
-    public function __construct(public $group_member, public $message) {}
+    public function __construct(public $group_member) {}
 
     public function via($notifiable): array
     {
