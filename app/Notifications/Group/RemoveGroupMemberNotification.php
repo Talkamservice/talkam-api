@@ -18,6 +18,9 @@ class RemoveGroupMemberNotification extends Notification
 
     public function via($notifiable): array
     {
+        if ($this->group_member->isSuspended()) {
+            return ['mail', 'firebase'];
+        }
         return MethodsHelper::userNotificationPreference($notifiable);
     }
 

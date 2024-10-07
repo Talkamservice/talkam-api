@@ -5,6 +5,7 @@ namespace App\Helpers;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -140,9 +141,7 @@ class MethodsHelper
         return null;
     }
 
-    public static function readPrivateFile($path)
-    {
-    }
+    public static function readPrivateFile($path) {}
 
     /**Reads file from private storage */
     public static function getFileFromPrivateStorage($fullpath, $disk = 'local')
@@ -420,7 +419,7 @@ class MethodsHelper
     {
         $preference = [];
         $notification_preference = $user->notificationPreference;
-
+        
         // if ($user?->can_receive_sms == 1) {
         //     $preference[] = "sms";
         // }
