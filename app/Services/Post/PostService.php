@@ -198,6 +198,10 @@ class PostService
             $builder = $builder->where("group_id", $key);
         }
 
+        if (!empty($key = $data["type"] ?? null)) {
+            $builder = $builder->where("type", $key);
+        }
+
         if (!empty($key = $data["exclude_anonymous"] ?? null)) {
             $builder = $builder->where("is_anonymous", 0);
         }
