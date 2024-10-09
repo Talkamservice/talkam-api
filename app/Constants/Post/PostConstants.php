@@ -9,6 +9,7 @@ class PostConstants
     const TEXT = "Text";
     const POLL = "Poll";
     const FILE = "File";
+    const MEDIA = "Media";
     const IMAGE = "Image";
     const VIDEO = "Video";
 

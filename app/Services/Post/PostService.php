@@ -134,8 +134,8 @@ class PostService
         $data = self::validate($data, $id);
         $post = self::getById($id);
 
-         // JSON encode the tags field if it is set
-         if (isset($data['tags']) && is_array($data['tags'])) {
+        // JSON encode the tags field if it is set
+        if (isset($data['tags']) && is_array($data['tags'])) {
             $data['tags'] = json_encode($data['tags']);
         }
 
@@ -199,7 +199,11 @@ class PostService
         }
 
         if (!empty($key = $data["type"] ?? null)) {
-            $builder = $builder->where("type", $key);
+            if (in_array($key, [PostConstants::MEDIA])) {
+                $builder = $builder->whereIn("type", [PostConstants::FILE, PostConstants::IMAGE, PostConstants::VIDEO]);
+            } else {
+                $builder = $builder->where("type", $key);
+            }
         }
 
         if (!empty($key = $data["exclude_anonymous"] ?? null)) {
