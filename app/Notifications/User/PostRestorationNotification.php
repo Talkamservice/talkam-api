@@ -74,6 +74,7 @@ class PostRestorationNotification extends Notification
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->post->id,
                 "type" => $data["type"],
                 "extra" => []
             ])

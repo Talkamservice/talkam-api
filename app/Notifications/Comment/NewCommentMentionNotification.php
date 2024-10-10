@@ -76,6 +76,7 @@ class NewCommentMentionNotification extends Notification
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->comment->post_id,
                 "type" => $data["type"],
                 "extra" => [
                     "comment" => PostCommentResource::custom($this->comment),

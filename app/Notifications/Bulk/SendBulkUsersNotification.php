@@ -70,6 +70,7 @@ class SendBulkUsersNotification extends Notification implements ShouldQueue
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->notification->id,
                 "type" => $data["type"],
                 "extra" => []
             ])

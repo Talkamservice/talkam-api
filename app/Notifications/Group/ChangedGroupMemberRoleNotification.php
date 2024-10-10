@@ -56,6 +56,7 @@ class ChangedGroupMemberRoleNotification extends Notification
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->group_member->group_id,
                 "type" => $data["type"],
                 "extra" => []
             ])
