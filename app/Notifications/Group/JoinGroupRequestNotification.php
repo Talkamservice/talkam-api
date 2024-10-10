@@ -72,6 +72,7 @@ class JoinGroupRequestNotification extends Notification
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->member->group_id,
                 "type" => $data["type"],
                 "extra" => []
             ])

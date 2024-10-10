@@ -72,6 +72,7 @@ class StrikeUserNotification extends Notification
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->user->id,
                 "type" => $data["type"],
                 "extra" => []
             ])
