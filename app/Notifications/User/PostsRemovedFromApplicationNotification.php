@@ -74,6 +74,7 @@ class PostsRemovedFromApplicationNotification extends Notification
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                "type" => $data["type"],
                 "extra" => []
             ])
             ->initiate();
