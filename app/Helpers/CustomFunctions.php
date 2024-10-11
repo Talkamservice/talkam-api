@@ -79,6 +79,17 @@ function formatDate($value)
     return MethodsHelper::formatDateWithTimezone($value, auth()->user());
 }
 
+function formatDateOfBirth($value)
+{
+    // Check if the value is null or empty, return as-is
+    if (is_null($value) || empty($value)) {
+        return $value;
+    }
+    // Format the date if it's not null 
+    return Carbon::parse($value)->format("d/m/Y");
+}
+
+
 function groupAges($years, $currentYear, $intervals)
 {
     $groupedAges = [];

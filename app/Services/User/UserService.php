@@ -81,10 +81,13 @@ class UserService
             'password' => [Rule::requiredIf(empty($id))],
             "phone_number" => "nullable",
             "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
+            'date_of_birth' => 'nullable|date_format:d/m/Y|before:today',
         ], [
             'email.unique' => "The email address has already been used by another user",
             'username.unique' => "The email address has already been used by another user",
             "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",
+            'date_of_birth.date_format' => 'The date of birth must be in the format dd/mm/yyyy',
+            'date_of_birth.before' => 'The date of birth must be a date before today',
         ]);
 
         if ($validator->fails()) {
