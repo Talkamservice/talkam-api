@@ -68,9 +68,8 @@ Route::get("profile/avatars", [UserController::class, "listAvatars"])->name("ava
 
 Route::prefix("location")->as("location.")->group(function () {
     Route::get('countries', [LocationController::class, "countries"])->name("countries");
-    Route::get('states/{state}', [LocationController::class, "states"])->name("states");
+    Route::get('states', [LocationController::class, "states"])->name("states");
 });
-
 
 Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
