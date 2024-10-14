@@ -31,9 +31,9 @@ class PostCategoryService
         $this->file_service = new FileService;
     }
 
-    public static function getById($id): PostCategory
+    public static function getById($id, $column = "id"): PostCategory
     {
-        $category = PostCategory::find($id);
+        $category = PostCategory::where($column, $id)->first();
         if (empty($category)) {
             throw new ModelNotFoundException("Category not found");
         }
