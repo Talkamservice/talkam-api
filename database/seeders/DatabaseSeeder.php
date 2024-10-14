@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             CategoryTableSeeder::class,
             UserTableSeeder::class,
             PermissionTableSeeder::class,
+            CountryTableSeeder::class,
+            StateTableSeeder::class
             // AvatarTableSeeder::class
         ]);
     }

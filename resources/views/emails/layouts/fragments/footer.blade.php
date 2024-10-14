@@ -22,12 +22,12 @@
             <img src="{{ imageUrlToBase64("email/assets/instagramIcon.svg") }}" />
         </span> --}}
         <span> 
-            <img class="flogo" src="https://admin.talkam.net/email/assets/talkamlogo.svg?v=3" alt="Logo" />
+            <img class="flogo" src="https://admin.talkam.net/email/assets/talkamlogo.svg" alt="Logo" />
         </span>
         <span class="iconsCont">
-            <img class="icon1" src="https://admin.talkam.net/email/assets/twitterIconB.svg?v=3" alt="Twitter Icon" />
-            <img class="icon1" src="https://admin.talkam.net/email/assets/facebookIconB.svg?v=3" alt="Facebook Icon" />
-            <img class="icon1" src="https://admin.talkam.net/email/assets/instagramIcon.svg?v=3" alt="Instagram Icon" />
+            <img class="icon1" src="https://admin.talkam.net/email/assets/twitterIconB.svg" alt="Twitter Icon" />
+            <img class="icon1" src="https://admin.talkam.net/email/assets/facebookIconB.svg" alt="Facebook Icon" />
+            <img class="icon1" src="https://admin.talkam.net/email/assets/instagramIcon.svg" alt="Instagram Icon" />
         </span>
     </td>
 </tr>

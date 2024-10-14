@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
 use App\Http\Controllers\Api\V1\Feedback\FeedbackController;
 use App\Http\Controllers\Api\V1\General\AuthController;
+use App\Http\Controllers\Api\V1\Location\LocationController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
@@ -64,6 +65,12 @@ Route::prefix("auth")->as("auth.")->group(function () {
 });
 
 Route::get("profile/avatars", [UserController::class, "listAvatars"])->name("avatars.list");
+
+Route::prefix("location")->as("location.")->group(function () {
+    Route::get('countries', [LocationController::class, "countries"])->name("countries");
+    Route::get('states/{state}', [LocationController::class, "states"])->name("states");
+});
+
 
 Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
