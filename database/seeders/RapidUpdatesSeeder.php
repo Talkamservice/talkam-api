@@ -14,8 +14,12 @@ class RapidUpdatesSeeder extends Seeder
      */
     public function run(): void
     {
-        PostCategory::whereNull("uuid")->update([
-            "uuid" => MethodsHelper::getRandomToken(10)
-        ]);
+        $categories = PostCategory::whereNull("uuid")->get();
+        
+        $categories->each(function ($category) {
+            $category->update([
+                "uuid" => MethodsHelper::getRandomToken(10)
+            ]);
+        });
     }
 }
