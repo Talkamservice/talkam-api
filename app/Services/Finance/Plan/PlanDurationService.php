@@ -3,7 +3,6 @@
 namespace App\Services\Finance\Plan;
 
 use App\Constants\Finance\Plan\PlanConstants;
-use App\Exceptions\Finance\PlanException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PlanDuration;
 use Illuminate\Support\Facades\Validator;

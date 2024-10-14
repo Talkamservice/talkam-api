@@ -217,7 +217,8 @@ class PostService
         }
 
         if (!empty($key = $data["user_id"] ?? null)) {
-            $builder = $builder->where("user_id", $key);
+            $field = is_numeric($key) ? "user_id" : "username";
+            $builder = $builder->where($field, $key);
         }
 
         if (!empty($key = $data["tab"] ?? null)) {

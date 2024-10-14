@@ -38,7 +38,8 @@ class PostCategoryController extends Controller
     public function show($id)
     {
         try {
-            $category = $this->post_category_service->getById($id);
+            $field = is_numeric($id) ? "id" : "uuid";
+            $category = $this->post_category_service->getById($id, $field);
             $this->recent_view_service->create(["category_id" => $category->id]);
             $data = PostCategoryResource::make($category);
             return ApiHelper::validResponse("Category details returned successfully", $data);

@@ -30,6 +30,7 @@ class PostCategory extends Model
     {
         $query->where(function ($query) use ($key) {
             $query->where("name", "LIKE", "%$key%")
+                ->orWhere("uuid", "LIKE", "%$key%")
                 ->orWhere("description", "LIKE", "%$key%");
         });
     }
