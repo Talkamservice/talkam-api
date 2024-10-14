@@ -156,7 +156,7 @@ class GroupReportService
                     return 'Invalid suspension date. The date must be in the future.';
                 }
 
-                $days = $now->diffInDays($suspensionEnd); // Get the number of days between now and the suspension end date
+                $days = $now->diffInDays($suspensionEnd) + 1; // Get the number of days between now and the suspension end date
                 $duration = "{$days} days"; // Duration in days
                 $group->update(['status' => StatusConstants::SUSPENDED]);
 

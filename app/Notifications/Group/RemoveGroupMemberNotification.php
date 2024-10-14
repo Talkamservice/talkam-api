@@ -14,11 +14,14 @@ class RemoveGroupMemberNotification extends Notification
     use Queueable;
 
 
-    public function __construct(public $group_member, public $message) {}
+    public function __construct(public $group_member) {}
 
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        if ($this->group_member->isSuspended()) {
+            return ['mail', 'firebase'];
+        }
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     public function toMail($notifiable): MailMessage
@@ -54,19 +57,25 @@ class RemoveGroupMemberNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->group_member->group_id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
     public function buildData($notifiable)
     {
+        $web_url = config("app.web_url") . "/group/{$this->group_member->group->id}";
         return [
             'data' => [
                 'id' => $this->group_member->group_id,
             ],
-            'title' => "Memeber Remover Notice",
+            'title' => "Group Member Notice",
             'message' => "You have been removed from {$this->group_member->group->name} by the group moderator",
             'link' => null,
-            'type' => 'notification',
+            'type' => 'group',
             'batch_no' => null,
             "extra" => []
         ];

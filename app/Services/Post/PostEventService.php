@@ -16,11 +16,12 @@ class PostEventService
     public static function publishScheduledPosts()
     {
         $posts = Post::status(StatusConstants::SCHEDULED)
-            ->whereDate("publish_at", "<=", now()->format("Y-m-d H:i:s"))
+            ->where("publish_at", "<=", now()->format("Y-m-d H:i:s"))
             ->get();
 
         foreach ($posts as $key => $post) {
             $post->update([
+                "created_at" => now(),
                 "status" => StatusConstants::ACTIVE
             ]);
 

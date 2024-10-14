@@ -39,11 +39,11 @@ class PostResource extends JsonResource
             "type" => $this->type,
             "uuid" => $this->uuid,
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
-            "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
+            "user" => ((!empty($this->user)) || ($this->is_anonymous != 1)) ? UserResource::custom($this->user) : null,
             "group" => !empty($this->group) ? GroupResource::custom($this->group) : null,
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
-            "tags" => $this->tags,
+            "tags" => is_string($this->tags) ? json_decode($this->tags, true) : $this->tags,
             "is_reported" => $is_reported,
             "views_count" => $this->views_count,
             "comments_count" => $this->comments()->topLevel()->count(),  // Counts only top-level comments
@@ -73,7 +73,7 @@ class PostResource extends JsonResource
             "status" => $model->status,
             "publish_at" => $model->publish_at,
             "created_at" => formatDate($model->created_at),
-            "user" => ($model->is_anonymous != 1) ? UserResource::custom($model->user) : null,
+            "user" => ((!empty($model->user)) || ($model->is_anonymous != 1)) ? UserResource::custom($model->user) : null,
         ];
     }
 }

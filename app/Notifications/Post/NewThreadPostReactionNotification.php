@@ -73,6 +73,13 @@ class NewThreadPostReactionNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->post_reaction->post_id,
+                "type" => $data["type"],
+                "extra" => [
+                    "post" => PostResource::custom($this->post_reaction->post),
+                ]
+            ])
             ->initiate();
     }
 

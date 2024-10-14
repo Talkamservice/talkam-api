@@ -77,8 +77,13 @@ class NewMessageNotification extends Notification
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->message->conversation_id,
+                "type" => $data["type"],
                 "id" => $this->message?->conversation_id,
                 "type" => "conversation",
+                "extra" => [
+                    "sender" => UserResource::custom($this->message->sender)
+                ]
             ])
             ->initiate();
     }

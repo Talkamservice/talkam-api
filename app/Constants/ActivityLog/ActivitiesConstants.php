@@ -101,5 +101,6 @@ class ActivitiesConstants
     const PROMOTION_CREATED = "PROMOTION_CREATED";
     const PROMOTION_DELETED = "PROMOTION_DELETED";
 
+    const LOG_DELETED  = "LOG_DELETED";
  
 }

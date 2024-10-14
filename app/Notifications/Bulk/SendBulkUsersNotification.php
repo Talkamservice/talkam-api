@@ -5,7 +5,8 @@ namespace App\Notifications\Bulk;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
+use Illuminate\Notifications\Messages\MailMessage;
+use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class SendBulkUsersNotification extends Notification implements ShouldQueue
@@ -15,10 +16,7 @@ class SendBulkUsersNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $user, public $notification)
-    {
-
-    }
+    public function __construct(public $user, public $notification) {}
 
     /**
      * Get the notification's delivery channels.
@@ -71,6 +69,11 @@ class SendBulkUsersNotification extends Notification implements ShouldQueue
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->notification->id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 

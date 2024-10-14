@@ -73,6 +73,11 @@ class PostsRemovedFromApplicationNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->post->id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
@@ -85,7 +90,7 @@ class PostsRemovedFromApplicationNotification extends Notification
             'title' => "Post(s) Removed Notification",
             'message' => "Your posts has been removed completely due to a guideline violation. For safety of our community, deleted post(s) can never be undo.",
             'link' => null,
-            'type' => 'post',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];

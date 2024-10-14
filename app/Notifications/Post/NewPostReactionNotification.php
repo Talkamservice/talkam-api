@@ -75,6 +75,14 @@ class NewPostReactionNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->post_reaction->post_id,
+                "type" => $data["type"],
+                "extra" => [
+                   "user" => UserResource::custom($this->post_reaction->user),
+                "post_attachements" => !empty($this->post_reaction?->post?->attachments) ? PostAttachmentResource::collection($this->post_reaction?->post?->attachments) : null
+                ]
+            ])
             ->initiate();
     }
 

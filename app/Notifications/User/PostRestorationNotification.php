@@ -73,6 +73,11 @@ class PostRestorationNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->post->id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
@@ -85,7 +90,7 @@ class PostRestorationNotification extends Notification
             'title' => "Post Restored Notification",
             'message' => "Your post has been removed from suspension and can now appear on our platform.",
             'link' => null,
-            'type' => 'post',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];

@@ -7,7 +7,8 @@ use App\Models\UserCommentReaction;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
+use Illuminate\Notifications\Messages\MailMessage;
+use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class NewCommentMentionNotification extends Notification
@@ -74,6 +75,13 @@ class NewCommentMentionNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->comment->post_id,
+                "type" => $data["type"],
+                "extra" => [
+                    "comment" => PostCommentResource::custom($this->comment),
+                ]
+            ])
             ->initiate();
     }
 

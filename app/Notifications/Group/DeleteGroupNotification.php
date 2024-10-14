@@ -55,6 +55,11 @@ class DeleteGroupNotification extends Notification implements ShouldQueue
             ->setBody($data['message'])
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->group->id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
@@ -67,7 +72,7 @@ class DeleteGroupNotification extends Notification implements ShouldQueue
             'title' => "Group Deletion Notification!",
             'message' => "Your group '{$this->group->name}' has been Deleted due to reported violations",
             'link' => null,
-            'type' => 'group',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];

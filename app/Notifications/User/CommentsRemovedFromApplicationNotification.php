@@ -81,6 +81,11 @@ class CommentsRemovedFromApplicationNotification extends Notification
             ->setBody($data['message'])
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->reported_comment->comment?->post_id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
@@ -98,7 +103,7 @@ class CommentsRemovedFromApplicationNotification extends Notification
             'title' => 'Comment Removed Notification',
             'message' => 'Your comment has been removed completely due to a guideline violation. For the safety of our community, deleted comments cannot be undone.',
             'link' => null,
-            'type' => 'comment',
+            'type' => 'notification',
             'batch_no' => null,
             'extra' => [],
         ];

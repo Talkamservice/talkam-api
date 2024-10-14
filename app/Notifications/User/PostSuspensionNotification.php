@@ -73,6 +73,11 @@ class PostSuspensionNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->post->id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
@@ -85,7 +90,7 @@ class PostSuspensionNotification extends Notification
             'title' => "Post(s) Suspension Notification",
             'message' => "Your post(S) has been suspended due to a guideline violation.",
             'link' => null,
-            'type' => 'post',
+            'type' => 'notification',
             'batch_no' => null,
             "extra" => []
         ];

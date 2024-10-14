@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\Users;
 
+use App\Http\Resources\Location\CountryResource;
+use App\Http\Resources\Location\StateResource;
 use App\Models\BlockedUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -40,6 +42,10 @@ class UserResource extends JsonResource
             "is_blocked" => $is_blocked,
             "i_am_blocked" => $i_am_blocked,
             "status" => (string) $this->status,
+            "gender" => ucfirst($this->gender),
+            "date_of_birth" => formatDateOfBirth($this->date_of_birth),
+            "state" => !empty($this->state) ? StateResource::make($this->whenLoaded("state", $this->state)) : null,
+            "country" => !empty($this->country) ? CountryResource::make($this->whenLoaded("country", $this->country)) : null,
             "interests" => InterestResource::collection($this->whenLoaded("interests", $this->interests)),
             "email_verified_at" => formatDate($this->email_verified_at),
             "created_at" => formatDate($this->created_at),

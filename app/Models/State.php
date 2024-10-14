@@ -15,11 +15,8 @@ class State extends Model
        return $this->belongsTo(Country::class , "country_id" , "id");
     }
 
-    public function schools(){
-        return $this->hasMany(School::class);
-    }
-
-    public function districts(){
-        return $this->hasMany(District::class);
+    public function scopeSearch($query, $key)
+    {
+        return $query->where("name", "LIKE", "%$key%");
     }
 }

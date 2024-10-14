@@ -75,6 +75,13 @@ class NewCommentReactionNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->comment_reaction->comment->post_id,
+                "type" => $data["type"],
+                "extra" => [
+                    "user" => UserResource::custom($this->comment_reaction->user),
+                ]
+            ])
             ->initiate();
     }
 

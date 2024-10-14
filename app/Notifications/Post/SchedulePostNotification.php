@@ -72,6 +72,11 @@ class SchedulePostNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->post->id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
+use App\Models\User;
 use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Notifications\AppMailerService;
 use App\Services\Notifications\FirebaseNotificationService;
@@ -30,15 +31,7 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        AppMailerService::send([
-            "data" => [
-            ],
-            "to" => "joelomojefe@gmail.com",
-            "template" => "emails.test",
-            "subject" => "Happy",
-        ]);
-
-        dd("ss");
+        $user = User::first();
         // (new FirebaseNotificationService)
         //     ->setTitle("Test notification")
         //     ->setBody("Message")
@@ -48,6 +41,15 @@ class TestCommand extends Command
         //         "type" => "conversation",
         //     ])
         //     ->initiate();
+
+        AppMailerService::send([
+            "data" => [
+                'email' => $user->email,
+            ],
+            "to" => "info@talkam.net",
+            "template" => "emails.waitlist.admin",
+            "subject" => "New Waitlist Member",
+        ]);
 
         // (new ActivityLogService)
         //     ->setEvent("deleted")

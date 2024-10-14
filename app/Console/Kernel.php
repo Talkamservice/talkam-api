@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         TrendingPostCommand::class,
         UpdateSuspendedMembersStatus::class,
         SendPendingNotificationCommand::class,
+        \App\Console\Commands\TestGroupMemberRemoval::class,
     ];
 
     /**

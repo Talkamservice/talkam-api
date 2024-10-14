@@ -104,12 +104,29 @@ class LoginController extends Controller
                 ]);
             }
 
+            if ($user->isBanned()) {
+                throw new AuthException("This account is currently banned");
+            }
+
+            if ($user->isSuspended()) {
+                $suspensionEnd = $user->suspension_end
+                    ? $user->suspension_end->toFormattedDateString()
+                    : 'indefinitely';
+
+                throw new AuthException("This account is currently suspended till " . $suspensionEnd);
+            }
+
+
+            if ($user->isDisabled()) {
+                throw new AuthException("Account disabled");
+            }
+
             if (!empty($token = $data["fcm_token"] ?? null)) {
                 $user->update([
                     "fcm_token" => $token
                 ]);
             }
-            
+
             $data["user"] =  UserResource::make($user)->toArray($request);
             $data["token"] = $user->createToken('api')->plainTextToken;
             LoginService::newLogin($user);

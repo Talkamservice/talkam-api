@@ -19,7 +19,7 @@ class ChangedGroupMemberRoleNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'firebase'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     public function toMail($notifiable): MailMessage
@@ -55,6 +55,11 @@ class ChangedGroupMemberRoleNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->group_member->group_id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
@@ -70,13 +75,14 @@ class ChangedGroupMemberRoleNotification extends Notification
         } else {
             $message = "Your role in {$this->group_member->group->name} has been changed.";
         }
+        $web_url = config("app.web_url") . "/group/{$this->group_member->group->id}";
         return [
             'data' => [
                 'id' => $this->group_member->group_id,
             ],
             'title' => "Member Role Notice",
             'message' => $message, 
-            'link' => null,
+            'link' => $web_url,
             'type' => 'group',
             'batch_no' => null,
             "extra" => []

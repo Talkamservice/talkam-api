@@ -54,6 +54,11 @@ class SuspendGroupMemberNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->group_member->group_id,
+                "type" => $data["type"],
+                "extra" => []
+            ])
             ->initiate();
     }
 
@@ -66,7 +71,7 @@ class SuspendGroupMemberNotification extends Notification
             'title' => "Group Suspension Notice",
             'message' => $this->message,
             'link' => null,
-            'type' => 'notification',
+            'type' => 'group',
             'batch_no' => null,
             "extra" => []
         ];

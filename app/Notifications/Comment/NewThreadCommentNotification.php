@@ -7,7 +7,8 @@ use App\Http\Resources\Post\PostCommentResource;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage; use App\Helpers\MethodsHelper;
+use Illuminate\Notifications\Messages\MailMessage;
+use App\Helpers\MethodsHelper;
 use Illuminate\Notifications\Notification;
 
 class NewThreadCommentNotification extends Notification
@@ -74,6 +75,14 @@ class NewThreadCommentNotification extends Notification
             ->setBody($data["message"])
             ->setType($data["type"])
             ->byUserToken($notifiable->fcm_token)
+            ->setMetadata([
+                'id' => $this->comment?->post_id,
+                "type" => $data["type"],
+                "extra" => [
+                    "comment" => PostCommentResource::custom($this->comment),
+                    "post_attachements" => !empty($this->comment?->post?->attachments) ? PostAttachmentResource::collection($this->comment?->post?->attachments) : null
+                ]
+            ])
             ->initiate();
     }
 
