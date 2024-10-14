@@ -18,6 +18,5 @@
         <p class="detailCont-p">
             Regards, <br>TalkAM Team
         </p>
-        </td>
     </div>
 @endsection
