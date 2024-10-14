@@ -40,6 +40,8 @@ class UserResource extends JsonResource
             "is_blocked" => $is_blocked,
             "i_am_blocked" => $i_am_blocked,
             "status" => (string) $this->status,
+            "gender" => ucfirst($this->gender),
+            "date_of_birth" => formatDateOfBirth($this->date_of_birth), 
             "interests" => InterestResource::collection($this->whenLoaded("interests", $this->interests)),
             "email_verified_at" => formatDate($this->email_verified_at),
             "created_at" => formatDate($this->created_at),

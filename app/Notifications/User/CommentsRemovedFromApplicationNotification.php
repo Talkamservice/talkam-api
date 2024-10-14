@@ -82,6 +82,7 @@ class CommentsRemovedFromApplicationNotification extends Notification
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
+                'id' => $this->reported_comment->comment?->post_id,
                 "type" => $data["type"],
                 "extra" => []
             ])
