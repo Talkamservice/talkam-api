@@ -4,6 +4,7 @@ namespace App\Services\Finance\Plan;
 
 use App\Constants\Finance\Plan\PlanConstants;
 use App\Exceptions\Finance\PlanException;
+use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PlanDuration;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -17,7 +18,7 @@ class PlanDurationService
     {
         $plan_duration = PlanDuration::find($id);
         if (empty($plan_duration)) {
-            throw new PlanException("Plan duration not found");
+            throw new ModelNotFoundException("Plan duration not found");
         }
         return $plan_duration;
     }
