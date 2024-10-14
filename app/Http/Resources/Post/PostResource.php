@@ -39,7 +39,7 @@ class PostResource extends JsonResource
             "type" => $this->type,
             "uuid" => $this->uuid,
             "category" => PostCategoryResource::make($this->whenLoaded("category", $this->category)),
-            "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
+            "user" => ((!empty($this->user)) || ($this->is_anonymous == 0)) ? UserResource::custom($this->user) : null,
             "group" => !empty($this->group) ? GroupResource::custom($this->group) : null,
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
