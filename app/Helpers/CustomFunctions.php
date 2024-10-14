@@ -220,3 +220,19 @@ function findSpecialWords($string) {
     return $matches[1];
 }
 
+function imageUrlToBase64($imageUrl) {
+    $imagePath = public_path($imageUrl); // Laravel helper to get the public path
+    if (file_exists($imagePath)) {
+        // Get the file's MIME type
+        $imageType = pathinfo($imagePath, PATHINFO_EXTENSION);
+        
+        // Read the image content and encode it
+        $imageData = file_get_contents($imagePath);
+        $base64 = base64_encode($imageData);
+        
+        // Return the Base64 image string with the correct MIME type
+        return "data:image/{$imageType};base64,{$base64}";
+    } else {
+        return null; // Return null if the file doesn't exist
+    }
+}
