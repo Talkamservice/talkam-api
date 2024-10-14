@@ -15,19 +15,11 @@
 
 <tr>
     <td class="footerlogo">
-        {{-- <span> <img class="flogo" src="{{ imageUrlToBase64('email/assets/talkamlogo.svg') }}" /></span>
+        <span> <img class="flogo" src="{{ asset('email/assets/talkamlogo.svg') }}" /></span>
         <span class="iconsCont">
-            <img class="icon1" src="{{ imageUrlToBase64("email/assets/twitterIconB.svg") }}" />
-            <img class="icon1" src="{{ imageUrlToBase64("email/assets/facebookIconB.svg") }}" />
-            <img src="{{ imageUrlToBase64("email/assets/instagramIcon.svg") }}" />
-        </span> --}}
-        <span> 
-            <img class="flogo" src="https://admin.talkam.net/email/assets/talkamlogo.svg" alt="Logo" />
-        </span>
-        <span class="iconsCont">
-            <img class="icon1" src="https://admin.talkam.net/email/assets/twitterIconB.svg" alt="Twitter Icon" />
-            <img class="icon1" src="https://admin.talkam.net/email/assets/facebookIconB.svg" alt="Facebook Icon" />
-            <img class="icon1" src="https://admin.talkam.net/email/assets/instagramIcon.svg" alt="Instagram Icon" />
+            <img class="icon1" src="{{ asset("email/assets/twitterIconB.svg") }}" />
+            <img class="icon1" src="{{ asset("email/assets/facebookIconB.svg") }}" />
+            <img src="{{ asset("email/assets/instagramIcon.svg") }}" />
         </span>
     </td>
 </tr>
