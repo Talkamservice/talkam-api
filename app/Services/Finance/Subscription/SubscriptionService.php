@@ -5,6 +5,8 @@ namespace App\Services\Finance\Subscription;
 use App\Constants\Finance\Payment\PaymentConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\Finance\SubscriptionException;
+use App\Exceptions\General\InvalidRequestException;
+use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PlanDuration;
 use App\Models\Subscription;
 use App\Models\User;
@@ -20,7 +22,7 @@ class SubscriptionService
     {
         $subscription = Subscription::find($id);
         if (empty($subscription)) {
-            throw new SubscriptionException("Subscription not found");
+            throw new ModelNotFoundException("Subscription not found");
         }
         return $subscription;
     }
@@ -58,7 +60,7 @@ class SubscriptionService
     {
         $currentSubscription = self::currentUserSubscription($model, $plan_duration);
         if (!empty($currentSubscription)) {
-            throw new SubscriptionException("You are already subscribed to this plan");
+            throw new InvalidRequestException("You are already subscribed to this plan");
         }
     }
 
@@ -105,7 +107,7 @@ class SubscriptionService
         ])->createPaymentIntent();
 
         if (empty($payment_intent_response)) {
-            throw new SubscriptionException("Unable to initiate payment");
+            throw new InvalidRequestException("Unable to initiate payment");
         }
 
         return [
