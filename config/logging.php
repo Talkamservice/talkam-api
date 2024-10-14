@@ -126,6 +126,18 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'broadcast_exception' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/broadcast_exception.log'),
+            'level' => 'debug',
+        ],
+
+        'log_exception' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/log_exception.log'),
+            'level' => 'debug',
+        ],
     ],
 
 ];

@@ -2,11 +2,15 @@
 
 namespace App\Services\Finance\PaymentGateways\Flutterwave;
 
+use App\Constants\General\ApiConstants;
+use App\Exceptions\Payment\FlutterwaveException;
+use App\Services\General\Guzzle\GuzzleService;
+use App\Services\System\ExceptionService;
 use Exception;
 
-class FlutterwaveService {
-    
-    private $env;
+class FlutterwaveService
+{
+
     public $base_url;
     public $api_key;
     public array $headers;
@@ -18,32 +22,25 @@ class FlutterwaveService {
 
     public function __construct()
     {
-        $this->env = env("APP_ENV");
         $this->setBaseUrl();
         $this->setApiKey();
         $this->setHeaders();
         $this->client = $this->setClient();
     }
 
-    public function setBaseUrl($url = null)
+    public function setBaseUrl()
     {
-        // Use Flutterwave's base URL based on environment
-        // $this->base_url = $url ?? ($this->env == 'production' 
-        //     ? 'https://api.flutterwave.com/v3' 
-        //     : 'https://ravesandboxapi.flutterwave.com/v3');
-        // return $this; // I want to get the key before i use this
+        $this->base_url = env("FLW_BASE_URL");
     }
 
     public function setApiKey($key = null)
     {
-        // Set the Flutterwave secret key
         $this->api_key = $key ?? config("services.flutterwave.secretKey");
         return $this;
     }
 
     public function setHeaders(?array $headers = [])
     {
-        // Set headers for Flutterwave requests
         $this->headers = array_merge([
             'Authorization' => "Bearer {$this->api_key}",
             'Content-Type' => 'application/json',
@@ -52,7 +49,6 @@ class FlutterwaveService {
 
     public function setClient()
     {
-        // Assuming GuzzleHttp is used for HTTP requests
         return new GuzzleService($this->headers);
     }
 
@@ -68,15 +64,14 @@ class FlutterwaveService {
         return $this;
     }
 
-    // Create a payment transaction using Flutterwave
     public function createTransaction()
     {
         try {
             $full_url = "{$this->base_url}/payments";
             $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
 
-            if ($response['status'] !== 'success') {
-                throw new Exception($response['message']);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
             }
 
             return $response['data'];
@@ -85,15 +80,14 @@ class FlutterwaveService {
         }
     }
 
-    // Verify payment transaction using transaction ID
     public function verifyTransaction($transaction_id)
     {
         try {
             $full_url = "{$this->base_url}/transactions/{$transaction_id}/verify";
             $response = $this->client->get($full_url);
 
-            if ($response['status'] !== 'success') {
-                throw new Exception($response['message']);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
             }
 
             return $response['data'];
@@ -102,15 +96,14 @@ class FlutterwaveService {
         }
     }
 
-    // Refund a transaction
     public function refundTransaction($transaction_id, array $data)
     {
         try {
             $full_url = "{$this->base_url}/transactions/{$transaction_id}/refund";
             $response = $this->client->postWithFormParams($full_url, $data);
 
-            if ($response['status'] !== 'success') {
-                throw new Exception($response['message']);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
             }
 
             return $response['data'];
