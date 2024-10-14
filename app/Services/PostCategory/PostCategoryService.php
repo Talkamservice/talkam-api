@@ -8,6 +8,7 @@ use App\Constants\General\StatusConstants;
 use App\Constants\Media\FileConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Helpers\MethodsHelper;
 use App\Models\Group;
 use App\Models\GroupMember;
 use App\Models\MergeCategory;
@@ -68,6 +69,7 @@ class PostCategoryService
             $data["icon_image"] = $this->file_service->saveFromFileIntoStorage($icon_image, FileConstants::CATEGORY_PATH, null, auth()->id());
         }
 
+        $data["uuid"] = MethodsHelper::getRandomToken(10);
         $category = PostCategory::create($data);
 
         (new ActivityLogService)
@@ -88,14 +90,11 @@ class PostCategoryService
 
     public function update(array $data, $id)
     {
-        // Validate the data and find the category by ID
         $data = self::validate($data, $id);
         $category = self::getById($id);
 
-        // Capture old category data before the update
         $old_category_data = $category;
 
-        // Handle image updates if provided
         if (!empty($background_image = $data["image"] ?? null)) {
             $data["image"] = $this->file_service->saveFromFileIntoStorage($background_image, FileConstants::CATEGORY_PATH, null, auth()->id());
         }
@@ -104,13 +103,10 @@ class PostCategoryService
             $data["icon_image"] = $this->file_service->saveFromFileIntoStorage($icon_image, FileConstants::CATEGORY_PATH, null, auth()->id());
         }
 
-        // Update the category with the new data
         $category->update($data);
 
-        // Refresh the category to get the latest data after the update
         $new_category_data = $category;
 
-        // Log the activity
         (new ActivityLogService)
             ->setEvent("updated")
             ->setTitle("Category Updated")
@@ -254,6 +250,7 @@ class PostCategoryService
             return [
                 "id" => $category->id,
                 "name" => $category->name,
+                "uuid" => $category->uuid,
                 "background_image" => $category->image,
                 "icon_image" => $category->icon_image,
                 "description" => $category->description,
@@ -290,6 +287,7 @@ class PostCategoryService
                 "id" => $group->id,
                 "type" => "Group",
                 "name" => $group->name,
+                "uuid" => $group->uuid,
                 "background_image" => $group->image,
                 "icon_image" => null,
                 "description" => $group->description,
