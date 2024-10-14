@@ -2,6 +2,9 @@
 
 namespace App\Services\Finance\PaymentGateways\Flutterwave;
 
+use App\Constants\General\ApiConstants;
+use App\Models\Plan;
+use App\Services\General\Guzzle\GuzzleService;
 use Exception;
 
 class FlutterwaveService {
@@ -62,10 +65,115 @@ class FlutterwaveService {
         return $this;
     }
 
-    public function setTransactionData(array $value)
+    public function setPriceData(array $value)
     {
-        $this->transaction_data = $value;
+        $this->price_data = $value;
         return $this;
+    }
+
+    public function setSubscriptionData(array $value)
+    {
+        $this->subscription_data = $value;
+        return $this;
+    }
+
+    public function setPaymentIntentData(array $value)
+    {
+        $this->payment_intent_data = $value;
+        return $this;
+    }
+
+    public function setPaymentMethodData(array $value)
+    {
+        $this->payment_method_data = $value;
+        return $this;
+    }
+
+    public function setAttachPaymentMethodToConsumerData(array $value)
+    {
+        $this->payment_method_to_consumer_data = $value;
+        return $this;
+    }
+
+    public function createCustomer()
+    {
+        try {
+            $full_url = $this->base_url . "/customers";
+            $response = $this->client->post($full_url, $this->customer_data);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new StripeException($response["message"]["error"]["message"] ?? null);
+            }
+
+            return $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+        }
+    }
+
+    public function createPrice()
+    {
+        try {
+            $full_url = $this->base_url . "/prices";
+            $response = $this->client->postWithFormParams($full_url, $this->price_data);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new StripeException($response["message"]["error"]["message"] ?? null);
+            }
+
+            return $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+        }
+    }
+
+    public function updatePrice($price_id)
+    {
+        try {
+            $full_url = $this->base_url . "/prices/$price_id";
+            $response = $this->client->post($full_url, $this->price_data);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new Exception($response["message"]["error"]["message"] ?? null);
+            }
+
+            return $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+        }
+    }
+
+    /**
+     * Process payment through Flutterwave.
+     *
+     * @param Plan $plan
+     * @param float $amount
+     * @return void
+     */
+    public function processFlutterwavePayment(Plan $plan, $amount)
+    {
+        $paymentData = [
+            'tx_ref' => uniqid('trx_'), // Unique transaction reference
+            'amount' => $amount,
+            'currency' => 'USD',
+            'payment_options' => 'card', // You can allow other options like bank, mobilemoney, etc.
+            'redirect_url' => route('payment.callback'), // Your payment callback route
+            'customer' => [
+                'email' => auth()->user()->email,
+                'name' => auth()->user()->name,
+            ],
+            'meta' => [
+                'plan_id' => $plan->id, // Store the plan id for reference in callback
+            ],
+            'customizations' => [
+                'title' => 'Plan Payment',
+                'description' => 'Payment for ' . $plan->name,
+                'logo' => asset('path_to_logo'), // Your logo path
+            ]
+        ];
+
+        // Initialize the Flutterwave payment
+        $this->rave->initializePayment($paymentData);
     }
 
     // Create a payment transaction using Flutterwave

@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\Finance\Plan\PlanController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
+use App\Http\Controllers\Admin\PaymentGateways\Flutterwave\FlutterwaveController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\Report\CommentReportController;
@@ -41,7 +42,7 @@ Route::middleware(["auth"])->group(
             'users' => UserController::class,
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
-            'guidelines'=> GuidelineController::class,
+            'guidelines' => GuidelineController::class,
             "terms-and-conditions" => TermAndConditionController::class,
             "privacy-policies" => PrivacyPolicyController::class,
             "faqs" => FaqController::class,
@@ -129,7 +130,11 @@ Route::middleware(["auth"])->group(
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
             Route::delete('comment/delete/{id}', [CommentReportController::class, "deleteReportedComment"])->name('comment.delete');
             Route::post('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
+        });
 
+        Route::prefix("plan")->as("reports.")->group(function () {
+            Route::post('/pay', [FlutterwaveController::class, 'initializePayment'])->name('payment.initialize');
+            Route::get('/payment/callback', [FlutterwaveController::class, 'handlePaymentCallback'])->name('payment.callback');
         });
 
         Route::resource('announcements', AnnouncementController::class);
