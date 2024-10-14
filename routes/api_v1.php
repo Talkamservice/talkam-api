@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
 use App\Http\Controllers\Api\V1\Feedback\FeedbackController;
+use App\Http\Controllers\Api\V1\Finance\User\PlansController;
+use App\Http\Controllers\Api\V1\Finance\User\SubscriptionsController;
 use App\Http\Controllers\Api\V1\General\AuthController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
@@ -172,6 +174,22 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::delete("/delete/{messageId}", [MessagingController::class, "deleteMessage"])->name("delete-message");
             });
         });
+
+        Route::prefix("finance")->as("finance.")->group(function () {
+
+            Route::prefix("plans")->as("plans")->group(function () {
+                Route::get("/", [PlansController::class,  "index"])->name("index");
+                Route::get("{plan}/show", [PlansController::class,  "show"])->name("show");
+            });
+    
+            Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
+                Route::get("/", [SubscriptionsController::class,  "index"])->name("index");
+                Route::get("{subscription}/show", [SubscriptionsController::class,  "show"])->name("show");
+                Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
+                Route::post("initiate", [SubscriptionsController::class,  "initiate"])->name("initiate");
+            });
+        });
+    
 
         Route::prefix("notifications")->as("notifications.")->group(function () {
             Route::get("list", [NotificationController::class, "index"])->name("index");

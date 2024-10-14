@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="">
-        <p>Hello {{ $user->getName() }},</p>
+        <p>Hi,</p>
         <p class="detailCont-p">
-            You requested for a password reset on your account.
+            Help us secure your account as you verify it is authentic.
         </p>
 
         <p class="detailCont-p">
@@ -18,6 +18,5 @@
         <p class="detailCont-p">
             Regards, <br>TalkAM Team
         </p>
-        </td>
     </div>
 @endsection

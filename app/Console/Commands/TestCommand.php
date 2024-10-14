@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Services\ActivityLog\ActivityLogService;
+use App\Services\Notifications\AppMailerService;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Console\Command;
 
@@ -29,15 +30,24 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        (new FirebaseNotificationService)
-            ->setTitle("Test notification")
-            ->setBody("Message")
-            ->setType("Test")
-            ->byUserId(11)
-            ->setMetadata([
-                "type" => "conversation",
-            ])
-            ->initiate();
+        AppMailerService::send([
+            "data" => [
+            ],
+            "to" => "joelomojefe@gmail.com",
+            "template" => "emails.test",
+            "subject" => "Happy",
+        ]);
+
+        dd("ss");
+        // (new FirebaseNotificationService)
+        //     ->setTitle("Test notification")
+        //     ->setBody("Message")
+        //     ->setType("Test")
+        //     ->byUserId(11)
+        //     ->setMetadata([
+        //         "type" => "conversation",
+        //     ])
+        //     ->initiate();
 
         // (new ActivityLogService)
         //     ->setEvent("deleted")

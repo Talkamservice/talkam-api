@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Http\Resources\Finance\Plan;
+
+use App\Constants\Account\User\UserConstants;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class PlanResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     */
+    public function toArray($request)
+    {
+       $data = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            "frequency" => $this->defaultDuration()?->frequency,
+            "price" => $this->defaultDuration()?->price,
+            "discount" => $this->defaultDuration()?->discount,
+            "status" => $this->status,
+            "is_active_subscription" => false,
+            // 'feature_cards' => $this->feature_cards ?? [],
+            "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
+            "benefits" => PlanBenefitResource::collection($this->whenLoaded("benefits", $this->benefits)),
+            "created_at" => formatDate($this->created_at),
+            "updated_at" => formatDate($this->updated_at)
+        ];
+
+        if (!empty($user = auth()->user())) {
+            if ($user?->role == UserConstants::USER) {
+                $active_sub = $user->activeSubscription;
+                if (!empty($active_sub) && $active_sub->plan_id == $this->id) {
+                    $data["is_active_subscription"] = true;
+                } else if (empty($active_sub) && strtolower($this->name) == "free") {
+                    $data["is_active_subscription"] = true;
+                }
+            }
+        }
+
+        return $data;
+    }
+}

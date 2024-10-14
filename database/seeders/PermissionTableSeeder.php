@@ -27,6 +27,7 @@ class PermissionTableSeeder extends Seeder
                 $this->crud("faq"),
                 $this->crud("faq_category"),
                 $this->crud("avatar"),
+                $this->crud("plan"),
                 $this->slugifyPerms([
                     "login into admin dashboard",
                     "suspend a user",
