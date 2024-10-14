@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
 use App\Http\Controllers\Api\V1\User\Post\SearchController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
+use App\Http\Controllers\Api\V1\User\Promotion\PromotionController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\Web\FaqController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
@@ -152,6 +153,12 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("recents")->as("recents")->group(function () {
             Route::get("fetch", [RecentViewController::class, "index"])->name("fetch");
+        });
+
+        Route::prefix("promotions")->as("promotions")->group(function () {
+            Route::get("/", [PromotionController::class, "index"])->name("index");
+            Route::get("{promotion}/show", [PromotionController::class, "show"])->name("show");
+            Route::get("{promotion}/delete", [PromotionController::class, "delete"])->name("delete");
         });
 
         Route::prefix("post-comments")->as("post-comments.")->group(function () {

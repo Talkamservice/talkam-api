@@ -137,7 +137,6 @@ class PostCategoryService
             $category = self::getById($category_id);
             $deleted_category = $category;
             $category->delete();
-            DB::commit();
             (new ActivityLogService)
                 ->setEvent("deleted")
                 ->setTitle("Category Deleted")
@@ -151,6 +150,7 @@ class PostCategoryService
                 ])
                 ->setUrl(request()->fullUrl())
                 ->log();
+                DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
