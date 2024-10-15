@@ -168,7 +168,7 @@ class UserService
                 "state_id" => "nullable|exists:states,id",
                 "country_id" => "nullable|exists:countries,id",
                 "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
-                'date_of_birth' => 'nullable|date_format:d/m/Y|before:today',
+                "date_of_birth" => 'nullable|date_format:Y-m-d|before:today',
             ], [
                 "username.unique" => "The username has already been taken",
                 "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",
