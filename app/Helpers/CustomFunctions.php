@@ -85,8 +85,8 @@ function formatDateOfBirth($value)
     if (is_null($value) || empty($value)) {
         return $value;
     }
-    // Format the date if it's not null 
-    return Carbon::parse($value)->format("d/m/Y");
+    // Format the date if it's not null
+    return Carbon::parse($value)->format("Y-m-d");
 }
 
 
@@ -177,7 +177,8 @@ function isBlocked($blocker, $blocked_user)
 }
 
 // Function to filter array and avoid duplicate words
-function filterUniqueWords($array) {
+function filterUniqueWords($array)
+{
     $unique_words = [];
     $filtered_array = [];
 
@@ -209,7 +210,8 @@ function slugPermission(string $string)
     return "can_" . str_replace("-", "_", slugify($string));
 }
 
-function findSpecialWords($string) {
+function findSpecialWords($string)
+{
     // Regular expression to match words starting and ending with $
     $pattern = '/\$@(\w+)\$/';
 
@@ -219,4 +221,3 @@ function findSpecialWords($string) {
     // Return the matched words
     return $matches[1];
 }
-
