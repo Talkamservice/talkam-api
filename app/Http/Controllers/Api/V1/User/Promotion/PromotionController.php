@@ -44,6 +44,19 @@ class PromotionController extends Controller
         }
     }
 
+    public function submit($id)
+    {
+        try {
+            $promotion = $this->promotion_service->create($id);
+            $data = PromotionResource::make($promotion);
+            return ApiHelper::validResponse("Promotion details returned successfully", $data);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
     public function delete($id)
     {
         try {

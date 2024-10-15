@@ -5,16 +5,11 @@ namespace App\Services\Promotion;
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
-use App\Constants\Media\FileConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
-use App\Models\Group;
-use App\Models\GroupMember;
-use App\Models\MergeCategory;
 use App\Models\Promotion;
-use App\Models\UserInterest;
 use App\Services\ActivityLog\ActivityLogService;
-use App\Services\Media\FileService;
+use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -23,7 +18,12 @@ use Illuminate\Validation\ValidationException;
 class PromotionService
 {
     public $user;
-    public function __construct() {}
+    public $flutterwave_service;
+
+    public function __construct()
+    {
+        $this->flutterwave_service = new FlutterwaveService;
+    }
 
     public static function getById($id): Promotion
     {
@@ -59,6 +59,22 @@ class PromotionService
             throw new ValidationException($validator);
         }
         return $validator->validated();
+    }
+
+    public function submit(array $data)
+    {
+        try {
+            $promotion = $this->create($data);
+            $this->initiatePayment($promotion);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function initiatePayment($promotion)
+    {
+        $total_amount = $promotion->daily_budget * $promotion->duration;
+        // $this->flutterwave_service->c
     }
 
     public function create(array $data)
