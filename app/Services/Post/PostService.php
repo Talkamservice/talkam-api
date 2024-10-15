@@ -362,7 +362,7 @@ class PostService
     public function getCommentAttachments($data)
     {
         $field = is_numeric($data["user_id"]) ? "id" : "username";
-        $builder = PostComment::where("user", $field, $data["user_id"])->whereNotNull("attachment");
+        $builder = PostComment::whereRelation("user", $field, $data["user_id"])->whereNotNull("attachment");
 
         if (!empty($data["exclude_anonymous"] ?? null)) {
             $builder = $builder->where("is_anonymous", 0);
