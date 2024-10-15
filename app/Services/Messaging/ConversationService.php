@@ -141,13 +141,14 @@ class ConversationService
                     $query->whereIn("user_id", [$receiver->id]);
                 })->first();
 
-            if ($conversation?->messages?->isEmpty()) {
+           if ($conversation?->messages?->isEmpty()) {
                 $conversation->delete();
             }
 
-            if (!empty($conversation)) {
+            if ($conversation->exists()) {
                 return $conversation;
             }
+
 
             $conversation = Conversation::create([
                 "user_id" => $user->id,
