@@ -218,7 +218,7 @@ class PostService
 
         if (!empty($key = $data["user_id"] ?? null)) {
             $field = is_numeric($key) ? "id" : "username";
-            $builder = $builder->whereHas("user", $field, $key);
+            $builder = $builder->whereRelation("user", $field, $key);
         }
 
         if (!empty($key = $data["tab"] ?? null)) {
