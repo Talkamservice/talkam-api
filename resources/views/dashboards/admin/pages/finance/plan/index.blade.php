@@ -89,6 +89,11 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    @include(
+                                        'dashboards.admin.pages.finance.subscription.subscribe-modal',
+                                        ['users', $users, 'plan' => $plan]
+                                    )
+
                                 @empty
                                     <div class="alert alert-info text-center">
                                         No records found
@@ -108,5 +113,4 @@
             </div>
         </div>
     </div>
-    @include('dashboards.admin.pages.finance.subscription.subscribe-modal', ['users', $users])
 @endsection

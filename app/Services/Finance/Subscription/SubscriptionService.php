@@ -7,12 +7,14 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\Finance\SubscriptionException;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Plan;
 use App\Models\PlanDuration;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use App\Services\Finance\PaymentGateways\Stripe\StripeService;
+use App\Services\Finance\Plan\PlanService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -51,7 +53,7 @@ class SubscriptionService
             $data = self::validate($data);
             $plan_duration = PlanDuration::find($data["plan_duration_id"]);
             self::checkForSubscription(auth()->user(), $plan_duration);
-            $response = $this->intiatePayment($plan_duration);
+            $response = $this->initiatePayment($plan_duration);
             DB::commit();
             return $response;
         } catch (\Throwable $th) {
@@ -82,57 +84,70 @@ class SubscriptionService
 
     public function initiatePayment(Request $request)
     {
-        // Get the authenticated user or from the request
-        $user = auth()->user() ?? $request->user;
-    
+        // Step 1: Get the user either from request or auth
+        $user = $request->has('user_id') ? User::find($request->user_id) : auth()->user();
         if (!$user) {
-            throw new InvalidRequestException("User not authenticated."); // Explicit error handling for unauthenticated users
+            throw new InvalidRequestException("User not authenticated.");
         }
-    
-        // Create customer in Flutterwave if customer ID is empty
+
+        // Create Flutterwave customer if necessary
+        $flutterwave = new FlutterwaveService();
+       
         if (empty($user->flutterwave_customer_id)) {
-            $response = (new FlutterwaveService)->setCustomerData([
-                "name" => $user->name,
-                "email" => $user->email,
-            ])->createCustomer(); // Assuming this returns a response with the Flutterwave customer ID
-    
-            if (!empty($response) && isset($response["id"])) {
-                $user->update([
-                    "flutterwave_customer_id" => $response["id"] // Save Flutterwave customer ID
-                ]);
+            // Create a customer in Flutterwave
+            $response = $flutterwave->setCustomerData([
+                'email' => $user->email,
+            ]);
+            $response->createCustomer();
+// dd($response);
+            if (!empty($response) && isset($response['id'])) {
+                // Update user with Flutterwave customer ID
+                $user->update(['flutterwave_customer_id' => $response['id']]);
             } else {
-                throw new InvalidRequestException("Unable to create Flutterwave customer");
+                dd($response);
+                throw new InvalidRequestException("Unable to create Flutterwave customer.");
             }
         }
-    
-        $plan = (new FlutterwaveService)->getById($request->plan_id);
+
+        //Retrieve plan and durations
+        $plan = $flutterwave->getPlanById($request->plan_id);
         $durations = $plan->durations;
-    
-        // Initialize payment intent response variable
-        $payment_intent_response = null;
-    
-        // Process each duration for pricing
+
+        // Process each duration for pricing and create transactions
         foreach ($durations as $duration) {
-            $amount = floatval((new Plan())->parsePlanPrice($duration)); // Ensure you're getting the correct amount
-    
-            // Create a pricing structure with Flutterwave
-            $response = (new FlutterwaveService)->setPriceData([
+            $amount = floatval((new PlanService)->parsePlanPrice($duration)); // Get the correct amount
+
+            // Step 5: Create a Flutterwave transaction
+            $transaction_data = [
+                'tx_ref' => uniqid('tx_'),  // Unique transaction reference
+                'redirect_url' => route('admin.payments.flutterwave.callback'),
                 'currency' => 'USD',
                 'amount' => $amount,
-                'plan' => $plan->name,
-            ])->createTransaction();
-    
+                'customer' => [
+                    'email' => $user->email,
+                    'id' => $user->flutterwave_customer_id
+                ],
+                'meta' => [
+                    'plan_name' => $plan->name,
+                    'duration' => $duration->name,
+                ]
+            ];
+
+            $response = $flutterwave->setTransactionData($transaction_data)->createTransaction();
+
             if (!empty($response)) {
                 $duration->update([
-                    "flutterwave_price_id" => $response["id"] // Save Flutterwave price ID
+                    'flutterwave_price_id' => $response['id'] // Save Flutterwave price ID for each duration
                 ]);
+            } else {
+                throw new FlutterwaveException("Transaction creation failed for duration {$duration->name}.");
             }
         }
-    
     }
-    
 
-    
+
+
+
 
     public static function list()
     {

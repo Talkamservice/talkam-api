@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\Finance\User;
+namespace App\Http\Controllers\Api\V1\User\Finance;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\ApiConstants;

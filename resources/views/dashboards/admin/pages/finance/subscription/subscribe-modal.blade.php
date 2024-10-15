@@ -7,8 +7,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{route('flu')}}" method="POST"> <!-- Ensure to set the correct action -->
+                <form action="{{route('admin.payments.flutterwave.initiate')}}" method="POST"> <!-- Ensure to set the correct action -->
                     @csrf
+                    <input type="hidden" name="plan_id" value="{{$plan->id}}">
                     <div class="row col-xl-12 col-sm-12 mb-3" id="user-container" >
                         <label for="users" class="form-label">Select User</label>
                         <div id="selected-users" class="mb-2"></div> <!-- Container for displaying selected users -->

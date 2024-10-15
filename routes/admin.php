@@ -133,8 +133,8 @@ Route::middleware(["auth"])->group(
         });
 
         Route::prefix("payments")->as("payments.")->group(function () {
-            Route::post('flutterwave/pay', [FlutterwaveController::class, 'initializeFlutterwavePayment'])->name('flutterwave.initialize');
-            Route::get('flutterwave/callback', [FlutterwaveController::class, 'handleFlutterwavePaymentCallback'])->name('flutterwave.callback');
+            Route::post('flutterwave/pay', [FlutterwaveController::class, 'initiateFlutterwavePayment'])->name('flutterwave.initiate');
+            Route::get('flutterwave/callback', [FlutterwaveController::class, 'handleFlutterwavePaymentCallback'])->name('flutterwave.callback');            
         });
 
         Route::resource('announcements', AnnouncementController::class);

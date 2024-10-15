@@ -36,6 +36,7 @@ class GuzzleService
 
     public function post(string $url, array $data = [])
     {
+       
         try {
             $response = $this->client->post(
                 $url,
@@ -44,6 +45,7 @@ class GuzzleService
                     'auth' => $this->auth,
                     'json' => $data,
                 ]
+                $data,
             );
 
             return $this->success($response);

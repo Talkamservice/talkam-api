@@ -6,6 +6,7 @@ use App\Constants\General\ApiConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Plan;
+use App\Services\Finance\Plan\PlanService;
 use App\Services\Finance\Subscription\SubscriptionService;
 use App\Services\General\Guzzle\GuzzleService;
 use App\Services\System\ExceptionService;
@@ -20,9 +21,9 @@ class FlutterwaveService
     protected array $headers;
     protected $client;
     public $payment_intent_data;
-    protected $customer_data = [];
-    protected $transaction_data = [];
-    protected $price_data = [];
+    protected $customer_data;
+    protected $transaction_data;
+    protected $price_data;
 
     public function __construct()
     {
@@ -35,7 +36,8 @@ class FlutterwaveService
     // Sets the Flutterwave base URL from the environment variables
     public function setBaseUrl()
     {
-        $this->base_url = env("FLW_BASE_URL");
+       $this->base_url = env("FLW_BASE_URL");
+        return $this;
     }
 
     // Sets the API key, allows for optional overriding
@@ -69,8 +71,8 @@ class FlutterwaveService
     // Sets customer data for transactions
     public function setCustomerData(array $value)
     {
-        $this->customer_data = $value;
-        return $this;
+       $this->customer_data = $value;
+       return $this;
     }
 
     // Sets price data for transactions
@@ -84,12 +86,12 @@ class FlutterwaveService
     {
         try {
             $full_url = $this->base_url . "/customers";
-            $response = $this->client->post($full_url, $this->customer_data);
-
+            $data = $this->customer_data;
+            // dd($full_url, $data);
+            $response = $this->client->post($full_url, $data);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
             }
-
             return $response["data"];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
@@ -109,7 +111,7 @@ class FlutterwaveService
         try {
             $full_url = "{$this->base_url}/payments";
             $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
-
+            dd($full_url, $response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
             }
@@ -157,7 +159,7 @@ class FlutterwaveService
         }
     }
 
-    public function getById($key, $column = "id")
+    public function getPlanById($key, $column = "id")
     {
         $plan = Plan::where($column, $key)->first();
         if (empty($plan)) {
@@ -169,6 +171,7 @@ class FlutterwaveService
 
     public function createFlutterwavePrices(Request $request)
     {
+        // dd($request->all());
         (new SubscriptionService)->initiatePayment($request);
     }
 
@@ -180,7 +183,7 @@ class FlutterwaveService
         foreach ($durations as $key => $duration) {
             $this->setPriceData([
                 'currency' => 'USD',
-                'amount' => floatval((new Plan)->parsePlanPrice($duration)),
+                'amount' => floatval((new PlanService)->parsePlanPrice($duration)),
                 'plan' => $plan->name,
             ])->createTransaction(); // Adjusted for Flutterwave price update logic
         }
