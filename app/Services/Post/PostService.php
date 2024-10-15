@@ -340,7 +340,8 @@ class PostService
 
     public function getPostAttachments($data)
     {
-        return PostAttachment::where("user_id", $data["user_id"])->whereHas("post", function ($post) use ($data) {
+        $field = is_numeric($data["user_id"]) ? "id" : "username";
+        return PostAttachment::whereRelation("user", $field, $data["user_id"])->whereHas("post", function ($post) use ($data) {
             $post->status();
             if (!empty($data["exclude_anonymous"] ?? null)) {
                 $post->where("is_anonymous", 0);
@@ -360,7 +361,8 @@ class PostService
 
     public function getCommentAttachments($data)
     {
-        $builder = PostComment::where("user_id", $data["user_id"])->whereNotNull("attachment");
+        $field = is_numeric($data["user_id"]) ? "id" : "username";
+        $builder = PostComment::where("user", $field, $data["user_id"])->whereNotNull("attachment");
 
         if (!empty($data["exclude_anonymous"] ?? null)) {
             $builder = $builder->where("is_anonymous", 0);
