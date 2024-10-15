@@ -85,8 +85,8 @@ function formatDateOfBirth($value)
     if (is_null($value) || empty($value)) {
         return $value;
     }
-    // Format the date if it's not null 
-    return Carbon::parse($value)->format("d/m/Y");
+    // Format the date if it's not null
+    return Carbon::parse($value)->format("Y-m-d");
 }
 
 
@@ -177,7 +177,8 @@ function isBlocked($blocker, $blocked_user)
 }
 
 // Function to filter array and avoid duplicate words
-function filterUniqueWords($array) {
+function filterUniqueWords($array)
+{
     $unique_words = [];
     $filtered_array = [];
 
@@ -209,7 +210,8 @@ function slugPermission(string $string)
     return "can_" . str_replace("-", "_", slugify($string));
 }
 
-function findSpecialWords($string) {
+function findSpecialWords($string)
+{
     // Regular expression to match words starting and ending with $
     $pattern = '/\$@(\w+)\$/';
 
@@ -218,22 +220,4 @@ function findSpecialWords($string) {
 
     // Return the matched words
     return $matches[1];
-}
-
-function imageUrlToBase64($imageUrl) {
-   // Get the file's full path
-   $imagePath = public_path($imageUrl); // Laravel helper to get the public path
-   if (file_exists($imagePath)) {
-       // Get the file's MIME type (use finfo for more accurate type detection)
-       $mimeType = mime_content_type($imagePath);
-       
-       // Read the image content and encode it
-       $imageData = file_get_contents($imagePath);
-       $base64 = base64_encode($imageData);
-       
-       // Return the Base64 image string with the correct MIME type
-       return "data:{$mimeType};base64,{$base64}";
-   } else {
-       return null; // Return null if the file doesn't exist
-   }
 }
