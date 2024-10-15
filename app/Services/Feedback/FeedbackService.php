@@ -5,19 +5,16 @@ namespace App\Services\Feedback;
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\General\StatusConstants;
-use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Mail\ResponseToFeedbackMail;
 use App\Models\Feedback;
-use App\Notifications\Feedback\ResponseToFeedbackNotification;
 use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Notification;
 
 class FeedbackService
 {
@@ -45,7 +42,7 @@ class FeedbackService
             "name" => 'required|string',
             "email" => 'required|string|email',
             "content" => 'required|string',
-            "platform" => 'required|string',
+            "platform" => 'nullable|string',
             "attachments" => "nullable|array",
             "feedback_type" => "required|string",
         ]);
@@ -67,7 +64,7 @@ class FeedbackService
                 "name" => $data["name"],
                 "email" => $data["email"],
                 "content" => $data["content"],
-                "platform" => $data["platform"],
+                "platform" => $data["platform"] ?? null,
                 "feedback_type" => $data["feedback_type"],
             ]);
 

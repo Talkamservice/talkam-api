@@ -67,6 +67,7 @@ class AppConstants
     const FEEDBACK_TYPE_OPTIONS = [
         'Unban Request',
         'Bugs',
-        'Other',
+        'Suggestions',
+        'Others',
     ];
 }

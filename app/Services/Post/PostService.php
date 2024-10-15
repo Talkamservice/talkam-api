@@ -217,7 +217,8 @@ class PostService
         }
 
         if (!empty($key = $data["user_id"] ?? null)) {
-            $builder = $builder->where("user_id", $key);
+            $field = is_numeric($key) ? "id" : "username";
+            $builder = $builder->whereRelation("user", $field, $key);
         }
 
         if (!empty($key = $data["tab"] ?? null)) {
@@ -290,7 +291,7 @@ class PostService
     {
         try {
             $validator = Validator::make($data, [
-                "user_id" => "required|exists:users,id|" . Rule::requiredIf(empty($id)),
+                "user_id" => "required|" . Rule::requiredIf(empty($id)),
             ]);
 
             if ($validator->fails()) {
@@ -339,7 +340,8 @@ class PostService
 
     public function getPostAttachments($data)
     {
-        return PostAttachment::where("user_id", $data["user_id"])->whereHas("post", function ($post) use ($data) {
+        $field = is_numeric($data["user_id"]) ? "id" : "username";
+        return PostAttachment::whereRelation("user", $field, $data["user_id"])->whereHas("post", function ($post) use ($data) {
             $post->status();
             if (!empty($data["exclude_anonymous"] ?? null)) {
                 $post->where("is_anonymous", 0);
@@ -359,7 +361,8 @@ class PostService
 
     public function getCommentAttachments($data)
     {
-        $builder = PostComment::where("user_id", $data["user_id"])->whereNotNull("attachment");
+        $field = is_numeric($data["user_id"]) ? "id" : "username";
+        $builder = PostComment::whereRelation("user", $field, $data["user_id"])->whereNotNull("attachment");
 
         if (!empty($data["exclude_anonymous"] ?? null)) {
             $builder = $builder->where("is_anonymous", 0);

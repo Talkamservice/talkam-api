@@ -36,8 +36,8 @@ class PostCommentResource extends JsonResource
 
         return [
             "id" => $this->id,
+            "user" => ((!empty($this->user)) && ($this->is_anonymous != 1)) ? UserResource::custom($this->user) : null,
             "post" => !empty($this->post) ? PostResource::custom($this->post) : null,
-            "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "comment" => $this->comment,
             "is_anonymous" => $this->is_anonymous,
             "likes" => $likes,
@@ -59,7 +59,7 @@ class PostCommentResource extends JsonResource
         return [
             "id" => $model->id,
             "post" => PostResource::custom($model->post),
-            "user" => !empty($model->user) ? UserResource::custom($model->user) : null,
+            "user" => ((!empty($model->user)) && ($model->is_anonymous != 1)) ? UserResource::custom($model->user) : null,
             "comment" => $model->comment,
             "is_anonymous" => $model->is_anonymous,
             "reply_to" => ($model->repliedComment?->is_anonymous != 1) ? $reply_to : null,

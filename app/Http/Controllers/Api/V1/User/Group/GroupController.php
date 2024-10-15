@@ -41,7 +41,8 @@ class GroupController extends Controller
     public function show($id)
     {
         try {
-            $group = $this->group_service->getById($id);
+            $field = is_numeric($id) ? "id" : "uuid";
+            $group = $this->group_service->getById($id, $field);
             $this->recent_view_service->create(["group_id" => $group->id]);
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group details returned successfully", $data);
