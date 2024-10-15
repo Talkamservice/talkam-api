@@ -291,7 +291,7 @@ class PostService
     {
         try {
             $validator = Validator::make($data, [
-                "user_id" => "required|exists:users,id|" . Rule::requiredIf(empty($id)),
+                "user_id" => "required|" . Rule::requiredIf(empty($id)),
             ]);
 
             if ($validator->fails()) {
