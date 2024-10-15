@@ -10,6 +10,7 @@ use App\Models\Conversation;
 use App\Models\ConversationMember;
 use App\Models\ConversationReport;
 use App\QueryBuilders\Conversation\ConversationQueryBuilder;
+use App\Services\User\UserService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -19,10 +20,12 @@ use Illuminate\Validation\ValidationException;
 class ConversationService
 {
     protected $message_service;
+    protected $user_service;
 
     public function __construct()
     {
         $this->message_service = new MessageService;
+        $this->user_service = new UserService;
     }
 
     public static function getById($id): Conversation
@@ -113,7 +116,7 @@ class ConversationService
         try {
             $validator = Validator::make($data, [
                 "sender_id" => "nullable|exists:users,id",
-                "receiver_id" => "required|exists:users,id",
+                "receiver_id" => "required",
             ]);
 
             if ($validator->fails()) {
@@ -121,17 +124,21 @@ class ConversationService
             }
 
             $data = self::validate($data);
+
+            $field = is_numeric($data["receiver_id"]) ? "id" : "username";
+            $receiver = $this->user_service->getById($data["receiver_id"], $field);
+
             $user = auth()->user();
 
-            if ($user->id == $data["receiver_id"]) {
+            if ($user->id == $receiver->id) {
                 throw new InvalidRequestException("You can`t chat with yourself");
             }
 
             $conversation = Conversation::whereHas("members", function ($query) use ($user) {
                 $query->whereIn("user_id", [$user->id]);
             })
-                ->whereHas("otherMembers", function ($query) use ($data) {
-                    $query->whereIn("user_id", [$data["receiver_id"]]);
+                ->whereHas("otherMembers", function ($query) use ($receiver) {
+                    $query->whereIn("user_id", [$receiver->id]);
                 })->first();
 
             if ($conversation?->messages?->isEmpty()) {
@@ -150,7 +157,7 @@ class ConversationService
             ]);
 
             $this->addMemberToConversation($user->id, $conversation->id);
-            $this->addMemberToConversation($data["receiver_id"], $conversation->id);
+            $this->addMemberToConversation($receiver->id, $conversation->id);
 
             DB::commit();
             return $conversation;
