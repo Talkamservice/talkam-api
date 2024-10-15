@@ -123,7 +123,7 @@ class ConversationService
                 throw new ValidationException($validator);
             }
 
-            $data = self::validate($data);
+            $data = $validator->validated();
 
             $field = is_numeric($data["receiver_id"]) ? "id" : "username";
             $receiver = $this->user_service->getById($data["receiver_id"], $field);
