@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="" method="POST"> <!-- Ensure to set the correct action -->
+                <form action="{{route('flu')}}" method="POST"> <!-- Ensure to set the correct action -->
                     @csrf
                     <div class="row col-xl-12 col-sm-12 mb-3" id="user-container" >
                         <label for="users" class="form-label">Select User</label>
