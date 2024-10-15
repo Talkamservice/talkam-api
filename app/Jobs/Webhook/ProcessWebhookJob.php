@@ -2,9 +2,8 @@
 
 namespace App\Jobs\Webhook;
 
-use App\Constants\Finance\PaymentConstants;
-use App\Services\Jobs\Webhook\SafeHavenWebhookJobService;
-use App\Services\Jobs\Webhook\SquadWebhookJobService;
+use App\Constants\Finance\Payment\PaymentConstants;
+use App\Services\Jobs\Webhook\FlutterwaveWebhookJobService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,10 +32,8 @@ class ProcessWebhookJob implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->data["source"] == PaymentConstants::GATEWAY_SQUAD) {
-            (new SquadWebhookJobService($this->data))->process();
-        } elseif ($this->data["source"] == PaymentConstants::GATEWAY_SAFE_HAVEN) {
-            (new SafeHavenWebhookJobService($this->data))->process();
+        if ($this->data["source"] == PaymentConstants::FLUTTERWAVE) {
+            (new FlutterwaveWebhookJobService($this->data))->process();
         }
     }
 
