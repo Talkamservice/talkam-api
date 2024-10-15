@@ -4,11 +4,14 @@ namespace App\Services\Promotion;
 
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
+use App\Constants\Finance\Currency\CurrencyConstants;
+use App\Constants\Finance\Payment\PaymentConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Promotion;
 use App\Services\ActivityLog\ActivityLogService;
+use App\Services\Finance\Payment\PaymentIntentService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -19,10 +22,12 @@ class PromotionService
 {
     public $user;
     public $flutterwave_service;
+    public $payment_intent_service;
 
     public function __construct()
     {
         $this->flutterwave_service = new FlutterwaveService;
+        $this->payment_intent_service = new PaymentIntentService;
     }
 
     public static function getById($id): Promotion
@@ -74,7 +79,18 @@ class PromotionService
     public function initiatePayment($promotion)
     {
         $total_amount = $promotion->daily_budget * $promotion->duration;
-        // $this->flutterwave_service->c
+        $payment = $this->payment_intent_service
+            ->setUser($promotion->user)
+            ->setAmount($total_amount)
+            ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY)
+            ->setAdditionalData([
+                "description" => "Payment for promotion of content",
+                "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
+                "type" => PaymentConstants::DEBIT,
+                "status" => StatusConstants::PENDING,
+            ]);
+
+        return $payment->initiate();
     }
 
     public function create(array $data)
