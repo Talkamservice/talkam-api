@@ -32,7 +32,8 @@
                         </div>
                     </form>
                     <div class="">
-                        <a href="{{ route('admin.plans.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                        <a href="{{ route('admin.plans.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span
+                                class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -64,11 +65,27 @@
                                         <td>{{ $plan->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor" href="{{ route('admin.plans.show', $plan->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i class="ri-eye-line"></i></a>
-                                                <a aria-label="anchor" href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                <form action="{{ route('admin.plans.destroy', $plan->id) }}" method="post" id="deletePlan_{{ $plan->id }}" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
-                                                    <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
+                                                <a aria-label="anchor" href="{{ route('admin.plans.show', $plan->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
+                                                        class="ri-eye-line"></i></a>
+                                                <a aria-label="anchor" href="{{ route('admin.plans.edit', $plan->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
+                                                        class="ri-edit-line"></i></a>
+                                                <form action="{{ route('admin.plans.destroy', $plan->id) }}" method="post"
+                                                    id="deletePlan_{{ $plan->id }}"
+                                                    onsubmit="return confirm('Are you sure of this action?')"> @csrf
+                                                    @method('delete')
+                                                    <button type="submit"
+                                                        class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i
+                                                            class="ri-delete-bin-line"></i></button>
                                                 </form>
+                                                <!-- Subscription Icon - Opens Modal -->
+                                                <a type="button"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"
+                                                    data-bs-toggle="modal" data-bs-target="#subscriptionModal"
+                                                    data-bs-toggle="tooltip" title="Manage Subscription">
+                                                    <i class="ri-wallet-line"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -91,4 +108,5 @@
             </div>
         </div>
     </div>
+    @include('dashboards.admin.pages.finance.subscription.subscribe-modal', ['users', $users])
 @endsection

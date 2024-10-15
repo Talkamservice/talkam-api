@@ -132,9 +132,9 @@ Route::middleware(["auth"])->group(
             Route::post('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
         });
 
-        Route::prefix("plan")->as("reports.")->group(function () {
-            Route::post('/pay', [FlutterwaveController::class, 'initializePayment'])->name('payment.initialize');
-            Route::get('/payment/callback', [FlutterwaveController::class, 'handlePaymentCallback'])->name('payment.callback');
+        Route::prefix("payments")->as("payments.")->group(function () {
+            Route::post('flutterwave/pay', [FlutterwaveController::class, 'initializeFlutterwavePayment'])->name('flutterwave.initialize');
+            Route::get('flutterwave/callback', [FlutterwaveController::class, 'handleFlutterwavePaymentCallback'])->name('flutterwave.callback');
         });
 
         Route::resource('announcements', AnnouncementController::class);

@@ -25,6 +25,7 @@ class PostCategoryResource extends JsonResource
         return [
             "id" => $this->id,
             "name" => $this->name,
+            "uuid" => $this->uuid,
             "description" => $this->description,
             "background_image" => $this->image,
             "icon_image" => $this->icon_image,

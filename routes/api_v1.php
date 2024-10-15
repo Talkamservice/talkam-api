@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Feedback\FeedbackController;
 use App\Http\Controllers\Api\V1\Finance\User\PlansController;
 use App\Http\Controllers\Api\V1\Finance\User\SubscriptionsController;
 use App\Http\Controllers\Api\V1\General\AuthController;
+use App\Http\Controllers\Api\V1\Location\LocationController;
 use App\Http\Controllers\Api\V1\User\Group\GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
 use App\Http\Controllers\Api\V1\User\Post\SearchController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
+use App\Http\Controllers\Api\V1\User\Promotion\PromotionController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\Web\FaqController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
@@ -66,6 +68,11 @@ Route::prefix("auth")->as("auth.")->group(function () {
 });
 
 Route::get("profile/avatars", [UserController::class, "listAvatars"])->name("avatars.list");
+
+Route::prefix("location")->as("location.")->group(function () {
+    Route::get('countries', [LocationController::class, "countries"])->name("countries");
+    Route::get('states', [LocationController::class, "states"])->name("states");
+});
 
 Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("user")->as("user.")->group(function () {
@@ -152,6 +159,12 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("recents")->as("recents")->group(function () {
             Route::get("fetch", [RecentViewController::class, "index"])->name("fetch");
+        });
+
+        Route::prefix("promotions")->as("promotions")->group(function () {
+            Route::get("/", [PromotionController::class, "index"])->name("index");
+            Route::get("{promotion}/show", [PromotionController::class, "show"])->name("show");
+            Route::get("{promotion}/delete", [PromotionController::class, "delete"])->name("delete");
         });
 
         Route::prefix("post-comments")->as("post-comments.")->group(function () {

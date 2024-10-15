@@ -7,14 +7,18 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\Finance\SubscriptionException;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Models\Plan;
 use App\Models\PlanDuration;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use App\Services\Finance\PaymentGateways\Stripe\StripeService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 
 class SubscriptionService
 {
@@ -47,7 +51,7 @@ class SubscriptionService
             $data = self::validate($data);
             $plan_duration = PlanDuration::find($data["plan_duration_id"]);
             self::checkForSubscription(auth()->user(), $plan_duration);
-            $response = $this->createPaymentIntent($plan_duration);
+            $response = $this->intiatePayment($plan_duration);
             DB::commit();
             return $response;
         } catch (\Throwable $th) {
@@ -76,46 +80,59 @@ class SubscriptionService
             ->first();
     }
 
-    public function createPaymentIntent($plan_duration)
+    public function initiatePayment(Request $request)
     {
-        $user = auth()->user();
-
-        if (empty($user->stripe_customer_id)) {
-            $response = (new StripeService)->setCustomerData([
+        // Get the authenticated user or from the request
+        $user = auth()->user() ?? $request->user;
+    
+        if (!$user) {
+            throw new InvalidRequestException("User not authenticated."); // Explicit error handling for unauthenticated users
+        }
+    
+        // Create customer in Flutterwave if customer ID is empty
+        if (empty($user->flutterwave_customer_id)) {
+            $response = (new FlutterwaveService)->setCustomerData([
                 "name" => $user->name,
                 "email" => $user->email,
-            ])->createCustomer();
-
-            if (!empty($response)) {
+            ])->createCustomer(); // Assuming this returns a response with the Flutterwave customer ID
+    
+            if (!empty($response) && isset($response["id"])) {
                 $user->update([
-                    "stripe_customer_id" => $response["id"]
+                    "flutterwave_customer_id" => $response["id"] // Save Flutterwave customer ID
+                ]);
+            } else {
+                throw new InvalidRequestException("Unable to create Flutterwave customer");
+            }
+        }
+    
+        $plan = (new FlutterwaveService)->getById($request->plan_id);
+        $durations = $plan->durations;
+    
+        // Initialize payment intent response variable
+        $payment_intent_response = null;
+    
+        // Process each duration for pricing
+        foreach ($durations as $duration) {
+            $amount = floatval((new Plan())->parsePlanPrice($duration)); // Ensure you're getting the correct amount
+    
+            // Create a pricing structure with Flutterwave
+            $response = (new FlutterwaveService)->setPriceData([
+                'currency' => 'USD',
+                'amount' => $amount,
+                'plan' => $plan->name,
+            ])->createTransaction();
+    
+            if (!empty($response)) {
+                $duration->update([
+                    "flutterwave_price_id" => $response["id"] // Save Flutterwave price ID
                 ]);
             }
         }
-
-        $payment_intent_response = (new StripeService)->setPaymentIntentData([
-            'customer' => $user->stripe_customer_id,
-            "amount" => ($plan_duration->price * 100),
-            "currency" => "aed",
-            "receipt_email" => $user->email,
-            "setup_future_usage" => "on_session",
-            "metadata" => [
-                "plan_duration_id" => $plan_duration->id,
-                "stripe_customer_id" => $user->stripe_customer_id,
-                "activity" => PaymentConstants::PAYMENT_FOR_SUBSCRIPTION
-            ]
-        ])->createPaymentIntent();
-
-        if (empty($payment_intent_response)) {
-            throw new InvalidRequestException("Unable to initiate payment");
-        }
-
-        return [
-            "payment_intent" => $payment_intent_response["id"],
-            "client_secret" => $payment_intent_response["client_secret"],
-            "amount" => $plan_duration->price,
-        ];
+    
     }
+    
+
+    
 
     public static function list()
     {

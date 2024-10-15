@@ -2,11 +2,13 @@
 
 namespace App\Services\Finance\Plan;
 
+namespace App\Services\Finance\Plan;
+
 use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Plan;
-use App\Services\Finance\PaymentGateways\Stripe\StripeService;
+use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -25,18 +27,22 @@ class PlanService
 
     public static function validate(array $data, $id = null): array
     {
-        dd($data);
+        // dd($data);
         $validator = Validator::make($data, [
             "name" => 'required|string',
             "description" => 'nullable|string',
             "benefits" => "nullable|array",
             "status" => "required|string|" . Rule::in(StatusConstants::ACTIVE_OPTIONS),
-            // "frequency" => 'required|array',
-            // "frequency.*" => 'string|' . Rule::in(PlanConstants::FREQUENCY_OPTIONS),
-            // "feature_cards" => 'nullable|array',
             "price" => 'required|array',
             "price.*" => 'numeric|gt:-1',
-            "discount" => "required|array",
+            "discount" => "nullable|array",
+            "discount.*" => 'nullable|numeric|gte:0',
+            "frequency" => 'required|array',
+            "frequency.*" => [
+                'string',
+                Rule::in(['Monthly', 'Yearly']), // Add lowercase options
+            ],
+
         ]);
 
         if ($validator->fails()) {
@@ -51,12 +57,10 @@ class PlanService
         DB::beginTransaction();
         try {
             $data = self::validate($data);
-
-            $plan =  Plan::create([
+            $plan = Plan::create([
                 "name" => $data["name"],
                 "description" => $data["description"],
                 "status" => $data["status"],
-                "feature_cards" => array_keys($data["feature_cards"] ?? []),
             ]);
 
             foreach ($data["benefits"] ?? [] as $key => $value) {
@@ -68,10 +72,7 @@ class PlanService
                     "status" => StatusConstants::ACTIVE
                 ]);
             }
-
             (new PlanDurationService)->saveMultiple($data, $plan);
-            self::createStripePrices($plan);
-
             DB::commit();
             return $plan;
         } catch (\Throwable $th) {
@@ -91,7 +92,6 @@ class PlanService
                 "name" => $data["name"],
                 "description" => $data["description"],
                 "status" => $data["status"],
-                // "feature_cards" => array_keys($data["feature_cards"] ?? []),
             ]);
 
             $plan->benefits()->delete();
@@ -111,7 +111,6 @@ class PlanService
 
             $plan->durations()->delete();
             (new PlanDurationService)->saveMultiple($data, $plan);
-            self::updateStripePrices($plan);
 
             DB::commit();
             return $plan;
@@ -148,39 +147,7 @@ class PlanService
         return $plan;
     }
 
-    public static function createStripePrices($plan)
-    {
-        $durations = $plan->durations;
 
-        foreach ($durations as $key => $duration) {
-            $response = (new StripeService)->setPriceData([
-                'currency' => 'aed',
-                'unit_amount' => floatval(self::parsePlanPrice($duration)),
-                'recurring' => ['interval' => strtolower(substr($duration->frequency, 0, -2))],
-                'product_data' => ['name' => $plan->name],
-            ])->createPrice();
-
-            if (!empty($response)) {
-                $duration->update([
-                    "stripe_price_id" => $response["id"]
-                ]);
-            }
-        }
-    }
-
-    public static function updateStripePrices($plan)
-    {
-        $durations = $plan->durations()->whereNotNull("stripe_price_id")->get();
-
-        foreach ($durations as $key => $duration) {
-            (new StripeService)->setPriceData([
-                'currency' => 'aed',
-                'unit_amount' => floatval(self::parsePlanPrice($duration)),
-                'recurring' => ['interval' => substr($plan->frequency, 0, -2)],
-                'product_data' => ['name' => $plan->name],
-            ])->updatePrice($duration->stripe_price_id);
-        }
-    }
 
     static function parsePlanPrice($duration)
     {
@@ -201,7 +168,7 @@ class PlanService
         if (!empty($active_sub)) {
             $plan_id = $active_sub->plan_id;
         } else {
-            $free_plan = Plan::where("name", "LIKE" , "%free%")->first();
+            $free_plan = Plan::where("name", "LIKE", "%free%")->first();
             $plan_id = $free_plan?->id;
         }
 

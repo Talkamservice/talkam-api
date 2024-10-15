@@ -22,10 +22,8 @@ use App\Notifications\User\SuspendUserNotification;
 use App\Services\ActivityLog\ActivityLogService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -82,6 +80,8 @@ class UserService
             "phone_number" => "nullable",
             "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
             'date_of_birth' => 'nullable|date_format:d/m/Y|before:today',
+            "state_id" => "nullable|exists:states,id",
+            "country_id" => "nullable|exists:countries,id",
         ], [
             'email.unique' => "The email address has already been used by another user",
             'username.unique' => "The email address has already been used by another user",
@@ -161,6 +161,10 @@ class UserService
                 ],
                 "age" => "nullable|numeric",
                 "password" => "nullable|string|confirmed",
+                "state_id" => "nullable|exists:states,id",
+                "country_id" => "nullable|exists:countries,id",
+                "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
+                'date_of_birth' => 'nullable|date_format:d/m/Y|before:today',
             ], [
                 "username.unique" => "The username has already been taken",
                 "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",

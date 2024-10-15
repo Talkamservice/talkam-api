@@ -8,6 +8,7 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\Finance\PlanException;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
+use App\Models\User;
 use App\Services\Finance\Plan\PlanBenefitService;
 use App\Services\Finance\Plan\PlanService;
 use Illuminate\Http\Request;
@@ -28,7 +29,8 @@ class PlanController extends Controller
         $plans = Plan::with(["durations"])->get();
         return view('dashboards.admin.pages.finance.plan.index', [
             'plans' => $plans,
-            "statusOptions" => StatusConstants::ACTIVE_OPTIONS
+            "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
+            "users" => User::where('status', StatusConstants::ACTIVE)->get()
         ]);
     }
 
@@ -51,7 +53,7 @@ class PlanController extends Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (Throwable $e) {
-            // throw $e;
+            throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }

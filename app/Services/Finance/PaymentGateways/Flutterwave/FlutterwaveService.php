@@ -3,78 +3,61 @@
 namespace App\Services\Finance\PaymentGateways\Flutterwave;
 
 use App\Constants\General\ApiConstants;
+use App\Exceptions\General\ModelNotFoundException;
+use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Plan;
+use App\Services\Finance\Subscription\SubscriptionService;
 use App\Services\General\Guzzle\GuzzleService;
+use App\Services\System\ExceptionService;
 use Exception;
+use Illuminate\Http\Request;
+use Symfony\Contracts\Service\Attribute\SubscribedService;
 
-class FlutterwaveService {
-    
-    private $env;
-    public $base_url;
-    public $api_key;
-    public array $headers;
-    public $client;
-    public $customer_data;
-    public $transaction_data;
-    public $currency;
-    public $price_data;
+class FlutterwaveService
+{
+    protected $base_url;
+    protected $api_key;
+    protected array $headers;
+    protected $client;
+    public $payment_intent_data;
+    protected $customer_data = [];
+    protected $transaction_data = [];
+    protected $price_data = [];
 
     public function __construct()
     {
-        $this->env = env("APP_ENV");
         $this->setBaseUrl();
         $this->setApiKey();
         $this->setHeaders();
         $this->client = $this->setClient();
     }
 
-    public function setBaseUrl($url = null)
+    // Sets the Flutterwave base URL from the environment variables
+    public function setBaseUrl()
     {
-        // Use Flutterwave's base URL based on environment
-        // $this->base_url = $url ?? ($this->env == 'production' 
-        //     ? 'https://api.flutterwave.com/v3' 
-        //     : 'https://ravesandboxapi.flutterwave.com/v3');
-        // return $this; // I want to get the key before i use this
+        $this->base_url = env("FLW_BASE_URL");
     }
 
+    // Sets the API key, allows for optional overriding
     public function setApiKey($key = null)
     {
-        // Set the Flutterwave secret key
         $this->api_key = $key ?? config("services.flutterwave.secretKey");
         return $this;
     }
 
+    // Sets request headers, merges any additional headers provided
     public function setHeaders(?array $headers = [])
     {
-        // Set headers for Flutterwave requests
         $this->headers = array_merge([
             'Authorization' => "Bearer {$this->api_key}",
             'Content-Type' => 'application/json',
         ], $headers);
     }
 
+    // Instantiates the Guzzle client with the set headers
     public function setClient()
     {
-        // Assuming GuzzleHttp is used for HTTP requests
         return new GuzzleService($this->headers);
-    }
-
-    public function setCustomerData(array $value)
-    {
-        $this->customer_data = $value;
-        return $this;
-    }
-
-    public function setPriceData(array $value)
-    {
-        $this->price_data = $value;
-        return $this;
-    }
-
-    public function setSubscriptionData(array $value)
-    {
-        $this->subscription_data = $value;
-        return $this;
     }
 
     public function setPaymentIntentData(array $value)
@@ -83,15 +66,17 @@ class FlutterwaveService {
         return $this;
     }
 
-    public function setPaymentMethodData(array $value)
+    // Sets customer data for transactions
+    public function setCustomerData(array $value)
     {
-        $this->payment_method_data = $value;
+        $this->customer_data = $value;
         return $this;
     }
 
-    public function setAttachPaymentMethodToConsumerData(array $value)
+    // Sets price data for transactions
+    public function setPriceData(array $value)
     {
-        $this->payment_method_to_consumer_data = $value;
+        $this->price_data = $value;
         return $this;
     }
 
@@ -102,7 +87,7 @@ class FlutterwaveService {
             $response = $this->client->post($full_url, $this->customer_data);
 
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new StripeException($response["message"]["error"]["message"] ?? null);
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
             }
 
             return $response["data"];
@@ -111,119 +96,93 @@ class FlutterwaveService {
         }
     }
 
-    public function createPrice()
+    // Sets the transaction data by combining customer and price data
+    public function setTransactionData(array $transaction_data = [])
     {
-        try {
-            $full_url = $this->base_url . "/prices";
-            $response = $this->client->postWithFormParams($full_url, $this->price_data);
-
-            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new StripeException($response["message"]["error"]["message"] ?? null);
-            }
-
-            return $response["data"];
-        } catch (Exception $e) {
-            ExceptionService::logAndBroadcast($e);
-        }
+        $this->transaction_data = array_merge($this->customer_data, $this->price_data, $transaction_data);
+        return $this;
     }
 
-    public function updatePrice($price_id)
-    {
-        try {
-            $full_url = $this->base_url . "/prices/$price_id";
-            $response = $this->client->post($full_url, $this->price_data);
-
-            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new Exception($response["message"]["error"]["message"] ?? null);
-            }
-
-            return $response["data"];
-        } catch (Exception $e) {
-            ExceptionService::logAndBroadcast($e);
-        }
-    }
-
-    /**
-     * Process payment through Flutterwave.
-     *
-     * @param Plan $plan
-     * @param float $amount
-     * @return void
-     */
-    public function processFlutterwavePayment(Plan $plan, $amount)
-    {
-        $paymentData = [
-            'tx_ref' => uniqid('trx_'), // Unique transaction reference
-            'amount' => $amount,
-            'currency' => 'USD',
-            'payment_options' => 'card', // You can allow other options like bank, mobilemoney, etc.
-            'redirect_url' => route('payment.callback'), // Your payment callback route
-            'customer' => [
-                'email' => auth()->user()->email,
-                'name' => auth()->user()->name,
-            ],
-            'meta' => [
-                'plan_id' => $plan->id, // Store the plan id for reference in callback
-            ],
-            'customizations' => [
-                'title' => 'Plan Payment',
-                'description' => 'Payment for ' . $plan->name,
-                'logo' => asset('path_to_logo'), // Your logo path
-            ]
-        ];
-
-        // Initialize the Flutterwave payment
-        $this->rave->initializePayment($paymentData);
-    }
-
-    // Create a payment transaction using Flutterwave
+    // Creates a payment transaction on Flutterwave
     public function createTransaction()
     {
         try {
             $full_url = "{$this->base_url}/payments";
             $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
 
-            if ($response['status'] !== 'success') {
-                throw new Exception($response['message']);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
             }
 
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Transaction creation failed: ' . $e->getMessage());
         }
     }
 
-    // Verify payment transaction using transaction ID
+    // Verifies the status of a transaction by transaction ID
     public function verifyTransaction($transaction_id)
     {
         try {
             $full_url = "{$this->base_url}/transactions/{$transaction_id}/verify";
             $response = $this->client->get($full_url);
 
-            if ($response['status'] !== 'success') {
-                throw new Exception($response['message']);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
             }
 
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Transaction verification failed: ' . $e->getMessage());
         }
     }
 
-    // Refund a transaction
+    // Refunds a transaction by transaction ID
     public function refundTransaction($transaction_id, array $data)
     {
         try {
             $full_url = "{$this->base_url}/transactions/{$transaction_id}/refund";
             $response = $this->client->postWithFormParams($full_url, $data);
 
-            if ($response['status'] !== 'success') {
-                throw new Exception($response['message']);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Refund failed');
             }
 
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Refund process failed: ' . $e->getMessage());
+        }
+    }
+
+    public function getById($key, $column = "id")
+    {
+        $plan = Plan::where($column, $key)->first();
+        if (empty($plan)) {
+            throw new ModelNotFoundException("Plan member not found");
+        }
+        return $plan;
+    }
+
+
+    public function createFlutterwavePrices(Request $request)
+    {
+        (new SubscriptionService)->initiatePayment($request);
+    }
+
+
+    public  function updateFlutterwavePrices($plan)
+    {
+        $durations = $plan->durations()->whereNotNull("flutterwave_price_id")->get();
+
+        foreach ($durations as $key => $duration) {
+            $this->setPriceData([
+                'currency' => 'USD',
+                'amount' => floatval((new Plan)->parsePlanPrice($duration)),
+                'plan' => $plan->name,
+            ])->createTransaction(); // Adjusted for Flutterwave price update logic
         }
     }
 }
