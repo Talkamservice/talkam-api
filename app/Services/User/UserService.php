@@ -110,6 +110,11 @@ class UserService
         $data['password'] = !empty($data['password'] ?? null) ? Hash::make($data['password']) : null;
         $user = User::create($data);
 
+        // Convert date_of_birth to Y-m-d format
+        if (isset($data['date_of_birth'])) {
+            $data['date_of_birth'] = Carbon::createFromFormat('d/m/Y', $data['date_of_birth'])->format('Y-m-d');
+        }
+
         if (!empty($avatar = $data["avatar"] ?? null)) {
             (new AvatarService)->setUser($user)->update([
                 "avatar" => $avatar
@@ -184,6 +189,11 @@ class UserService
 
             if (isset($data["password"])) {
                 $data["password"] = Hash::make($data["password"]);
+            }
+
+            // Convert date_of_birth to Y-m-d format
+            if (isset($data['date_of_birth'])) {
+                $data['date_of_birth'] = Carbon::createFromFormat('d/m/Y', $data['date_of_birth'])->format('Y-m-d');
             }
 
             if (isset($data["interests"])) {
