@@ -2,6 +2,7 @@
 
 namespace App\Services\Notification;
 
+use App\Constants\Post\PostConstants;
 use App\Events\RefreshNotification;
 use App\Models\ThreadNotification;
 use App\Models\User;
@@ -77,7 +78,9 @@ class NotificationHandlerService
         if ($type == "post_reaction") {
             $notify_me = $this->thread_notification_builder->where("post_id", $model->post_id)->first();
             if (!empty($notify_me) && $model->post->user_id != $model->user_id) {
-                Notification::send($notify_me->user, new NewThreadPostReactionNotification($model));
+                if ($model->action != PostConstants::DISLIKE) {
+                    Notification::send($notify_me->user, new NewThreadPostReactionNotification($model));
+                }
             }
         }
 
@@ -99,8 +102,10 @@ class NotificationHandlerService
     {
         if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
             if ($this->user->id != $post_reaction->user_id) {
-                Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
-                broadcast(new RefreshNotification($post_reaction->post->user_id));
+                if ($post_reaction->action != PostConstants::DISLIKE) {
+                    Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
+                    broadcast(new RefreshNotification($post_reaction->post->user_id));
+                }
             }
         }
 
@@ -124,8 +129,10 @@ class NotificationHandlerService
     {
         if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
             if ($this->user->id != $comment_reaction->user_id) {
-                Notification::send($comment_reaction->comment->user, new NewCommentReactionNotification($comment_reaction));
-                broadcast(new RefreshNotification($comment_reaction->comment->user_id));
+                if ($comment_reaction->action != PostConstants::DISLIKE) {
+                    Notification::send($comment_reaction->comment->user, new NewCommentReactionNotification($comment_reaction));
+                    broadcast(new RefreshNotification($comment_reaction->comment->user_id));
+                }
             }
         }
 
