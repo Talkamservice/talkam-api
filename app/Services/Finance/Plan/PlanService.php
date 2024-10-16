@@ -7,6 +7,7 @@ namespace App\Services\Finance\Plan;
 use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Plan;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +74,7 @@ class PlanService
                 ]);
             }
             (new PlanDurationService)->saveMultiple($data, $plan);
+            self::createFlutterwavePlan($plan);
             DB::commit();
             return $plan;
         } catch (\Throwable $th) {
@@ -173,5 +175,40 @@ class PlanService
         }
 
         return $plan_id ?? null;
+    }
+
+    public static function createFlutterwavePlan($plan)
+    {
+        // Step 1: Get the user either from request or auth
+       
+
+        // Create Flutterwave customer if necessary
+        $flutterwave = new FlutterwaveService();
+       
+        
+        $durations = $plan->durations;
+
+        // Process each duration for pricing and create transactions
+        foreach ($durations as $duration) {
+            $amount = floatval((new PlanService)->parsePlanPrice($duration)); // Get the correct amount
+
+            // Step 5: Create a Flutterwave transaction
+            $transaction_data = [
+                "amount" => $amount,
+                "name"=> $plan->name,
+                "interval" => strtolower($duration->frequency),
+                "duration"=> $duration->duration
+            ];
+
+            $response = $flutterwave->setTransactionData($transaction_data)->createPlan();
+
+            if (!empty($response)) {
+                $duration->update([
+                    'flutterwave_price_id' => $response['id'] // Save Flutterwave price ID for each duration
+                ]);
+            } else {
+                throw new FlutterwaveException("Transaction creation failed for duration {$duration->name}.");
+            }
+        }
     }
 }

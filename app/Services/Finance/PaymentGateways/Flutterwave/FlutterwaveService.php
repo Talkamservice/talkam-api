@@ -85,10 +85,11 @@ class FlutterwaveService
     public function createCustomer()
     {
         try {
-            $full_url = $this->base_url . "/customers";
+            $full_url = "https://api-sit.flutterwave.cloud/developersandbox/customers";
             $data = $this->customer_data;
-            // dd($full_url, $data);
-            $response = $this->client->post($full_url, $data);
+            // dd($data);
+            $response = $this->client->postWithFormParams($full_url, $data);
+            dd($response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
             }
@@ -101,15 +102,16 @@ class FlutterwaveService
     // Sets the transaction data by combining customer and price data
     public function setTransactionData(array $transaction_data = [])
     {
-        $this->transaction_data = array_merge($this->customer_data, $this->price_data, $transaction_data);
+        $this->transaction_data = $transaction_data;
+        dd($this);
         return $this;
     }
 
     // Creates a payment transaction on Flutterwave
-    public function createTransaction()
+    public function createPlan()
     {
         try {
-            $full_url = "{$this->base_url}/payments";
+            $full_url = "{$this->base_url}/payment-plans";
             $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
             dd($full_url, $response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {

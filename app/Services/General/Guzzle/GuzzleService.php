@@ -37,21 +37,20 @@ class GuzzleService
     public function post(string $url, array $data = [])
     {
        
-        try {
+        // try {
             $response = $this->client->post(
                 $url,
                 [
                     'headers' => $this->headers,
                     'auth' => $this->auth,
                     'json' => $data,
-                ]
-                $data,
+                ],
             );
-
+            dd( $response->getBody());
             return $this->success($response);
-        } catch (Throwable $e) {
-            return $this->error($e);
-        }
+        // } catch (Throwable $e) {
+        //     return $this->error($e);
+        // }
     }
 
     public function postWithFormParams(string $url, array $data = [])
