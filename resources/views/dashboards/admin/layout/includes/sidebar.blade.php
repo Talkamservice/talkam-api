@@ -76,9 +76,29 @@
                     </li>
                 @endcan
 
+                @canAny(slugPermission('read plan'))
+                 <!-- Start::slide__category -->
+                 <li class="slide__category list-head-cont"><span class="category-name list-head">FINANCE</span></li>
+                 <!-- End::slide__category -->
+
+                 <li class="slide has-sub">
+                     <a href="javascript:void(0);" class="side-menu__item list-item">
+                         <i class="bx bx-dollar-circle side-menu__icon list-item-icon"></i>
+                         <span class="side-menu__label list-item-label">Billings</span>
+                         <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
+                     </a>
+                     <ul class="slide-menu child1">
+                         <li class="slide">
+                             <a href="{{ route('admin.plans.index') }}" class="side-menu__item list-item">Plans</a>
+                         </li>
+                     </ul>
+                 </li>
+                 @endcanAny
+
                 @can(slugPermission('read guideline'))
                     <li class="slide__category list-head-cont"><span class="category-name list-head">SYSTEM
                             MANAGEMENT</span></li>
+                    <!-- End::slide__category -->
                 @endcan
 
                 @canAny(slugPermission('read notification'), slugPermission('read announcement'))

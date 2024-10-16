@@ -48,7 +48,7 @@ return [
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('FACEBOOK_REDIRECT_URI')
     ],
-    
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
@@ -59,5 +59,11 @@ return [
         'clientId' => env('FIREBASE_CLIENT_ID'),
         'clientEmail' => env('FIREBASE_CLIENT_EMAIL'),
         'privateKey' => env('FIREBASE_CLIENT_PRIVATE_KEY'),
+    ],
+
+    'flutterwave' => [
+        'publicKey' => env('FLW_PUBLIC_KEY'),
+        'secretKey' => env('FLW_SECRET_KEY'),
+        'secretHash' => env('FLW_SECRET_HASH'),
     ],
 ];
