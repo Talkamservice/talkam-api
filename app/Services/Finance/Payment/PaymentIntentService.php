@@ -10,6 +10,7 @@ class PaymentIntentService
     public $currency;
     public $amount, $fees;
     public $payment_service;
+    public $reference;
     public $additional_data;
 
     public function __construct()
@@ -36,6 +37,12 @@ class PaymentIntentService
         return $this;
     }
 
+    public function setPaymentReference($reference)
+    {
+        $this->reference = $reference;
+        return $this;
+    }
+
     public function setFees($fees)
     {
         $this->fees = $fees;
@@ -58,6 +65,20 @@ class PaymentIntentService
                 "fees" => $this->fees ?? 0,
                 ...$this->additional_data
             ]);
+            DB::commit();
+            return $payment;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function update()
+    {
+        DB::beginTransaction();
+        try {
+            $payment = $this->payment_service->getByReference($this->reference);
+            $payment->update($this->additional_data);
             DB::commit();
             return $payment;
         } catch (\Throwable $th) {

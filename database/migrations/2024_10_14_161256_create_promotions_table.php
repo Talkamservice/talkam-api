@@ -19,11 +19,13 @@ return new class extends Migration
             $table->foreignId("group_id")->nullable()->constrained("groups")->nullOnDelete();
             $table->foreignId("state_id")->nullable()->constrained("states")->nullOnDelete();
             $table->foreignId("country_id")->nullable()->constrained("countries")->nullOnDelete();
+            $table->foreignId("payment_id")->nullable()->constrained("payments")->nullOnDelete();
             $table->string("uuid")->unique();
             $table->integer("min_age")->nullable();
             $table->integer("max_age")->nullable();
             $table->integer("gender")->nullable();
-            $table->bigInteger("daily_budget")->nullable();
+            $table->float("cost")->nullable();
+            $table->float("daily_budget")->nullable();
             $table->bigInteger("duration")->nullable();
             $table->bigInteger("estimated_reach")->nullable();
             $table->bigInteger("total_reach")->nullable();

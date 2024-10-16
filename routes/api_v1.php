@@ -164,7 +164,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("promotions")->as("promotions")->group(function () {
             Route::get("/", [PromotionController::class, "index"])->name("index");
             Route::get("{promotion}/show", [PromotionController::class, "show"])->name("show");
-            Route::get("{promotion}/delete", [PromotionController::class, "delete"])->name("delete");
+            Route::post("initiate", [PromotionController::class, "initiate"])->name("initiate");
+            Route::delete("{promotion}/delete", [PromotionController::class, "delete"])->name("delete");
         });
 
         Route::prefix("post-comments")->as("post-comments.")->group(function () {

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string("description")->nullable();
             $table->string("narration")->nullable();
             $table->string("type");
-            $table->longText("metadata")->nullable();
+            $table->json("metadata")->nullable();
             $table->string("status")->default(StatusConstants::PENDING);
             $table->timestamps();
             $table->softDeletes();

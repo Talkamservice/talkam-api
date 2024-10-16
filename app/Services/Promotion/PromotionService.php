@@ -57,7 +57,7 @@ class PromotionService
             "gender" => "bail|nullable|string",
             "daily_budget" => "bail|nullable|numeric",
             "duration" => "bail|nullable|numeric",
-            "status" => "bail|required|string|" . Rule::in(StatusConstants::ACTIVE_OPTIONS),
+            "status" => "bail|nullable|string|" . Rule::in(StatusConstants::ACTIVE_OPTIONS),
         ]);
 
         if ($validator->fails()) {
@@ -76,21 +76,34 @@ class PromotionService
         }
     }
 
-    public function initiatePayment($promotion)
+    public function initiatePayment(array $data)
     {
-        $total_amount = $promotion->daily_budget * $promotion->duration;
-        $payment = $this->payment_intent_service
-            ->setUser($promotion->user)
-            ->setAmount($total_amount)
-            ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY)
-            ->setAdditionalData([
-                "description" => "Payment for promotion of content",
-                "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
-                "type" => PaymentConstants::DEBIT,
-                "status" => StatusConstants::PENDING,
-            ]);
+        DB::beginTransaction();
+        try {
+            $promotion = $this->create($data);
+            
+            $payment = $this->payment_intent_service->setUser($promotion->user)
+                ->setAmount($promotion->cost)
+                ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY)
+                ->setAdditionalData([
+                    "type" => PaymentConstants::DEBIT,
+                    "status" => StatusConstants::PENDING,
+                    "description" => "Payment for promotion of content",
+                    "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
+                    "metadata" => [
+                        "amount" => $promotion->cost,
+                        "promotion_id" => $promotion->id,
+                        "email" => $promotion->user->email,
+                    ]
+                ]);
 
-        return $payment->initiate();
+            $payment = $payment->initiate();
+            DB::commit();
+            return $payment;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
     public function create(array $data)
@@ -98,9 +111,9 @@ class PromotionService
         DB::beginTransaction();
         try {
             $data = self::validate($data);
-
             $user = $this->user = auth()->user();
 
+            $data["cost"] = $data["daily_budget"] * $data["duration"];
             $promotion = Promotion::create(array_merge($data, [
                 "user_id" => $user->id,
                 "uuid" => MethodsHelper::getRandomToken(10),
@@ -109,7 +122,7 @@ class PromotionService
             (new ActivityLogService)
                 ->setEvent("created")
                 ->setTitle("Promotion Created")
-                ->setDescription("{$promotion?->user?->getName()} promoted a post")
+                ->setDescription("{$promotion?->user?->getName()} has initiated a promotion request")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::PROMOTION_CREATED)
                 ->setModel(Promotion::class, $promotion->id)

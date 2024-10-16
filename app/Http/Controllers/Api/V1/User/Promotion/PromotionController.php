@@ -6,10 +6,12 @@ use App\Constants\General\ApiConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Finance\Payment\PaymentResource;
 use App\Http\Resources\Promotion\PromotionResource;
 use App\Services\Promotion\PromotionService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class PromotionController extends Controller
 {
@@ -44,12 +46,14 @@ class PromotionController extends Controller
         }
     }
 
-    public function submit($id)
+    public function initiate(Request $request)
     {
         try {
-            $promotion = $this->promotion_service->create($id);
-            $data = PromotionResource::make($promotion);
-            return ApiHelper::validResponse("Promotion details returned successfully", $data);
+            $payment = $this->promotion_service->initiatePayment($request->all());
+            $data = PaymentResource::make($payment);
+            return ApiHelper::validResponse("Payment initiated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data", ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {

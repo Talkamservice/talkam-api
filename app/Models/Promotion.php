@@ -25,4 +25,9 @@ class Promotion extends Model
     {
         return $this->belongsTo(Group::class, "group_id");
     }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class, "payment_id");
+    }
 }

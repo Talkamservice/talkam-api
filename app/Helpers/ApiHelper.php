@@ -74,23 +74,63 @@ class ApiHelper
         return response()->json($body);
     }
 
-    /**Returns formatted money value
-     * @param float amount
-     * @param int places
-     * @param string symbol
-     */
-
-
-
-    /**Returns formatted date value
-     * @param string date
-     * @param string format
-     */
-    static function formatDate($date, $format = "Y-m-d")
+    static function validData(string $message = null, $data = null, $terminus = null)
     {
-        return date($format, strtotime($date));
+        if (is_null($data) || empty($data)) {
+            $data = [];
+        }
+
+        $body = [
+            'terminus' => $terminus,
+            'status' => "OK",
+            'response' => [
+                'code' => ApiConstants::GOOD_REQ_CODE,
+                'title' => "Operation successful",
+                'message' => $message,
+                'data' => $data,
+            ]
+        ];
+
+        return $body;
     }
 
+    static function problemData(string $message = null, int $status_code, Exception $trace = null, $terminus = null)
+    {
+        $code = !empty($status_code) ? $status_code : null;
+        $traceMsg = empty($trace) ?  null  : $trace->getMessage();
+
+        $body = [
+            'terminus' => $terminus,
+            'status' => "F9",
+            'response' => [
+                'title' => "Operation failed",
+                'message' => $message,
+                'code' => $code,
+                "error_debug" => $traceMsg,
+                "error_trace" => optional($trace)->getTrace()
+            ]
+        ];
+
+        return $body;
+    }
+
+    static function inputErrorData(string $message = null, int $status_code = null, ValidationException $trace = null, $terminus = null)
+    {
+        $code = ($status_code != null) ? $status_code : '';
+
+        $body = [
+            'terminus' => $terminus,
+            'status' => "F9",
+            'response' => [
+                'title' => "Operation failed",
+                'message' => $message,
+                'code' => $code,
+                'errors' => empty($trace) ?  null  : $trace->errors(),
+            ]
+        ];
+
+        return $body;
+    }
 
     /**Returns the available auth instance with user
      * @param bool $getUser

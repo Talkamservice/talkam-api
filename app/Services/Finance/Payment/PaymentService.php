@@ -24,7 +24,7 @@ class PaymentService
             "narration" => "bail|nullable|string",
             "activity" => "bail|nullable|string",
             "reference" => "bail|nullable|string",
-            "metadata" => "bail|nullable|string",
+            "metadata" => "bail|nullable|array",
             "type" => "bail|required|string|" . Rule::in([
                 PaymentConstants::CREDIT,
                 PaymentConstants::DEBIT
