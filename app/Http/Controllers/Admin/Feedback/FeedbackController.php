@@ -114,7 +114,7 @@ class FeedbackController extends Controller
     {
         try {
             $this->feedback_service->changeStatus($request->all(), $comment_report_id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "feedback resolved successfully");
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Feedback resolved successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {
@@ -129,7 +129,7 @@ class FeedbackController extends Controller
     {
         try {
             $this->feedback_service->respond($request, $feedback_id);
-            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "message sent successfully");
+            return redirect()->back()->with(NotificationConstants::SUCCESS_MSG, "Message sent successfully");
         } catch (ModelNotFoundException $th) {
             return redirect()->back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $th->getMessage());
         } catch (InvalidRequestException $th) {

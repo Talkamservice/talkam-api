@@ -28,36 +28,33 @@
                 <li class="slide__category list-head-cont "><span class="category-name list-head ">Main</span></li>
                 <!-- End::slide__category -->
 
-                <!-- Start::slide -->
+                       <!-- Dashboard -->
                 <li class="slide">
-                    <a href="{{ route('admin.home') }}" class="side-menu__item list-item">
+                    <a href="{{ route('admin.home') }}"
+                        class="side-menu__item list-item {{ Route::currentRouteName() == 'admin.home' ? 'active' : '' }}">
                         <i class="bx bx-home side-menu__icon list-item-icon"></i>
-                        <span class="side-menu__label list-item-label ">Dashboard</span>
+                        <span class="side-menu__label list-item-label">Dashboard</span>
                     </a>
                 </li>
-                <!-- End::slide -->
 
                 @canAny(slugPermission('read user'), slugPermission('read admin'))
-                    <!-- Start::slide__category -->
                     <li class="slide__category list-head-cont"><span class="category-name list-head">USER MANAGEMENT</span>
                     </li>
-                    <!-- End::slide__category -->
 
                     @can(slugPermission('read user'))
-                        <!-- Start::slide -->
                         <li class="slide">
-                            <a href="{{ route('admin.users.index') }}" class="side-menu__item list-item">
+                            <a href="{{ route('admin.users.index') }}"
+                                class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.users.index', 'admin.users.create', 'admin.users.show', 'admin.users.edit']) ? 'active' : '' }}">
                                 <i class="bx bx-user-plus side-menu__icon list-item-icon"></i>
                                 <span class="side-menu__label list-item-label">Users</span>
                             </a>
                         </li>
-                        <!-- End::slide -->
                     @endcan
 
                     @can(slugPermission('read admin'))
-                        <!-- Start::slide -->
                         <li class="slide">
-                            <a href="{{ route('admin.members.index') }}" class="side-menu__item list-item">
+                            <a href="{{ route('admin.members.index') }}"
+                                class="side-menu__item list-item {{ Route::currentRouteName() == 'admin.members.index' ? 'active' : '' }}">
                                 <i class="bx bx-key side-menu__icon list-item-icon"></i>
                                 <span class="side-menu__label list-item-label">Admins</span>
                             </a>
@@ -65,16 +62,14 @@
                     @endcan
 
                 @endcanAny
-                <!-- End::slide -->
 
                 @can(slugPermission('read category'))
-                    <!-- Start::slide__category -->
                     <li class="slide__category list-head-cont"><span class="category-name list-head">CONTENT
                             MANAGEMENT</span></li>
-                    <!-- End::slide__category -->
 
                     <li class="slide">
-                        <a href="{{ route('admin.post-categories.index') }}" class="side-menu__item list-item">
+                        <a href="{{ route('admin.post-categories.index') }}"
+                            class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.post-categories.index', 'admin.post-categories.create', 'admin.post-categories.show', 'admin.post-categories.edit']) ? 'active' : '' }}">
                             <i class="bx bx-folder-open side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Categories</span>
                         </a>
@@ -82,27 +77,26 @@
                 @endcan
 
                 @can(slugPermission('read guideline'))
-                    <!-- Start::slide__category -->
                     <li class="slide__category list-head-cont"><span class="category-name list-head">SYSTEM
                             MANAGEMENT</span></li>
-                    <!-- End::slide__category -->
-
-                   
                 @endcan
 
                 @canAny(slugPermission('read notification'), slugPermission('read announcement'))
                     <li class="slide has-sub">
-                        <a href="javascript:void(0);" class="side-menu__item list-item">
+                        <a href="javascript:void(0);"
+                            class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.notifications.send-bulk-notification.index', 'admin.announcements.index']) ? 'active' : '' }}">
                             <i class="bx bx-notification side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Digital Outreach</span>
                             <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide">
-                                <a href="{{ route('admin.notifications.send-bulk-notification.index') }}" class="side-menu__item list-item list-item-sub">Notification</a>
+                                <a href="{{ route('admin.notifications.send-bulk-notification.index') }}"
+                                    class="side-menu__item list-item list-item-sub {{ in_array(Route::currentRouteName(), ['admin.notifications.send-bulk-notification.index', 'admin.notifications.send-bulk-notification.create, admin.notifications.send-bulk-notification.edit']) ? 'active' : '' }}">Notification</a>
                             </li>
                             <li class="slide">
-                                <a href="{{ route('admin.announcements.index') }}" class="side-menu__item list-item list-item-sub">Announcement</a>
+                                <a href="{{ route('admin.announcements.index') }}"
+                                    class="side-menu__item list-item list-item-sub {{ in_array(Route::currentRouteName(), ['admin.announcements.index', 'admin.announcements.create', 'admin.announcements.edit']) ? 'active' : '' }}">Announcement</a>
                             </li>
                         </ul>
                     </li>
@@ -110,62 +104,79 @@
 
                 @can(slugPermission('read report'))
                     <li class="slide has-sub">
-                        <a href="javascript:void(0);" class="side-menu__item list-item">
+                        <a href="javascript:void(0);"
+                            class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.reports.post.lists', 'admin.reports.comment.lists', 'admin.reports.group.lists', 'admin.reports.group.member.lists']) ? 'active' : '' }}">
                             <i class="bx bx-message-dots side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Report</span>
                             <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide">
-                                <a href="{{ route('admin.reports.post.lists') }}" class="side-menu__item list-item list-item-sub">General Post</a>
-                                <a href="{{ route('admin.reports.comment.lists') }}" class="side-menu__item list-item list-item-sub">General Comment</a>
-                                    <a href="{{ route('admin.reports.group.lists') }}" class="side-menu__item list-item list-item-sub">Group Post</a>
-                                    <a href="{{ route('admin.reports.group.member.lists') }}" class="side-menu__item list-item list-item-sub">Group Members</a>
+                                <a href="{{ route('admin.reports.post.lists') }}"
+                                    class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.reports.post.lists' ? 'active' : '' }}">General
+                                    Post</a>
+                            </li>
+                            <li class="slide">
+                                <a href="{{ route('admin.reports.comment.lists') }}"
+                                    class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.reports.comment.lists' ? 'active' : '' }}">General
+                                    Comment</a>
+                            </li>
+                            <li class="slide">
+                                <a href="{{ route('admin.reports.group.lists') }}"
+                                    class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.reports.group.lists' ? 'active' : '' }}">Group
+                                    Post</a>
+                            </li>
+                            <li class="slide">
+                                <a href="{{ route('admin.reports.group.member.lists') }}"
+                                    class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.reports.group.member.lists' ? 'active' : '' }}">Group
+                                    Members</a>
                             </li>
                         </ul>
                     </li>
                 @endcan
 
                 @can(slugPermission('read term and condition'))
-                <li class="slide">
-                    <a href="{{ route('admin.guidelines.index') }}" class="side-menu__item list-item">
-                        <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
-                        <span class="side-menu__label list-item-label">Community Guidelines</span>
-                    </a>
-                </li>
                     <li class="slide">
-                        <a href="{{ route('admin.terms-and-conditions.create') }}" class="side-menu__item list-item">
+                        <a href="{{ route('admin.guidelines.index') }}"
+                            class="side-menu__item list-item {{ Route::currentRouteName() == 'admin.guidelines.index' ? 'active' : '' }}">
+                            <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Community Guidelines</span>
+                        </a>
+                    </li>
+                    <li class="slide">
+                        <a href="{{ route('admin.terms-and-conditions.create') }}"
+                            class="side-menu__item list-item {{ Route::currentRouteName() == 'admin.terms-and-conditions.create' ? 'active' : '' }}">
                             <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Terms And Conditions</span>
                         </a>
                     </li>
                 @endcan
 
-                @canAny(slugPermission('read notification'), slugPermission('read announcement'))
+                @can(slugPermission('read faq'))
                     <li class="slide has-sub">
-                        <a href="javascript:void(0);" class="side-menu__item list-item">
+                        <a href="javascript:void(0);"
+                            class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.faqs.index', 'admin.faq-categories.index']) ? 'active' : '' }}">
                             <i class="bx bx-question-mark side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">FAQs</span>
                             <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                         </a>
                         <ul class="slide-menu child1">
-                            @can(slugPermission('read faq'))
-                                <li class="slide">
-                                    <a href="{{ route('admin.faqs.index') }}" class="side-menu__item list-item list-item-sub">FAQs</a>
-                                </li>
-                            @endcan
-                            @can(slugPermission('read faq category'))
-                                <li class="slide">
-                                    <a href="{{ route('admin.faq-categories.index') }}" class="side-menu__item list-item list-item-sub">Categories</a>
-                                </li>
-                            @endcan
+                            <li class="slide">
+                                <a href="{{ route('admin.faqs.index') }}"
+                                    class="side-menu__item list-item list-item-sub {{ in_array(Route::currentRouteName(), ['admin.faqs.index', 'admin.faqs.create', 'admin.faqs.show', 'admin.faqs.edit']) ? 'active' : '' }}">FAQs</a>
+                            </li>
+                            <li class="slide">
+                                <a href="{{ route('admin.faq-categories.index') }}"
+                                    class="side-menu__item list-item list-item-sub {{ in_array(Route::currentRouteName(), ['admin.faq-categories.index', 'admin.faq-categories.create', 'admin.faq-categories.show', 'admin.faq-categories.edit']) ? 'active' : '' }}">FAQ
+                                    Categories</a>
+                            </li>
                         </ul>
                     </li>
-                @endcanAny
+                @endcan
 
                 @can(slugPermission('read privacy policy'))
                     <li class="slide">
-                        <a href="{{ route('admin.privacy-policies.create') }}" class="side-menu__item list-item">
+                        <a href="{{ route('admin.privacy-policies.create') }}" class="side-menu__item list-item {{Route::currentRouteName()== 'admin.privacy-policies.create' ? 'active' : ''}}">
                             <i class="bx bx-low-vision side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Privacy Policy</span>
                         </a>
@@ -174,7 +185,7 @@
 
                 @can(slugPermission('read feedbacks'))
                     <li class="slide">
-                        <a href="{{ route('admin.feedbacks.index') }}" class="side-menu__item list-item">
+                        <a href="{{ route('admin.feedbacks.index') }}" class="side-menu__item list-item {{Route::currentRouteName()== 'admin.feedbacks.index' ? 'active' : ''}}">
                             <i class="bx bx-message-dots side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Feedbacks</span>
                         </a>
@@ -184,17 +195,17 @@
                 <!-- Start::slide -->
                 @hasrole('Sudo')
                     <li class="slide has-sub">
-                        <a href="javascript:void(0);" class="side-menu__item list-item">
+                        <a href="javascript:void(0);" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.authorization.roles.index', 'admin.authorization.permissions.index']) ? 'active' : '' }}">
                             <i class="bx bx-lock-alt side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Authorization</span>
                             <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide">
-                                <a href="{{ route('admin.authorization.roles.index') }}" class="side-menu__item list-item list-item-sub">Roles</a>
+                                <a href="{{ route('admin.authorization.roles.index') }}" class="side-menu__item list-item list-item-sub {{ in_array(Route::currentRouteName(), ['admin.authorization.roles.index', 'admin.authorization.roles.create', 'admin.authorization.roles.show', 'admin.authorization.roles.edit']) ? 'active' : '' }}">Roles</a>
                             </li>
                             <li class="slide">
-                                <a href="{{ route('admin.authorization.permissions.index') }}" class="side-menu__item list-item list-item-sub">Permissions</a>
+                                <a href="{{ route('admin.authorization.permissions.index') }}" class="side-menu__item list-item list-item-sub {{ in_array(Route::currentRouteName(), ['admin.authorization.permissions.index', 'authorization.permissions.create', 'authorization.permissions', 'authorization.permissions']) ? 'active' : '' }}">Permissions</a>
                             </li>
                         </ul>
                     </li>
@@ -205,7 +216,7 @@
 
                     @can(slugPermission('read activity logs'))
                         <li class="slide">
-                            <a href="{{ route('admin.activity-logs.index') }}" class="side-menu__item list-item">
+                            <a href="{{ route('admin.activity-logs.index') }}" class="side-menu__item list-item {{Route::currentRouteName()== 'admin.activity-logs.index' ? 'active' : ''}}">
                                 <i class="bx bx-history side-menu__icon list-item-icon"></i>
                                 <span class="side-menu__label list-item-label">Activity Logs</span>
                             </a>
@@ -214,7 +225,7 @@
 
                     @can(slugPermission('read avatar'))
                         <li class="slide">
-                            <a href="{{ route('admin.avatars.index') }}" class="side-menu__item list-item">
+                            <a href="{{ route('admin.avatars.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.avatars.index', 'admin.avatars.index.create', 'admin.avatars.index.show', 'admin.avatars.index.edit']) ? 'active' : '' }}">
                                 <i class="bx bx-user side-menu__icon list-item-icon"></i>
                                 <span class="side-menu__label list-item-label">Avatars</span>
                             </a>
@@ -223,7 +234,7 @@
 
                     @can(slugPermission('read deactivation requests'))
                         <li class="slide">
-                            <a href="{{ route('admin.account-deactivation-requests.index') }}" class="side-menu__item list-item">
+                            <a href="{{ route('admin.account-deactivation-requests.index') }}" class="side-menu__item list-item {{Route::currentRouteName()== 'admin.account-deactivation-requests.index' ? 'active' : ''}}">
                                 <i class="bx bx-trash side-menu__icon list-item-icon"></i>
                                 <span class="side-menu__label list-item-label">Deactivation Reqs</span>
                                 <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
