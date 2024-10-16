@@ -35,7 +35,8 @@ class GroupMemberController extends Controller
     public function index(Request $request)
     {
         try {
-            $group = $this->group_service->getById($request->group_id);
+            $field = is_numeric($request->group_id) ? "id" : "uuid";
+            $group = $this->group_service->getById($request->group_id, $field);
             $data = $this->group_member_service->listByGroup($group->id, $request->all());
             return ApiHelper::validResponse("Group members returned successfully", $data);
         } catch (ModelNotFoundException $th) {

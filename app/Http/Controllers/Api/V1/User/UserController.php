@@ -160,7 +160,8 @@ class UserController extends Controller
             if (!empty($username = $request->username)) {
                 $response = $this->user_service->getById($username, "username");
             } else {
-                $response = $this->user_service->getById($request->user_id);
+                $field = is_numeric($request->user_id) ? "id" : "username";
+                $response = $this->user_service->getById($request->user_id, $field);
             }
             $data = UserResource::make($response);
             return ApiHelper::validResponse("Profile returned successfully", $data);

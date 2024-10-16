@@ -79,9 +79,7 @@ class UserService
             'password' => [Rule::requiredIf(empty($id))],
             "phone_number" => "nullable",
             "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
-            'date_of_birth' => 'nullable|date_format:d/m/Y|before:today',
-            "state_id" => "nullable|exists:states,id",
-            "country_id" => "nullable|exists:countries,id",
+            "date_of_birth" => 'nullable|date_format:Y-m-d|before:today',
         ], [
             'email.unique' => "The email address has already been used by another user",
             'username.unique' => "The email address has already been used by another user",
@@ -109,6 +107,12 @@ class UserService
 
         $data['password'] = !empty($data['password'] ?? null) ? Hash::make($data['password']) : null;
         $user = User::create($data);
+
+        // Convert date_of_birth to Y-m-d format
+        if (isset($data['date_of_birth'])) {
+            // Assuming the input is in 'Y-d-m' format, convert it to 'Y-m-d'
+            $data['date_of_birth'] = Carbon::createFromFormat('Y-d-m', $data['date_of_birth'])->format('Y-m-d');
+        }
 
         if (!empty($avatar = $data["avatar"] ?? null)) {
             (new AvatarService)->setUser($user)->update([
@@ -164,7 +168,7 @@ class UserService
                 "state_id" => "nullable|exists:states,id",
                 "country_id" => "nullable|exists:countries,id",
                 "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
-                'date_of_birth' => 'nullable|date_format:d/m/Y|before:today',
+                "date_of_birth" => 'nullable|date_format:Y-m-d|before:today',
             ], [
                 "username.unique" => "The username has already been taken",
                 "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",
@@ -184,6 +188,12 @@ class UserService
 
             if (isset($data["password"])) {
                 $data["password"] = Hash::make($data["password"]);
+            }
+
+            // Convert date_of_birth to Y-m-d format
+            if (isset($data['date_of_birth'])) {
+                // Assuming the input is in 'Y-d-m' format, convert it to 'Y-m-d'
+                $data['date_of_birth'] = Carbon::createFromFormat('Y-d-m', $data['date_of_birth'])->format('Y-m-d');
             }
 
             if (isset($data["interests"])) {

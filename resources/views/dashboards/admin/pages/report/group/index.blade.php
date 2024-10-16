@@ -49,7 +49,6 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Group Name</th>
-                                    <th scope="col">Group Description</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
@@ -67,10 +66,6 @@
                                                 target="_blank"
                                                 rel="noopener noreferrer">{{ $group_report->group->name }}</a>
                                         </td>
-                                        <td><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#groupDescriptionContent_{{ $group_report->group->id }}">
-                                            View
-                                        </button></td>
                                         <td>
                                             <span
                                                 class="badge bg-{{ pillClasses($group_report->group->status) }}-transparent">
@@ -137,7 +132,7 @@
                                         </td>
 
                                     </tr>
-                                    @include('dashboards.admin.pages.report.group.description-modal')
+                                   
                                 @empty
                                     <div class="alert alert-info text-center">
                                         No record found

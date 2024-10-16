@@ -178,65 +178,26 @@ class PlanService
 
     public static function createFlutterwavePlan($plan)
     {
-               // Create Flutterwave customer if necessary
-        $flutterwave = new FlutterwaveService();
-       
-        
         $durations = $plan->durations;
 
-        // Process each duration for pricing and create transactions
         foreach ($durations as $duration) {
-            $amount = floatval((new PlanService)->parsePlanPrice($duration)); // Get the correct amount
+            $amount = floatval((new PlanService)->parsePlanPrice($duration));
 
-            // Step 5: Create a Flutterwave transaction
             $transaction_data = [
                 "amount" => $amount,
-                "name"=> $plan->name,
+                "name" => $plan->name,
                 "interval" => strtolower($duration->frequency),
-                "duration"=> $duration->duration
+                "duration" => $duration->duration,
+                "currency" => $plan->currency
             ];
 
-            $response = $flutterwave->setTransactionData($transaction_data)->createPlan();
+            $response = (new FlutterwaveService)->setPlanData($transaction_data)
+                ->createPlan();
 
             if (!empty($response)) {
                 $duration->update([
-                    'flutterwave_price_id' => $response['id'] // Save Flutterwave price ID for each duration
+                    'flutterwave_plan_id' => $response["data"]['id']
                 ]);
-            } else {
-                throw new FlutterwaveException("Plan creation failed for duration {$duration->name}.");
-            }
-        }
-    }
-
-    public static function updateFlutterwavePlan($plan)
-    {
-        // Step 1: Get the user either from request or auth
-       
-
-        // Create Flutterwave customer if necessary
-        $flutterwave = new FlutterwaveService();
-       
-        
-        $durations = $plan->durations;
-
-        // Process each duration for pricing and create transactions
-        foreach ($durations as $duration) {
-            $amount = floatval((new PlanService)->parsePlanPrice($duration)); // Get the correct amount
-
-            // Step 5: Create a Flutterwave transaction
-            $transaction_data = [
-                "name"=> $plan->name,
-                "status"=> $duration->status
-            ];
-
-            $response = $flutterwave->setTransactionData($transaction_data)->updatePlan();
-
-            if (!empty($response)) {
-                $duration->update([
-                    'flutterwave_price_id' => $response['id'] // Save Flutterwave price ID for each duration
-                ]);
-            } else {
-                throw new FlutterwaveException("Plan update failed for duration {$duration->name}.");
             }
         }
     }

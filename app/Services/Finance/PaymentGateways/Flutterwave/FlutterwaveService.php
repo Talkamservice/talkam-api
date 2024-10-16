@@ -22,7 +22,7 @@ class FlutterwaveService
     protected $client;
     public $payment_intent_data;
     protected $customer_data;
-    protected $transaction_data;
+    protected $plan_data;
     protected $price_data;
 
     public function __construct()
@@ -99,10 +99,9 @@ class FlutterwaveService
     //     }
     // }
 
-    // Sets the transaction data by combining customer and price data
-    public function setTransactionData(array $transaction_data = [])
+    public function setPlanData(array $plan_data = [])
     {
-        $this->transaction_data = $transaction_data;
+        $this->plan_data = $plan_data;
         return $this;
     }
 
@@ -110,26 +109,9 @@ class FlutterwaveService
     public function createPlan()
     {
         try {
-            $full_url = "{$this->base_url}";
-            $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
-            dd($full_url, $response);
-            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
-            }
-
-            return $response['data'];
-        } catch (Exception $e) {
-            ExceptionService::logAndBroadcast($e);
-            throw new FlutterwaveException('Transaction creation failed: ' . $e->getMessage());
-        }
-    }
-
-    public function updatePlan()
-    {
-        try {
-            $full_url = "{$this->base_url}/payment-plans/{id should be here}";
-            $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
-            dd($full_url, $response);
+            $full_url = "{$this->base_url}/payment-plans";
+            $response = $this->client->post($full_url, $this->plan_data);
+            
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
             }
