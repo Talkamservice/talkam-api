@@ -82,28 +82,27 @@ class FlutterwaveService
         return $this;
     }
 
-    public function createCustomer()
-    {
-        try {
-            $full_url = "https://api-sit.flutterwave.cloud/developersandbox/customers";
-            $data = $this->customer_data;
-            // dd($data);
-            $response = $this->client->postWithFormParams($full_url, $data);
-            dd($response);
-            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
-            }
-            return $response["data"];
-        } catch (Exception $e) {
-            ExceptionService::logAndBroadcast($e);
-        }
-    }
+    // public function createCustomer()
+    // {
+    //     try {
+    //         $full_url = "https://api-sit.flutterwave.cloud/developersandbox/customers";
+    //         $data = $this->customer_data;
+    //         // dd($data);
+    //         $response = $this->client->postWithFormParams($full_url, $data);
+    //         dd($response);
+    //         if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+    //             throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
+    //         }
+    //         return $response["data"];
+    //     } catch (Exception $e) {
+    //         ExceptionService::logAndBroadcast($e);
+    //     }
+    // }
 
     // Sets the transaction data by combining customer and price data
     public function setTransactionData(array $transaction_data = [])
     {
         $this->transaction_data = $transaction_data;
-        dd($this);
         return $this;
     }
 
@@ -111,7 +110,24 @@ class FlutterwaveService
     public function createPlan()
     {
         try {
-            $full_url = "{$this->base_url}/payment-plans";
+            $full_url = "{$this->base_url}";
+            $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
+            dd($full_url, $response);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
+            }
+
+            return $response['data'];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Transaction creation failed: ' . $e->getMessage());
+        }
+    }
+
+    public function updatePlan()
+    {
+        try {
+            $full_url = "{$this->base_url}/payment-plans/{id should be here}";
             $response = $this->client->postWithFormParams($full_url, $this->transaction_data);
             dd($full_url, $response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
@@ -168,13 +184,6 @@ class FlutterwaveService
             throw new ModelNotFoundException("Plan member not found");
         }
         return $plan;
-    }
-
-
-    public function createFlutterwavePrices(Request $request)
-    {
-        // dd($request->all());
-        (new SubscriptionService)->initiatePayment($request);
     }
 
 
