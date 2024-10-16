@@ -143,11 +143,13 @@ class ConversationService
 
             if ($conversation?->messages?->isEmpty()) {
                 $conversation->delete();
+                $conversation = null;
             }
 
             if (!empty($conversation)) {
                 return $conversation;
             }
+
 
             $conversation = Conversation::create([
                 "user_id" => $user->id,
