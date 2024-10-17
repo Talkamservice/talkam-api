@@ -10,6 +10,8 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Plan;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
+use App\Services\System\ExceptionService;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -107,13 +109,13 @@ class PlanService
                 ]);
             }
 
-            foreach ($plan->durations as $key => $duration) {
-                $duration->subscriptions()->delete();
-            }
+            // foreach ($plan->durations as $key => $duration) {
+            //     $duration->subscriptions()->delete();
+            // }
 
             $plan->durations()->delete();
             (new PlanDurationService)->saveMultiple($data, $plan);
-
+            self::updateFlutterwavePlan($plan);
             DB::commit();
             return $plan;
         } catch (\Throwable $th) {
@@ -131,6 +133,17 @@ class PlanService
         }
 
         return $plan;
+    }
+
+    public function cancel($id)
+    {
+        $plan = $this->getById($id);
+        // dd($plan)
+        $plan->update(['status' => StatusConstants::CANCELLED]);
+        foreach ($plan->durations as $duration) {
+            $duration->update(['status' => StatusConstants::CANCELLED]);
+        }
+        self::cancelFlutterwavePlan($plan);
     }
 
     public static function list()
@@ -199,6 +212,60 @@ class PlanService
                     'flutterwave_plan_id' => $response["data"]['id']
                 ]);
             }
+        }
+    }
+    public static function updateFlutterwavePlan($plan)
+    {
+
+        $durations = $plan->durations;
+        foreach ($durations as $duration) {
+
+            // Check if the plan needs to be updated
+            if ($plan->isDirty('amount') || $plan->isDirty('interval') || $plan->isDirty('duration')) {
+                // Create a new plan since these fields cannot be updated
+                self::createFlutterwavePlan($plan);
+                // Cancel the old plan after creating a new one
+                self::cancelFlutterwavePlan($plan);
+            } else {
+                // Proceed with updating the fields that are allowed (status, name)
+                $transaction_data = [
+                    "name" => $plan->name,
+                    "status" => $plan->status,
+                ];
+
+                $response = (new FlutterwaveService)->setPlanData($transaction_data)
+                    ->updatePlan();
+                if (!empty($response)) {
+                    $duration->update([
+                        'flutterwave_plan_id' => $response["data"]['id']
+                    ]);
+                }
+                return $response;
+            }
+        }
+    }
+
+
+    public static function cancelFlutterwavePlan($plan)
+    {
+        $durations = $plan->durations;
+        foreach ($durations as $duration) {
+            $response = (new FlutterwaveService)
+                ->setFlutterwavePlanId($duration->flutterwave_plan_id)
+                ->cancelPlan();
+        return $response;
+
+        }
+    }
+
+    public static function getFlutterwavePlan($plan)
+    {
+        $durations = $plan->durations;
+        foreach ($durations as $duration) {
+            $response = (new FlutterwaveService)
+                ->setFlutterwavePlanId($duration->flutterwave_plan_id)
+                ->getPlan();
+            return $response;
         }
     }
 }

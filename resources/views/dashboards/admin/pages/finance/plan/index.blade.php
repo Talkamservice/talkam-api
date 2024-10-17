@@ -79,6 +79,14 @@
                                                         class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i
                                                             class="ri-delete-bin-line"></i></button>
                                                 </form>
+                                                <a type="button"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
+                                                    data-bs-toggle="modal" data-bs-target="#cancelPlanModal{{ $plan->id }}"
+                                                    data-plan-id="{{ $plan->id }}" data-bs-toggle="tooltip"
+                                                    title="Cancel Plan">
+                                                    <i class="ri-close-circle-line"></i>
+                                                </a>
+
                                                 <!-- Subscription Icon - Opens Modal -->
                                                 <a type="button"
                                                     class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"
@@ -93,7 +101,10 @@
                                         'dashboards.admin.pages.finance.subscription.subscribe-modal',
                                         ['users', $users, 'plan' => $plan]
                                     )
-
+                                    @include('dashboards.admin.pages.finance.plan.cancel-plan-modal', [
+                                        'plan',
+                                        $plan,
+                                    ])
                                 @empty
                                     <div class="alert alert-info text-center">
                                         No records found

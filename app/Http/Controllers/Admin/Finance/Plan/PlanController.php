@@ -6,6 +6,7 @@ use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\Finance\PlanException;
+use App\Exceptions\Payment\PlanException as PaymentPlanException;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\User;
@@ -87,10 +88,10 @@ class PlanController extends Controller
                 ->with(NotificationConstants::SUCCESS_MSG, 'Plan updated successfully');
         } catch (ValidationException $e) {
             throw $e;
-        } catch (PlanException $e) {
+        } catch (PaymentPlanException $e) {
             return back()->with(NotificationConstants::ERROR_MSG, $e->getMessage());
         } catch (Throwable $e) {
-            // throw $e;
+            throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
         }
     }
@@ -103,6 +104,23 @@ class PlanController extends Controller
             return back()->with(NotificationConstants::SUCCESS_MSG, 'Plan deleted successfully');
         } catch (Throwable $th) {
             return back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
+        }
+    }
+
+    public function cancelPlan($id)
+    {
+        // dd($id);
+        try {
+            $this->plan_service->cancel($id);
+            return redirect()->route("admin.plans.index")
+                ->with(NotificationConstants::SUCCESS_MSG, 'Plan cancelled successfully');
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (PaymentPlanException $e) {
+            return back()->with(NotificationConstants::ERROR_MSG, $e->getMessage());
+        } catch (Throwable $e) {
+            throw $e;
+            return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
         }
     }
 }

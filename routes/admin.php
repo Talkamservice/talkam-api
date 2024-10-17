@@ -97,6 +97,9 @@ Route::middleware(["auth"])->group(
             Route::resource('/plan-benefits', PlanBenefitsController::class);
         });
 
+        Route::put('plan/cancel/{id}', [PlanController::class, 'cancelPlan'])->name('plan.cancel');
+
+
         Route::as("notifications.")->prefix("notifications")->group(function () {
             Route::get("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
             Route::get("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
