@@ -130,8 +130,9 @@ class Post extends Model
 
     public function scopeHideGroupPosts($query, $group_access = PostConstants::TYPE_CLOSED)
     {
-        return $query->whereHas("group", function ($group) use ($group_access) {
-            $group->whereNot("group_access", $group_access);
-        });
+        return $query;
+        // return $query->whereHas("group", function ($group) use ($group_access) {
+        //     $group->where("group_access", $group_access);
+        // });
     }
 }
