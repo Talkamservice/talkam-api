@@ -128,7 +128,7 @@ class Post extends Model
         return $this->hasMany(PostReport::class, 'post_id');
     }
 
-    public function scopeHideGroup($query, $group_access = PostConstants::TYPE_CLOSED)
+    public function scopeHideGroupPosts($query, $group_access = PostConstants::TYPE_CLOSED)
     {
         return $query->whereHas("group", function ($group) use ($group_access) {
             $group->whereNot("group_access", $group_access);

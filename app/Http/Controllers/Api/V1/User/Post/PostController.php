@@ -33,7 +33,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $posts = $this->post_service->list($request->all())->status()->unblocked()->hideGroup()
+            $posts = $this->post_service->list($request->all())->status()->unblocked()->hideGroupPosts()
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
             $data = collectPagination($posts);
