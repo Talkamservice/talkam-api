@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
-use App\Constants\Post\PostConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -12,8 +11,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Post\PostAttachmentResource;
 use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
+use App\Http\Resources\Stat\PostStatsResource;
 use App\Http\Resources\Post\TrendingResource;
 use App\Services\Post\PostService;
+use App\Services\Post\PostStatsService;
 use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,12 +23,14 @@ use Illuminate\Validation\ValidationException;
 class PostController extends Controller
 {
     protected $post_service;
+    protected $post_stats_service;
     protected $recent_view_service;
 
     public function __construct()
     {
         $this->post_service = new PostService;
         $this->recent_view_service = new RecentViewService;
+        $this->post_stats_service = new PostStatsService;
     }
 
     public function index(Request $request)
@@ -150,6 +153,32 @@ class PostController extends Controller
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function fetchStats(Request $request)
+    {
+        try {
+            $post = $this->post_stats_service->fetchStats($request->all());
+            $data = !empty($post) ? PostStatsResource::make($post) : null;
+            return ApiHelper::validResponse("Post stats returned successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function saveStats(Request $request)
+    {
+        try {
+            $post = $this->post_stats_service->create($request->all());
+            // $data = PostStatsResource::make($post);
+            return ApiHelper::validResponse("Post stats updated successfully", $data ?? null);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
 }
