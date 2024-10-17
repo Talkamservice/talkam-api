@@ -43,7 +43,7 @@ class PostStatsService
 
     public function create(array $data)
     {
-        try {
+        try { 
             $data = $this->validate($data);
 
             $fields_to_update = ["comments", "likes", "dislikes", "shares", "impressions", "engagements", "followers", "profile_visits", "clicks"];
