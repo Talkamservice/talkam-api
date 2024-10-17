@@ -172,7 +172,7 @@ class PostController extends Controller
     public function saveStats(Request $request)
     {
         try {
-            $post = $this->post_stats_service->create($request->all());
+            $post = $this->post_stats_service->dispatch($request->all());
             // $data = PostStatsResource::make($post);
             return ApiHelper::validResponse("Post stats updated successfully", $data ?? null);
         } catch (ValidationException $th) {
