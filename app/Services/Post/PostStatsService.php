@@ -38,12 +38,13 @@ class PostStatsService
     public function dispatch(array $data)
     {
         $data = $this->validate($data);
-        MethodsHelper::dispatchJob(new PostStatsJob($data))->onQueue(AppConstants::STATS_QUEUE);
+        dispatch(new PostStatsJob($data))
+            ->onQueue(AppConstants::STATS_QUEUE);
     }
 
     public function create(array $data)
     {
-        try { 
+        try {
             $data = $this->validate($data);
 
             $fields_to_update = ["comments", "likes", "dislikes", "shares", "impressions", "engagements", "followers", "profile_visits", "clicks"];
