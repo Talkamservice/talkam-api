@@ -130,8 +130,18 @@ class Post extends Model
 
     public function scopeHideGroupPosts($query, $group_access = PostConstants::TYPE_CLOSED)
     {
-        return $query->whereHas("group", function ($group) use ($group_access) {
-            $group->where("group_access", '!=', $group_access);
+        return $query->where(function ($query) {
+            // Case 1: If the post belongs to a closed group, the user must be a member to see it.
+            $query->whereHas('group', function ($group_query) {
+                $group_query->where('group_access', PostConstants::TYPE_CLOSED)
+                    ->whereHas('members', function ($member_query) {
+                        $member_query->where('user_id', auth()->id());
+                    });
+            })
+                // Case 2: If the group is not closed, show the post regardless of membership.
+                ->orWhereHas('group', function ($group_query) {
+                    $group_query->where('group_access', '!=', PostConstants::TYPE_CLOSED);
+                });
         });
     }
 }
