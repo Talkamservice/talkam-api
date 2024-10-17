@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User\Post;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
+use App\Constants\Post\PostConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -32,7 +33,9 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $posts = $this->post_service->list($request->all())->status()->unblocked()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $posts = $this->post_service->list($request->all())->status()->unblocked()->hideGroup()
+                ->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
             $data = collectPagination($posts);
             $data["data"] = PostResource::collection($data["data"]);
             return ApiHelper::validResponse("Posts returned successfully", $data);
@@ -103,8 +106,8 @@ class PostController extends Controller
     {
         try {
             $trends = $this->post_service->trends($request->all())->whereNotNull("category_id")->where("count", ">", 1)->status()
-            ->groupBy("tag")->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")->orderByDesc("count")
-            ->get();
+                ->groupBy("tag")->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")->orderByDesc("count")
+                ->get();
             $data = TrendingResource::collection($trends);
             return ApiHelper::validResponse("Trends returned successfully", $data);
         } catch (Exception $e) {
