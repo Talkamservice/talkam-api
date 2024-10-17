@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
+use App\Models\PostCategory;
 use App\Models\User;
 use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Notifications\AppMailerService;
@@ -31,7 +32,9 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        $user = User::first();
+        $user = PostCategory::latest()->delete();
+
+        dd("ss");
         // (new FirebaseNotificationService)
         //     ->setTitle("Test notification")
         //     ->setBody("Message")

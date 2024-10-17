@@ -124,6 +124,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("actions/get-comment-posts", [PostController::class, "postWithComments"])->name("get-comment-posts");
             Route::get("actions/get-upvotes", [PostController::class, "postWithLikes"])->name("get-liked-posts");
             Route::get("media/fetch", [PostController::class, "media"])->name("get-all-media");
+
+            Route::get("stats/fetch", [PostController::class, "fetchStats"])->name("fetch-stats");
+            Route::post("stats/save", [PostController::class, "saveStats"])->name("save-stats");
         });
 
         Route::prefix("trendings")->as("trendings")->group(function () {

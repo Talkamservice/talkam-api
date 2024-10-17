@@ -12,11 +12,12 @@ class AppConstants
 
     const MALE = 'Male';
     const FEMALE = 'Female';
-
+    const RATHER_NOT_SAY = "Rather not say";
 
     const GENDERS = [
         self::MALE => self::MALE,
         self::FEMALE => self::FEMALE,
+        self::RATHER_NOT_SAY => self::RATHER_NOT_SAY,
     ];
 
     const MONDAY = "Monday";
@@ -69,5 +70,11 @@ class AppConstants
         'Bugs',
         'Suggestions',
         'Others',
+    ];
+
+    const STATS_QUEUE = "stats-queue";
+
+    const SYSTEM_QUEUES = [
+        self::STATS_QUEUE => self::STATS_QUEUE
     ];
 }

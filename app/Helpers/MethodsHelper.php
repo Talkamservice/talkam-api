@@ -347,9 +347,9 @@ class MethodsHelper
     public static function dispatchJob(ShouldQueue $job)
     {
         if (self::isProductionEnv()) {
-            dispatch($job);
+            return dispatch($job);
         } else {
-            dispatch_sync($job);
+            return dispatch_sync($job);
         }
     }
 
@@ -419,7 +419,7 @@ class MethodsHelper
     {
         $preference = [];
         $notification_preference = $user->notificationPreference;
-        
+
         // if ($user?->can_receive_sms == 1) {
         //     $preference[] = "sms";
         // }

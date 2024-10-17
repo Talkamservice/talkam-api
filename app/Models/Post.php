@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Constants\General\StatusConstants;
+use App\Constants\Post\PostConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -125,5 +126,12 @@ class Post extends Model
     public function postReports()
     {
         return $this->hasMany(PostReport::class, 'post_id');
+    }
+
+    public function scopeHideGroupPosts($query, $group_access = PostConstants::TYPE_CLOSED)
+    {
+        return $query->whereHas("group", function ($group) use ($group_access) {
+            $group->whereNot("group_access", $group_access);
+        });
     }
 }
