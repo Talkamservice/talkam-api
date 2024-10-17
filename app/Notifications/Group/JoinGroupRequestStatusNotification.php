@@ -91,7 +91,7 @@ class JoinGroupRequestStatusNotification extends Notification
             'title' => "Group Request Status",
             'message' => "We wish to inform you that your request to join {$this->member->group->name} has been {$this->status}",
             'link' => $web_url,
-            'type' => 'post',
+            'type' => 'group',
             'batch_no' => null,
             "extra" => []
         ];
