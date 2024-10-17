@@ -138,7 +138,7 @@ class Post extends Model
                         $member_query->where('user_id', auth()->id());
                     });
             })
-                // Case 2: If the group is not closed, show the post regardless of membership.
+                // If the group is not closed, show the post regardless of membership.
                 ->orWhereHas('group', function ($group_query) use ($group_access) {
                     $group_query->where('group_access', '!=', $group_access);
                 });
