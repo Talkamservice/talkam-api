@@ -120,15 +120,16 @@ class SubscriptionService
     {
         // Example of creating a payment/subscription in Flutterwave
         $flutterwaveService = new FlutterwaveService();
-        dd( $flutterwaveService);
         $paymentData = [
             "amount" => $plan_duration->price,
             "duration" => $plan_duration->duration, // Subscription duration
             "plan_id" => $plan_duration->flutterwave_plan_id, // Use the Flutterwave Plan ID
             "email" => auth()->user()->email, // User's email
         ];
+        // dd( $flutterwaveService,  $paymentData);
         // Initiate payment or subscription on Flutterwave
         $response = $flutterwaveService->createSubscription($paymentData);
+        dd($response);
         // Check if the payment was successful, handle the response accordingly
         if (isset($response['status']) && $response['status'] === 'success') {
             // Return the response, could include the payment link or transaction details

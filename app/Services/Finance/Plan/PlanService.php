@@ -165,7 +165,6 @@ class PlanService
     }
 
 
-
     static function parsePlanPrice($duration)
     {
         $price = $duration->price;
