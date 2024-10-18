@@ -280,7 +280,7 @@ class PostService
 
         $builder->whereHas("reactions", function ($query) use ($user_id) {
             $field = is_numeric($user_id) ? "id" : "username";
-            $$query->whereRelation("user", $field, $user_id)
+            $query->whereRelation("user", $field, $user_id)
                 ->where([
                     "action" => PostConstants::LIKE
                 ]);
