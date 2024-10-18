@@ -102,8 +102,8 @@
             border: 1px solid lightgray;
             width: 30%;
             margin: 7% 0 5% 0;
-            left: 35%;
-            position: relative;
+            left: 35% !important;
+            position: relative !important;
         }
 
         .apple {
