@@ -23,7 +23,7 @@ class PromotionResource extends JsonResource
     {
         return [
             "id" => $this->id,
-            "user" => UserResource::make($this->whenLoaded("user", $this->user)),
+            "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "post" => !empty($this->post) ? PostResource::custom($this->post) : null,
             "group" => !empty($this->group) ? PostResource::custom($this->group) : null,
             "state" => !empty($this->state) ? PostResource::custom($this->state) : null,
