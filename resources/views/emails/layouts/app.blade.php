@@ -6,7 +6,7 @@
     <table class="container">
         <tr>
             <td class="logoCont">
-                <img src="{{ asset('email/assets/jpg/talkamlogo1.jpg') }}" />
+                <img src="{{ asset("email/assets/png/talkam_logo.png") }}" />
             </td>
         </tr>
 
@@ -26,11 +26,11 @@
                 <tr>
                     <td class="btnCont">
                         <button class="apple">
-                            <img class="appleIcon" src="{{ asset('email/assets/jpg/appleIcon.jpg') }}" />
+                            <img class="appleIcon" src="{{ asset("email/assets/png/Download_on_App_Store-removebg-preview.png") }}" />
                         </button>
         
                         <button class="playStore">
-                            <img class="playstoreIcon" src="{{ asset('email/assets/jpg/playstoreIcon.jpg') }}" />
+                            <img class="playstoreIcon" src="{{ asset("email/assets/png/Google_Play-removebg-preview.png") }}" />
                         </button>
                     </td>
                 </tr>

@@ -44,6 +44,10 @@
             color: #999999;
         }
 
+        .logoCont>img {
+            max-width: 25%;
+        }
+
         .detailCont {
             text-align: left;
             color: #333333;
@@ -106,6 +110,7 @@
             margin-right: 3%;
             display: flex;
             align-items: center;
+            justify-content: end;
             border: none;
             background-color: white;
         }
@@ -161,17 +166,25 @@
         }
 
         .flogo {
-            width: 80px;
+            width: 110px;
         }
 
         .iconsCont {
             display: flex;
             justify-content: flex-end;
-            margin-top: -5%;
+            align-items: center;
+            margin-top: -2%;
         }
 
         .icon1 {
             margin-right: 30px;
+            max-width: 15%;
+            height: 15%;
+        }
+
+        .appleIcon,
+        .playstoreIcon {
+            width: 60%;
         }
 
         @media screen and (max-width: 768px) {
@@ -196,9 +209,9 @@
 
             .appleIcon,
             .playstoreIcon {
-                width: 30px;
+                width: 60%;
             }
-
+   
             .appleText,
             .playStoreText {
                 font-size: 15px;

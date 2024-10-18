@@ -32,9 +32,8 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        $user = PostCategory::latest()->delete();
+        $user = User::latest()->first();
 
-        dd("ss");
         // (new FirebaseNotificationService)
         //     ->setTitle("Test notification")
         //     ->setBody("Message")
@@ -54,6 +53,7 @@ class TestCommand extends Command
             "subject" => "New Waitlist Member",
         ]);
 
+        dd("ss");
         // (new ActivityLogService)
         //     ->setEvent("deleted")
         //     ->setTitle("Client Removal")

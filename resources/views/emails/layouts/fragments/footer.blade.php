@@ -15,11 +15,11 @@
 
 <tr>
     <td class="footerlogo">
-        <span> <img class="flogo" src="{{ asset('email/assets/jpg/talkamlogo.jpg') }}" /></span>
+        <span> <img class="flogo" src="{{ asset("email/assets/png/talkam_logo.png") }}" /></span>
         <span class="iconsCont">
-            <img class="icon1" src="{{ asset("email/assets/jpg/twitterIconB.jpg") }}" />
-            <img class="icon1" src="{{ asset("email/assets/jpg/facebookIconB.jpg") }}" />
-            <img src="{{ asset("email/assets/jpg/instagramIcon.jpg") }}" />
+            <img class="icon1" src="{{ asset("email/assets/png/Twitter-removebg-preview.png") }}" />
+            <img class="icon1" src="{{ asset("email/assets/png/Facebookremovebg-preview.png") }}" />
+            {{-- <img src="{{ asset("email/assets/instagramIcon.jpg") }}" /> --}}
         </span>
     </td>
 </tr>
