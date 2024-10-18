@@ -195,7 +195,8 @@ class PostService
         }
 
         if (!empty($key = $data["group_id"] ?? null)) {
-            $builder = $builder->where("group_id", $key);
+            $field = is_numeric($key) ? "id" : "uuid";
+            $builder = $builder->whereRelation("group", $field, $key);
         }
 
         if (!empty($key = $data["type"] ?? null)) {
