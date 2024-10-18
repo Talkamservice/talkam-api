@@ -16,16 +16,16 @@ class FlutterwaveController extends Controller
       $this->flutterwave_service = $flutterwave_service;
    }
 
-   public function initiateFlutterwavePayment(Request $request)
-   {
-      try {
-         $this->flutterwave_service->createFlutterwavePrices($request);
-         return back()->with(NotificationConstants::SUCCESS_MSG, "Payment made successfully");
-     } catch (ValidationException $th) {
-         throw $th;
-     } catch (\Throwable $th) {
-         throw $th;
-         return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
-     }
-   }
+   // public function initiateSubscription(Request $request)
+   // {
+   //    try {
+   //       $this->flutterwave_service->initiateSubscription($request);
+   //       return back()->with(NotificationConstants::SUCCESS_MSG, "Payment made successfully");
+   //   } catch (ValidationException $th) {
+   //       throw $th;
+   //   } catch (\Throwable $th) {
+   //       throw $th;
+   //       return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+   //   }
+   // }
 }

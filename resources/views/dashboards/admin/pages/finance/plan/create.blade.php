@@ -112,7 +112,8 @@
                                             <div class="row col-xl-9 col-sm-12 mb-3">
                                                 <label for="input-placeholder"
                                                     class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
-                                                    (USD)</label>
+                                                    (USD)
+                                                </label>
                                                 <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                                     <input type="number" class="form-control" name="price[]"
                                                         value="{{ $plan_duration->price }}" id="input-placeholder"
@@ -216,7 +217,7 @@
             sectionClone.prepend('<div class="btn btn-sm mt-3"></div>');
             sectionClone.append(
                 '<label class=""><button type="button" class="btn btn-sm mb-3 btn-outline-danger btn-md remove-section">Remove</button></label>'
-                );
+            );
             $("#planDuration").append(sectionClone);
         });
         // Function to remove a logistics section

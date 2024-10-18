@@ -107,12 +107,34 @@ class SubscriptionService
 
     public static function cancel($subscription)
     {
-        (new StripeService)->cancelSubscription($subscription->stripe_subscription_id);
+        (new FlutterwaveService)->cancelSubscription($subscription->stripe_subscription_id);
 
         $subscription->update([
             "status" => StatusConstants::CANCELLED
         ]);
 
         return $subscription->refresh();
+    }
+
+    public function initiatePayment($plan_duration)
+    {
+        // Example of creating a payment/subscription in Flutterwave
+        $flutterwaveService = new FlutterwaveService();
+        dd( $flutterwaveService);
+        $paymentData = [
+            "amount" => $plan_duration->price,
+            "duration" => $plan_duration->duration, // Subscription duration
+            "plan_id" => $plan_duration->flutterwave_plan_id, // Use the Flutterwave Plan ID
+            "email" => auth()->user()->email, // User's email
+        ];
+        // Initiate payment or subscription on Flutterwave
+        $response = $flutterwaveService->createSubscription($paymentData);
+        // Check if the payment was successful, handle the response accordingly
+        if (isset($response['status']) && $response['status'] === 'success') {
+            // Return the response, could include the payment link or transaction details
+            return $response;
+        } else {
+            throw new FlutterwaveException("Failed to initiate subscription payment on Flutterwave.");
+        }
     }
 }

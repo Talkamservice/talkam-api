@@ -25,6 +25,9 @@ class FlutterwaveService
     protected $plan_data;
     protected $price_data;
     protected $flutterwave_plan_id;
+    public $subscription_data;
+    protected $payment_method_data;
+    protected $payment_method_to_consumer_data;
 
     public function __construct()
     {
@@ -69,6 +72,13 @@ class FlutterwaveService
         return $this;
     }
 
+    public function setSubscriptionData(array $value)
+    {
+        $this->subscription_data = $value;
+        dd($this);
+        return $this;
+    }
+
     // Sets customer data for transactions
     public function setCustomerData(array $value)
     {
@@ -83,22 +93,17 @@ class FlutterwaveService
         return $this;
     }
 
-    // public function createCustomer()
-    // {
-    //     try {
-    //         $full_url = "https://api-sit.flutterwave.cloud/developersandbox/customers";
-    //         $data = $this->customer_data;
-    //         // dd($data);
-    //         $response = $this->client->postWithFormParams($full_url, $data);
-    //         dd($response);
-    //         if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-    //             throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
-    //         }
-    //         return $response["data"];
-    //     } catch (Exception $e) {
-    //         ExceptionService::logAndBroadcast($e);
-    //     }
-    // }
+    public function setPaymentMethodData(array $value)
+    {
+        $this->payment_method_data = $value;
+        return $this;
+    }
+
+    public function setAttachPaymentMethodToConsumerData(array $value)
+    {
+        $this->payment_method_to_consumer_data = $value;
+        return $this;
+    }
 
     public function setPlanData(array $plan_data = [])
     {
@@ -106,22 +111,21 @@ class FlutterwaveService
         return $this;
     }
 
-    public function setFlutterwavePlanId($plan_id)
-{
-    // Retrieve the specific plan by ID
-    $plan = Plan::findOrFail($plan_id); // Assuming you're using the `id` field to identify the plan
-    
-    // Extract the Flutterwave plan ID from the plan durations (or any other structure)
-    $this->flutterwave_plan_id = $plan->durations->first()->flutterwave_plan_id ?? null;
+    public function createCustomer()
+    {
+        try {
+            $full_url = $this->base_url . "/customers";
+            $response = $this->client->post($full_url, $this->customer_data);
 
-    // Ensure the plan ID is set correctly
-    if (empty($this->flutterwave_plan_id)) {
-        throw new FlutterwaveException('No Flutterwave plan ID found.');
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
+            }
+
+            return $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+        }
     }
-dd($this);
-    return $this;
-}
-
 
     // Creates a payment transaction on Flutterwave
     public function createPlan()
@@ -141,13 +145,12 @@ dd($this);
     }
 
     // update a payment transaction on Flutterwave
-    public function updatePlan($plan_id)
-    {
-        $this->setFlutterwavePlanId($plan_id);
+    public function updatePlan($flutterwave_plan_id)
+    { 
         try {
-            $full_url = "{$this->base_url}/payment-plans/{$this->flutterwave_plan_id}";
-            dd($full_url);
-            $response = $this->client->post($full_url, $this->plan_data);
+            $full_url = "{$this->base_url}/payment-plans/$flutterwave_plan_id";
+            // dd($full_url);
+            $response = $this->client->put($full_url, $this->plan_data);
             // dd($response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
@@ -161,12 +164,12 @@ dd($this);
     }
 
     // Cancel a Flutterwave payment plan
-    public function cancelPlan()
+    public function cancelPlan($flutterwave_plan_id)
     {
         try {
-            $full_url = "{$this->base_url}/payment-plans/{$this->flutterwave_plan_id}/cancel";
+            $full_url = "{$this->base_url}/payment-plans/$flutterwave_plan_id/cancel";
             $response = $this->client->put($full_url);
-            // dd($response);
+            dd($response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred during plan cancellation');
             }
@@ -178,10 +181,10 @@ dd($this);
         }
     }
 
-    public function getPlan()
+    public function getPlan($flutterwave_plan_id)
     {
         try {
-            $full_url = "{$this->base_url}/payment-plans/{$this->flutterwave_plan_id}";
+            $full_url = "{$this->base_url}/payment-plans/$flutterwave_plan_id";
             $response = $this->client->get($full_url);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred during plan cancellation');
@@ -193,9 +196,6 @@ dd($this);
             throw new FlutterwaveException('Unable to get plan: ' . $e->getMessage());
         }
     }
-
-
-
 
     // Verifies the status of a transaction by transaction ID
     public function verifyTransaction($transaction_id)
@@ -240,5 +240,45 @@ dd($this);
             throw new ModelNotFoundException("Plan not found");
         }
         return $plan;
+    }
+
+    public function createSubscription($subscription_data)
+{
+    try {
+        $full_url = $this->base_url . "/subscriptions";
+        $response = $this->client->post($full_url, $subscription_data); // Use the passed $subscription_data
+        dd($response);
+
+        logger("Subscription", [
+            "url" => $full_url,
+            "headers" => $this->headers,
+            "response" => $response,
+        ]);
+
+        if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+            throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
+        }
+
+        return $response["data"];
+    } catch (Exception $e) {
+        ExceptionService::logAndBroadcast($e);
+    }
+}
+
+
+    public function cancelSubscription($subscription_id)
+    {
+        try {
+            $full_url = $this->base_url . "/subscriptions/$subscription_id";
+            $response = $this->client->delete($full_url);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
+            }
+
+            return $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+        }
     }
 }

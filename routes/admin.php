@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Feedback\FeedbackController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanBenefitsController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanController;
+use App\Http\Controllers\Admin\Finance\Subscription\Flutterwave\SubscriptionController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
@@ -135,11 +136,11 @@ Route::middleware(["auth"])->group(
             Route::post('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
         });
 
-        Route::prefix("payments")->as("payments.")->group(function () {
-            Route::post('flutterwave/pay', [FlutterwaveController::class, 'initiateFlutterwavePayment'])->name('flutterwave.initiate');
-            Route::get('flutterwave/callback', [FlutterwaveController::class, 'handleFlutterwavePaymentCallback'])->name('flutterwave.callback');            
+        Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
+            Route::post('flutterwave/{plan}/subscribe', [SubscriptionController::class, 'initiateSubscription'])->name('flutterwave.subscribe');
+            // Route::get('flutterwave/callback', [FlutterwaveController::class, 'handleFlutterwavePaymentCallback'])->name('flutterwave.callback');            
         });
-
+        Route::get('select-a-subscriber', [SubscriptionController::class, 'getSubscriber'])->name('select-a-subscriber');
         Route::resource('announcements', AnnouncementController::class);
         Route::post('announcements/update-status/{id}', [AnnouncementController::class, 'changeStatus'])->name('announcements.update-status');
 
