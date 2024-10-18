@@ -20,10 +20,11 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            CategoryTableSeeder::class,
-            UserTableSeeder::class,
-            PermissionTableSeeder::class,
-            RapidUpdatesSeeder::class
+            // CategoryTableSeeder::class,
+            // UserTableSeeder::class,
+            // PermissionTableSeeder::class,
+            CurrencyTableSeeder::class,
+            // RapidUpdatesSeeder::class
             // CountryTableSeeder::class,
             // StateTableSeeder::class
             // AvatarTableSeeder::class

@@ -100,6 +100,7 @@ class PlanController extends Controller
     {
         try {
             $plan = PlanService::getById($id);
+            $this->plan_service->cancelFlutterwavePlan($plan);
             $plan->delete();
             return back()->with(NotificationConstants::SUCCESS_MSG, 'Plan deleted successfully');
         } catch (Throwable $th) {
@@ -107,20 +108,20 @@ class PlanController extends Controller
         }
     }
 
-    public function cancelPlan($id)
-    {
-        // dd($id);
-        try {
-            $this->plan_service->cancel($id);
-            return redirect()->route("admin.plans.index")
-                ->with(NotificationConstants::SUCCESS_MSG, 'Plan cancelled successfully');
-        } catch (ValidationException $e) {
-            throw $e;
-        } catch (PaymentPlanException $e) {
-            return back()->with(NotificationConstants::ERROR_MSG, $e->getMessage());
-        } catch (Throwable $e) {
-            throw $e;
-            return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
-        }
-    }
+    // public function cancelPlan($id)
+    // {
+    //     // dd($id);
+    //     try {
+    //         $this->plan_service->cancel($id);
+    //         return redirect()->route("admin.plans.index")
+    //             ->with(NotificationConstants::SUCCESS_MSG, 'Plan cancelled successfully');
+    //     } catch (ValidationException $e) {
+    //         throw $e;
+    //     } catch (PaymentPlanException $e) {
+    //         return back()->with(NotificationConstants::ERROR_MSG, $e->getMessage());
+    //     } catch (Throwable $e) {
+    //         throw $e;
+    //         return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
+    //     }
+    // }
 }

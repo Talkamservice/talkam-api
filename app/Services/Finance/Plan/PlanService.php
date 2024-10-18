@@ -8,6 +8,7 @@ use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Exceptions\Payment\FlutterwaveException;
+use App\Models\Currency;
 use App\Models\Plan;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use App\Services\System\ExceptionService;
@@ -137,16 +138,16 @@ class PlanService
         return $plan;
     }
 
-    public function cancel($id)
-    {
-        $plan = $this->getById($id);
-        // dd($plan)
-        $plan->update(['status' => StatusConstants::CANCELLED]);
-        foreach ($plan->durations as $duration) {
-            $duration->update(['status' => StatusConstants::CANCELLED]);
-        }
-        self::cancelFlutterwavePlan($plan);
-    }
+    // public function cancel($id)
+    // {
+    //     $plan = $this->getById($id);
+    //     // dd($plan)
+    //     $plan->update(['status' => StatusConstants::CANCELLED]);
+    //     foreach ($plan->durations as $duration) {
+    //         $duration->update(['status' => StatusConstants::CANCELLED]);
+    //     }
+    //     self::cancelFlutterwavePlan($plan);
+    // }
 
     public static function list()
     {
@@ -196,13 +197,14 @@ class PlanService
 
         foreach ($durations as $duration) {
             $amount = floatval((new PlanService)->parsePlanPrice($duration));
+            $currency = Currency::where('short_name', 'USD')->first();
 
             $transaction_data = [
                 "amount" => $amount,
                 "name" => $plan->name,
-                "interval" => strtolower($duration->frequency),
+                "interval" => strtolower($duration->frequency), 
                 "duration" => $duration->duration,
-                "currency" => $plan->currency
+                "currency" => $currency ? $currency->short_name : 'USD', 
             ];
 
             $response = (new FlutterwaveService)->setPlanData($transaction_data)
@@ -271,8 +273,8 @@ class PlanService
         $durations = $plan->durations;
         foreach ($durations as $duration) {
             $response = (new FlutterwaveService)
-                ->setFlutterwavePlanId($duration->flutterwave_plan_id)
-                ->getPlan();
+                ->getPlan($duration->flutterwave_plan_id);
+               
             return $response;
         }
     }

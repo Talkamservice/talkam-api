@@ -41,4 +41,9 @@ class Plan extends Model
     {
         $query->where("status", $status);
     }
+
+    public function currency()
+    {
+        return $this->hasMany(Currency::class, 'currency_id');
+    }
 }

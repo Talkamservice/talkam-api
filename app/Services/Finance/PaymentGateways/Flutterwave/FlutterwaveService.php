@@ -169,7 +169,6 @@ class FlutterwaveService
         try {
             $full_url = "{$this->base_url}/payment-plans/$flutterwave_plan_id/cancel";
             $response = $this->client->put($full_url);
-            dd($response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred during plan cancellation');
             }
