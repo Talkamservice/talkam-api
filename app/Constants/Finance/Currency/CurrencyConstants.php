@@ -6,21 +6,23 @@ class CurrencyConstants
 {
 
     const CURRENCY_GROUP = "Currency";
-    const DOLLAR_CURRENCY = "USD";
-    const NAIRA_CURRENCY = "NGN";
-    const EURO_CURRENCY = "EUR";
-    const POUND_CURRENCY = "GBP";
-    const COIN_GROUP = "Coin";
-    const MANUAL = "Manual";
-    const AUTO = "Auto";
+    const DOLLAR_CURRENCY = "Dollar";
+    const NAIRA_CURRENCY = "Naira";
+    const EURO_CURRENCY = "Euro";
+    const POUND_CURRENCY = "Pound";
+    const THAI_BAHT_CURRENCY = "Thai baht";
+    const TOKEN_GROUP = "Token";
+    const FIAT_GROUP = "Fiat";
+
+    const USDC_TOKEN = "USDC";
 
     const GROUP_BY_TYPE = [
         self::DOLLAR_CURRENCY => self::CURRENCY_GROUP,
     ];
 
-    const EXCHANGE_RATE_OPTIONS = [
-        self::MANUAL => self::MANUAL,
-        self::AUTO => self::AUTO,
+    const TYPES = [
+        self::FIAT_GROUP => self::FIAT_GROUP,
+        self::TOKEN_GROUP => self::TOKEN_GROUP,
     ];
 
     const PROVIDER = "Provider";
@@ -61,11 +63,6 @@ class CurrencyConstants
     ];
 
     const FLUTTERWAVE_SUPPORTED_CURRENCIES = ["USD", "NGN"];
-
-    // public static function toDollar($rate)
-    // {
-    //     return 1 / $rate;
-    // }
 
     public static function fromDollar($amount, $price_per_dollar)
     {

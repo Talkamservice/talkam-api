@@ -79,7 +79,7 @@
                                                         class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i
                                                             class="ri-delete-bin-line"></i></button>
                                                 </form>
-                                                <a type="button"
+                                                {{-- <a type="button"
                                                     class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
                                                     data-bs-toggle="modal" data-bs-target="#cancelPlanModal{{ $plan->id }}"
                                                     data-plan-id="{{ $plan->id }}" data-bs-toggle="tooltip"
@@ -93,7 +93,7 @@
                                                     data-bs-toggle="modal" data-bs-target="#subscriptionModal{{ $plan->id }}"
                                                     data-bs-toggle="tooltip" title="Manage Subscription">
                                                     <i class="ri-wallet-line"></i>
-                                                </a>
+                                                </a> --}}
                                             </div>
                                         </td>
                                     </tr>
