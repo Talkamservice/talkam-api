@@ -94,7 +94,8 @@ class PostCommentService
         }
 
         if (!empty($key = $data["user_id"] ?? null)) {
-            $builder = $builder->where("user_id", $key);
+            $field = is_numeric($key) ? "id" : "username";
+            $builder = $builder->whereRelation("user", $field, $key);
         }
 
         if (!empty($key = $data["exclude_anonymous"] ?? null)) {
