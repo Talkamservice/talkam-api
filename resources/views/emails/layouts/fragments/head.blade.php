@@ -108,7 +108,7 @@
 
         .apple {
             margin-right: 3%;
-            display: flex !important;
+            display: flex;
             align-items: center !important;
             justify-content: end !important;
             border: none;

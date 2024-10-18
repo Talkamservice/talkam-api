@@ -48,7 +48,7 @@ class TestCommand extends Command
             "data" => [
                 'email' => $user->email,
             ],
-            "to" => "info@talkam.net",
+            "to" => "joelomojefe@gmail.com",
             "template" => "emails.waitlist.admin",
             "subject" => "New Waitlist Member",
         ]);
