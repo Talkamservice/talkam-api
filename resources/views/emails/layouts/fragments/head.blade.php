@@ -108,9 +108,9 @@
 
         .apple {
             margin-right: 3%;
-            display: flex;
-            align-items: center;
-            justify-content: end;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: end !important;
             border: none;
             background-color: white;
         }
