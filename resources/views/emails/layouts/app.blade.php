@@ -14,7 +14,7 @@
             <td class="detailCont">
                 @yield('content')
 
-                <hr class="horzontal" />
+                <hr style="left: 35%; position: relative;" class="horzontal" />
 
                 <p class="getTalkam-h">Get the TalkAM app!</p>
 
