@@ -25,7 +25,7 @@
 
                 <tr>
                     <td class="btnCont">
-                        <button class="apple">
+                        <button class="apple" style="justify-content: end">
                             <img class="appleIcon" src="{{ asset("email/assets/png/Download_on_App_Store-removebg-preview.png") }}" />
                         </button>
         
