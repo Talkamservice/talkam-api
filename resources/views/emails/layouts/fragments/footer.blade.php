@@ -15,11 +15,21 @@
 
 <tr>
     <td class="footerlogo">
-        <span> <img class="flogo" src="{{ asset("email/assets/png/talkam_logo.png") }}" /></span>
-        <span class="iconsCont">
-            <img class="icon1" src="{{ asset("email/assets/png/Twitter-removebg-preview.png") }}" />
-            <img class="icon1" src="{{ asset("email/assets/png/Facebookremovebg-preview.png") }}" />
-            {{-- <img src="{{ asset("email/assets/instagramIcon.jpg") }}" /> --}}
-        </span>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+                <td align="left" style="padding: 0;">
+                    <span>
+                        <img class="flogo" src="{{ asset('email/assets/png/talkam_logo.png') }}" alt="TalkAM Logo" style="display: block;" />
+                    </span>
+                </td>
+                <td align="right" style="padding: 0;">
+                    <span class="iconsCont" style="display: inline-block;">
+                        <img class="icon1" src="{{ asset('email/assets/png/Twitter-removebg-preview.png') }}" alt="Twitter Icon" style="display: inline-block; margin-left: 10px;" />
+                        <img class="icon1" src="{{ asset('email/assets/png/Facebookremovebg-preview.png') }}" alt="Facebook Icon" style="display: inline-block; margin-left: 10px;" />
+                        {{-- <img src="{{ asset('email/assets/instagramIcon.jpg') }}" alt="Instagram Icon" style="display: inline-block; margin-left: 10px;" /> --}}
+                    </span>
+                </td>
+            </tr>
+        </table>
     </td>
 </tr>

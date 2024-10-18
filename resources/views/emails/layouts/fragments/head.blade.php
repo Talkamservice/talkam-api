@@ -99,9 +99,9 @@
         }
 
         .horzontal {
-            border: 1px solid lightgray;
-            width: 30%;
-            margin: 7% 0 5% 0;
+            border: 1px solid lightgray !important;
+            width: 50% !important;
+            margin: 7% 0 5% 25%;
             left: 35% !important;
             position: relative !important;
         }
@@ -178,13 +178,19 @@
 
         .icon1 {
             margin-right: 30px;
-            max-width: 15%;
-            height: 15%;
+            max-width: 12%;
+            height: 12%;
         }
 
         .appleIcon,
         .playstoreIcon {
             width: 60%;
+        }
+
+        .btnCont>button {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: end !important;
         }
 
         @media screen and (max-width: 768px) {

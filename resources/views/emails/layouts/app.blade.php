@@ -3,10 +3,10 @@
 @include('emails.layouts.fragments.head')
 
 <body>
-    <table class="container">
+    <table class="container" style="width: 100%;">
         <tr>
             <td class="logoCont">
-                <img src="{{ asset("email/assets/png/talkam_logo.png") }}" />
+                <img src="{{ asset('email/assets/png/talkam_logo.png') }}" />
             </td>
         </tr>
 
@@ -14,7 +14,7 @@
             <td class="detailCont">
                 @yield('content')
 
-                <hr style="left: 35%; position: relative;" class="horzontal" />
+                <hr style="width: 80%; border: 1px solid #000;" class="horzontal" />
 
                 <p class="getTalkam-h">Get the TalkAM app!</p>
 
@@ -24,20 +24,26 @@
                 </p>
 
                 <tr>
-                    <td class="btnCont">
-                        <button class="apple" style="justify-content: end">
-                            <img class="appleIcon" src="{{ asset("email/assets/png/Download_on_App_Store-removebg-preview.png") }}" />
-                        </button>
-        
-                        <button class="playStore">
-                            <img class="playstoreIcon" src="{{ asset("email/assets/png/Google_Play-removebg-preview.png") }}" />
-                        </button>
+                    <td class="btnCont" align="center">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="center" style="padding-right: 0px;">  <!-- Reduced padding from 10px to 5px -->
+                                    <a href="#" style="text-decoration: none;">
+                                        <img class="appleIcon" src="{{ asset('email/assets/png/Download_on_App_Store-removebg-preview.png') }}" alt="Download on the App Store" style="display: block;" />
+                                    </a>
+                                </td>
+                                <td align="center" style="padding-left: 0px;">  <!-- Optional: Added padding to the left of the second image -->
+                                    <a href="#" style="text-decoration: none;">
+                                        <img class="playstoreIcon" src="{{ asset('email/assets/png/Google_Play-removebg-preview.png') }}" alt="Get it on Google Play" style="display: block;" />
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </td>
         </tr>
+
         @include('emails.layouts.fragments.footer')
     </table>
 </body>
-
-</html>
