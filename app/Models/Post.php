@@ -126,4 +126,9 @@ class Post extends Model
     {
         return $this->hasMany(PostReport::class, 'post_id');
     }
+
+    public function promotions()
+    {
+        return $this->hasMany(Promotion::class, "post_id");
+    }
 }
