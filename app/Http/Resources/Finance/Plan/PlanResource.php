@@ -24,7 +24,6 @@ class PlanResource extends JsonResource
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
             "is_active_subscription" => false,
-            // 'feature_cards' => $this->feature_cards ?? [],
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
             "benefits" => PlanBenefitResource::collection($this->whenLoaded("benefits", $this->benefits)),
             "created_at" => formatDate($this->created_at),
