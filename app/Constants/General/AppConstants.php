@@ -13,11 +13,13 @@ class AppConstants
     const MALE = 'Male';
     const FEMALE = 'Female';
     const RATHER_NOT_SAY = "Rather not say";
+    const OTHERS = "Others";
 
     const GENDERS = [
         self::MALE => self::MALE,
         self::FEMALE => self::FEMALE,
         self::RATHER_NOT_SAY => self::RATHER_NOT_SAY,
+        self::OTHERS => self::OTHERS,
     ];
 
     const MONDAY = "Monday";
