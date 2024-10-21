@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("plan_id")->constrained("plans")->cascadeOnDelete();
             $table->string("title")->nullable();
-            $table->string("slug")->unique();
+            $table->string("slug")->nullable();
             $table->string("value")->nullable();
             $table->string("status")->default(StatusConstants::ACTIVE);
             $table->timestamps();

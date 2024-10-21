@@ -2,8 +2,6 @@
 
 namespace App\Services\Finance\Plan;
 
-namespace App\Services\Finance\Plan;
-
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Currency;
@@ -33,11 +31,11 @@ class PlanService
             "scopes" => "nullable|array",
             "benefits" => "nullable|array",
             "status" => "required|string|" . Rule::in(StatusConstants::ACTIVE_OPTIONS),
-            "price" => 'required|array',
-            "price.*" => 'numeric|gt:-1',
+            "price" => 'nullable|array',
+            "price.*" => 'nullable|numeric|gt:-1',
             "discount" => "nullable|array",
             "discount.*" => 'nullable|numeric|gte:0',
-            "frequency" => 'required|array',
+            "frequency" => 'nullable|array',
             "frequency.*" => [
                 'string',
                 Rule::in(['Monthly', 'Yearly']), // Add lowercase options
@@ -90,8 +88,11 @@ class PlanService
                     ]);
                 }
             }
-            (new PlanDurationService)->saveMultiple($data, $plan);
-            self::createFlutterwavePlan($plan);
+
+            if (!empty($data["price"] ?? null) && !empty($data["frequency"] ?? null)) {
+                (new PlanDurationService)->saveMultiple($data, $plan);
+                self::createFlutterwavePlan($plan);
+            }
             DB::commit();
             return $plan;
         } catch (\Throwable $th) {
@@ -125,7 +126,7 @@ class PlanService
 
             $plan->benefits()->delete();
             $plan_scopes = $plan->scopes;
-            
+
             foreach ($plan_scopes ?? [] as $key => $scope) {
                 $title = self::parseTitle($scope);
                 if (!empty($title)) {
@@ -140,10 +141,12 @@ class PlanService
             }
 
             // Fetch the existing durations before deletion
-            $existingDurations = $plan->durations()->pluck('flutterwave_plan_id', 'id')->toArray();
-            $plan->durations()->delete();
-            (new PlanDurationService)->saveMultiple($data, $plan, $existingDurations);
-            self::updateFlutterwavePlan($plan, $existingDurations);
+            if (!empty($data["price"] ?? null) && !empty($data["frequency"] ?? null)) {
+                $existingDurations = $plan->durations()->pluck('flutterwave_plan_id', 'id')->toArray();
+                $plan->durations()->delete();
+                (new PlanDurationService)->saveMultiple($data, $plan, $existingDurations);
+                self::updateFlutterwavePlan($plan, $existingDurations);
+            }
             DB::commit();
             return $plan;
         } catch (\Throwable $th) {
@@ -291,7 +294,8 @@ class PlanService
             'ad_free_experience' => 'Enjoy ad free experience',
             'character_restriction' => fn($value) => is_numeric($value) ? "Enjoy up to {$value} characters when posting" : "Unlimited character when posting",
             'anonymous_content' => fn($value) => is_numeric($value) ? "Enjoy up to {$value} anonymous posting" : "Enjoy advanced privacy controls, including anonymous browsing within the posts and comments",
-            'total_group_creation' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} groups" : "Access to create an unlimited number of groups",
+            'total_public_group_creation' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} public groups" : "Access to create an unlimited number of public groups",
+            'total_private_group_creation' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} private groups" : "Access to create an unlimited number of private groups",
             'total_scheduled_post_creation' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} scheduled posts" : "Access to create an unlimited number of scheduled posts"
         ];
 

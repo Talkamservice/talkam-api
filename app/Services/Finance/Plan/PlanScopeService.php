@@ -30,7 +30,7 @@ class PlanScopeService
     {
         $validator = Validator::make($data, [
             "title" => 'required|string',
-            "value" => 'required|string',
+            "value" => 'nullable|string',
             "plan_id" => "required|exists:plans,id",
             "status" => 'nullable|string|' . Rule::in(StatusConstants::ACTIVE_OPTIONS),
         ]);

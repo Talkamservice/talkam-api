@@ -97,10 +97,10 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    @include(
+                                    {{-- @include(
                                         'dashboards.admin.pages.finance.subscription.subscribe-modal',
                                         ['users', $users, 'plan' => $plan]
-                                    )
+                                    ) --}}
                                     @include('dashboards.admin.pages.finance.plan.cancel-plan-modal', [
                                         'plan',
                                         $plan,

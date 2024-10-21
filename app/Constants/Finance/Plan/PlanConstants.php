@@ -46,16 +46,23 @@ class PlanConstants
             "placeholder" => "5, 10 (Unlimited if it is empty)",
             "data" => null,
         ],
-        "total_group_creation" => [
+        "total_scheduled_post" => [
             "name" => "total_scheduled_post",
             "label" => "Total Scheduled Posts",
             "type" => "number",
             "placeholder" => "5, 10 (Unlimited if it is empty)",
             "data" => null,
         ],
-        "total_group_creation" => [
+        "total_public_group_creation" => [
             "name" => "total_group_creation",
-            "label" => "Total Groups",
+            "label" => "Total Public Groups",
+            "type" => "number",
+            "placeholder" => "5, 10 (Unlimited if it is empty)",
+            "data" => null,
+        ],
+        "total_private_group_creation" => [
+            "name" => "total_private_group_creation",
+            "label" => "Total Private Groups",
             "type" => "number",
             "placeholder" => "5, 10 (Unlimited if it is empty)",
             "data" => null,
