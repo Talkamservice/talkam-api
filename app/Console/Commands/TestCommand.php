@@ -6,9 +6,7 @@ use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Models\PostCategory;
 use App\Models\User;
-use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Notifications\AppMailerService;
-use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Console\Command;
 
 class TestCommand extends Command
@@ -32,6 +30,7 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        $user = User::first();
         $user = User::latest()->first();
 
         // (new FirebaseNotificationService)
@@ -52,6 +51,16 @@ class TestCommand extends Command
             "template" => "emails.waitlist.admin",
             "subject" => "New Waitlist Member",
         ]);
+
+        // (new FirebaseNotificationService)
+        //     ->setTitle("Test notification")
+        //     ->setBody("Message")
+        //     ->setType("Test")
+        //     ->byUserId(11)
+        //     ->setMetadata([
+        //         "type" => "conversation",
+        //     ])
+        //     ->initiate();
 
         dd("ss");
         // (new ActivityLogService)

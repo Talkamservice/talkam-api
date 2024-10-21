@@ -10,9 +10,13 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Faq\FaqCategoryController;
 use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Feedback\FeedbackController;
+use App\Http\Controllers\Admin\Finance\Plan\PlanBenefitsController;
+use App\Http\Controllers\Admin\Finance\Plan\PlanController;
+use App\Http\Controllers\Admin\Finance\Subscription\Flutterwave\SubscriptionController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
+use App\Http\Controllers\Admin\PaymentGateways\Flutterwave\FlutterwaveController;
 use App\Http\Controllers\Admin\Post\PostCategoryController;
 use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\Report\CommentReportController;
@@ -39,12 +43,13 @@ Route::middleware(["auth"])->group(
             'users' => UserController::class,
             'avatars' => AvatarController::class,
             'post-categories' => PostCategoryController::class,
-            'guidelines'=> GuidelineController::class,
+            'guidelines' => GuidelineController::class,
             "terms-and-conditions" => TermAndConditionController::class,
             "privacy-policies" => PrivacyPolicyController::class,
             "faqs" => FaqController::class,
             "faq-categories" => FaqCategoryController::class,
-            "feedbacks" => FeedbackController::class
+            "feedbacks" => FeedbackController::class,
+            'plans' => PlanController::class
         ]);
 
 
@@ -88,6 +93,14 @@ Route::middleware(["auth"])->group(
             Route::resource('permissions', PermissionController::class);
         });
 
+
+        Route::prefix("plans/{plan}")->as("plans.")->group(function () {
+            Route::resource('/plan-benefits', PlanBenefitsController::class);
+        });
+
+        Route::put('plan/cancel/{id}', [PlanController::class, 'cancelPlan'])->name('plan.cancel');
+
+
         Route::as("notifications.")->prefix("notifications")->group(function () {
             Route::get("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
             Route::get("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
@@ -121,9 +134,13 @@ Route::middleware(["auth"])->group(
             Route::get('comment/show/{id}', [CommentReportController::class, "show"])->name("comment.show");
             Route::delete('comment/delete/{id}', [CommentReportController::class, "deleteReportedComment"])->name('comment.delete');
             Route::post('comment/update-status/{id}', [CommentReportController::class, "updateStatus"])->name('comment.update-status');
-
         });
 
+        Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
+            Route::post('flutterwave/{plan}/subscribe', [SubscriptionController::class, 'initiateSubscription'])->name('flutterwave.subscribe');
+            // Route::get('flutterwave/callback', [FlutterwaveController::class, 'handleFlutterwavePaymentCallback'])->name('flutterwave.callback');            
+        });
+        Route::get('select-a-subscriber', [SubscriptionController::class, 'getSubscriber'])->name('select-a-subscriber');
         Route::resource('announcements', AnnouncementController::class);
         Route::post('announcements/update-status/{id}', [AnnouncementController::class, 'changeStatus'])->name('announcements.update-status');
 

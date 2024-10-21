@@ -54,4 +54,9 @@ class Group extends Model
                 });
         });
     }
+
+    public function promotions()
+    {
+        return $this->hasMany(Promotion::class, "group_id");
+    }
 }

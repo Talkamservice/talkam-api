@@ -244,6 +244,10 @@ class PostService
                         $query->orWhere('title', 'like', "%{$tag}%")
                             ->orWhere('body', 'like', "%{$tag}%");
                     }
+
+                    $query->orWhereHas('promotions', function ($promotion_query) {
+                        $promotion_query->inRandomOrder();
+                    });
                 })->latest()->limit(10);
             }
         }
