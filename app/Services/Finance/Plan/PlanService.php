@@ -290,30 +290,29 @@ class PlanService
     public static function parseTitle($scope)
     {
         $messages = [
-            // 'content_creation_access' => 'Access to most community features, including posting, commenting, and voting',
-            // 'ad_free_experience' => 'Enjoy ad free experience',
+            'content_creation_access' => 'Access to most community features, including posting, commenting, and voting',
+            'ad_free_experience' => 'Enjoy ad free experience',
 
-            // 'character_restriction' => fn($value) => (is_numeric($value) && $value > 0) ?
-            //     "Enjoy up to {$value} characters when posting" : "Unlimited character when posting",
+            'character_restriction' => fn($value) => is_numeric($value) ?
+                ($value > 0 ? "Enjoy up to {$value} characters when posting" : "") : 'Unlimited character when posting',
 
-            // 'anonymous_content' => fn($value) => (is_numeric($value) && $value > 0) ?
-            //     "Enjoy up to {$value} anonymous postings" : "Enjoy advanced privacy controls, including anonymous browsing within the posts and comments",
+            'anonymous_content' => fn($value) => is_numeric($value) ?
+                ($value > 0 ? "Enjoy up to {$value} anonymous postings" : '') : "Enjoy advanced privacy controls, including anonymous browsing within the posts and comments",
 
             'total_public_group_creation' => fn($value) => is_numeric($value) ?
-                ($value > 0 ? "Enjoy creation of up to {$value} public groups" : "No public group creation available") : '',
+                ($value > 0 ? "Enjoy creation of up to {$value} public groups" : "") : 'No public group creation available',
 
-            'total_private_group_creation' => fn($value) => (is_numeric($value) && $value > 0) ?
-                "Enjoy creation of up to {$value} private groups" : "Access to create an unlimited number of private groups",
+            'total_private_group_creation' => fn($value) => is_numeric($value) ?
+                ($value > 0 ? "Enjoy creation of up to {$value} private groups" : "") : 'Access to create an unlimited number of private groups',
 
-            'total_scheduled_post_creation' => fn($value) => (is_numeric($value) && $value > 0) ?
-                "Enjoy creation of up to {$value} scheduled posts" : "Access to create an unlimited number of scheduled posts"
+            'total_scheduled_post_creation' => fn($value) => is_numeric($value) ?
+                ($value > 0 ? "Enjoy creation of up to {$value} scheduled posts" : "") : 'Access to create an unlimited number of scheduled posts'
         ];
 
         if (array_key_exists($scope->title, $messages)) {
             $message = $messages[$scope->title];
             // If the message is a closure, it means it requires $scope->value
-            $response = is_callable($message) ? $message($scope->value) : $message;
-            return $response;
+            return is_callable($message) ? $message($scope->value) : $message;
         }
 
         return null;
