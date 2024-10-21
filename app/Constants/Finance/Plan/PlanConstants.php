@@ -27,28 +27,28 @@ class PlanConstants
     const SCOPES = [
         "content_creation_access" => [
             "name" => "content_creation_access",
-            "label" => "Enable Content Creation",
-            "type" => "checkbox",
-            "placeholder" => null,
-            "data" => AppConstants::BOOL_OPTIONS,
-        ],
-        "ad_free_experience" => [
-            "name" => "ad_free_experience",
-            "label" => "Enable Ad Free Experience", 
+            "label" => "Enable Post Creation",
             "type" => "checkbox",
             "placeholder" => null,
             "data" => AppConstants::BOOL_OPTIONS,
         ],
         "character_restriction" => [
             "name" => "character_restriction",
-            "label" => "Character Restriction", 
+            "label" => "Post Character Restriction", 
             "type" => "number",
             "placeholder" => "100, 200 (Unlimited if it is empty)",
             "data" => null,
         ],
         "anonymous_content" => [
             "name" => "anonymous_content",
-            "label" => "Total Anonymous Content",
+            "label" => "Total Anonymous Post/Comment",
+            "type" => "number",
+            "placeholder" => "5, 10 (Unlimited if it is empty)",
+            "data" => null,
+        ],
+        "total_group_creation" => [
+            "name" => "total_scheduled_post",
+            "label" => "Total Scheduled Posts",
             "type" => "number",
             "placeholder" => "5, 10 (Unlimited if it is empty)",
             "data" => null,
@@ -59,6 +59,13 @@ class PlanConstants
             "type" => "number",
             "placeholder" => "5, 10 (Unlimited if it is empty)",
             "data" => null,
+        ],
+        "ad_free_experience" => [
+            "name" => "ad_free_experience",
+            "label" => "Enable Ad Free Experience", 
+            "type" => "checkbox",
+            "placeholder" => null,
+            "data" => AppConstants::BOOL_OPTIONS,
         ],
     ];
 }

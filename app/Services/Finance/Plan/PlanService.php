@@ -4,7 +4,6 @@ namespace App\Services\Finance\Plan;
 
 namespace App\Services\Finance\Plan;
 
-use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Currency;
@@ -292,7 +291,8 @@ class PlanService
             'ad_free_experience' => 'Enjoy ad free experience',
             'character_restriction' => fn($value) => is_numeric($value) ? "Enjoy up to {$value} characters when posting" : "Unlimited character when posting",
             'anonymous_content' => fn($value) => is_numeric($value) ? "Enjoy up to {$value} anonymous posting" : "Enjoy advanced privacy controls, including anonymous browsing within the posts and comments",
-            'unlimited_number_groups' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} groups" : "Access to create an unlimited number of groups"
+            'total_group_creation' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} groups" : "Access to create an unlimited number of groups",
+            'total_scheduled_post_creation' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} scheduled posts" : "Access to create an unlimited number of scheduled posts"
         ];
 
         if (array_key_exists($scope->title, $messages)) {
