@@ -2,7 +2,7 @@
 
 namespace App\Services\Plan;
 
-use App\Constants\Finance\PlanConstants;
+use App\Constants\Finance\Plan\PlanConstants;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\User\UserService;
@@ -26,8 +26,7 @@ class PlanCheckService
         $subscription = $this->user->currentSubscription;
         if (empty($subscription)) {
             $plan = Plan::where("name", "LIKE", "%" . PlanConstants::FREE_PLAN . "%")
-                ->with("benefits")
-                ->where("type", PlanConstants::STATIC)
+                ->with("scopes")
                 ->first();
         } else {
             $plan = $subscription->plan;

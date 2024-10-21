@@ -34,7 +34,7 @@ class PlanConstants
         ],
         "character_restriction" => [
             "name" => "character_restriction",
-            "label" => "Post Character Restriction", 
+            "label" => "Post Character Restriction (Text Field)", 
             "type" => "number",
             "placeholder" => "100, 200 (Unlimited if it is empty)",
             "data" => null,
