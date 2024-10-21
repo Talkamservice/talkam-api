@@ -26,6 +26,11 @@ class Plan extends Model
         return $this->hasMany(PlanDuration::class, "plan_id");
     }
 
+    public function scopes()
+    {
+        return $this->hasMany(PlanScope::class, "plan_id");
+    }
+
     public function defaultDuration()
     {
         $default_duration = $this->durations()->where("is_default", 1)->first();

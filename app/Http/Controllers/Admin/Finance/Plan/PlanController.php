@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\Finance\Plan\PlanBenefitService;
+use App\Services\Finance\Plan\PlanScopeService;
 use App\Services\Finance\Plan\PlanService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -42,7 +43,7 @@ class PlanController extends Controller
             "featuresOptions" => PlanConstants::PLAN_FEATURES,
             "frequencyOptions" => PlanConstants::FREQUENCY_OPTIONS,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
-            "featureCards" => PlanConstants::FEATURE_CARDS
+            "scopeOptions" => PlanConstants::SCOPES
         ]);
     }
 
@@ -69,13 +70,15 @@ class PlanController extends Controller
     {
         $plan = PlanService::getById($id);
         $benefits = PlanBenefitService::getByPlanId($plan->id);
+        $plan_scopes = PlanScopeService::getByPlanId($plan->id);
         return view('dashboards.admin.pages.finance.plan.create', [
             "plan" => $plan,
             "benefits" => $benefits,
+            "plan_scopes" => $plan_scopes,
             "frequencyOptions" => PlanConstants::FREQUENCY_OPTIONS,
             "featuresOptions" => PlanConstants::PLAN_FEATURES,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
-            "featureCards" => PlanConstants::FEATURE_CARDS
+            "scopeOptions" => PlanConstants::SCOPES
         ]);
     }
 
@@ -107,21 +110,4 @@ class PlanController extends Controller
             return back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
         }
     }
-
-    // public function cancelPlan($id)
-    // {
-    //     // dd($id);
-    //     try {
-    //         $this->plan_service->cancel($id);
-    //         return redirect()->route("admin.plans.index")
-    //             ->with(NotificationConstants::SUCCESS_MSG, 'Plan cancelled successfully');
-    //     } catch (ValidationException $e) {
-    //         throw $e;
-    //     } catch (PaymentPlanException $e) {
-    //         return back()->with(NotificationConstants::ERROR_MSG, $e->getMessage());
-    //     } catch (Throwable $e) {
-    //         throw $e;
-    //         return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
-    //     }
-    // }
 }

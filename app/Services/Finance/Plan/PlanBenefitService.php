@@ -3,7 +3,7 @@
 namespace App\Services\Finance\Plan;
 
 use App\Constants\General\StatusConstants;
-use App\Exceptions\Finance\PlanException;
+use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PlanBenefit;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -16,7 +16,7 @@ class PlanBenefitService
     {
         $plan_benefit = PlanBenefit::find($id);
         if (empty($plan_benefit)) {
-            throw new PlanException("Plan benefit not found");
+            throw new ModelNotFoundException("Plan benefit not found");
         }
         return $plan_benefit;
     }

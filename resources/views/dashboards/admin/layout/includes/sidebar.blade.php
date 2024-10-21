@@ -89,7 +89,7 @@
                      </a>
                      <ul class="slide-menu child1">
                          <li class="slide">
-                             <a href="{{ route('admin.plans.index') }}" class="side-menu__item list-item">Plans</a>
+                             <a href="{{ route('admin.plans.index') }}" class="side-menu__item list-item list-item-sub">Plans</a>
                          </li>
                      </ul>
                  </li>

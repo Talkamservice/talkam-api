@@ -7,12 +7,9 @@ namespace App\Services\Finance\Plan;
 use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
-use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Currency;
 use App\Models\Plan;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
-use App\Services\System\ExceptionService;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -31,10 +28,10 @@ class PlanService
 
     public static function validate(array $data, $id = null): array
     {
-        // dd($data);
         $validator = Validator::make($data, [
             "name" => 'required|string',
             "description" => 'nullable|string',
+            "scopes" => "nullable|array",
             "benefits" => "nullable|array",
             "status" => "required|string|" . Rule::in(StatusConstants::ACTIVE_OPTIONS),
             "price" => 'required|array',
@@ -61,20 +58,38 @@ class PlanService
         DB::beginTransaction();
         try {
             $data = self::validate($data);
+
             $plan = Plan::create([
                 "name" => $data["name"],
                 "description" => $data["description"],
                 "status" => $data["status"],
             ]);
 
-            foreach ($data["benefits"] ?? [] as $key => $value) {
-                (new PlanBenefitService)->save([
+            $plan->scopes()->delete();
+            $scopes = self::scopeCleanUp($data["scopes"]);
+
+            foreach ($scopes as $key => $scope) {
+                (new PlanScopeService)->save([
                     "plan_id" => $plan->id,
-                    "title" => PlanConstants::PLAN_FEATURES[$key],
-                    "key" => $key,
-                    "value" => "Yes",
+                    "title" => $scope["title"],
+                    "value" =>  $scope["value"],
                     "status" => StatusConstants::ACTIVE
                 ]);
+            }
+
+            $plan_scopes = $plan->scopes;
+
+            foreach ($plan_scopes ?? [] as $key => $scope) {
+                $title = self::parseTitle($scope);
+                if (!empty($title)) {
+                    (new PlanBenefitService)->save([
+                        "plan_id" => $plan->id,
+                        "title" => $title,
+                        "key" => $scope->slug,
+                        "value" => "Yes",
+                        "status" => StatusConstants::ACTIVE
+                    ]);
+                }
             }
             (new PlanDurationService)->saveMultiple($data, $plan);
             self::createFlutterwavePlan($plan);
@@ -99,23 +114,34 @@ class PlanService
                 "status" => $data["status"],
             ]);
 
-            $plan->benefits()->delete();
-            foreach ($data["benefits"] as $key => $value) {
-                (new PlanBenefitService)->save([
+            $plan->scopes()->delete();
+            foreach ($data["scopes"] as $key => $value) {
+                (new PlanScopeService)->save([
                     "plan_id" => $plan->id,
-                    "title" => PlanConstants::PLAN_FEATURES[$key],
-                    "key" => $key,
-                    "value" => "Yes",
+                    "title" => $key,
+                    "value" =>  $value,
                     "status" => StatusConstants::ACTIVE
                 ]);
             }
 
-            // foreach ($plan->durations as $key => $duration) {
-            //     $duration->subscriptions()->delete();
-            // }
-            // Fetch the existing durations before deletion
-            $existingDurations = $plan->durations()->pluck('flutterwave_plan_id', 'id')->toArray(); // Store id => flutterwave_plan_id mapping
+            $plan->benefits()->delete();
+            $plan_scopes = $plan->scopes;
+            
+            foreach ($plan_scopes ?? [] as $key => $scope) {
+                $title = self::parseTitle($scope);
+                if (!empty($title)) {
+                    (new PlanBenefitService)->save([
+                        "plan_id" => $plan->id,
+                        "title" => $title,
+                        "key" => $scope->slug,
+                        "value" => "Yes",
+                        "status" => StatusConstants::ACTIVE
+                    ]);
+                }
+            }
 
+            // Fetch the existing durations before deletion
+            $existingDurations = $plan->durations()->pluck('flutterwave_plan_id', 'id')->toArray();
             $plan->durations()->delete();
             (new PlanDurationService)->saveMultiple($data, $plan, $existingDurations);
             self::updateFlutterwavePlan($plan, $existingDurations);
@@ -137,17 +163,6 @@ class PlanService
 
         return $plan;
     }
-
-    // public function cancel($id)
-    // {
-    //     $plan = $this->getById($id);
-    //     // dd($plan)
-    //     $plan->update(['status' => StatusConstants::CANCELLED]);
-    //     foreach ($plan->durations as $duration) {
-    //         $duration->update(['status' => StatusConstants::CANCELLED]);
-    //     }
-    //     self::cancelFlutterwavePlan($plan);
-    // }
 
     public static function list()
     {
@@ -202,9 +217,9 @@ class PlanService
             $transaction_data = [
                 "amount" => $amount,
                 "name" => $plan->name,
-                "interval" => strtolower($duration->frequency), 
+                "interval" => strtolower($duration->frequency),
                 "duration" => $duration->duration,
-                "currency" => $currency ? $currency->short_name : 'USD', 
+                "currency" => $currency ? $currency->short_name : 'USD',
             ];
 
             $response = (new FlutterwaveService)->setPlanData($transaction_data)
@@ -217,6 +232,7 @@ class PlanService
             }
         }
     }
+
     public static function updateFlutterwavePlan($plan, $existingDurations)
     {
         foreach ($existingDurations as $duration) {
@@ -228,12 +244,10 @@ class PlanService
                 if ($existingPlan && $existingPlan['data']['id'] == $duration->flutterwave_plan_id) {
                     // If the plan exists and fields like amount or interval have changed
                     if ($plan->isDirty(['amount', 'interval', 'duration'])) {
-                        // dd('here');
                         // Create a new Flutterwave plan and cancel the old one
                         self::createFlutterwavePlan($plan);
                         self::cancelFlutterwavePlan($duration);
                     } else {
-                        // dd('yes');
                         // Otherwise, update allowed fields
                         $transaction_data = [
                             "name" => $plan->name,
@@ -257,6 +271,38 @@ class PlanService
         }
     }
 
+    public static function scopeCleanUp($plan_scopes)
+    {
+        $formatted_scopes = [];
+
+        foreach ($plan_scopes as $key => $value) {
+            $formatted_scopes[$key] = [
+                "title" => $key,
+                "value" => $value
+            ];
+        }
+
+        return $formatted_scopes;
+    }
+
+    public static function parseTitle($scope)
+    {
+        $messages = [
+            'content_creation_access' => 'Access to most community features, including posting, commenting, and voting',
+            'ad_free_experience' => 'Enjoy ad free experience',
+            'character_restriction' => fn($value) => is_numeric($value) ? "Enjoy up to {$value} characters when posting" : "Unlimited character when posting",
+            'anonymous_content' => fn($value) => is_numeric($value) ? "Enjoy up to {$value} anonymous posting" : "Enjoy advanced privacy controls, including anonymous browsing within the posts and comments",
+            'unlimited_number_groups' => fn($value) => is_numeric($value) ? "Enjoy creation of up to {$value} groups" : "Access to create an unlimited number of groups"
+        ];
+
+        if (array_key_exists($scope->title, $messages)) {
+            $message = $messages[$scope->title];
+            // If the message is a closure, it means it requires $scope->value
+            return is_callable($message) ? $message($scope->value) : $message;
+        }
+
+        return null;
+    }
 
 
     public static function cancelFlutterwavePlan($plan)
@@ -274,7 +320,7 @@ class PlanService
         foreach ($durations as $duration) {
             $response = (new FlutterwaveService)
                 ->getPlan($duration->flutterwave_plan_id);
-               
+
             return $response;
         }
     }
