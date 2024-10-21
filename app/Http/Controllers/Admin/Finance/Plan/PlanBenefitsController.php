@@ -49,6 +49,17 @@ class PlanBenefitsController extends Controller
     }
 
 
+    public function edit($plan_id, $plan_benefit_id)
+    {
+        $plan = PlanService::getById($plan_id);
+        $plan_benefit = PlanBenefitService::getById($plan_benefit_id);
+        return view('dashboards.admin.pages.finance.plan.benefits.create', [
+            'plan' => $plan,
+            'plan_benefit' => $plan_benefit,
+            "statusOptions" => StatusConstants::ACTIVE_OPTIONS
+        ]);
+    }
+    
     public function update(Request $request, Plan $plan, $id)
     {
         try {

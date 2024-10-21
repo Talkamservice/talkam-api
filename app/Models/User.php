@@ -199,4 +199,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Country::class, 'country_id');
     }
+
+    public function activeSubscription()
+    {
+        return $this->belongsTo(Subscription::class, 'id', 'user_id')
+            ->where("expires_at", ">", now())
+            ->status()
+            ->orderBy("expires_at", "desc");
+    }
 }

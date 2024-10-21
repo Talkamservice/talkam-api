@@ -10,6 +10,7 @@ class PlanConstants
     const WEEKLY = "Weekly";
     const MONTHLY = "Monthly";
     const YEARLY = "Yearly";
+    const FREE_PLAN = "Free";
 
     const FREQUENCY_OPTIONS = [
         self::MONTHLY => "Monthly",

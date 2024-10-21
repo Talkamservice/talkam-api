@@ -32,12 +32,12 @@ class PlanBenefitService
         $validator = Validator::make($data, [
             "title" => 'nullable|string',
             "description" => 'nullable|string',
-            "value" => 'required|string',
-            "key" => 'required|string',
+            "value" => 'nullable|string|' . Rule::requiredIf(empty($id)),
+            "key" => 'nullable|string|' . Rule::requiredIf(empty($id)),
             "value_type" => 'nullable|string',
             "duration" => 'nullable|numeric|gt:-1',
-            "plan_id" => "required|exists:plans,id",
-            "status" => 'required|string|' . Rule::in(StatusConstants::ACTIVE_OPTIONS),
+            "plan_id" => "required|exists:plans,id|" . Rule::requiredIf(empty($id)),
+            "status" => 'nullable|string|' . Rule::in(StatusConstants::ACTIVE_OPTIONS),
         ]);
 
         if ($validator->fails()) {

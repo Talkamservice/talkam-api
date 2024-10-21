@@ -8,7 +8,7 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route("admin.plans.index") }}">Plans</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.plans.index') }}">Plans</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Benefits</li>
                     </ol>
                 </nav>
@@ -49,14 +49,16 @@
                                         <td>{{ $plan_benefit->created_at->format('Y-m-d h:i A') }}</td>
                                         <td class="d-flex justify-content-center">
                                             <div class="hstack gap-2 fs-15">
+                                                <a aria-label="anchor" data-bs-toggle="modal" data-bs-target="#updateBenefit_{{ $plan_benefit->id }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
                                                 <form action="{{ route('admin.plans.plan-benefits.destroy', [$plan->id, $plan_benefit->id]) }}" method="post" id="deletePlan_{{ $plan_benefit->id }}" onsubmit="return confirm('Are you sure of this action?')"> @csrf @method('delete')
                                                     <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
                                                 </form>
                                             </div>
                                         </td>
                                     </tr>
+                                    @include('dashboards.admin.pages.finance.plan.benefits.modals.update')
                                 @empty
-                                    <div class="alert alert-infor text-center">
+                                    <div class="alert alert-info text-center">
                                         No records found
                                     </div>
                                 @endforelse

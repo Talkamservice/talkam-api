@@ -3,6 +3,8 @@
 namespace App\Services\Plan;
 
 use App\Constants\Finance\Plan\PlanConstants;
+use App\Exceptions\General\InvalidRequestException;
+use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\User\UserService;
@@ -23,7 +25,7 @@ class PlanCheckService
 
     private function init()
     {
-        $subscription = $this->user->currentSubscription;
+        $subscription = $this->user->activeSubscription;
         if (empty($subscription)) {
             $plan = Plan::where("name", "LIKE", "%" . PlanConstants::FREE_PLAN . "%")
                 ->with("scopes")
@@ -33,10 +35,10 @@ class PlanCheckService
         }
 
         if (empty($plan)) {
-            throw new PlanException("No plans set for this user");
+            throw new ModelNotFoundException("No plans set for this user");
         }
         $this->plan = $plan;
-        $this->benefits = $plan->benefits;
+        $this->scopes = $plan->scopes;
     }
 
     public function setKey(string $value)
@@ -73,7 +75,7 @@ class PlanCheckService
         } else if ($this->key == PlanConstants::KEY_SUPPORT_PAYMENT_FEES_CAP) {
             return $this->checkForSupportPaymentFeesCap();
         } else {
-            throw new PlanException("Invalid key");
+            throw new ModelNotFoundException("Invalid key");
         }
     }
 

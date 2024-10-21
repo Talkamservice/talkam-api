@@ -27,36 +27,13 @@
                               @method('put')
                             @endisset
                             <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+                            <input type="hidden" name="plan_benefit_id" value="{{ $plan_benefit->id }}">
                             <div class="gy-4">
-                                <div class="form-group form-row mb-2">
-                                    <label for="input-placeholder" class="form-label">Title</label>
-                                    <input type="text" class="form-control" name="title" value="{{ old('title') ?? ($plan_benefit->title ?? '') }}" id="input-placeholder" placeholder="Enter benefit title">
-                                </div>
-                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
-                                    <label for="input-placeholder" class="form-label">Description</label>
-                                    <input type="text" class="form-control" name="description" value="{{ old('description') ?? ($plan_benefit->description ?? '') }}" id="input-placeholder" placeholder="Enter plan description">
-                                </div>
-                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
-                                    <label for="input-placeholder" class="form-label">Value</label>
-                                    <input type="text" class="form-control" name="value" value="{{ old('value') ?? ($plan_benefit->value ?? '') }}" id="input-placeholder" placeholder="Enter benefit value">
-                                </div>
-                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
-                                    <label for="input-placeholder" class="form-label">Type</label>
-                                    <select name="value_type" id="" class="form-control">
-                                        <option value="" disabled selected>Select Option</option>
-                                        @foreach ($typeOptions as $key => $value)
-                                            <option value="{{ $key }}" {{ (old('value_type') ?? ($plan_benefit->value_type ?? '')) == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
-                                    <label for="input-placeholder" class="form-label">Status</label>
-                                    <select name="status" id="" class="form-control">
-                                        <option value="" disabled selected>Select Option</option>
-                                        @foreach ($statusOptions as $key => $value)
-                                            <option value="{{ $key }}" {{ (old('status') ?? ($plan_benefit->status ?? '')) == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="row col-xl-10 col-sm-12 mb-3">
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Benefit</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="text" class="form-control" name="title" id="input-placeholder" value="{{ old('title') ?? ($plan_benefit->title ?? '') }}" placeholder="Enter benefit">
+                                    </div>
                                 </div>
                             </div>
                             <div class="mt-3">
