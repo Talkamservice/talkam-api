@@ -138,7 +138,7 @@
                                         <div class="row col-xl-10 col-sm-12 mb-3">
                                             <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">{{ $scope['label'] }}</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                <input type="{{ $scope['type'] }}" class="form-control" name="scopes[{{ $scope['name'] }}]" id="input-placeholder" value="{{ isset($plan_scopes) ? $plan_scopes->where("title", $scope["name"])->first()?->value : null }}" placeholder="{{ $scope['placeholder'] }}">
+                                                <input type="{{ $scope['type'] }}" class="form-control" min="0" name="scopes[{{ $scope['name'] }}]" id="input-placeholder" value="{{ isset($plan_scopes) ? $plan_scopes->where("title", $scope["name"])->first()?->value : null }}" placeholder="{{ $scope['placeholder'] }}">
                                             </div>
                                         </div>
                                     @elseif ($scope['type'] == 'checkbox')

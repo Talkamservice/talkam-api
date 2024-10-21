@@ -297,7 +297,7 @@ class PlanService
                 ($value > 0 ? "Enjoy up to {$value} characters when posting" : "") : 'Unlimited character when posting',
 
             'anonymous_content' => fn($value) => is_numeric($value) ?
-                ($value > 0 ? "Enjoy up to {$value} anonymous postings" : '') : "Enjoy advanced privacy controls, including anonymous browsing within the posts and comments",
+                ($value > 0 ? "Enjoy up to {$value} anonymous postings" : "") : "Enjoy advanced privacy controls, including anonymous browsing within the posts and comments",
 
             'total_public_group_creation' => fn($value) => is_numeric($value) ?
                 ($value > 0 ? "Enjoy creation of up to {$value} public groups" : "") : 'No public group creation available',
