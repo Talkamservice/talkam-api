@@ -71,4 +71,10 @@ class AppConstants
         'Suggestions',
         'Others',
     ];
+
+    const STATS_QUEUE = "stats-queue";
+
+    const SYSTEM_QUEUES = [
+        self::STATS_QUEUE => self::STATS_QUEUE
+    ];
 }

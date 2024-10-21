@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Constants\General\StatusConstants;
+use App\Constants\Post\PostConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -130,5 +131,26 @@ class Post extends Model
     public function promotions()
     {
         return $this->hasMany(Promotion::class, "post_id");
+    }
+
+    public function scopeHideGroupPosts($query, $group_access = PostConstants::TYPE_CLOSED)
+    {
+        return $query->where(function ($query) use ($group_access) {
+            //Case 1: The post does not have a group, so it should be visible
+            $query->whereNull('group_id')
+
+                // Case 2: The post has a group, apply the group-related logic
+                ->orWhereHas('group', function ($group_query) use ($group_access) {
+                    // If the group is closed, the user must be a member to see the post
+                    $group_query->where(function ($group_query) use ($group_access) {
+                        $group_query->where('group_access', $group_access)
+                            ->whereHas('members', function ($member_query) {
+                                $member_query->where('user_id', auth("sanctum")->id());
+                            });
+                    })
+                        // If the group is not closed, show the post to anyone
+                        ->orWhere('group_access', '!=', $group_access);
+                });
+        });
     }
 }

@@ -30,6 +30,27 @@ class PostConstants
     ];
 
     const STOP_WORDS = [
-        'i', 'the', 'is', 'in', 'you', 'and', 'or', 'an', 'as', 'a', 'of', 'to', 'with', 'on', 'for', 'at', 'by', 'it', 'this', 'that'
+        'i',
+        'the',
+        'is',
+        'in',
+        'you',
+        'and',
+        'or',
+        'an',
+        'as',
+        'a',
+        'of',
+        'to',
+        'with',
+        'on',
+        'for',
+        'at',
+        'by',
+        'it',
+        'this',
+        'that'
     ];
+
+    const TYPE_CLOSED = "Closed";
 }

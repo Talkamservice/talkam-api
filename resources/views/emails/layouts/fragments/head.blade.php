@@ -44,6 +44,10 @@
             color: #999999;
         }
 
+        .logoCont>img {
+            max-width: 25%;
+        }
+
         .detailCont {
             text-align: left;
             color: #333333;
@@ -95,17 +99,18 @@
         }
 
         .horzontal {
-            border: 1px solid lightgray;
-            width: 30%;
-            margin: 7% 0 5% 0;
-            left: 35%;
-            position: relative;
+            border: 1px solid lightgray !important;
+            width: 50% !important;
+            margin: 7% 0 5% 25%;
+            left: 35% !important;
+            position: relative !important;
         }
 
         .apple {
             margin-right: 3%;
             display: flex;
-            align-items: center;
+            align-items: center !important;
+            justify-content: end !important;
             border: none;
             background-color: white;
         }
@@ -161,17 +166,31 @@
         }
 
         .flogo {
-            width: 80px;
+            width: 110px;
         }
 
         .iconsCont {
             display: flex;
             justify-content: flex-end;
-            margin-top: -5%;
+            align-items: center;
+            margin-top: -2%;
         }
 
         .icon1 {
             margin-right: 30px;
+            max-width: 12%;
+            height: 12%;
+        }
+
+        .appleIcon,
+        .playstoreIcon {
+            width: 60%;
+        }
+
+        .btnCont>button {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: end !important;
         }
 
         @media screen and (max-width: 768px) {
@@ -196,9 +215,9 @@
 
             .appleIcon,
             .playstoreIcon {
-                width: 30px;
+                width: 60%;
             }
-
+   
             .appleText,
             .playStoreText {
                 font-size: 15px;

@@ -67,6 +67,7 @@ class GroupResource extends JsonResource
             "uuid" => $model->uuid,
             "status" => $model->status,
             "image" => $model->image,
+            "group_access" => $model->group_access,
         ];
     }
 }
