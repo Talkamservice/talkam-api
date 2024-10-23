@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Finance\Plan;
 
 use App\Constants\Account\User\UserConstants;
+use App\Models\Plan;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlanResource extends JsonResource
@@ -42,5 +43,19 @@ class PlanResource extends JsonResource
         }
 
         return $data;
+    }
+
+    public static function custom(Plan $model) {
+        return [
+            'id' => $model->id,
+            'name' => $model->name,
+            'description' => $model->description,
+            "frequency" => $model->defaultDuration()?->frequency,
+            "price" => $model->defaultDuration()?->price,
+            "discount" => $model->defaultDuration()?->discount,
+            "status" => $model->status,
+            "created_at" => formatDate($model->created_at),
+            "updated_at" => formatDate($model->updated_at)
+        ];
     }
 }

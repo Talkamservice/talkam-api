@@ -18,10 +18,9 @@ class SubscriptionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => UserResource::make($this->whenLoaded("user", $this->user)),
-            "plan" => PlanResource::make($this->whenLoaded("plan", $this->plan)),
-            "stripe_subscription_id" => $this->stripe_subscription_id,
-            "stripe_client_secret" => $this->stripe_client_secret,
+            'user' => !empty($this->user) ? UserResource::custom($this->user) : null,
+            "plan" => !empty($this->plan) ? PlanResource::custom($this->plan) : null,
+            "flutterwave_subscription_id" => $this->flutterwave_subscription_id,
             "expires_at" => formatDate($this->expires_at),
             "status" => $this->status,
             "created_at" => formatDate($this->created_at),
@@ -29,13 +28,12 @@ class SubscriptionResource extends JsonResource
         ];
     }
 
-    public static function customSubscription($model)
+    public static function custom($model)
     {
         return [
             'id' => $model->id,
             "plan" => PlanResource::make($model->plan),
-            "stripe_subscription_id" => $model->stripe_subscription_id,
-            "stripe_client_secret" => $model->stripe_client_secret,
+            "flutterwave_subscription_id" => $model->flutterwave_subscription_id,
             "status" => $model->status,
             "created_at" => $model->created_at,
             "updated_at" => $model->updated_at

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Users;
 
+use App\Http\Resources\Finance\Subscription\SubscriptionResource;
 use App\Http\Resources\Location\CountryResource;
 use App\Http\Resources\Location\StateResource;
 use App\Models\BlockedUser;
@@ -44,6 +45,7 @@ class UserResource extends JsonResource
             "status" => (string) $this->status,
             "gender" => ucfirst($this->gender),
             "date_of_birth" => formatDateOfBirth($this->date_of_birth),
+            "active_subscription" => !empty($this->activeSubscription) ? SubscriptionResource::custom($this->activeSubscription) : null,
             "state" => !empty($this->state) ? StateResource::make($this->whenLoaded("state", $this->state)) : null,
             "country" => !empty($this->country) ? CountryResource::make($this->whenLoaded("country", $this->country)) : null,
             "interests" => InterestResource::collection($this->whenLoaded("interests", $this->interests)),
