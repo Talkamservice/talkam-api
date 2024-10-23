@@ -202,8 +202,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
                 Route::get("/", [SubscriptionsController::class,  "index"])->name("index");
                 Route::get("{subscription}/show", [SubscriptionsController::class,  "show"])->name("show");
-                Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
                 Route::post("initiate", [SubscriptionsController::class,  "initiate"])->name("initiate");
+                Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
             });
         });
     

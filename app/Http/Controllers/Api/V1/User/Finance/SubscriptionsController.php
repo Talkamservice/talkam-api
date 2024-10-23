@@ -9,6 +9,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Finance\Payment\PaymentResource;
 use App\Http\Resources\Finance\Subscription\SubscriptionResource;
 use App\Services\Finance\Subscription\SubscriptionService;
 use Exception;
@@ -52,12 +53,12 @@ class SubscriptionsController extends Controller
     public function initiate(Request $request)
     {
         try {
-            $response = $this->subscription_service->initiate($request->all());
-            return ApiHelper::validResponse("Subscription initiated successfully", $response);
+            $response = $this->subscription_service->setUser(auth()->user())->initiate($request->all());
+            $data = PaymentResource::make($response);
+            return ApiHelper::validResponse("Subscription initiated successfully", $data);
         } catch (InvalidRequestException $e) {
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE,  $request, $e);
         } catch (Exception $e) {
-            // throw $e;
             return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE,  $request, $e);
         }
     }

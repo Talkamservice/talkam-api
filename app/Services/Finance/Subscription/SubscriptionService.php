@@ -4,26 +4,29 @@ namespace App\Services\Finance\Subscription;
 
 use App\Constants\Finance\Payment\PaymentConstants;
 use App\Constants\General\StatusConstants;
-use App\Exceptions\Finance\SubscriptionException;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
-use App\Exceptions\Payment\FlutterwaveException;
-use App\Models\Plan;
 use App\Models\PlanDuration;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\Finance\Payment\PaymentIntentService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
-use App\Services\Finance\PaymentGateways\Stripe\StripeService;
-use App\Services\Finance\Plan\PlanService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use InvalidArgumentException;
 
 class SubscriptionService
 {
+    public $user;
+    public $flutterwave_service;
+    public $payment_intent_service;
+
+    public function __construct()
+    {
+        $this->flutterwave_service = new FlutterwaveService;
+        $this->payment_intent_service = new PaymentIntentService;
+    }
+
     public static function getById($id): Subscription
     {
         $subscription = Subscription::find($id);
@@ -46,14 +49,20 @@ class SubscriptionService
         return $validator->validated();
     }
 
+    public function setUser($user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
     public function initiate(array $data)
     {
         DB::beginTransaction();
         try {
             $data = self::validate($data);
             $plan_duration = PlanDuration::find($data["plan_duration_id"]);
-            self::checkForSubscription(auth()->user(), $plan_duration);
-            $response = $this->initiatePayment($plan_duration);
+            self::checkForSubscription($this->user, $plan_duration);
+            $response = $this->setUser($this->user)->initiatePayment($plan_duration);
             DB::commit();
             return $response;
         } catch (\Throwable $th) {
@@ -118,24 +127,29 @@ class SubscriptionService
 
     public function initiatePayment($plan_duration)
     {
-        // Example of creating a payment/subscription in Flutterwave
-        $flutterwaveService = new FlutterwaveService();
-        $paymentData = [
-            "amount" => $plan_duration->price,
-            "duration" => $plan_duration->duration, // Subscription duration
-            "plan_id" => $plan_duration->flutterwave_plan_id, // Use the Flutterwave Plan ID
-            "email" => auth()->user()->email, // User's email
-        ];
-        // dd( $flutterwaveService,  $paymentData);
-        // Initiate payment or subscription on Flutterwave
-        $response = $flutterwaveService->createSubscription($paymentData);
-        dd($response);
-        // Check if the payment was successful, handle the response accordingly
-        if (isset($response['status']) && $response['status'] === 'success') {
-            // Return the response, could include the payment link or transaction details
-            return $response;
-        } else {
-            throw new FlutterwaveException("Failed to initiate subscription payment on Flutterwave.");
+        DB::beginTransaction();
+        try {
+            $payment = $this->payment_intent_service->setUser($this->user)
+                ->setAmount($plan_duration->price)
+                ->setCurrency($plan_duration->plan->currency->name)
+                ->setAdditionalData([
+                    "type" => PaymentConstants::DEBIT,
+                    "status" => StatusConstants::PENDING,
+                    "description" => "Payment for subscription",
+                    "activity" => PaymentConstants::PAYMENT_FOR_SUBSCRIPTION,
+                    "metadata" => [
+                        "amount" => $plan_duration->price,
+                        "plan_duration_id" => $plan_duration->id,
+                        "email" => $this->user->email,
+                    ]
+                ]);
+
+            $payment = $payment->initiate();
+            DB::commit();
+            return $payment;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
     }
 }
