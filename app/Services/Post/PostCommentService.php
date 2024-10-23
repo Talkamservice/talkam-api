@@ -64,7 +64,9 @@ class PostCommentService
                 ->notifyMentionOfNewComment($comment);
         }
 
-        $comment->increment("anonymous_comment");
+        if ($comment->is_anonymous == 1) {
+            $comment->user->increment("anonymous_comment");
+        }
         return $comment;
     }
 

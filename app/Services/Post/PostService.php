@@ -121,7 +121,10 @@ class PostService
                 $this->post_schedule_service->addToSchedule($post);
             }
 
-            $post->increment("anonymous_post");
+            if ($post->is_anonymous == 1) {
+                $post->user->increment("anonymous_post");
+            }
+
             DB::commit();
             return $post;
         } catch (\Throwable $th) {
