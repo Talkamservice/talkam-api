@@ -15,6 +15,7 @@ return new class extends Migration
             if (!Schema::hasColumns("users", ["anonymous_post", "anonymous_comment"])) {
                 $table->integer('anonymous_post')->nullable()->default(0);
                 $table->integer('anonymous_comment')->nullable()->default(0);
+                $table->integer('public_group_count')->nullable()->default(0);
             }
         });
     }

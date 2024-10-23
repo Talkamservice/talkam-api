@@ -46,6 +46,7 @@ class UserResource extends JsonResource
             "gender" => ucfirst($this->gender),
             "anonymous_post" => $this->anonymous_post,
             "anonymous_comment" => $this->anonymous_comment,
+            "public_group_count" => $this->public_group_count,
             "date_of_birth" => formatDateOfBirth($this->date_of_birth),
             "active_subscription" => !empty($this->activeSubscription) ? SubscriptionResource::custom($this->activeSubscription) : null,
             "state" => !empty($this->state) ? StateResource::make($this->whenLoaded("state", $this->state)) : null,

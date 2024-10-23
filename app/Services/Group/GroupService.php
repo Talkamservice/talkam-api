@@ -113,6 +113,10 @@ class GroupService
 
             $this->notify($group);
 
+            if ($group->group_access == "Opened") {
+                $group->user?->increment("public_group_count");
+            }
+
             DB::commit();
             return $group;
         } catch (Exception $th) {
