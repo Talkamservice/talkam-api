@@ -14,6 +14,7 @@ use App\Http\Resources\Finance\Subscription\SubscriptionResource;
 use App\Services\Finance\Subscription\SubscriptionService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class SubscriptionsController extends Controller
 {
@@ -56,6 +57,8 @@ class SubscriptionsController extends Controller
             $response = $this->subscription_service->setUser(auth()->user())->initiate($request->all());
             $data = PaymentResource::make($response);
             return ApiHelper::validResponse("Subscription initiated successfully", $data);
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse("The given data is invalis", ApiConstants::BAD_REQ_ERR_CODE,  $request, $e);
         } catch (InvalidRequestException $e) {
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE,  $request, $e);
         } catch (Exception $e) {
