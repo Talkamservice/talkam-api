@@ -37,21 +37,18 @@ class FlutterwaveService
         $this->client = $this->setClient();
     }
 
-    // Sets the Flutterwave base URL from the environment variables
     public function setBaseUrl()
     {
         $this->base_url = env("FLW_BASE_URL");
         return $this;
     }
 
-    // Sets the API key, allows for optional overriding
     public function setApiKey($key = null)
     {
         $this->api_key = $key ?? config("services.flutterwave.secretKey");
         return $this;
     }
 
-    // Sets request headers, merges any additional headers provided
     public function setHeaders(?array $headers = [])
     {
         $this->headers = array_merge([
@@ -60,7 +57,6 @@ class FlutterwaveService
         ], $headers);
     }
 
-    // Instantiates the Guzzle client with the set headers
     public function setClient()
     {
         return new GuzzleService($this->headers);
@@ -78,14 +74,12 @@ class FlutterwaveService
         return $this;
     }
 
-    // Sets customer data for transactions
     public function setCustomerData(array $value)
     {
         $this->customer_data = $value;
         return $this;
     }
 
-    // Sets price data for transactions
     public function setPriceData(array $value)
     {
         $this->price_data = $value;
@@ -139,7 +133,7 @@ class FlutterwaveService
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
-            throw new FlutterwaveException('Transaction creation failed: ' . $e->getMessage());
+            // throw new FlutterwaveException('Plan creation failed: ' . $e->getMessage());
         }
     }
 
@@ -158,7 +152,7 @@ class FlutterwaveService
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
-            throw new FlutterwaveException('Plan update failed: ' . $e->getMessage());
+            // throw new FlutterwaveException('Plan update failed: ' . $e->getMessage());
         }
     }
 
@@ -175,7 +169,7 @@ class FlutterwaveService
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
-            throw new FlutterwaveException('Plan cancellation failed: ' . $e->getMessage());
+            // throw new FlutterwaveException('Plan cancellation failed: ' . $e->getMessage());
         }
     }
 
@@ -191,7 +185,7 @@ class FlutterwaveService
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
-            throw new FlutterwaveException('Unable to get plan: ' . $e->getMessage());
+            // throw new FlutterwaveException('Unable to get plan: ' . $e->getMessage());
         }
     }
 
