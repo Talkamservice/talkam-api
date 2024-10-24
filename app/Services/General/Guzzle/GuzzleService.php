@@ -48,7 +48,6 @@ class GuzzleService
             );
             return $this->success($response);
         } catch (Throwable $e) {
-            dd($e);
             return $this->error($e);
         }
     }

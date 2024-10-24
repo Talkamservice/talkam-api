@@ -75,7 +75,6 @@ class FlutterwaveService
     public function setSubscriptionData(array $value = [])
     {
         $this->subscription_data = $value;
-        dd($this);
         return $this;
     }
 
@@ -248,7 +247,7 @@ class FlutterwaveService
         // dd($subscription_data);
         // dd($full_url);
         $response = $this->client->post($full_url, $this->subscription_data); // Use the passed $subscription_data
-        dd($response);
+       // dd($response);
 
         logger("Subscription", [
             "url" => $full_url,

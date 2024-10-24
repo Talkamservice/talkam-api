@@ -34,7 +34,7 @@ class SubscriptionController extends Controller
 
     public function getSubscriber(Request $request)
     {
-        dd($request->all());
+       // dd($request->all());
         $query = $request->get('q', '');
         // Check if there's a valid search term
         if (strlen($query) < 1) {
