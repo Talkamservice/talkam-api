@@ -7,6 +7,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Jobs\Webhook\ProcessWebhookJob;
 use App\Models\HookLog;
+use App\Services\Jobs\Webhook\FlutterwaveWebhookJobService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -94,7 +95,8 @@ class WebhookService
 
     public function dispatch($webhook)
     {
-        ProcessWebhookJob::dispatch($webhook->toArray(), $webhook->user_id)->delay(now()->addSeconds($webhook->delay));
+        (new FlutterwaveWebhookJobService($webhook->toArray()))->process();
+        // ProcessWebhookJob::dispatch($webhook->toArray(), $webhook->user_id)->delay(now()->addSeconds($webhook->delay));
     }
 
     public function retry($webhook_id)
