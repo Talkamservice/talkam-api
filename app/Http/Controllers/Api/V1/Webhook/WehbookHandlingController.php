@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\General;
+namespace App\Http\Controllers\Api\V1\Webhook;
 
 use App\Constants\Finance\Payment\PaymentConstants;
 use App\Constants\General\ApiConstants;
@@ -51,7 +51,7 @@ class WehbookHandlingController extends Controller
                 "headers" => $request->header(),
                 "content" => $payload,
                 "url" => env("APP_URL") . "/webhook/verifications",
-                "delay" => "10",
+                "delay" => "5",
                 "user_id" => $user["user"]?->id,
                 "sender_name" => $user["name"] ?? null
             ]);

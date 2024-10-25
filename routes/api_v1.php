@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\VerificationController;
 use App\Http\Controllers\Api\V1\Feedback\FeedbackController;
 use App\Http\Controllers\Api\V1\General\AuthController;
+use App\Http\Controllers\Api\V1\Webhook\WehbookHandlingController;
 use App\Http\Controllers\Api\V1\Location\LocationController;
 use App\Http\Controllers\Api\V1\User\Finance\PlansController;
 use App\Http\Controllers\Api\V1\User\Finance\SubscriptionsController;
@@ -50,6 +51,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/webhook/verifications', [WehbookHandlingController::class, 'handleWebhook'])->name('handle-webhook');
 
 Route::prefix("auth")->as("auth.")->group(function () {
     Route::post("/register", [RegisterController::class, "register"])->name("register");
