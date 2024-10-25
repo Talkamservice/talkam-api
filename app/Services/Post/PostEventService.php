@@ -112,6 +112,10 @@ class PostEventService
                 ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
                     foreach ($posts as $post) {
 
+                        if (!is_array($post->tags)) {
+                            continue;
+                        }
+                        
                         $content = implode(" ", filterUniqueWords($post->tags));
                         // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
 
