@@ -37,7 +37,7 @@ class PlanResource extends JsonResource
                 $active_sub = $user->activeSubscription;
                 if (!empty($active_sub) && $active_sub->plan_id == $this->id) {
                     $data["is_active_subscription"] = true;
-                } else if (empty($active_sub) && strtolower($this->name) == "free") {
+                } else if (empty($active_sub) && strtolower($this->name) == "freemium") {
                     $data["is_active_subscription"] = true;
                 }
             }
