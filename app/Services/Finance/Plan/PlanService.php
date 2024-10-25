@@ -124,21 +124,21 @@ class PlanService
                 ]);
             }
 
-            $plan->benefits()->delete();
-            $plan_scopes = $plan->scopes;
+            // $plan->benefits()->delete();
+            // $plan_scopes = $plan->scopes;
 
-            foreach ($plan_scopes ?? [] as $key => $scope) {
-                $title = self::parseTitle($scope);
-                if (!empty($title)) {
-                    (new PlanBenefitService)->save([
-                        "plan_id" => $plan->id,
-                        "title" => $title,
-                        "key" => $scope->slug,
-                        "value" => "Yes",
-                        "status" => StatusConstants::ACTIVE
-                    ]);
-                }
-            }
+            // foreach ($plan_scopes ?? [] as $key => $scope) {
+            //     $title = self::parseTitle($scope);
+            //     if (!empty($title)) {
+            //         (new PlanBenefitService)->save([
+            //             "plan_id" => $plan->id,
+            //             "title" => $title,
+            //             "key" => $scope->slug,
+            //             "value" => "Yes",
+            //             "status" => StatusConstants::ACTIVE
+            //         ]);
+            //     }
+            // }
 
             // Fetch the existing durations before deletion
             if (!empty($data["price"] ?? null) && !empty($data["frequency"] ?? null)) {
@@ -293,7 +293,7 @@ class PlanService
             'content_creation_access' => 'Access to most community features, including posting, commenting, and voting',
             'ad_free_experience' => 'Enjoy ad free experience',
             'blue_tick_availability' => 'Account Verification',
-            
+
             'character_restriction' => fn($value) => is_numeric($value) ?
                 ($value > 0 ? "Enjoy up to {$value} characters when posting" : "") : 'Unlimited character when posting',
 
