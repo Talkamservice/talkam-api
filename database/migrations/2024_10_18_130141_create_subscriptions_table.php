@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('flutterwave_subscription_id')->nullable(); // For Flutterwave subscription ID
             $table->timestamp('paid_on')->nullable(); // Timestamp when the payment was made
             $table->timestamp('expires_at')->nullable(); // Timestamp for when the subscription expires
-            $table->string('currency')->default('NGN');
             $table->timestamps();
         });
     }
