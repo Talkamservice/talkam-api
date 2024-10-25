@@ -131,7 +131,7 @@ class SubscriptionService
         try {
             $payment = $this->payment_intent_service->setUser($this->user)
                 ->setAmount($plan_duration->price)
-                ->setCurrency($plan_duration->plan?->currency?->name)
+                ->setCurrency($plan_duration->plan?->currency?->short_name)
                 ->setAdditionalData([
                     "type" => PaymentConstants::DEBIT,
                     "status" => StatusConstants::PENDING,
