@@ -237,8 +237,7 @@ class FlutterwaveService
     public function createSubscription()
 {
     try {
-        $full_url = $this->base_url . "/subscriptions";
-        // dd($subscription_data);
+        $full_url = $this->base_url . "/payments";
         $response = $this->client->post($full_url, $this->subscription_data); // Use the passed $subscription_data
 
         logger("Subscription", [

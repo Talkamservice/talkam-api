@@ -21,7 +21,7 @@ class PlanDurationResource extends JsonResource
             'duration' => $this->duration,
             'price' => $this->price,
             "discount" => $this->discount,
-            "stripe_price_id" => $this->stripe_price_id,
+            "flutterwave_plan_id" => $this->flutterwave_plan_id,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

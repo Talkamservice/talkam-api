@@ -4,9 +4,12 @@ namespace App\Services\Finance\PaymentGateways\Flutterwave;
 
 use App\Constants\General\StatusConstants;
 use App\Exceptions\Payment\FlutterwaveException;
+use App\Models\PlanDuration;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Notifications\Finance\Subscription\NewSubscriptionNotification;
 use App\Notifications\Finance\Subscription\SubscriptionDisabledNotification;
+use App\Services\Finance\Subscription\SubscriptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -50,7 +53,6 @@ class FlutterwaveSubscriptionPaymentWebhookService
         }
 
         $this->user = $this->setUser($payload);
-        $this->subscription = $this->setSubcription($payload);
     }
 
     public function setUser($payload)
@@ -68,24 +70,50 @@ class FlutterwaveSubscriptionPaymentWebhookService
 
     public function setSubcription($payload)
     {
-        if (isset($payload["id"])) {
-            $subscription = Subscription::where("flutterwave_subscription_id", $payload["id"])->first();
+        if (isset($payload["data"]["id"])) {
+            $subscription = Subscription::where("plan_duration_id", $payload["data"]["meta"]["plan_duration_id"])
+                ->where("user_id", $this->user->id)->first();
         }
 
-        if (empty($subscription)) {
-            throw new FlutterwaveException("We could not verify this subscription.");
-        }
-
-        return $subscription;
+        return $subscription ?? null;
     }
 
     private function actionHandler()
     {
-        //Handle new, recurring and failed subscription;
-        
-        // if (in_array($this->payload["data"]["object"]["status"], ["unpaid", "past_due"])) {
-        //     return $this->disableUserSubscription();
-        // }
+        $subscription = $this->setSubcription($this->payload);
+
+        if (empty($subscription)) {
+            $this->initiateUserSubscription();
+        } else {
+            $this->handleRecurringSubscription($subscription);
+        }
+    }
+
+
+    public function initiateUserSubscription()
+    {
+        $payload = $this->payload["data"];
+        $metadata = $payload["meta"];
+
+        $plan_duration = PlanDuration::find($metadata["plan_duration_id"]);
+
+        if (empty($plan_duration)) {
+            throw new FlutterwaveException("We could not verify your plan.");
+        }
+
+        $current_subscription = SubscriptionService::currentUserSubscription($this->user, $plan_duration);
+
+        if (!empty($current_subscription)) {
+            SubscriptionService::cancel($current_subscription);
+        }
+
+        $subscription = SubscriptionService::subscribeToPlan($this->user, $plan_duration);
+
+        Notification::send($this->user, new NewSubscriptionNotification($subscription));
+        // Notification::send(sudo(), new AdminNewSubscriptionNotification($subscription));
+    }
+
+    public function handleRecurringSubscription($subscription) {
     }
 
     public function disableUserSubscription()

@@ -48,7 +48,7 @@ class FlutterwaveWebhookService
             $transaction = $this->flutterwave_service
                 ->verifyTransaction($payload["data"]["id"]);
 
-            if (!isset($transaction["data"]["meta_data"])) {
+            if (!isset($transaction["data"]["meta"])) {
                 throw new InvalidRequestException("We could not ascertain the purpose of this webhook");
             }
 
@@ -56,7 +56,7 @@ class FlutterwaveWebhookService
                 throw new InvalidRequestException($transaction["message"] ?? null);
             }
 
-            $meta = $transaction["data"]["meta_data"];
+            $meta = $transaction["data"]["meta"];
             $activity = $meta["activity"];
 
             if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {

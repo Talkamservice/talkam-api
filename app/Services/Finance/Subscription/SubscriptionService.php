@@ -116,7 +116,7 @@ class SubscriptionService
 
     public static function cancel($subscription)
     {
-        (new FlutterwaveService)->cancelSubscription($subscription->stripe_subscription_id);
+       // (new FlutterwaveService)->cancelSubscription($subscription->flutterwave_subscription_id);
 
         $subscription->update([
             "status" => StatusConstants::CANCELLED
@@ -140,6 +140,7 @@ class SubscriptionService
                     "metadata" => [
                         "amount" => $plan_duration->price,
                         "plan_duration_id" => $plan_duration->id,
+                        "flutterwave_plan_id" => $plan_duration->flutterwave_plan_id,
                         "email" => $this->user->email,
                         "activity" => PaymentConstants::PAYMENT_FOR_SUBSCRIPTION,
                     ]
