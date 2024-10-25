@@ -141,6 +141,7 @@ class SubscriptionService
                         "amount" => $plan_duration->price,
                         "plan_duration_id" => $plan_duration->id,
                         "email" => $this->user->email,
+                        "activity" => PaymentConstants::PAYMENT_FOR_SUBSCRIPTION,
                     ]
                 ]);
 

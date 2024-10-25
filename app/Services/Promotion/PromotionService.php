@@ -94,6 +94,7 @@ class PromotionService
                         "amount" => $promotion->cost,
                         "promotion_id" => $promotion->id,
                         "email" => $promotion->user->email,
+                        "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
                     ]
                 ]);
 

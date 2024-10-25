@@ -56,7 +56,7 @@ class FlutterwaveSubscriptionPaymentWebhookService
     public function setUser($payload)
     {
         if (isset($payload["customer"])) {
-            $user = User::where("stripe_customer_id", $payload["customer"])->first();
+            $user = User::where("email", $payload["customer"]["email"])->first();
         }
 
         if (empty($user)) {
@@ -69,7 +69,7 @@ class FlutterwaveSubscriptionPaymentWebhookService
     public function setSubcription($payload)
     {
         if (isset($payload["id"])) {
-            $subscription = Subscription::where("stripe_subscription_id", $payload["id"])->first();
+            $subscription = Subscription::where("flutterwave_subscription_id", $payload["id"])->first();
         }
 
         if (empty($subscription)) {
