@@ -32,7 +32,7 @@
                         </div>
                     </form>
                     <div class="">
-                        <a data-bs-toggle="modal" data-bs-target="#addNewRoleModal" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                        <a data-bs-toggle="modal" data-bs-target="#addNewRoleModal" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">

@@ -24,16 +24,14 @@
                 <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
-                            <label for="">Search</label>
                             <input class="form-control" type="text" placeholder="Search...." name="search">
                         </div>
-                        <div class="form-group me-2" style="margin-top: 20px;">
+                        <div class="form-group">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
                     <div class="">
-                        <a href="{{ route('admin.plans.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span
-                                class="ml-3">Create</span></a>
+                        <a href="{{ route('admin.plans.create') }}" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -43,6 +41,7 @@
                                 <tr>
                                     <th scope="col">Name</th>
                                     <th scope="col">Amount</th>
+                                    <th scope="col">Frequency</th>
                                     <th scope="col">Duration (Days)</th>
                                     <th scope="col">Description</th>
                                     <th scope="col">Status</th>
@@ -54,7 +53,8 @@
                                 @forelse($plans as $plan)
                                     <tr>
                                         <td>{{ $plan->name }}</td>
-                                        <td>{{ $plan->defaultDuration()?->price }}</td>
+                                        <td>{{ $plan->defaultDuration()?->formattedAmount() }}</td>
+                                        <td>{{ $plan->defaultDuration()?->frequency }}</td>
                                         <td>{{ $plan->defaultDuration()?->duration }}</td>
                                         <td><span class="fw-normal">{{ str_limit($plan->description) ?? 'N/A' }}</span></td>
                                         <td>
@@ -65,19 +65,11 @@
                                         <td>{{ $plan->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor" href="{{ route('admin.plans.show', $plan->id) }}"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
-                                                        class="ri-eye-line"></i></a>
-                                                <a aria-label="anchor" href="{{ route('admin.plans.edit', $plan->id) }}"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
-                                                        class="ri-edit-line"></i></a>
-                                                <form action="{{ route('admin.plans.destroy', $plan->id) }}" method="post"
-                                                    id="deletePlan_{{ $plan->id }}"
-                                                    onsubmit="return confirm('Are you sure of this action?')"> @csrf
+                                                <a aria-label="anchor" href="{{ route('admin.plans.show', $plan->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i class="ri-eye-line"></i></a>
+                                                <a aria-label="anchor" href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
+                                                <form action="{{ route('admin.plans.destroy', $plan->id) }}" method="post" id="deletePlan_{{ $plan->id }}" onsubmit="return confirm('Are you sure of this action?')"> @csrf
                                                     @method('delete')
-                                                    <button type="submit"
-                                                        class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i
-                                                            class="ri-delete-bin-line"></i></button>
+                                                    <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
                                                 </form>
                                                 {{-- <a type="button"
                                                     class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
@@ -101,10 +93,7 @@
                                         'dashboards.admin.pages.finance.subscription.subscribe-modal',
                                         ['users', $users, 'plan' => $plan]
                                     ) --}}
-                                    @include('dashboards.admin.pages.finance.plan.cancel-plan-modal', [
-                                        'plan',
-                                        $plan,
-                                    ])
+                                    @include('dashboards.admin.pages.finance.plan.cancel-plan-modal', ['plan', $plan])
                                 @empty
                                     <div class="alert alert-info text-center">
                                         No records found

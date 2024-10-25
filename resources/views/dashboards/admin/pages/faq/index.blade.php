@@ -32,7 +32,7 @@
                         </div>
                     </form>
                     <div class="pr-2">
-                        <a href="{{ route('admin.faqs.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span
+                        <a href="{{ route('admin.faqs.create') }}" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span
                                 class="ml-3">Create</span></a>
                     </div>
                 </div>

@@ -20,4 +20,9 @@ class PlanDuration extends Model
     {
         return $this->hasMany(Subscription::class, "plan_duration_id");
     }
+
+    public function formattedAmount()
+    {
+        return format_money($this->plan->price, 2, $this->plan->currency->symbol);
+    }
 }

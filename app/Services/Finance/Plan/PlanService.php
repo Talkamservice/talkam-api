@@ -292,7 +292,8 @@ class PlanService
         $messages = [
             'content_creation_access' => 'Access to most community features, including posting, commenting, and voting',
             'ad_free_experience' => 'Enjoy ad free experience',
-
+            'blue_tick_availability' => 'Account Verification',
+            
             'character_restriction' => fn($value) => is_numeric($value) ?
                 ($value > 0 ? "Enjoy up to {$value} characters when posting" : "") : 'Unlimited character when posting',
 

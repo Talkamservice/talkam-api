@@ -32,7 +32,7 @@
                         </div>
                     </form>
                     <div class="">
-                        <a href="{{ route('admin.avatars.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                        <a href="{{ route('admin.avatars.create') }}" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">

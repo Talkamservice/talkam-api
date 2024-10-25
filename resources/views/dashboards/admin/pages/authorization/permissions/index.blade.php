@@ -27,7 +27,7 @@
                         </div>
                     </form>
                     {{-- <div class="">
-                        <a href="javascript:void{}" data-bs-toggle="modal" data-bs-target="#addNewPermissionModal" class="btn btn-primary"><i class="fe fe-plus"></i>
+                        <a href="javascript:void{}" data-bs-toggle="modal" data-bs-target="#addNewPermissionModal" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i>
                             <span class="ml-3">Add New</span></a>
                     </div> --}}
                 </div>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Constants\General\StatusConstants;
+use App\Helpers\MethodsHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,7 +37,7 @@ class Plan extends Model
         $default_duration = $this->durations()->where("is_default", 1)->first();
 
         if (empty($default_duration)) {
-           $default_duration = $this->durations()->first();
+            $default_duration = $this->durations()->first();
         }
 
         return $default_duration;

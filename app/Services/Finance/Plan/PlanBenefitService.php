@@ -32,8 +32,8 @@ class PlanBenefitService
         $validator = Validator::make($data, [
             "title" => 'nullable|string',
             "description" => 'nullable|string',
-            "value" => 'nullable|string|' . Rule::requiredIf(empty($id)),
-            "key" => 'nullable|string|' . Rule::requiredIf(empty($id)),
+            "value" => 'nullable|string',
+            "key" => 'nullable|string',
             "value_type" => 'nullable|string',
             "duration" => 'nullable|numeric|gt:-1',
             "plan_id" => "required|exists:plans,id|" . Rule::requiredIf(empty($id)),
@@ -55,6 +55,9 @@ class PlanBenefitService
             $plan_benefit = PlanBenefit::find($id);
             $plan_benefit->update($data);
         } else {
+            $data["value"] ??= "Yes";
+            $data["key"] ??= str_replace(" ", "-", strtolower($data["title"]));
+            $data["status"] ??= StatusConstants::ACTIVE;
             $plan_benefit =  PlanBenefit::create($data);
         }
 

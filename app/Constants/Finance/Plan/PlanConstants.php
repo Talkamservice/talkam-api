@@ -75,5 +75,12 @@ class PlanConstants
             "placeholder" => null,
             "data" => AppConstants::BOOL_OPTIONS,
         ],
+        "blue_tick_availability" => [
+            "name" => "blue_tick_availability",
+            "label" => "Enable Blue Tick", 
+            "type" => "checkbox",
+            "placeholder" => null,
+            "data" => AppConstants::BOOL_OPTIONS,
+        ],
     ];
 }

@@ -22,7 +22,7 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-end">
-                    <a href="{{ route('admin.announcements.create') }}" class="btn btn-primary">
+                    <a href="{{ route('admin.announcements.create') }}" class="btn btn-primary btn-sm">
                         <i class="fe fe-plus"></i> <span class="ml-3">Create</span>
                     </a>
                 </div>

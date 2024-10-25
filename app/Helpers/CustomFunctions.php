@@ -221,3 +221,13 @@ function findSpecialWords($string)
     // Return the matched words
     return $matches[1];
 }
+
+function format_money($amount, $places = 2, $symbol = '₦')
+{
+    return $symbol  . '' . int_format((float)$amount, $places);
+}
+
+function int_format($number, $decimals = 0, $decPoint = '.', $thousandsSep = ',')
+{
+    return MethodsHelper::int_format($number, $decimals, $decPoint, $thousandsSep);
+}

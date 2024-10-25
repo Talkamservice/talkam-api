@@ -25,6 +25,9 @@
                     <div class="">
                         <h5>Benefits</h5>
                     </div>
+                    <div class="">
+                        <a data-bs-toggle="modal" data-bs-target="#createBenefit" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -74,6 +77,7 @@
                     </div>
                 </div> --}}
             </div>
+            @include('dashboards.admin.pages.finance.plan.benefits.modals.create')
         </div>
     </div>
 @endsection

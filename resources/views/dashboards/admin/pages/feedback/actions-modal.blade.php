@@ -14,7 +14,7 @@
                     @csrf @method('PUT')
                     <input type="hidden" name="status" value="Resolved">
                     <div id="methodFieldContainer">Resolved</div> <!-- Placeholder for method spoofing -->
-                    <button type="submit" class="btn btn-primary">Yes, Proceed</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Yes, Proceed</button>
                 </form>
             </div>
         </div>

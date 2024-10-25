@@ -32,7 +32,7 @@
                         </div>
                     </form>
                     <div class="">
-                        <a href="{{ route('admin.post-categories.create') }}" class="btn btn-primary"><i
+                        <a href="{{ route('admin.post-categories.create') }}" class="btn btn-primary btn-sm"><i
                                 class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
 

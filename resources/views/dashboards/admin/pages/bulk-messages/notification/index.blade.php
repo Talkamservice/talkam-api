@@ -23,7 +23,7 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-end">
-                    <a href="{{ route('admin.notifications.send-bulk-notification.create') }}" class="btn btn-primary"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                    <a href="{{ route('admin.notifications.send-bulk-notification.create') }}" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive" style="min-height: 250px">

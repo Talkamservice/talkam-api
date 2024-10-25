@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\Finance\Plan;
 
-use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\StatusConstants;
 use App\Constants\General\NotificationConstants;
 use App\Http\Controllers\Controller;
@@ -69,7 +68,7 @@ class PlanBenefitsController extends Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (Throwable $e) {
-            throw $e;
+            // throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
         }
     }
