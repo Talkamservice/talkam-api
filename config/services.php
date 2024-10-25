@@ -62,6 +62,7 @@ return [
     ],
 
     'flutterwave' => [
+        'baseUrl' => env('FLW_BASE_URL'),
         'publicKey' => env('FLW_PUBLIC_KEY'),
         'secretKey' => env('FLW_SECRET_KEY'),
         'secretHash' => env('FLW_SECRET_HASH'),

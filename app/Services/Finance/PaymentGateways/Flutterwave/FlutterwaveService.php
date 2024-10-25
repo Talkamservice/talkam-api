@@ -39,7 +39,7 @@ class FlutterwaveService
 
     public function setBaseUrl()
     {
-        $this->base_url = env("FLW_BASE_URL");
+        $this->base_url = env("FLW_BASE_URL") ?? config("services.flutterwave.baseUrl");
         return $this;
     }
 
