@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Services\Plan;
+namespace App\Services\Finance\Plan;
 
 use App\Constants\Finance\Plan\PlanConstants;
-use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Plan;
 use App\Models\User;

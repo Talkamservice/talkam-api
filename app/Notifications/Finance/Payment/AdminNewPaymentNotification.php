@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Finance\Subscription;
+namespace App\Notifications\Finance\Payment;
 
 use App\Constants\Finance\Payment\PaymentConstants;
 use App\Models\Payment;

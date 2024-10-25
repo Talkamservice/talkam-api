@@ -2,14 +2,13 @@
 
 namespace App\Notifications\Finance\Subscription;
 
+use App\Helpers\MethodsHelper;
 use App\Models\Subscription;
-use App\Services\Message\FcmPushNotificationService;
 use App\Services\Notifications\FirebaseNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Kutia\Larafirebase\Messages\FirebaseMessage;
 
 class NewSubscriptionNotification extends Notification
 {
@@ -30,7 +29,7 @@ class NewSubscriptionNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['firebase', 'database', 'mail'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**
@@ -41,11 +40,10 @@ class NewSubscriptionNotification extends Notification
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data["title"])
-            ->markdown('emails.template.v1.subscription.new', [
+            ->markdown('emails.general.index', [
                 "title" => $data["title"],
                 "message" => $data["message"],
-                "plan" => $this->subscription->plan,
-                "recipient_name" => $notifiable->name,
+                'recipient_name' => $notifiable->getName(),
             ]);
     }
 
@@ -77,7 +75,6 @@ class NewSubscriptionNotification extends Notification
             ->setMetadata([
                 "id" => (string) $this->subscription?->id,
                 "type" => "subscription",
-                "extra" => json_encode([])
             ])
             ->byUserToken($notifiable->fcm_token)
             ->initiate();
@@ -85,7 +82,7 @@ class NewSubscriptionNotification extends Notification
 
     public function buildData($notifiable)
     {
-        $message = "Thank you for subscribing to our {$this->subscription->plan->name} plan at Mentra. Your unwavering support is greatly appreciated!";
+        $message = "Thank you for subscribing to our {$this->subscription->plan->name} plan at Talkam. Your unwavering support is greatly appreciated!";
         return [
             'data' => [
                 'id' => $this->subscription->id,

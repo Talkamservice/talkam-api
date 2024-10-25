@@ -60,12 +60,12 @@ class FlutterwaveWebhookService
             $activity = $meta["activity"];
 
             if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
-                $this->handleOneOffPayments($payload, $transaction);
+               return $this->handleOneOffPayments($payload, $transaction);
+            }else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
+               return $this->handleSubscriptionPayments($payload, $transaction);
             }
 
-            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
-                $this->handleSubscriptionPayments($payload, $transaction);
-            }
+            throw new InvalidRequestException("Hook purpose not found");
         } catch (\Throwable $th) {
             throw $th;
         }
