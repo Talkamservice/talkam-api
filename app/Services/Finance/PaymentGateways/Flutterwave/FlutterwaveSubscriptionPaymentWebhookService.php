@@ -68,19 +68,11 @@ class FlutterwaveSubscriptionPaymentWebhookService
         return $user;
     }
 
-    public function setSubcription($payload)
-    {
-        if (isset($payload["data"]["id"])) {
-            $subscription = Subscription::where("plan_duration_id", $payload["data"]["meta"]["plan_duration_id"])
-                ->where("user_id", $this->user->id)->first();
-        }
-
-        return $subscription ?? null;
-    }
-
+    
     private function actionHandler()
     {
-        $subscription = $this->setSubcription($this->payload);
+        $subscription = Subscription::where("plan_duration_id", $this->payload["meta_data"]["plan_duration_id"])
+            ->where("user_id", $this->user->id)->first();
 
         if (empty($subscription)) {
             $this->initiateUserSubscription();
@@ -92,8 +84,7 @@ class FlutterwaveSubscriptionPaymentWebhookService
 
     public function initiateUserSubscription()
     {
-        $payload = $this->payload["data"];
-        $metadata = $payload["meta"];
+        $metadata = $this->payload["meta_data"];
 
         $plan_duration = PlanDuration::find($metadata["plan_duration_id"]);
 
