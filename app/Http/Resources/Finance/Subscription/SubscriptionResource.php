@@ -22,6 +22,7 @@ class SubscriptionResource extends JsonResource
             "plan" => !empty($this->plan) ? PlanResource::custom($this->plan) : null,
             "flutterwave_subscription_id" => $this->flutterwave_subscription_id,
             "expires_at" => formatDate($this->expires_at),
+            "renewal_cancelled_at" => formatDate($this->renewal_cancelled_at),
             "status" => $this->status,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
@@ -35,6 +36,7 @@ class SubscriptionResource extends JsonResource
             "plan" => PlanResource::make($model->plan),
             "flutterwave_subscription_id" => $model->flutterwave_subscription_id,
             "status" => $model->status,
+            "renewal_cancelled_at" => formatDate($model->renewal_cancelled_at),
             "created_at" => $model->created_at,
             "updated_at" => $model->updated_at
         ];
