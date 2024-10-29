@@ -36,6 +36,7 @@ class SubscriptionResource extends JsonResource
             "plan" => PlanResource::make($model->plan),
             "flutterwave_subscription_id" => $model->flutterwave_subscription_id,
             "status" => $model->status,
+            "expires_at" => formatDate($model->expires_at),
             "renewal_cancelled_at" => formatDate($model->renewal_cancelled_at),
             "created_at" => $model->created_at,
             "updated_at" => $model->updated_at
