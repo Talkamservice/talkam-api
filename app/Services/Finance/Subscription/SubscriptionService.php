@@ -117,9 +117,10 @@ class SubscriptionService
     public static function cancel($subscription)
     {
        // (new FlutterwaveService)->cancelSubscription($subscription->flutterwave_subscription_id);
-
-        $subscription->update([
-            "status" => StatusConstants::CANCELLED
+        
+       $subscription->update([
+            "renewal_cancelled_at" => now(),
+            // "status" => StatusConstants::CANCELLED
         ]);
 
         return $subscription->refresh();
