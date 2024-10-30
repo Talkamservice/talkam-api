@@ -32,7 +32,7 @@ class Promotion extends Model
         return $this->belongsTo(Payment::class, "payment_id");
     }
 
-    public function scopeStatus($query, $status = StatusConstants::ACTIVE) : Returntype {
+    public function scopeStatus($query, $status = StatusConstants::ACTIVE) {
         return $query->where("status", $status);
     }
 }
