@@ -80,6 +80,7 @@ class UserService
             "phone_number" => "nullable",
             "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
             "date_of_birth" => 'nullable|date_format:Y-m-d|before:today',
+            "should_display_ads" => "nullable|in:0,1",
         ], [
             'email.unique' => "The email address has already been used by another user",
             'username.unique' => "The email address has already been used by another user",
@@ -167,6 +168,7 @@ class UserService
                 "password" => "nullable|string|confirmed",
                 "state_id" => "nullable|exists:states,id",
                 "country_id" => "nullable|exists:countries,id",
+                "should_display_ads" => "nullable|in:0,1",
                 "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
                 "date_of_birth" => 'nullable|date_format:Y-m-d|before:today',
             ], [
