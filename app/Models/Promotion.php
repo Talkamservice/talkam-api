@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,5 +30,9 @@ class Promotion extends Model
     public function payment()
     {
         return $this->belongsTo(Payment::class, "payment_id");
+    }
+
+    public function scopeStatus($query, $status = StatusConstants::ACTIVE) : Returntype {
+        return $query->where("status", $status);
     }
 }

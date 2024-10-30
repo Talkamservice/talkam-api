@@ -5,6 +5,7 @@ namespace App\Http\Resources\Post;
 use App\Constants\Post\PostConstants;
 use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
+use App\Http\Resources\Promotion\PromotionResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\PostReport;
 use App\Models\UserPostReaction;
@@ -51,6 +52,7 @@ class PostResource extends JsonResource
             "status" => $this->status,
             "publish_at" => $this->publish_at,
             "enabled_notification" => $enabled_notification->isNotEmpty(),
+            "promotion" => !empty($this->activePromotion()) ? PromotionResource::custom($this->activePromotion()) : null,
             "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
             "polls" => PostPollResource::collection($this->whenLoaded("polls", $this->polls)),
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,

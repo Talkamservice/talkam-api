@@ -40,4 +40,21 @@ class PromotionResource extends JsonResource
             "updated_at" => formatDate($this->updated_at)
         ];
     }
+
+    public static function custom($model)
+    {
+        return [
+            "id" => $model->id,
+            "min_age" => $model->min_age,
+            "max_age" => $model->max_age,
+            "gender" => $model->gender,
+            "daily_budget" => $model->daily_budget,
+            "frequency" => $model->frequency,
+            "duration" => $model->duration,
+            "estimated_reach" => $model->estimated_reach,
+            "total_reach" => $model->total_reach,
+            "created_at" => formatDate($model->created_at),
+            "updated_at" => formatDate($model->updated_at)
+        ];
+    }
 }
