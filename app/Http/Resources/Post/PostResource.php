@@ -52,7 +52,7 @@ class PostResource extends JsonResource
             "status" => $this->status,
             "publish_at" => $this->publish_at,
             "enabled_notification" => $enabled_notification->isNotEmpty(),
-            "promotion" => !empty($this->activePromotion()) ? PromotionResource::custom($this->activePromotion()) : null,
+            "promotion" => !empty($this->activePromotion()) ? true : false,
             "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
             "polls" => PostPollResource::collection($this->whenLoaded("polls", $this->polls)),
             "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
