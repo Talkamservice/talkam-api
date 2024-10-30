@@ -90,7 +90,7 @@ class NewSubscriptionNotification extends Notification
             'title' => 'New Subscription!',
             'message' => $message,
             'link' => null,
-            'type' => 'subscription',
+            'type' => 'notification',
             'batch_no' => null,
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Finance\Subscription;
 
+use App\Helpers\MethodsHelper;
 use App\Models\Subscription;
 use App\Services\Message\FcmPushNotificationService;
 use App\Services\Notifications\FirebaseNotificationService;
@@ -29,7 +30,7 @@ class SubscriptionDisabledNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['firebase', 'database', 'mail'];
+        return MethodsHelper::userNotificationPreference($notifiable);
     }
 
     /**
@@ -92,7 +93,7 @@ class SubscriptionDisabledNotification extends Notification
             'title' => 'New Subscription!',
             'message' => $message,
             'link' => null,
-            'type' => 'subscription',
+            'type' => 'notification',
             'batch_no' => null,
         ];
     }
