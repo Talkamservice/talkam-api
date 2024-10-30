@@ -48,6 +48,7 @@ class UserResource extends JsonResource
             "anonymous_comment" => $this->anonymous_comment ?? 0,
             "public_group_count" => $this->public_group_count ?? 0,
             "date_of_birth" => formatDateOfBirth($this->date_of_birth),
+            "should_display_ads" => $this->should_display_ads,
             "active_subscription" => !empty($this->activeSubscription) ? SubscriptionResource::custom($this->activeSubscription) : null,
             "state" => !empty($this->state) ? StateResource::make($this->whenLoaded("state", $this->state)) : null,
             "country" => !empty($this->country) ? CountryResource::make($this->whenLoaded("country", $this->country)) : null,
