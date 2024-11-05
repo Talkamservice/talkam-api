@@ -25,4 +25,14 @@ class Payment extends Model
     {
         return $query->where("status", $status);
     }
+
+    public function scopeSearch($query, $key)
+    {
+        return $query->where(function ($q) use ($key) {
+            $q->whereHas("user", function ($user) use ($key) {
+                $user->search($key);
+            });
+        });
+    }
+
 }

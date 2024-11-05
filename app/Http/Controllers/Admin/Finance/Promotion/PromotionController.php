@@ -30,7 +30,7 @@ class PromotionController extends Controller
 
     public function index(Request $request)
     {
-        $promotions = Promotion::query()->get();
+        $promotions = Promotion::latest()->search($request->search)->get();
         $promotion_stats = $this->promotion_stat_service->stats();
         return view('dashboards.admin.pages.finance.promotions.index', [
             'promotions' => $promotions,
