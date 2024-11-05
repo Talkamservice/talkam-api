@@ -47,6 +47,7 @@ class PermissionTableSeeder extends Seeder
                     "read report",
                     "read deactivation requests",
                     "take action on deactivation request",
+                    "read promotion"
                 ]),
             ),
         ];

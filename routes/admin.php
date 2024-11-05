@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Feedback\FeedbackController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanBenefitsController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanController;
+use App\Http\Controllers\Admin\Finance\Promotion\PromotionController;
 use App\Http\Controllers\Admin\Finance\Subscription\Flutterwave\SubscriptionController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
@@ -49,7 +50,8 @@ Route::middleware(["auth"])->group(
             "faqs" => FaqController::class,
             "faq-categories" => FaqCategoryController::class,
             "feedbacks" => FeedbackController::class,
-            'plans' => PlanController::class
+            'plans' => PlanController::class,
+            'promotions' => PromotionController::class,
         ]);
 
 

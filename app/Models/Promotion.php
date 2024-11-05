@@ -32,7 +32,23 @@ class Promotion extends Model
         return $this->belongsTo(Payment::class, "payment_id");
     }
 
-    public function scopeStatus($query, $status = StatusConstants::ACTIVE) {
+    public function scopeStatus($query, $status = StatusConstants::ACTIVE)
+    {
         return $query->where("status", $status);
+    }
+
+    public function contentWebUrl()
+    {
+        $web_url = config("app.web_url");
+
+        if (!empty($id = $this->post_id)) {
+            $url = $web_url . "/comment/{$id}";
+        }
+
+        if (!empty($id = $this->group_id)) {
+            $url = $web_url . "/groups/{$id}";
+        }
+
+        return $url ?? null;
     }
 }
