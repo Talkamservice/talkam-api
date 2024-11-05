@@ -23,6 +23,7 @@ class PromotionService
     public $user;
     public $flutterwave_service;
     public $payment_intent_service;
+    public $additional_data;
 
     public function __construct()
     {
@@ -95,6 +96,10 @@ class PromotionService
                         "promotion_id" => $promotion->id,
                         "email" => $promotion->user->email,
                         "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
+                        "payload" => encrypt([
+                            "type" => $data["payload"]["type"] ?? null,
+                            "data" => $data["payload"]["data"] ?? null
+                        ]),
                     ]
                 ]);
 
