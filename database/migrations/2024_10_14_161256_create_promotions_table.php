@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string("uuid")->unique();
             $table->integer("min_age")->nullable();
             $table->integer("max_age")->nullable();
-            $table->integer("gender")->nullable();
+            $table->string("gender")->nullable();
             $table->float("cost")->nullable();
             $table->float("daily_budget")->nullable();
             $table->bigInteger("duration")->nullable();
