@@ -85,7 +85,7 @@ class PromotionService
             
             $payment = $this->payment_intent_service->setUser($promotion->user)
                 ->setAmount($promotion->cost)
-                ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY)
+                ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME)
                 ->setAdditionalData([
                     "type" => PaymentConstants::DEBIT,
                     "status" => StatusConstants::PENDING,
