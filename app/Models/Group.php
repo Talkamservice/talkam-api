@@ -59,4 +59,9 @@ class Group extends Model
     {
         return $this->hasMany(Promotion::class, "group_id");
     }
+    
+    public function activePromotion()
+    {
+        return $this->promotions()->status()->first();
+    }
 }

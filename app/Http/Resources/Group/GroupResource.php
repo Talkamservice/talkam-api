@@ -54,6 +54,7 @@ class GroupResource extends JsonResource
             "owner" => !empty($this->creator) ? UserResource::custom($this->creator) : null,
             "pending_count" => $this->members()->status(StatusConstants::PENDING)->count(),
             "about" => $this->about,
+            "promotion" => !empty($this->activePromotion()) ? true : false,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];
