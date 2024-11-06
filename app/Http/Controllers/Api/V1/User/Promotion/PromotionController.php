@@ -25,7 +25,10 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         try {
-            $promotions = $this->promotion_service->list($request->all())->get();
+            $promotions = $this->promotion_service->list($request->all())
+                ->whereNotNull("post_id")
+                ->whereNotNull("group_id")
+                ->get();
             $data = PromotionResource::collection($promotions);
             return ApiHelper::validResponse("Promotions returned successfully", $data);
         } catch (Exception $e) {
