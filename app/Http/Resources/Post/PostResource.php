@@ -47,7 +47,7 @@ class PostResource extends JsonResource
             "tags" => is_string($this->tags) ? json_decode($this->tags, true) : $this->tags,
             "is_reported" => $is_reported,
             "views_count" => $this->views_count,
-            "comments_count" => $this->comments()->topLevel()->count(),  // Counts only top-level comments
+            "comments_count" => isset($this->comments) ? $this->comments()->topLevel()->count() : 0,  // Counts only top-level comments
             "likes_count" => $likes,
             "status" => $this->status,
             "publish_at" => $this->publish_at,
