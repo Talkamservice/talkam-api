@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User\Promotion;
 
 use App\Constants\General\ApiConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -58,7 +59,7 @@ class PromotionController extends Controller
             return ApiHelper::validResponse("Payment initiated successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse("The given data", ApiConstants::VALIDATION_ERR_CODE, null, $th);
-        } catch (ModelNotFoundException $th) {
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
