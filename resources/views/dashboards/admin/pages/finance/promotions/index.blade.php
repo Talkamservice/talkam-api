@@ -197,16 +197,6 @@
                                 <div class="card custom-card">
                                     <div class="card-header justify-content-between">
                                         <div class="card-title">Profit Earned</div>
-                                        <div class="dropdown">
-                                            <a href="javascript:void(0);" class="p-2 fs-12 text-muted" data-bs-toggle="dropdown" aria-expanded="false">
-                                                View All<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
-                                            </a>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a class="dropdown-item" href="javascript:void(0);">Today</a></li>
-                                                <li><a class="dropdown-item" href="javascript:void(0);">This Week</a></li>
-                                                <li><a class="dropdown-item" href="javascript:void(0);">Last Week</a></li>
-                                            </ul>
-                                        </div>
                                     </div>
                                     <div class="card-body py-0 ps-0">
                                         <div id="crm-profits-earned"></div>
@@ -224,13 +214,18 @@
                             </div>
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-3">
-                                    <h4 class="fw-bold mb-0">4,289</h4>
+                                    <h4 class="fw-bold mb-0">{{ $promotion_stats["status_card"]["value"] ?? 0 }}</h4>
                                     <div class="ms-2">
-                                        <span class="badge bg-success-transparent">1.02<i class="ri-arrow-up-s-fill align-mmiddle ms-1"></i></span>
+                                        <span class="badge bg-success-transparent">{{ $promotion_stats["status_card"]["percentage"] ?? 0 }}%
+                                            {{-- <i class="ri-arrow-down-s-fill align-mmiddle ms-1"></i> --}}
+                                        </span>
                                         <span class="text-muted ms-1">compared to last {{ request()->period ?? "month" }}</span>
                                     </div>
                                 </div>
                                 <div class="progress-stacked progress-animate progress-xs mb-4">
+                                    @foreach ($collection as $item)
+                                        
+                                    @endforeach
                                     <div class="progress-bar" role="progressbar" style="width: 21%" aria-valuenow="21" aria-valuemin="0" aria-valuemax="100"></div>
                                     <div class="progress-bar bg-info" role="progressbar" style="width: 26%" aria-valuenow="26" aria-valuemin="0" aria-valuemax="100"></div>
                                     <div class="progress-bar bg-warning" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>

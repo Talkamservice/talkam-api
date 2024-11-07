@@ -2,6 +2,7 @@
 
 namespace App\Services\Promotion;
 
+use App\Constants\General\StatusConstants;
 use App\Models\Promotion;
 use App\Models\User;
 use Carbon\Carbon;
@@ -76,44 +77,27 @@ class PromotionStatsService
                     'period' =>  $period,
                 ]
             ],
-            "dashboard_data" => $promotion_data,
-        ];
 
-        return $data;
-    }
-
-    public function statusStats(array $data = [])
-    {
-        $period = $data["period"] ?? null;
-
-        if (!in_array($period, ['day', 'week', 'month', 'year'])) {
-            $period = 'month';
-        }
-
-        $promotion_data = $this->getPromotionData($period);
-
-        $data = [
-            "cards" => [
-                [
+            "status_card" => [
+                "value" => array_sum($promotion_data['totalPromotions']),
+                "percentage" => $promotion_data['freemiumUsersChangePercentage'],
+                "card" => [
                     "title" => "Successful Promotions",
-                    "value" => array_sum($promotion_data['currentPostAds']),
+                    "value" => array_sum($promotion_data['totalSuccessfulPromotions']),
                     "class" => "primary",
-                    'period' =>  $period,
-                    "percentage" => $promotion_data['postAdsChangePercentage'],
                 ],
                 [
                     "title" => "Pending Promotions",
-                    "value" => array_sum($promotion_data['currentGroupAds']),
+                    "value" => array_sum($promotion_data['totalPendingPromotions']),
                     "class" => "info",
-                    "percentage" => $promotion_data['postAdsChangePercentage'],
                 ],
                 [
-                    "title" => "Failed Promotions",
-                    "value" => format_money(array_sum($promotion_data['currentPostAdRevenue'])),
-                    "class" => "warning",
-                    "percentage" => $promotion_data['postAdsChangePercentage'],
+                    "title" => "Inactive Promotions",
+                    "value" => format_money(array_sum($promotion_data['totalInactivePromotions'])),
+                    "class" => "danger",
                 ],
             ],
+            "dashboard_data" => $promotion_data,
         ];
 
         return $data;
@@ -162,6 +146,7 @@ class PromotionStatsService
         $previousData = $this->fetchData($previousStartDate, $interval, $dataPoints);
 
         // Calculate percentage changes
+        $totalPromotionPercentage = $this->calculatePercentageChange($currentData['total_promotions'], $previousData['total_promotions']);
         $postAdsChangePercentage = $this->calculatePercentageChange($currentData['total_post_ads'], $previousData['total_post_ads']);
         $groupAdsChangePercentage = $this->calculatePercentageChange($currentData['total_group_ads'], $previousData['total_group_ads']);
         $postAdsRevenueChangePercentage = $this->calculatePercentageChange($currentData['total_post_ads_revenue'], $previousData['total_post_ads_revenue']);
@@ -170,12 +155,17 @@ class PromotionStatsService
         $premiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_premium_users'], $previousData['total_premium_users']);
 
         return [
+            'totalPromotions' => $currentData['total_promotions'],
             'currentPostAds' => $currentData['total_post_ads'],
             'currentGroupAds' => $currentData['total_group_ads'],
             'currentPostAdRevenue' => $currentData['total_post_ads_revenue'],
             'currentGroupAdRevenue' => $currentData['total_group_ads_revenue'],
             'currentFreemiumUser' => $currentData['total_freemuim_users'],
             'currentPremiumUser' => $currentData['total_premium_users'],
+            'totalSuccessfulPromotions' => $currentData['total_successful_promotions'],
+            'totalPendingPromotions' => $currentData['total_pending_promotions'],
+            'totalInactivePromotions' => $currentData['total_inactive_promotions'],
+            'totalPromotionPercentage' => $totalPromotionPercentage,
             'postAdsChangePercentage' => $postAdsChangePercentage,
             'groupAdsChangePercentage' => $groupAdsChangePercentage,
             'postAdsRevenueChangePercentage' => $postAdsRevenueChangePercentage,
@@ -195,12 +185,35 @@ class PromotionStatsService
         $total_group_ads_revenue = array_fill(0, $dataPoints, 0);
         $total_freemuim_users = array_fill(0, $dataPoints, 0);
         $total_premium_users = array_fill(0, $dataPoints, 0);
+        $total_promotions = array_fill(0, $dataPoints, 0);
+        $total_successful_promotions = array_fill(0, $dataPoints, 0);
+        $total_pending_promotions = array_fill(0, $dataPoints, 0);
+        $total_inactive_promotions = array_fill(0, $dataPoints, 0);
 
         for ($i = 0; $i < $dataPoints; $i++) {
             $startOfInterval = $startDate->copy()->add($i, $interval);
             $endOfInterval = $startOfInterval->copy()->endOf($interval);
 
             $total_post_ads[$i] = $promotions->clone()->whereNotNull("post_id")
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
+                ->count();
+
+            $total_successful_promotions[$i] = $promotions->clone()
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
+                ->status()
+                ->count();
+
+            $total_pending_promotions[$i] = $promotions->clone()
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
+                ->status(StatusConstants::PENDING)
+                ->count();
+
+            $total_inactive_promotions[$i] = $promotions->clone()
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
+                ->status(StatusConstants::INACTIVE)
+                ->count();
+
+            $total_promotions[$i] = $promotions->clone()
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
 
@@ -226,6 +239,10 @@ class PromotionStatsService
         }
 
         return [
+            'total_successful_promotions' => $total_successful_promotions,
+            'total_pending_promotions' => $total_pending_promotions,
+            'total_inactive_promotions' => $total_inactive_promotions,
+            'total_promotions' => $total_promotions,
             'total_post_ads' => $total_post_ads,
             'total_group_ads' => $total_group_ads,
             'total_post_ads_revenue' => $total_post_ads_revenue,
