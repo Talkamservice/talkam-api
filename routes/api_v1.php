@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
 use App\Http\Controllers\Api\V1\User\Messaging\ConversationController;
 use App\Http\Controllers\Api\V1\User\Messaging\MessagingController;
 use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
+use App\Http\Controllers\Api\V1\User\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\User\Post\PostAttachmentController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController;
@@ -207,6 +208,10 @@ Route::middleware(["auth:sanctum"])->group(function () {
                 Route::get("{subscription}/show", [SubscriptionsController::class,  "show"])->name("show");
                 Route::post("initiate", [SubscriptionsController::class,  "initiate"])->name("initiate");
                 Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
+            });
+
+            Route::prefix("payments")->as("payments")->group(function () {
+                Route::post("callback", [PaymentController::class,  "callback"])->name("callback");
             });
         });
     

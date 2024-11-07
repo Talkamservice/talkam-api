@@ -64,7 +64,7 @@ class FlutterwaveOneOffPaymentWebhookService
             throw new FlutterwaveException("Payment data not set!");
         }
 
-        $this->metadata = $this->transaction_data["data"]["meta"];
+        $this->metadata = $payload["meta"];
 
         $this->user = $this->setUser($payload);
         $this->payment = $this->setPayment($payload);
@@ -102,15 +102,15 @@ class FlutterwaveOneOffPaymentWebhookService
         $activity = $this->metadata["activity"];
 
         if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
-            return $this->handlePaymentForPromotion();
+            $this->handlePaymentForPromotion();
         }
 
         if (isset($this->metadata["payload"])) {
-            $this->handleWebhookAction($this->metadata);
+            $this->handlePayloadAction($this->metadata);
         }
     }
 
-    public function handleWebhookAction($metadata)
+    public function handlePayloadAction($metadata)
     {
         $payload = decrypt($metadata["payload"]);
         
@@ -136,7 +136,7 @@ class FlutterwaveOneOffPaymentWebhookService
     {
         DB::beginTransaction();
         try {
-            $metadata = $this->payload["meta_data"];
+            $metadata = $this->payload["data"]["meta"];
 
             $this->promotion = $promotion = PromotionService::getById($metadata["promotion_id"]);
 

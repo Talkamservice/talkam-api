@@ -139,7 +139,7 @@ class FlutterwaveService
 
     // update a payment transaction on Flutterwave
     public function updatePlan($flutterwave_plan_id)
-    { 
+    {
         try {
             $full_url = "{$this->base_url}/payment-plans/$flutterwave_plan_id";
             // dd($full_url);
@@ -197,7 +197,7 @@ class FlutterwaveService
             $response = $this->client->get($full_url);
 
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Unknown error occurred');
             }
 
             return $response['data'];
@@ -206,6 +206,34 @@ class FlutterwaveService
             throw new FlutterwaveException('Transaction verification failed: ' . $e->getMessage());
         }
     }
+
+    public function verifyTransactionByReference($reference)
+    {
+        try {
+            $full_url = "{$this->base_url}/transactions?tx_ref={$reference}";
+
+            $response = $this->client->get($full_url);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Unknown error occurred');
+            }
+
+            return $this->removeZeroIndex($response["data"]);
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Transaction verification failed: ' . $e->getMessage());
+        }
+    }
+
+    function removeZeroIndex(array $response)
+    {
+        if (isset($response['data'][0])) {
+            $response['data'] = $response['data'][0];
+        }
+
+        return $response;
+    }
+
 
     // Refunds a transaction by transaction ID
     public function refundTransaction($transaction_id, array $data)
@@ -235,26 +263,26 @@ class FlutterwaveService
     }
 
     public function createSubscription()
-{
-    try {
-        $full_url = $this->base_url . "/payments";
-        $response = $this->client->post($full_url, $this->subscription_data); // Use the passed $subscription_data
+    {
+        try {
+            $full_url = $this->base_url . "/payments";
+            $response = $this->client->post($full_url, $this->subscription_data); // Use the passed $subscription_data
 
-        logger("Subscription", [
-            "url" => $full_url,
-            "headers" => $this->headers,
-            "response" => $response,
-        ]);
+            logger("Subscription", [
+                "url" => $full_url,
+                "headers" => $this->headers,
+                "response" => $response,
+            ]);
 
-        if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-            throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? null);
+            }
+
+            return $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
         }
-
-        return $response["data"];
-    } catch (Exception $e) {
-        ExceptionService::logAndBroadcast($e);
     }
-}
 
 
     public function cancelSubscription($subscription_id)
