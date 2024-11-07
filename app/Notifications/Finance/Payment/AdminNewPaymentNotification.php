@@ -89,7 +89,7 @@ class AdminNewPaymentNotification extends Notification
             'data' => [
                 'id' => $this->payment->id,
             ],
-            'title' => 'New Subscription!',
+            'title' => 'New Payment!',
             'message' => $this->buildMessage(),
             'link' => route("admin.users.show", $this->payment->user_id),
             'type' => 'subscription',
