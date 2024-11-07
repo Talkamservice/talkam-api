@@ -199,6 +199,10 @@ class PromotionService
             $promotions = $promotions->where("name", "LIKE", "%$key%");
         }
 
+        if (!empty($key = $data["status"] ?? null)) {
+            $promotions = $promotions->where("status", $key);
+        }
+
         if (!empty($key = $data["post_id"] ?? null)) {
             $promotions = $promotions->where("post_id", $key);
         }
