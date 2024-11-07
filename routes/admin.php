@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\Report\GroupReportController;
 use App\Http\Controllers\Admin\Report\PostReportController;
 use App\Http\Controllers\Admin\User\AccountStatusController;
 use App\Http\Controllers\Admin\User\UserController;
+use App\Http\Controllers\Admin\Waitlist\WaitlistController;
 use App\Http\Controllers\Admin\Web\PrivacyPolicyController;
 use App\Http\Controllers\Admin\Web\TermAndConditionController;
 use App\Http\Controllers\Web\InviteController;
@@ -151,5 +152,11 @@ Route::middleware(["auth"])->group(
 
         Route::put('feedback{id}/update-status', [FeedbackController::class, 'resolveFeedback'])->name('feedback.update-status');
         Route::post('feedback/respond/{id}', [FeedbackController::class, 'respondFeedback'])->name('feedback.respond');
+
+        Route::prefix("waitlists")->as("waitlists.")->group(function () {
+        Route::get('/index', [WaitlistController::class, 'index'])->name('index');
+        Route::get('/export', [WaitlistController::class, 'export'])->name('export');
+        Route::delete('destroy/{id}', [WaitlistController::class, 'destroy'])->name('destroy');
+        });
     }
 );
