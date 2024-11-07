@@ -26,7 +26,7 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         try {
-            $promotions = $this->promotion_service->list($request->all())
+            $promotions = $this->promotion_service->list($request->all())->where("user_id", auth()->id())
                 ->where(function ($query) {
                     $query->whereNotNull("post_id")
                         ->orWhereNotNull("group_id");
