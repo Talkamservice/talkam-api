@@ -7,12 +7,15 @@ use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\Finance\Currency\CurrencyConstants;
 use App\Constants\Finance\Payment\PaymentConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Promotion;
 use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Finance\Payment\PaymentIntentService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
+use App\Services\Group\GroupService;
+use App\Services\Post\PostService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -82,7 +85,19 @@ class PromotionService
         DB::beginTransaction();
         try {
             $promotion = $this->create($data);
-            
+
+            if (($data["payload"]["type"] ?? null) == "Post") {
+                $payload_data = (new PostService)->validate($data["payload"]["data"]);
+            }
+
+            if (($data["payload"]["type"] ?? null) == "Group") {
+                $payload_data = (new GroupService)->validate($data["payload"]["data"]);
+            }
+
+            if (empty($promotion->post_id && $promotion->group_id) && empty($data["payload"] ?? null)) {
+                throw new InvalidRequestException("You cannot proceed with this promotion. Kindly select a post or group to proceed");
+            }
+
             $payment = $this->payment_intent_service->setUser($promotion->user)
                 ->setAmount($promotion->cost)
                 ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME)
@@ -98,7 +113,7 @@ class PromotionService
                         "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
                         "payload" => encrypt([
                             "type" => $data["payload"]["type"] ?? null,
-                            "data" => $data["payload"]["data"] ?? null
+                            "data" => $payload_data ?? null
                         ]),
                     ]
                 ]);
