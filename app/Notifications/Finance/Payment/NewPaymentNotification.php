@@ -90,7 +90,7 @@ class NewPaymentNotification extends Notification
             'data' => [
                 'id' => $this->payment?->promotion?->id,
             ],
-            'title' => 'New Subscription!',
+            'title' => 'New Payment!',
             'message' => $this->buildMessage(),
             'link' => null,
             'type' => 'promotion',
