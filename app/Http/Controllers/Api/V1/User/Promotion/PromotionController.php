@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User\Promotion;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
@@ -26,12 +27,14 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         try {
-            $promotions = $this->promotion_service->list($request->all())->where("user_id", auth()->id())
+            $PromotionResource = $this->promotion_service->list($request->all())->where("user_id", auth()->id())
                 ->where(function ($query) {
                     $query->whereNotNull("post_id")
                         ->orWhereNotNull("group_id");
-                })->get();
-            $data = PromotionResource::collection($promotions);
+                })->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
+            $data = collectPagination($PromotionResource);
+            $data["data"] = PromotionResource::collection($data["data"]);
             return ApiHelper::validResponse("Promotions returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
