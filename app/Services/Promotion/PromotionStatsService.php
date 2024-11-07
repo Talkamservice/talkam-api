@@ -81,20 +81,22 @@ class PromotionStatsService
             "status_card" => [
                 "value" => array_sum($promotion_data['totalPromotions']),
                 "percentage" => $promotion_data['freemiumUsersChangePercentage'],
-                "card" => [
-                    "title" => "Successful Promotions",
-                    "value" => array_sum($promotion_data['totalSuccessfulPromotions']),
-                    "class" => "primary",
-                ],
-                [
-                    "title" => "Pending Promotions",
-                    "value" => array_sum($promotion_data['totalPendingPromotions']),
-                    "class" => "info",
-                ],
-                [
-                    "title" => "Inactive Promotions",
-                    "value" => format_money(array_sum($promotion_data['totalInactivePromotions'])),
-                    "class" => "danger",
+                "cards" => [
+                    [
+                        "title" => "Successful Promotions",
+                        "value" => array_sum($promotion_data['totalSuccessfulPromotions']),
+                        "class" => "primary",
+                    ],
+                    [
+                        "title" => "Pending Promotions",
+                        "value" => array_sum($promotion_data['totalPendingPromotions']),
+                        "class" => "info",
+                    ],
+                    [
+                        "title" => "Inactive Promotions",
+                        "value" => array_sum($promotion_data['totalInactivePromotions']),
+                        "class" => "warning",
+                    ]
                 ],
             ],
             "dashboard_data" => $promotion_data,
