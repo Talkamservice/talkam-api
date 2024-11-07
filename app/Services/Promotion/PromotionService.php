@@ -201,6 +201,8 @@ class PromotionService
 
         if (!empty($key = $data["status"] ?? null)) {
             $promotions = $promotions->where("status", $key);
+        }else {
+            $promotions = $promotions->whereIn("status", [StatusConstants::ACTIVE, StatusConstants::PENDING]);
         }
 
         if (!empty($key = $data["post_id"] ?? null)) {

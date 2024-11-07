@@ -31,10 +31,12 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         $promotions = Promotion::latest()->search($request->search)->get();
+        $high_promotions = Promotion::orderBy("cost", "desc")->limit(5)->get();
         $promotion_stats = $this->promotion_stat_service->stats();
         return view('dashboards.admin.pages.finance.promotions.index', [
             'promotions' => $promotions,
             'promotion_stats' => $promotion_stats,
+            'high_promotions' => $high_promotions,
             "dashboardData" => $promotion_stats["dashboard_data"],
             "cards" => $promotion_stats["cards"],
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,

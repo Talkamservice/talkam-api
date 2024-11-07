@@ -36,10 +36,10 @@
             <div class="col-xxl-12 col-xl-12">
                 <div class="row">
                     @foreach ($cards as $index => $card)
-                        <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-3" id="stats-content">
-                            <div class="card custom-card h-100 overflow-hidden">
+                        <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-3" id="stats-content">
+                            <div class="card custom-card overflow-hidden">
                                 <div class="card-body d-flex flex-column h-100">
-                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
                                         <div>
                                             <span class="avatar avatar-md avatar-rounded bg-{{ $card['class'] }}">
                                                 <i class="ti ti-{{ $card['icon'] ?? 'udrtd' }} fs-16"></i>
@@ -51,7 +51,7 @@
                                         </div>
                                         <div id="crm-total-customers-{{ $index }}" class="chart"></div>
                                     </div>
-                                    <div class="d-flex align-items-center justify-content-between mt-auto">
+                                    <div class="d-flex align-items-center justify-content-between">
                                         <div>
                                             @if (!empty($card['url']))
                                                 <a class="text-{{ $card['class'] }}" href="{{ $card['url'] }}">

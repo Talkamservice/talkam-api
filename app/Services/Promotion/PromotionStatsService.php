@@ -82,6 +82,43 @@ class PromotionStatsService
         return $data;
     }
 
+    public function statusStats(array $data = [])
+    {
+        $period = $data["period"] ?? null;
+
+        if (!in_array($period, ['day', 'week', 'month', 'year'])) {
+            $period = 'month';
+        }
+
+        $promotion_data = $this->getPromotionData($period);
+
+        $data = [
+            "cards" => [
+                [
+                    "title" => "Successful Promotions",
+                    "value" => array_sum($promotion_data['currentPostAds']),
+                    "class" => "primary",
+                    'period' =>  $period,
+                    "percentage" => $promotion_data['postAdsChangePercentage'],
+                ],
+                [
+                    "title" => "Pending Promotions",
+                    "value" => array_sum($promotion_data['currentGroupAds']),
+                    "class" => "info",
+                    "percentage" => $promotion_data['postAdsChangePercentage'],
+                ],
+                [
+                    "title" => "Failed Promotions",
+                    "value" => format_money(array_sum($promotion_data['currentPostAdRevenue'])),
+                    "class" => "warning",
+                    "percentage" => $promotion_data['postAdsChangePercentage'],
+                ],
+            ],
+        ];
+
+        return $data;
+    }
+
     public function getPromotionData($period = 'month')
     {
         // Set the current period and previous period based on the selected period
