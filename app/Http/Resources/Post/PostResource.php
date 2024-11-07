@@ -31,7 +31,7 @@ class PostResource extends JsonResource
             "post_id" => $this->id,
         ])->exists();
 
-        $enabled_notification = $this->threadNotifications->where("user_id", auth("sanctum")->id());
+        $enabled_notification = $this->threadNotifications?->where("user_id", auth("sanctum")->id());
 
         return [
             "id" => $this->id,
@@ -51,7 +51,7 @@ class PostResource extends JsonResource
             "likes_count" => $likes,
             "status" => $this->status,
             "publish_at" => $this->publish_at,
-            "enabled_notification" => $enabled_notification->isNotEmpty(),
+            "enabled_notification" => $enabled_notification?->isNotEmpty(),
             "promotion" => !empty($this->activePromotion()) ? true : false,
             "attachments" => PostAttachmentResource::collection($this->whenLoaded("attachments", $this->attachments)),
             "polls" => PostPollResource::collection($this->whenLoaded("polls", $this->polls)),
