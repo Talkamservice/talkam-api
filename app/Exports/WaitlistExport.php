@@ -27,7 +27,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
         $data = Waitlist::get([
             'name',
             'email',
-            'status',
+            // 'status',
             'created_at'
         ]);
     
@@ -51,7 +51,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
         return [
             $waitlist->name ?? null,
             $waitlist->email ?? null,
-            $waitlist->status ?? null,
+            // $waitlist->status ?? null,
             $waitlist->created_at ?? null
         ];
     }
@@ -74,8 +74,8 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
                 // Set subheadings for the details
                 $sheet->setCellValue('A2', 'Name');
                 $sheet->setCellValue('B2', 'Email');
-                $sheet->setCellValue('C2', 'Status');
-                $sheet->setCellValue('D2', 'Dated Created');
+                // $sheet->setCellValue('C2', 'Status');
+                $sheet->setCellValue('C2', 'Joined');
 
 
                 // Apply styling to the main heading (A1:F1)
@@ -128,8 +128,8 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
                 // Set specific column widths
                 $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(15); // Name
                 $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(20); // Email
-                $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(25); // Status
-                $event->sheet->getDelegate()->getColumnDimension('D')->setWidth(20); // Created
+                // $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(25); // Status
+                $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(20); // Created
 
             },
         ];

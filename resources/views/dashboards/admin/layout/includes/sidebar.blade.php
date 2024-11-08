@@ -175,7 +175,7 @@
                     <li class="slide">
                         <a href="{{ route('admin.waitlists.index') }}" class="side-menu__item list-item {{ Route::currentRouteName() == 'admin.waitlists.index' ? 'active' : '' }}">
                             <i class="bx bx-list-check side-menu__icon list-item-icon"></i> <!-- Icon for waitlists -->
-                            <span class="side-menu__label list-item-label">WaitLists</span>
+                            <span class="side-menu__label list-item-label">Waitlist</span>
                         </a>
                     </li>                    
                 @endcan
