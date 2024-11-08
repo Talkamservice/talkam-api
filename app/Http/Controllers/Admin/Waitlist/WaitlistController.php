@@ -27,7 +27,7 @@ class WaitlistController extends Controller
      */
     public function index(Request $request)
     {
-        $waitlists = Waitlist::latest()->paginate();
+        $waitlists = Waitlist::latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view('dashboards.admin.pages.waitlist.index', [
             "waitlists" => $waitlists,
             "boolOptions" => AppConstants::BOOL_OPTIONS,
