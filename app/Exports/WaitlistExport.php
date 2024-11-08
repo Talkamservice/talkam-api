@@ -24,7 +24,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
      */
     public function collection()
     {
-        $data = Waitlist::get([
+        $data = Waitlist::latest()->get([
             'name',
             'email',
             // 'status',
