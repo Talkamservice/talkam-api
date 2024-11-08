@@ -23,6 +23,8 @@ use Illuminate\Validation\ValidationException;
 
 class GroupService
 {
+    public $user;
+    
     public static function getById($key, $column = "id"): Group
     {
         $group = Group::where($column, $key)->first();
@@ -30,6 +32,12 @@ class GroupService
             throw new ModelNotFoundException("Group not found");
         }
         return $group;
+    }
+
+    public function setUser($user)
+    {
+       $this->user = $user;
+       return $this;
     }
 
     public static function getGroupAdmins($group_id)
