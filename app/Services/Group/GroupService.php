@@ -86,8 +86,8 @@ class GroupService
         DB::beginTransaction();
         try {
             $data = $this->validate($data);
-
-            $data["created_by"] = auth()->id();
+            $user = $this->user ?? auth()->user();
+            $data["created_by"] = $user?->id;
             $data["uuid"] = self::generateUniqueId();
 
             $guidelines = $data["guidelines"] ?? [];
@@ -97,7 +97,7 @@ class GroupService
 
             (new GroupMemberService)->create([
                 "group_id" => $group->id,
-                "user_id" => auth()->id(),
+                "user_id" => $user?->id,
                 "role" => UserConstants::OWNER,
                 "status" => StatusConstants::ACTIVE
             ]);

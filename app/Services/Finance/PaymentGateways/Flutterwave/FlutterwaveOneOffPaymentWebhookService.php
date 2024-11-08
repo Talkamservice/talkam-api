@@ -120,7 +120,7 @@ class FlutterwaveOneOffPaymentWebhookService
         $payload_type = $payload["type"] ?? null;
 
         if ($payload_type == "Post") {
-            $post = (new PostService)->create($payload_data);
+            $post = (new PostService)->setUser($this->user)->create($payload_data);
             $this->promotion->update([
                 "post_id" => $post->id
             ]);
@@ -146,9 +146,9 @@ class FlutterwaveOneOffPaymentWebhookService
                 throw new InvalidRequestException("We could not verify your promotion request.");
             }
 
-            if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
-                throw new InvalidRequestException("Payment has already been verified.");
-            }
+            // if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+            //     throw new InvalidRequestException("Payment has already been verified.");
+            // }
 
             $this->payment->update([
                 "status" => StatusConstants::COMPLETED

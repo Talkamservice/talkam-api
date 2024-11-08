@@ -24,6 +24,7 @@ class PostService
 {
     public $post_attachment_service;
     public $post_poll_service;
+    public $user;
     public $post_schedule_service;
 
     public function __construct()
@@ -40,6 +41,12 @@ class PostService
             throw new ModelNotFoundException("Post not found");
         }
         return $post;
+    }
+
+    public function setUser($user)
+    {
+       $this->user = $user;
+       return $this;
     }
 
     public static function validate($data, $id = null)
@@ -80,7 +87,7 @@ class PostService
         DB::beginTransaction();
         try {
             $data = self::validate($data);
-            $user = auth()->user();
+            $user = $this->user ?? auth()->user();
 
             $data = array_merge([
                 "uuid" => self::getUuid(),
