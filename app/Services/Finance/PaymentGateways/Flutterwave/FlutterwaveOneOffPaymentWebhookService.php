@@ -127,7 +127,7 @@ class FlutterwaveOneOffPaymentWebhookService
         }
 
         if ($payload_type == "Group") {
-            $group = (new GroupService)->create($payload_data);
+            $group = (new GroupService)->setUser($this->user)->create($payload_data);
             $this->promotion->update([
                 "group_id" => $group->id
             ]);
