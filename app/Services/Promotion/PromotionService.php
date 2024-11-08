@@ -108,8 +108,8 @@ class PromotionService
                     "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
                     "metadata" => [
                         "amount" => $promotion->cost,
-                        "promotion_id" => $promotion->id,
                         "email" => $promotion->user->email,
+                        "promotion_id" => $promotion->id,
                         "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
                         "payload" => encrypt([
                             "type" => $data["payload"]["type"] ?? null,
