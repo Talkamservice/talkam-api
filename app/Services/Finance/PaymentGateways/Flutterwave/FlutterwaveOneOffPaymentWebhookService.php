@@ -155,6 +155,7 @@ class FlutterwaveOneOffPaymentWebhookService
             ]);
 
             $promotion->update([
+                "status" => StatusConstants::ACTIVE,
                 "payment_id" => $this->payment->id,
             ]);
 
