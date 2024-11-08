@@ -6,7 +6,7 @@
 
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
             <div>
-                <p class="fw-semibold fs-18 mb-0">Ads Revenue Manaagement</p>
+                <p class="fw-semibold fs-18 mb-0">Ads Revenue Management</p>
             </div>
             <form method="GET" action="{{ url()->current() }}" class="d-inline">
                 <div class="dropdown">

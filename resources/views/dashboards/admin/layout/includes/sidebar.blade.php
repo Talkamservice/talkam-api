@@ -94,7 +94,7 @@
                         <li class="slide has-sub">
                             <a href="javascript:void(0);" class="side-menu__item list-item">
                                 <i class="bx bx-dollar-circle side-menu__icon list-item-icon"></i>
-                                <span class="side-menu__label list-item-label">Ads Manaagement</span>
+                                <span class="side-menu__label list-item-label">Ads Management</span>
                                 <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                             </a>
                             <ul class="slide-menu child1">
