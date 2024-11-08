@@ -104,7 +104,7 @@ class PaymentService
     {
         try {
             $validator = Validator::make($data, [
-                "reference" => "bail|nullable|string",
+                "reference" => "bail|required|string",
             ]);
 
             if ($validator->fails()) {
