@@ -8,7 +8,7 @@ use App\Services\System\ExceptionService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class FlutterwaveCallbackService
+class FlutterwaveWebhookService
 {
     public array $payload;
     public $flutterwave_service;

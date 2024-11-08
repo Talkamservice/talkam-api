@@ -27,7 +27,7 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         try {
-            $PromotionResource = $this->promotion_service->list($request->all())
+            $promotionResource = $this->promotion_service->list($request->all())
                 ->where("user_id", auth()->id())
                 ->where(function ($query) {
                     $query->whereNotNull("post_id")
@@ -35,7 +35,7 @@ class PromotionController extends Controller
                 })
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
-            $data = collectPagination($PromotionResource);
+            $data = collectPagination($promotionResource);
 
             $data["data"] = PromotionResource::collection($data["data"]);
             return ApiHelper::validResponse("Promotions returned successfully", $data);
