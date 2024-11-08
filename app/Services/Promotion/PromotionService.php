@@ -94,7 +94,7 @@ class PromotionService
                 $payload_data = (new GroupService)->validate($data["payload"]["data"]);
             }
 
-            if (empty(($data["post_id"] ?? null) && ($data["group_id"] ?? null)) && empty($data["payload"] ?? null)) {
+            if (empty($data["post_id"] ?? null) && empty($data["group_id"] ?? null) && empty($data["payload"] ?? null)) {
                 throw new InvalidRequestException("You cannot proceed with this promotion. Kindly select a post or group to proceed");
             }
 
