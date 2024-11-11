@@ -96,7 +96,7 @@ class PromotionService
                 "status" => $data["status"] ?? $promotion->status
             ]);
 
-            $promotion->refresh();
+           return $promotion->refresh();
         } catch (\Throwable $th) {
             throw $th;
         }
