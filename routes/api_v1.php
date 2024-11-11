@@ -160,7 +160,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("members/following", [GroupMemberController::class, "following"])->name("members.following");
             Route::post("/unfollow-group", [GroupMemberController::class, "unfollow"])->name("members.unfollow-group");
             Route::post("members/{id}/suspend", [GroupMemberController::class, "suspendMember"])->name("members.suspend");
-
             // Route::post("member/suspend", [GroupMemberController::class, "suspend"])->name("members.suspend");
         });
 
@@ -173,6 +172,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("{promotion}/show", [PromotionController::class, "show"])->name("show");
             Route::post("initiate", [PromotionController::class, "initiate"])->name("initiate");
             Route::post("{id}/update", [PromotionController::class, "update"])->name("update");
+            Route::post("{id}/reinitiate", [PromotionController::class, "reinitiate"])->name("reinitiate");
             Route::delete("{promotion}/delete", [PromotionController::class, "delete"])->name("delete");
         });
 

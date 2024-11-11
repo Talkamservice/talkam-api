@@ -149,6 +149,38 @@ class PromotionService
         }
     }
 
+
+    public function reinitiatePayment($id)
+    {
+        DB::beginTransaction();
+        try {
+            $promotion = $this->getById($id);
+
+            $payment = $this->payment_intent_service->setUser($promotion->user)
+                ->setAmount($promotion->cost)
+                ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME)
+                ->setAdditionalData([
+                    "type" => PaymentConstants::DEBIT,
+                    "status" => StatusConstants::PENDING,
+                    "description" => "Payment for promotion of content",
+                    "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
+                    "metadata" => [
+                        "amount" => $promotion->cost,
+                        "email" => $promotion->user->email,
+                        "promotion_id" => $promotion->id,
+                        "activity" => PaymentConstants::PAYMENT_FOR_PROMOTION,
+                    ]
+                ]);
+
+            $payment = $payment->initiate();
+            DB::commit();
+            return $payment;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
     public function create(array $data)
     {
         DB::beginTransaction();

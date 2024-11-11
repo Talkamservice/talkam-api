@@ -37,6 +37,7 @@ class GroupResource extends JsonResource
             "id" => $this->id,
             "name" => $this->name,
             "uuid" => $this->uuid,
+            "type" => "Group",
             "status" => $this->status,
             "group_access" => $this->group_access,
             "image" => $this->image,

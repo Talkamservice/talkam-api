@@ -99,4 +99,19 @@ class PromotionController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
     }
+
+    public function reinitiate(Request $request, $id)
+    {
+        try {
+            $payment = $this->promotion_service->reinitiatePayment($id);
+            $data = PaymentResource::make($payment);
+            return ApiHelper::validResponse("Payment reinitiated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data", ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
 }
