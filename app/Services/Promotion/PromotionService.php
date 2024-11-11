@@ -80,6 +80,28 @@ class PromotionService
         }
     }
 
+
+    public function update(array $data, $id)
+    {
+        try {
+            $data = self::validate($data);
+            $promotion = $this->getById($id);
+
+            if (in_array($promotion->status, [StatusConstants::COMPLETED, StatusConstants::FAILED])) {
+                $status = strtolower($promotion->status);
+                throw new InvalidRequestException("You cannot proceed with this action because the ad has been marked as {$status}");
+            }
+
+            $promotion->update([
+                "status" => $data["status"]
+            ]);
+            
+            $promotion->refresh();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function initiatePayment(array $data)
     {
         DB::beginTransaction();

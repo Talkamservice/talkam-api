@@ -72,6 +72,21 @@ class PromotionController extends Controller
         }
     }
 
+    public function update(Request $request, $id)
+    {
+        try {
+            $promotion = $this->promotion_service->update($request->all(), $id);
+            $data = PromotionResource::make($promotion);
+            return ApiHelper::validResponse("Promotion updated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data", ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
     public function delete($id)
     {
         try {
