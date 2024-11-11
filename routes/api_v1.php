@@ -172,7 +172,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("/", [PromotionController::class, "index"])->name("index");
             Route::get("{promotion}/show", [PromotionController::class, "show"])->name("show");
             Route::post("initiate", [PromotionController::class, "initiate"])->name("initiate");
-            Route::post("update", [PromotionController::class, "update"])->name("update");
+            Route::post("{id}/update", [PromotionController::class, "update"])->name("update");
             Route::delete("{promotion}/delete", [PromotionController::class, "delete"])->name("delete");
         });
 
