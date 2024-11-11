@@ -240,6 +240,7 @@ class PromotionStatsService
             })->count();
         }
 
+        
         return [
             'total_successful_promotions' => $total_successful_promotions,
             'total_pending_promotions' => $total_pending_promotions,

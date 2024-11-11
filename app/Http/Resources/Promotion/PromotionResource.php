@@ -36,6 +36,7 @@ class PromotionResource extends JsonResource
             "duration" => $this->duration,
             "estimated_reach" => $this->estimated_reach,
             "total_reach" => $this->total_reach,
+            "status" => $this->status,
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];
