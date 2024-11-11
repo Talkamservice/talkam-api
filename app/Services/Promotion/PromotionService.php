@@ -84,7 +84,7 @@ class PromotionService
     public function update(array $data, $id)
     {
         try {
-            $data = self::validate($data);
+            $data = self::validate($data, $id);
             $promotion = $this->getById($id);
 
             if (in_array($promotion->status, [StatusConstants::COMPLETED, StatusConstants::FAILED])) {
