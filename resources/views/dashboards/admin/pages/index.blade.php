@@ -73,34 +73,9 @@
                     @endforeach
                 </div>
                 <div class="row">
-                    {{-- revenue --}}
-                <div class="col-xxl-8 col-xl-8 col-lg-8 col-md-12 col-sm-12 col-8">
-                    <div class="card custom-card">
-                        <div class="card-header justify-content-between">
-                            <div class="card-title">
-                                Revenue Analytics
-                            </div>
-                            <div class="dropdown">
-                                <a href="javascript:void(0);" class="p-2 fs-12 text-muted" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    View All<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
-                                </a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a class="dropdown-item" href="javascript:void(0);">Today</a></li>
-                                    <li><a class="dropdown-item" href="javascript:void(0);">This Week</a></li>
-                                    <li><a class="dropdown-item" href="javascript:void(0);">Last Week</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="content-wrapper">
-                                <div id="crm-revenue-analytics"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                 
                 {{-- subscribers chart --}}
-                <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-4">
+                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                     <div class="card custom-card">
                         <div class="card-header justify-content-between">
                             <div class="card-title">Subscribers</div>
@@ -223,9 +198,8 @@
     </div>
 @endsection
 @section('script')
-@include('dashboards.admin.pages.chart.subscribers', ['subscriptionCounts' => $subscriptionCounts, 'subscriptionRevenue' => $subscriptionRevenue])
+@include('dashboards.admin.pages.chart.subscribers', ['subscriptionCounts' => $subscriptionCounts])
 
-@include('dashboards.admin.pages.chart.revenue')
     <script>
         // Inject PHP dashboard data into JavaScript
         const dashboardData = @json($dashboardData);

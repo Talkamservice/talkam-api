@@ -52,6 +52,29 @@ class Promotion extends Model
         });
     }
 
+
+    public function scopeFilterByType($query, $type)
+    {
+        if ($type) {
+            if ($type === 'Group') {
+                return $query->whereNotNull('group_id');
+            } elseif ($type === 'Post') {
+                return $query->whereNotNull('post_id');
+            }
+        }
+        return $query;
+    }
+
+    public function scopeFilterByStatus($query, $status)
+    {
+        if ($status) {
+            return $query->where('status', $status);
+        }
+        return $query;
+    }
+
+
+
     public function contentWebUrl()
     {
         $web_url = config("app.web_url");
@@ -65,5 +88,15 @@ class Promotion extends Model
         }
 
         return $url ?? null;
+    }
+
+    public function type()
+    {
+        if ($this->group_id) {
+            return 'Group';  // Promotion is related to a group
+        } elseif ($this->post_id) {
+            return 'Post';   // Promotion is related to a post
+        }
+        return 'Unknown';  // Return a default value if neither group_id nor post_id exists
     }
 }

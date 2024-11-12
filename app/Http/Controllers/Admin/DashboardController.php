@@ -25,7 +25,6 @@ class DashboardController extends Controller
             $period = 'month';
         }
         $dashboardData = $this->dashboard_service->getDashboardData($period);
-        $subscriberData = $this->dashboard_service->getDashboardData();
         // dd($dashboardData);
         $data = [
             "cards" => [
@@ -71,7 +70,6 @@ class DashboardController extends Controller
             "period" => $period,
             "dashboardData" => $dashboardData, // Pass raw data to the view
             "subscriptionCounts" => $dashboardData['subscriptionCounts'],
-            "subscriptionRevenue" => $dashboardData['subscriptionRevenue'],
         ];
 
         return view('dashboards.admin.pages.index', $data);
