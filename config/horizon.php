@@ -206,6 +206,15 @@ return [
             ],
         ],
 
+        'staging' => [
+            'supervisor-1' => [
+                'queue' => array_merge(['default'], AppConstants::SYSTEM_QUEUES),
+                'maxProcesses' => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+        ],
+
         'local' => [
             'supervisor-1' => [
                 'maxProcesses' => 3,
