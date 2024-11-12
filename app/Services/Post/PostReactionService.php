@@ -76,6 +76,9 @@ class PostReactionService
 
     public static function removeReaction($post_id, $user_id, $action = PostConstants::LIKE)
     {
+        (new PostStatsService)
+            ->dispatch(["post_id" => $post_id, "likes" => true], true);
+
         UserPostReaction::where([
             "post_id" => $post_id,
             "user_id" => $user_id,
@@ -98,6 +101,22 @@ class PostReactionService
             "user_id" => $user_id,
             "action" => $inverse,
         ])->delete();
+
+        if ($action == PostConstants::LIKE) {
+            (new PostStatsService)
+                ->dispatch(["post_id" => $post_id, "dislikes" => true], true);
+
+            (new PostStatsService)
+                ->dispatch(["post_id" => $post_id, "likes" => true]);
+        }
+
+        if ($action == PostConstants::DISLIKE) {
+            (new PostStatsService)
+                ->dispatch(["post_id" => $post_id, "dislikes" => true]);
+
+            (new PostStatsService)
+                ->dispatch(["post_id" => $post_id, "likes" => true], true);
+        }
 
         (new NotificationHandlerService)->init($post_reaction->post->user_id)
             ->notifyPostOwnerOfNewReaction($post_reaction)

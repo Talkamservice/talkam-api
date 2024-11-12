@@ -55,7 +55,7 @@ class PostController extends Controller
         try {
             $post = $this->post_service->getById($id);
             $this->recent_view_service->create(["post_id" => $post->id]);
-            $this->post_stats_service->dispatch(["post_id" => $id, "comments" => true]);
+            $this->post_stats_service->dispatch(["post_id" => $id, "clicks" => true]);
             $data = PostResource::make($post);
             return ApiHelper::validResponse("Post details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
