@@ -41,8 +41,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
         return [
             'Name',
             'Email',
-            'Status',
-            'Date Created'
+            'Joined'
         ];
     }
 
@@ -68,7 +67,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
                 $sheet = $event->sheet->getDelegate();
 
                 // Merge cells for main heading and set its value
-                $sheet->mergeCells('A1:D1');
+                $sheet->mergeCells('A1:C1');
                 $sheet->setCellValue('A1', 'Waitlists');
 
                 // Set subheadings for the details
@@ -79,7 +78,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
 
 
                 // Apply styling to the main heading (A1:F1)
-                $sheet->getStyle('A1:D1')->applyFromArray([
+                $sheet->getStyle('A1:C1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'size' => 14, // Increase font size for the main heading
@@ -96,7 +95,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
                 ]);
 
                 // Apply styling to subheadings (A2:F2)
-                $sheet->getStyle('A2:D2')->applyFromArray([
+                $sheet->getStyle('A2:C2')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'size' => 12, // Font size for subheadings
@@ -113,7 +112,7 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
                 ]);
 
                 // Center content for all data cells from A3:F100
-                $sheet->getStyle('A3:D100')->applyFromArray([
+                $sheet->getStyle('A3:C100')->applyFromArray([
                     'alignment' => [
                         'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                         'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
@@ -121,11 +120,11 @@ class WaitlistExport implements FromCollection, WithHeadings, WithMapping, WithE
                 ]);
 
                 // Optional: Auto-size columns to fit content
-                foreach (range('A', 'D') as $column) {
+                foreach (range('A', 'C') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
 
-                // Set specific column widths
+                // // Set specific column widths
                 $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(15); // Name
                 $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(20); // Email
                 // $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(25); // Status

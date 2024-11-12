@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Dashboard;
 
 use App\Models\Post;
@@ -6,11 +7,13 @@ use App\Models\PostCategory;
 use App\Models\User;
 use App\Constants\Account\User\UserConstants;
 use App\Models\Group;
+use App\Models\Subscription;
 use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Calculation\LookupRef\Offset;
 
 class DashboardService
 {
-    public function getDashboardData($period = 'month')
+    public function getDashboardData($period = 'month', $weekOffset = 0)
     {
         // Set the current period and previous period based on the selected period
         switch ($period) {
@@ -59,6 +62,9 @@ class DashboardService
         $postsChangePercentage = $this->calculatePercentageChange($currentData['posts'], $previousData['posts']);
         $groupsChangePercentage = $this->calculatePercentageChange($currentData['groups'], $previousData['groups']);
 
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
+        $subscriptionData = $this->fetchSubscriptionData($weekOffset);
         return [
             'currentUsers' => $currentData['users'],
             'currentCategories' => $currentData['categories'],
@@ -68,8 +74,40 @@ class DashboardService
             'categoriesChangePercentage' => $categoriesChangePercentage,
             'postsChangePercentage' => $postsChangePercentage,
             'groupsChangePercentage' => $groupsChangePercentage,
+            'subscriptionCounts' => $subscriptionData['counts'],
+            'subscriptionRevenue' => $subscriptionData['revenue'],
         ];
     }
+
+
+    private function fetchSubscriptionData($weekOffset = 0)
+    {
+        $subscriptionCounts = [];
+        $subscriptionRevenue = [];
+    
+        // Get the start and end of the week based on the week offset
+        $startOfWeek = Carbon::now()->subWeeks($weekOffset)->startOfWeek();
+        $endOfWeek = Carbon::now()->subWeeks($weekOffset)->endOfWeek();
+    
+        // Initialize daily data placeholders for each day in the week (Monday to Sunday)
+        $weeklyCounts = array_fill(0, 7, 0);
+        $weeklyRevenue = array_fill(0, 7, 0);
+    
+        // Populate daily data
+        for ($day = 0; $day < 7; $day++) {
+            $dayStart = $startOfWeek->copy()->addDays($day)->startOfDay();
+            $dayEnd = $dayStart->copy()->endOfDay();
+    
+            $weeklyCounts[$day] = Subscription::whereBetween('paid_on', [$dayStart, $dayEnd])->count();
+            $weeklyRevenue[$day] = Subscription::whereBetween('paid_on', [$dayStart, $dayEnd])->sum('price');
+        }
+    
+        return [
+            'counts' => $weeklyCounts,
+            'revenue' => $weeklyRevenue,
+        ];
+    }
+    
 
     private function fetchData($startDate, $interval, $dataPoints)
     {

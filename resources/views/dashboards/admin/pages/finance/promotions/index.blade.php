@@ -196,7 +196,7 @@
                             <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                 <div class="card custom-card">
                                     <div class="card-header justify-content-between">
-                                        <div class="card-title">Profit Earned</div>
+                                        <div class="card-title">Subscribers</div>
                                     </div>
                                     <div class="card-body py-0 ps-0">
                                         <div id="crm-profits-earned"></div>
@@ -249,7 +249,10 @@
 
 
 @section('script')
+@include('dashboards.admin.pages.chart.subscribers', ['subscriptionCounts' => $subscriptionCounts, 'subscriptionRevenue' => $subscriptionRevenue])
+
     <script>
+
         // Inject PHP dashboard data into JavaScript
         const dashboardData = @json($dashboardData);
 
