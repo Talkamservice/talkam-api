@@ -30,20 +30,33 @@ class PromotionController extends Controller
 
     public function index(Request $request)
     {
-        $promotions = Promotion::latest()->search($request->search)->get();
         $high_promotions = Promotion::orderBy("cost", "desc")->limit(5)->get();
         $promotion_stats = $this->promotion_stat_service->stats();
+        $revenue_data = $this->promotion_stat_service->fetchrevenueData();
         return view('dashboards.admin.pages.finance.promotions.index', [
-            'promotions' => $promotions,
             'promotion_stats' => $promotion_stats,
             'high_promotions' => $high_promotions,
             "dashboardData" => $promotion_stats["dashboard_data"],
+            "revenue_data" => $revenue_data,
             "cards" => $promotion_stats["cards"],
-            "subscriptionCounts" => $promotion_stats['dashboard_data']['subscriptionCounts'],
-            "subscriptionRevenue" => $promotion_stats['dashboard_data']['subscriptionRevenue'],
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
         ]);
     }
+
+    public function items(Request $request)
+    {
+        $promotions = Promotion::latest()
+            ->search($request->search)
+            ->filterByType($request->type)  // Add filter for type
+            ->filterByStatus($request->status)  // Add filter for status
+            ->with('user')
+            ->get();
+
+        return view('dashboards.admin.pages.finance.promotions.list', [
+            'promotions' => $promotions,
+        ]);
+    }
+
 
     public function show($id)
     {
@@ -67,4 +80,20 @@ class PromotionController extends Controller
         ]);
     }
 
+    public function getByStatus(Request $request)
+    {
+        $promotions = Promotion::where('status', $request->status)->latest()->search($request->search)->get();
+        $promotion_status = [];
+        if ($request->status === StatusConstants::ACTIVE) {
+            $promotion_status = "Completed";
+        } elseif ($request->status === StatusConstants::PENDING) {
+            $promotion_status = "Ongoing";
+        } else {
+            $promotion_status = "Pending";
+        }
+        return view('dashboards.admin.pages.finance.promotions.get-by-status', [
+            'promotions' => $promotions,
+            'promotion_status' => $promotion_status,
+        ]);
+    }
 }

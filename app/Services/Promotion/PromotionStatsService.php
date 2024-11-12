@@ -3,10 +3,12 @@
 namespace App\Services\Promotion;
 
 use App\Constants\General\StatusConstants;
+use App\Models\Payment;
 use App\Models\Promotion;
 use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PromotionStatsService
 {
@@ -84,19 +86,22 @@ class PromotionStatsService
                 "percentage" => $promotion_data['freemiumUsersChangePercentage'],
                 "cards" => [
                     [
-                        "title" => "Successful Promotions",
+                        "title" => "Completed Promotions",
                         "value" => array_sum($promotion_data['totalSuccessfulPromotions']),
                         "class" => "primary",
+                        "status" => StatusConstants::ACTIVE,
+                    ],
+                    [
+                        "title" => "Ongoing Promotions",
+                        "value" => array_sum($promotion_data['totalPendingPromotions']),
+                        "class" => "info",
+                        "status" => StatusConstants::PENDING,
                     ],
                     [
                         "title" => "Pending Promotions",
-                        "value" => array_sum($promotion_data['totalPendingPromotions']),
-                        "class" => "info",
-                    ],
-                    [
-                        "title" => "Inactive Promotions",
                         "value" => array_sum($promotion_data['totalInactivePromotions']),
                         "class" => "warning",
+                        "status" => StatusConstants::INACTIVE,
                     ]
                 ],
             ],
@@ -106,7 +111,7 @@ class PromotionStatsService
         return $data;
     }
 
-    public function getPromotionData($period = 'month', $weekOffset = 0)
+    public function getPromotionData($period = 'month',)
     {
         // Set the current period and previous period based on the selected period
         switch ($period) {
@@ -157,7 +162,6 @@ class PromotionStatsService
         $freemiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_freemuim_users'], $previousData['total_freemuim_users']);
         $premiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_premium_users'], $previousData['total_premium_users']);
 
-        $subscriptionData = $this->fetchSubscriptionData($weekOffset);
         return [
             'totalPromotions' => $currentData['total_promotions'],
             'currentPostAds' => $currentData['total_post_ads'],
@@ -177,38 +181,35 @@ class PromotionStatsService
             'freemiumUsersChangePercentage' => $freemiumUsersChangePercentage,
             'premiumUsersChangePercentage' => $premiumUsersChangePercentage,
 
-            'subscriptionCounts' => $subscriptionData['counts'],
-            'subscriptionRevenue' => $subscriptionData['revenue'],
         ];
     }
 
-    private function fetchSubscriptionData($weekOffset = 0)
+    public function fetchrevenueData()
     {
-        $subscriptionCounts = [];
-        $subscriptionRevenue = [];
-    
-        // Get the start and end of the week based on the week offset
-        $startOfWeek = Carbon::now()->subWeeks($weekOffset)->startOfWeek();
-        $endOfWeek = Carbon::now()->subWeeks($weekOffset)->endOfWeek();
-    
-        // Initialize daily data placeholders for each day in the week (Monday to Sunday)
-        $weeklyCounts = array_fill(0, 7, 0);
-        $weeklyRevenue = array_fill(0, 7, 0);
-    
-        // Populate daily data
-        for ($day = 0; $day < 7; $day++) {
-            $dayStart = $startOfWeek->copy()->addDays($day)->startOfDay();
-            $dayEnd = $dayStart->copy()->endOfDay();
-    
-            $weeklyCounts[$day] = Subscription::whereBetween('paid_on', [$dayStart, $dayEnd])->count();
-            $weeklyRevenue[$day] = Subscription::whereBetween('paid_on', [$dayStart, $dayEnd])->sum('price');
+        $monthlyRevenue = array_fill(0, 12, 0); // Initialize array for each month of the year
+
+        // Loop through each month of the current year
+        for ($month = 0; $month < 12; $month++) {
+            // Define the start and end dates for the current month
+            $monthStart = Carbon::now()->startOfYear()->addMonths($month)->startOfMonth();
+            $monthEnd = $monthStart->copy()->endOfMonth();
+
+            // Calculate subscription revenue for the current month
+            $subscriptionRevenue = Subscription::whereBetween('paid_on', [$monthStart, $monthEnd])->sum('price');
+
+            // Calculate promotion revenue from the payments table for the current month
+            $promotionRevenue = Payment::whereBetween('created_at', [$monthStart, $monthEnd])
+                ->sum(DB::raw('amount - fees')); // Calculate net amount by subtracting fees from amount
+            // Calculate total monthly revenue (subscriptions + promotions)
+            $monthlyRevenue[$month] = $subscriptionRevenue + $promotionRevenue;
         }
-    
+
         return [
-            'counts' => $weeklyCounts,
-            'revenue' => $weeklyRevenue,
+            'revenue' => $monthlyRevenue,
         ];
     }
+
+
 
     private function fetchData($startDate, $interval, $dataPoints)
     {
@@ -224,6 +225,9 @@ class PromotionStatsService
         $total_successful_promotions = array_fill(0, $dataPoints, 0);
         $total_pending_promotions = array_fill(0, $dataPoints, 0);
         $total_inactive_promotions = array_fill(0, $dataPoints, 0);
+
+        // Initialize monthly data placeholders for each month in the year (Jan to Dec)
+        $monthly_revenue = array_fill(0, $dataPoints, 0);
 
         for ($i = 0; $i < $dataPoints; $i++) {
             $startOfInterval = $startDate->copy()->add($i, $interval);
@@ -271,9 +275,11 @@ class PromotionStatsService
             $total_premium_users[$i] = User::whereHas("activeSubscription", function ($subscription) use ($startOfInterval, $endOfInterval) {
                 $subscription->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
             })->count();
+
+            $monthly_revenue[$i] = Subscription::whereBetween('paid_on', [$startOfInterval, $endOfInterval])->sum('price');
         }
 
-        
+
         return [
             'total_successful_promotions' => $total_successful_promotions,
             'total_pending_promotions' => $total_pending_promotions,
@@ -285,6 +291,7 @@ class PromotionStatsService
             'total_group_ads_revenue' => $total_group_ads_revenue,
             'total_freemuim_users' => $total_freemuim_users,
             'total_premium_users' => $total_premium_users,
+            'monthly_revenue' => $monthly_revenue
         ];
     }
 

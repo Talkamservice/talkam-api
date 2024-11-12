@@ -92,14 +92,15 @@
 
                     @can(slugPermission('read promotion'))
                         <li class="slide has-sub">
-                            <a href="javascript:void(0);" class="side-menu__item list-item">
+                            <a href="javascript:void(0);" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.promotions.index', 'admin.promotions-items']) ? 'active' : '' }}">
                                 <i class="bx bx-dollar-circle side-menu__icon list-item-icon"></i>
                                 <span class="side-menu__label list-item-label">Ads Management</span>
                                 <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                             </a>
                             <ul class="slide-menu child1">
                                 <li class="slide">
-                                    <a href="{{ route('admin.promotions.index') }}" class="side-menu__item list-item list-item-sub">All</a>
+                                    <a href="{{ route('admin.promotions.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions.index' ? 'active' : '' }}">Report</a>
+                                    <a href="{{ route('admin.promotions-items') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions-items' ? 'active' : '' }}">Promotion</a>
                                 </li>
                             </ul>
                         </li>

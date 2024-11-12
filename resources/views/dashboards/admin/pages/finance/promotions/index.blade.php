@@ -10,8 +10,10 @@
             </div>
             <form method="GET" action="{{ url()->current() }}" class="d-inline">
                 <div class="dropdown">
-                    <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ !empty(request()->period) ? 'Sort Stats By ' . ucfirst(request()->period) : 'Sort Stats By' }}<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                    <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ !empty(request()->period) ? 'Sort Stats By ' . ucfirst(request()->period) : 'Sort Stats By' }}<i
+                            class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li><a class="dropdown-item" href="javascript:void(0);" data-period="day">Day</a></li>
@@ -56,12 +58,14 @@
                                                     @if (!empty($card['url']))
                                                         <a class="text-{{ $card['class'] }}" href="{{ $card['url'] }}">
                                                             View All
-                                                            <i class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
+                                                            <i
+                                                                class="ti ti-arrow-narrow-right ms-2 fw-semibold d-inline-block"></i>
                                                         </a>
                                                     @endif
                                                 </div>
                                                 <div class="text-end">
-                                                    <p class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
+                                                    <p
+                                                        class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
                                                         {{ $card['percentage'] >= 0 ? '+' : '' }}{{ $card['percentage'] }}%
                                                     </p>
                                                     <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span>
@@ -78,8 +82,10 @@
                                             Revenue Analytics
                                         </div>
                                         <div class="dropdown">
-                                            <a href="javascript:void(0);" class="p-2 fs-12 text-muted" data-bs-toggle="dropdown" aria-expanded="false">
-                                                View All<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                                            <a href="javascript:void(0);" class="p-2 fs-12 text-muted"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                View All<i
+                                                    class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
                                             </a>
                                             <ul class="dropdown-menu" role="menu">
                                                 <li><a class="dropdown-item" href="javascript:void(0);">Today</a></li>
@@ -95,72 +101,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-12">
-                        <div class="card custom-card">
-                            <div class="card-header d-flex justify-content-between">
-                                <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
-                                    <div class="form-group me-2">
-                                        <input class="form-control" type="text" placeholder="Search...." name="search" value="{{ request()->search }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <button class="btn btn-sm btn-success p-2">Filter</button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table text-nowrap table-hover border table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Name</th>
-                                                <th scope="col">Duration (Days)</th>
-                                                <th scope="col">Cost</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Date</th>
-                                                <th scope="col">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse($promotions as $promotion)
-                                                <tr>
-                                                    <td>{{ $promotion->user->getName() }}</td>
-                                                    <td>{{ $promotion->duration }}</td>
-                                                    <td>{{ format_money($promotion->cost) }}</td>
-                                                    <td>
-                                                        <span class="badge bg-{{ pillClasses($promotion->status) }}-transparent">
-                                                            {{ $promotion->status }}
-                                                        </span>
-                                                    </td>
-                                                    <td>{{ $promotion->created_at->format('Y-m-d h:i A') }}</td>
-                                                    <td>
-                                                        <div class="hstack gap-2 fs-15">
-                                                            <a aria-label="anchor" data-bs-toggle="tooltip" title="View Promoted Content" target="_blank" href="{{ $promotion->contentWebUrl() }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
-                                                                    class="ri-external-link-line"></i></a>
-                                                            <form action="{{ route('admin.promotions.update', $promotion->id) }}" method="post" id="cancelPromotion_{{ $promotion->id }}" onsubmit="return confirm('Are you sure of this action?')"> @csrf
-                                                                <input type="hidden" name="status" value="Cancelled">
-                                                                <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light" data-bs-toggle="tooltip" title="Cancel Promoted Content"><i class="ri-close-line"></i></button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <div class="alert alert-info text-center">
-                                                    No records found
-                                                </div>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            {{-- <div class="card-footer">
-                                <div class="d-flex align-items-center">
-                                    <div>
-                                        Showing 5 Entries
-                                    </div>
-                                </div>
-                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -182,10 +122,13 @@
                                                 <li>
                                                     <div class="d-flex align-items-top flex-wrap">
                                                         <div class="flex-fill">
-                                                            <p class="fw-semibold mb-0">{{ $high_promotion->user->getName() }}</p>
-                                                            <span class="text-muted fs-12">{{ $high_promotion->user->email }}</span>
+                                                            <p class="fw-semibold mb-0">
+                                                                {{ $high_promotion->user->getName() }}</p>
+                                                            <span
+                                                                class="text-muted fs-12">{{ $high_promotion->user->email }}</span>
                                                         </div>
-                                                        <div class="fw-semibold fs-15">{{ format_money($high_promotion->cost) }}</div>
+                                                        <div class="fw-semibold fs-15">
+                                                            {{ format_money($high_promotion->cost) }}</div>
                                                     </div>
                                                 </li>
                                             @endforeach
@@ -193,49 +136,56 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                <div class="card custom-card">
-                                    <div class="card-header justify-content-between">
-                                        <div class="card-title">Subscribers</div>
-                                    </div>
-                                    <div class="card-body py-0 ps-0">
-                                        <div id="crm-profits-earned"></div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                     <div class="col-xxl-12 col-xl-6">
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">
-                                    Deals Status
+                                    Promotions
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-3">
                                     <h4 class="fw-bold mb-0">{{ $promotion_stats['status_card']['value'] ?? 0 }}</h4>
                                     <div class="ms-2">
-                                        <span class="badge bg-success-transparent">{{ $promotion_stats['status_card']['percentage'] ?? 0 }}%
+                                        <span
+                                            class="badge bg-success-transparent">{{ $promotion_stats['status_card']['percentage'] ?? 0 }}%
                                             {{-- <i class="ri-arrow-down-s-fill align-mmiddle ms-1"></i> --}}
                                         </span>
-                                        <span class="text-muted ms-1">compared to last {{ request()->period ?? 'month' }}</span>
+                                        <span class="text-muted ms-1">compared to last
+                                            {{ request()->period ?? 'month' }}</span>
                                     </div>
                                 </div>
                                 <div class="progress-stacked progress-animate progress-xs mb-4">
                                     @foreach ($promotion_stats['status_card']['cards'] ?? [] as $promotion_stat)
-                                        <div class="progress-bar bg-{{ $promotion_stat['class'] }}" role="progressbar" style="width: {{ $promotion_stat['value'] }}%" aria-valuenow="{{ $promotion_stat['value'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-{{ $promotion_stat['class'] }}" role="progressbar"
+                                            style="width: {{ $promotion_stat['value'] }}%"
+                                            aria-valuenow="{{ $promotion_stat['value'] }}" aria-valuemin="0"
+                                            aria-valuemax="100"></div>
                                     @endforeach
                                 </div>
                                 <ul class="list-unstyled mb-0 pt-2 crm-deals-status">
                                     @foreach ($promotion_stats['status_card']['cards'] ?? [] as $promotion_stat)
-                                        <li class="{{ $promotion_stat["class"] }}">
+                                        <li class="{{ $promotion_stat['class'] }}">
                                             <div class="d-flex align-items-center justify-content-between">
-                                                <div>{{ $promotion_stat['title'] }}</div>
-                                                <div class="fs-12 text-muted">{{ $promotion_stat['value'] }} ads</div>
+                                                <p>
+                                                    <a href="{{ route('admin.promotions.get-by-status', $promotion_stat['status']) }}"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer">{{ $promotion_stat['title'] }}</a>
+
+                                                </p>
+                                                <p>
+                                                    <a href="{{ route('admin.promotions.get-by-status', $promotion_stat['status']) }}"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer">{{ $promotion_stat['value'] }}</a>
+
+                                                </p>
                                             </div>
                                         </li>
                                     @endforeach
+
                                 </ul>
                             </div>
                         </div>
@@ -249,10 +199,8 @@
 
 
 @section('script')
-@include('dashboards.admin.pages.chart.subscribers', ['subscriptionCounts' => $subscriptionCounts, 'subscriptionRevenue' => $subscriptionRevenue])
-
+    @include('dashboards.admin.pages.chart.revenue', ['revenue_data' => $revenue_data])
     <script>
-
         // Inject PHP dashboard data into JavaScript
         const dashboardData = @json($dashboardData);
 
