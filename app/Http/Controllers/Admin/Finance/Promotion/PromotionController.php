@@ -39,6 +39,8 @@ class PromotionController extends Controller
             'high_promotions' => $high_promotions,
             "dashboardData" => $promotion_stats["dashboard_data"],
             "cards" => $promotion_stats["cards"],
+            "subscriptionCounts" => $promotion_stats['dashboard_data']['subscriptionCounts'],
+            "subscriptionRevenue" => $promotion_stats['dashboard_data']['subscriptionRevenue'],
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
         ]);
     }
