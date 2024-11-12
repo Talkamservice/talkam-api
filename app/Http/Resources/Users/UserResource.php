@@ -66,6 +66,7 @@ class UserResource extends JsonResource
             "avatar" => $model->avatar,
             "name" => $model->full_name,
             "username" => $model->username,
+            "active_subscription" => !empty($model->activeSubscription) ? SubscriptionResource::custom($model->activeSubscription) : null,
             "email" => (string) $model->email,
         ];
     }
