@@ -90,4 +90,30 @@ class PostStatsService
         $stats = $builder->latest()->first();
         return $stats;
     }
+
+    public function savePostImpressions(array $data, array $extras = [])
+    {
+        foreach ($data as $key => $post_id) {
+            $data = $this->validate([
+                "post_id" => $post_id,
+                ...$extras
+            ]);
+
+            dispatch(new PostStatsJob($data))
+                ->onQueue(AppConstants::STATS_QUEUE);
+        }
+    }
+
+    public function saveGroupImpressions(array $data, array $extras = [])
+    {
+        foreach ($data as $key => $group_id) {
+            $data = $this->validate([
+                "group_id" => $group_id,
+                ...$extras
+            ]);
+            
+            dispatch(new PostStatsJob($data))
+                ->onQueue(AppConstants::STATS_QUEUE);
+        }
+    }
 }
