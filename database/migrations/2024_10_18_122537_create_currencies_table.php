@@ -14,20 +14,23 @@ class CreateCurrenciesTable extends Migration
      */
     public function up()
     {
-        Schema::create('currencies', function (Blueprint $table) {
-            $table->id();
-            $table->string("name");
-            $table->enum("group" , [
-                CurrencyConstants::FIAT_GROUP,
-                CurrencyConstants::TOKEN_GROUP,
-            ]);
-            $table->string("type", 50)->unique();
-            $table->string("short_name", 20)->unique();
-            $table->string("symbol");
-            $table->string("status");
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        if (!Schema::hasTable('currencies')) {
+            Schema::create('currencies', function (Blueprint $table) {
+                $table->id();
+                $table->string("name");
+                $table->enum("group" , [
+                    CurrencyConstants::FIAT_GROUP,
+                    CurrencyConstants::TOKEN_GROUP,
+                ]);
+                $table->string("type", 50)->unique();
+                $table->string("short_name", 20)->unique();
+                $table->string("symbol");
+                $table->string("status");
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+       
     }
 
     /**
@@ -37,6 +40,6 @@ class CreateCurrenciesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('currencies');
+        // Schema::dropIfExists('currencies');
     }
 }

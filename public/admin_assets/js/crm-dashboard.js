@@ -539,9 +539,9 @@ var options = {
         },
     },
 };
-// document.getElementById('crm-revenue-analytics').innerHTML = '';
-// var chart = new ApexCharts(document.querySelector("#crm-revenue-analytics"), options);
-// chart.render();
+document.getElementById('crm-revenue-analytics').innerHTML = '';
+var chart = new ApexCharts(document.querySelector("#crm-revenue-analytics"), options);
+chart.render();
 
 function revenueAnalytics() {
     chart.updateOptions({
@@ -555,170 +555,170 @@ function revenueAnalytics() {
 /* Revenue Analytics Chart */
 
 /* Profits Earned Chart */
-var options1 = {
-    series: [
-        {
-            name: "Profit Earned",
-            data: [44, 42, 57, 86, 58, 55, 70],
-        },
-        {
-            name: "Total Sales",
-            data: [34, 22, 37, 56, 21, 35, 60],
-        },
-    ],
-    chart: {
-        type: "bar",
-        height: 180,
-        toolbar: {
-            show: false,
-        },
-    },
-    grid: {
-        borderColor: "#f1f1f1",
-        strokeDashArray: 3,
-    },
-    colors: ["rgb(132, 90, 223)", "#e4e7ed"],
-    plotOptions: {
-        bar: {
-            colors: {
-                ranges: [
-                    {
-                        from: -100,
-                        to: -46,
-                        color: "#ebeff5",
-                    },
-                    {
-                        from: -45,
-                        to: 0,
-                        color: "#ebeff5",
-                    },
-                ],
-            },
-            columnWidth: "60%",
-            borderRadius: 5,
-        },
-    },
-    dataLabels: {
-        enabled: false,
-    },
-    stroke: {
-        show: true,
-        width: 2,
-        colors: undefined,
-    },
-    legend: {
-        show: false,
-        position: "top",
-    },
-    yaxis: {
-        title: {
-            style: {
-                color: "#adb5be",
-                fontSize: "13px",
-                fontFamily: "poppins, sans-serif",
-                fontWeight: 600,
-                cssClass: "apexcharts-yaxis-label",
-            },
-        },
-        labels: {
-            formatter: function (y) {
-                return y.toFixed(0) + "";
-            },
-        },
-    },
-    xaxis: {
-        type: "week",
-        categories: ["S", "M", "T", "W", "T", "F", "S"],
-        axisBorder: {
-            show: true,
-            color: "rgba(119, 119, 142, 0.05)",
-            offsetX: 0,
-            offsetY: 0,
-        },
-        axisTicks: {
-            show: true,
-            borderType: "solid",
-            color: "rgba(119, 119, 142, 0.05)",
-            width: 6,
-            offsetX: 0,
-            offsetY: 0,
-        },
-        labels: {
-            rotate: -90,
-        },
-    },
-};
+// var options1 = {
+//     series: [
+//         {
+//             name: "Profit Earned",
+//             data: [44, 42, 57, 86, 58, 55, 70],
+//         },
+//         {
+//             name: "Total Sales",
+//             data: [34, 22, 37, 56, 21, 35, 60],
+//         },
+//     ],
+//     chart: {
+//         type: "bar",
+//         height: 180,
+//         toolbar: {
+//             show: false,
+//         },
+//     },
+//     grid: {
+//         borderColor: "#f1f1f1",
+//         strokeDashArray: 3,
+//     },
+//     colors: ["rgb(132, 90, 223)", "#e4e7ed"],
+//     plotOptions: {
+//         bar: {
+//             colors: {
+//                 ranges: [
+//                     {
+//                         from: -100,
+//                         to: -46,
+//                         color: "#ebeff5",
+//                     },
+//                     {
+//                         from: -45,
+//                         to: 0,
+//                         color: "#ebeff5",
+//                     },
+//                 ],
+//             },
+//             columnWidth: "60%",
+//             borderRadius: 5,
+//         },
+//     },
+//     dataLabels: {
+//         enabled: false,
+//     },
+//     stroke: {
+//         show: true,
+//         width: 2,
+//         colors: undefined,
+//     },
+//     legend: {
+//         show: false,
+//         position: "top",
+//     },
+//     yaxis: {
+//         title: {
+//             style: {
+//                 color: "#adb5be",
+//                 fontSize: "13px",
+//                 fontFamily: "poppins, sans-serif",
+//                 fontWeight: 600,
+//                 cssClass: "apexcharts-yaxis-label",
+//             },
+//         },
+//         labels: {
+//             formatter: function (y) {
+//                 return y.toFixed(0) + "";
+//             },
+//         },
+//     },
+//     xaxis: {
+//         type: "week",
+//         categories: ["S", "M", "T", "W", "T", "F", "S"],
+//         axisBorder: {
+//             show: true,
+//             color: "rgba(119, 119, 142, 0.05)",
+//             offsetX: 0,
+//             offsetY: 0,
+//         },
+//         axisTicks: {
+//             show: true,
+//             borderType: "solid",
+//             color: "rgba(119, 119, 142, 0.05)",
+//             width: 6,
+//             offsetX: 0,
+//             offsetY: 0,
+//         },
+//         labels: {
+//             rotate: -90,
+//         },
+//     },
+// };
 // document.getElementById('crm-profits-earned').innerHTML = '';
 // var chart1 = new ApexCharts(document.querySelector("#crm-profits-earned"), options1);
 // chart1.render();
 
-function crmProfitsearned() {
-    chart1.updateOptions({
-        colors: ["rgba(" + myVarVal + ", 1)", "#ededed"],
-    });
-}
+// function crmProfitsearned() {
+//     chart1.updateOptions({
+//         colors: ["rgba(" + myVarVal + ", 1)", "#ededed"],
+//     });
+// }
 /* Profits Earned Chart */
 
 /* Leads By Source Chart */
 Chart.defaults.elements.arc.borderWidth = 0;
 Chart.defaults.datasets.doughnut.cutout = "85%";
-// var chartInstance = new Chart(document.getElementById("leads-source"), {
-//     type: "doughnut",
-//     data: {
-//         datasets: [
-//             {
-//                 label: "My First Dataset",
-//                 data: [32, 27, 25, 16],
-//                 backgroundColor: [
-//                     "rgb(132, 90, 223)",
-//                     "rgb(35, 183, 229)",
-//                     "rgb(38, 191, 148)",
-//                     "rgb(245, 184, 73)",
-//                 ],
-//             },
-//         ],
-//     },
-//     plugins: [
-//         {
-//             afterUpdate: function (chart) {
-//                 const arcs = chart.getDatasetMeta(0).data;
+var chartInstance = new Chart(document.getElementById("leads-source"), {
+    type: "doughnut",
+    data: {
+        datasets: [
+            {
+                label: "My First Dataset",
+                data: [32, 27, 25, 16],
+                backgroundColor: [
+                    "rgb(132, 90, 223)",
+                    "rgb(35, 183, 229)",
+                    "rgb(38, 191, 148)",
+                    "rgb(245, 184, 73)",
+                ],
+            },
+        ],
+    },
+    plugins: [
+        {
+            afterUpdate: function (chart) {
+                const arcs = chart.getDatasetMeta(0).data;
 
-//                 arcs.forEach(function (arc) {
-//                     arc.round = {
-//                         x: (chart.chartArea.left + chart.chartArea.right) / 2,
-//                         y: (chart.chartArea.top + chart.chartArea.bottom) / 2,
-//                         radius: (arc.outerRadius + arc.innerRadius) / 2,
-//                         thickness: (arc.outerRadius - arc.innerRadius) / 2,
-//                         backgroundColor: arc.options.backgroundColor,
-//                     };
-//                 });
-//             },
-//             afterDraw: (chart) => {
-//                 const { ctx, canvas } = chart;
+                arcs.forEach(function (arc) {
+                    arc.round = {
+                        x: (chart.chartArea.left + chart.chartArea.right) / 2,
+                        y: (chart.chartArea.top + chart.chartArea.bottom) / 2,
+                        radius: (arc.outerRadius + arc.innerRadius) / 2,
+                        thickness: (arc.outerRadius - arc.innerRadius) / 2,
+                        backgroundColor: arc.options.backgroundColor,
+                    };
+                });
+            },
+            afterDraw: (chart) => {
+                const { ctx, canvas } = chart;
 
-//                 chart.getDatasetMeta(0).data.forEach((arc) => {
-//                     const startAngle = Math.PI / 2 - arc.startAngle;
-//                     const endAngle = Math.PI / 2 - arc.endAngle;
+                chart.getDatasetMeta(0).data.forEach((arc) => {
+                    const startAngle = Math.PI / 2 - arc.startAngle;
+                    const endAngle = Math.PI / 2 - arc.endAngle;
 
-//                     ctx.save();
-//                     ctx.translate(arc.round.x, arc.round.y);
-//                     ctx.fillStyle = arc.options.backgroundColor;
-//                     ctx.beginPath();
-//                     ctx.arc(
-//                         arc.round.radius * Math.sin(endAngle),
-//                         arc.round.radius * Math.cos(endAngle),
-//                         arc.round.thickness,
-//                         0,
-//                         2 * Math.PI
-//                     );
-//                     ctx.closePath();
-//                     ctx.fill();
-//                     ctx.restore();
-//                 });
-//             },
-//         },
-//     ],
-// });
+                    ctx.save();
+                    ctx.translate(arc.round.x, arc.round.y);
+                    ctx.fillStyle = arc.options.backgroundColor;
+                    ctx.beginPath();
+                    ctx.arc(
+                        arc.round.radius * Math.sin(endAngle),
+                        arc.round.radius * Math.cos(endAngle),
+                        arc.round.thickness,
+                        0,
+                        2 * Math.PI
+                    );
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                });
+            },
+        },
+    ],
+});
 
 function leads(myVarVal) {
     chartInstance.data.datasets[0] = {
