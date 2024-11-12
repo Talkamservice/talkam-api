@@ -50,6 +50,7 @@ class PostStatsService
             $fields_to_update = ["comments", "likes", "dislikes", "shares", "impressions", "engagements", "followers", "profile_visits", "clicks"];
 
             $query = array_intersect_key($data, array_flip(["post_id", "group_id"]));
+            $query["user_id"] = auth()->check() ? auth()->id() : null;
 
             $post_stat = PostStat::firstOrCreate($query);
 
