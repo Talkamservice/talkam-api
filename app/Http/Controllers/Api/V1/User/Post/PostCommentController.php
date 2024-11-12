@@ -11,6 +11,7 @@ use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
 use App\Services\Post\PostCommentService;
 use App\Services\Post\PostService;
+use App\Services\Post\PostStatsService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -18,12 +19,14 @@ use Illuminate\Validation\ValidationException;
 class PostCommentController extends Controller
 {
     protected $post_service;
+    protected $post_stats_service;
     protected $post_comment_service;
 
     public function __construct()
     {
         $this->post_service = new PostService;
         $this->post_comment_service = new PostCommentService;
+        $this->post_stats_service = new PostStatsService;
     }
 
     public function index(Request $request)
@@ -43,6 +46,7 @@ class PostCommentController extends Controller
     {
         try {
             $comment = $this->post_comment_service->getById($id);
+            $this->post_stats_service->dispatch(["post_id" => $comment->post_id, "comments" => true, "engagements" => true]);
             $data = PostCommentResource::make($comment);
             return ApiHelper::validResponse("Post comment returned successfully", $data);
         } catch (ModelNotFoundException $th) {

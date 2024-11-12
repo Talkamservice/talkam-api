@@ -40,6 +40,9 @@ class PostController extends Controller
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
             $data = collectPagination($posts);
+
+            $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
+            $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
             $data["data"] = PostResource::collection($data["data"]);
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
@@ -52,6 +55,7 @@ class PostController extends Controller
         try {
             $post = $this->post_service->getById($id);
             $this->recent_view_service->create(["post_id" => $post->id]);
+            $this->post_stats_service->dispatch(["post_id" => $id, "clicks" => true]);
             $data = PostResource::make($post);
             return ApiHelper::validResponse("Post details returned successfully", $data);
         } catch (ModelNotFoundException $th) {

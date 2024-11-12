@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Group\GroupMemberResource;
 use App\Http\Resources\Group\GroupResource;
 use App\Services\Group\GroupService;
+use App\Services\Post\PostStatsService;
 use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,12 +19,14 @@ use Illuminate\Validation\ValidationException;
 class GroupController extends Controller
 {
     protected $group_service;
+    protected $post_stats_service;
     protected $recent_view_service;
 
     public function __construct()
     {
         $this->group_service = new GroupService;
         $this->recent_view_service = new RecentViewService;
+        $this->post_stats_service = new PostStatsService;
     }
 
     public function index(Request $request)
@@ -31,6 +34,8 @@ class GroupController extends Controller
         try {
             $groups = $this->group_service->list($request->all())->status()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
             $data = collectPagination($groups);
+            $group_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
+            $this->post_stats_service->saveGroupImpressions($group_ids, ["impressions" => true]);
             $data["data"] = GroupResource::collection($data["data"]);
             return ApiHelper::validResponse("Groups returned successfully", $data);
         } catch (Exception $e) {
@@ -44,6 +49,7 @@ class GroupController extends Controller
             $field = is_numeric($id) ? "id" : "uuid";
             $group = $this->group_service->getById($id, $field);
             $this->recent_view_service->create(["group_id" => $group->id]);
+            $this->post_stats_service->dispatch(["group_id" => $id, "clicks" => true]);
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
