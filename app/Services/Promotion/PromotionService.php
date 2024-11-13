@@ -2,6 +2,7 @@
 
 namespace App\Services\Promotion;
 
+use App\Constants\Account\User\UserConstants;
 use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Constants\Finance\Currency\CurrencyConstants;
@@ -10,6 +11,7 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
+use App\Models\GroupMember;
 use App\Models\Promotion;
 use App\Models\PromotionLocation;
 use App\Services\ActivityLog\ActivityLogService;
@@ -98,7 +100,7 @@ class PromotionService
                 "status" => $data["status"] ?? $promotion->status
             ]);
 
-           return $promotion->refresh();
+            return $promotion->refresh();
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -191,7 +193,7 @@ class PromotionService
             $user = $this->user = auth()->user();
 
             $data["cost"] = $data["daily_budget"] * $data["duration"];
-            
+
             $countries = $data["country_id"] ?? null;
             unset($data["country_id"]);
 
@@ -208,7 +210,7 @@ class PromotionService
                     ]);
                 }
             }
-            
+
             (new ActivityLogService)
                 ->setEvent("created")
                 ->setTitle("Promotion Created")
@@ -270,16 +272,23 @@ class PromotionService
 
         if (!empty($key = $data["status"] ?? null)) {
             $promotions = $promotions->where("status", $key);
-        }else {
+        } else {
             $promotions = $promotions->whereIn("status", [StatusConstants::ACTIVE, StatusConstants::PENDING]);
         }
 
         if (!empty($key = $data["post_id"] ?? null)) {
-            $promotions = $promotions->where("post_id", $key);
+            $promotions = $promotions->where("post_id", $key)
+                ->where("user_id", auth()->id());
         }
 
         if (!empty($key = $data["group_id"] ?? null)) {
-            $promotions = $promotions->where("group_id", $key);
+            $promotions = $promotions->where("group_id", $key)
+                ->where(function ($q) use ($key) {
+                    $creator = GroupMember::where(["group_id" => $key, "role" => UserConstants::OWNER])->first();
+                    $q->whereIn("user_id", [auth()->id(), $creator?->user_id]);
+                });
+        } else {
+            $promotions = $promotions->where("user_id", auth()->id());
         }
 
         return $promotions;

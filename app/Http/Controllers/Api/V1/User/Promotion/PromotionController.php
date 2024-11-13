@@ -28,7 +28,6 @@ class PromotionController extends Controller
     {
         try {
             $promotionResource = $this->promotion_service->list($request->all())
-                ->where("user_id", auth()->id())
                 ->where(function ($query) {
                     $query->whereNotNull("post_id")
                         ->orWhereNotNull("group_id");
