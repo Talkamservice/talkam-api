@@ -32,6 +32,7 @@ class PromotionController extends Controller
                     $query->whereNotNull("post_id")
                         ->orWhereNotNull("group_id");
                 })
+                ->latest()
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
             $data = collectPagination($promotionResource);
