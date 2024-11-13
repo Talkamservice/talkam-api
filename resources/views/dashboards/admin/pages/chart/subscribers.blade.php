@@ -1,21 +1,13 @@
-<script>
-    // let subscriptionCounts = [10, 30, 100, 200, 150, 30, 200];
+<script> 
     let subscriptionCounts = @json($subscriptionCounts);
-    let subscriptionRevenue = @json($subscriptionRevenue);
-    console.log("Subscription Counts:", @json($subscriptionCounts));
 
-    let daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    let monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     var options1 = {
         series: [{
-                name: "Profit Earned",
-                data: subscriptionRevenue,
-            },
-            {
-                name: "Subscribers",
-                data: subscriptionCounts,
-            },
-        ],
+            name: "Subscribers",
+            data: subscriptionCounts,
+        }],
         chart: {
             type: "bar",
             height: 180,
@@ -27,22 +19,9 @@
             borderColor: "#f1f1f1",
             strokeDashArray: 3,
         },
-        colors: ["rgb(132, 90, 223)", "#e4e7ed"], // Colors for each series
+        colors: ["#132B50"], // Color for subscribers
         plotOptions: {
             bar: {
-                colors: {
-                    ranges: [{
-                            from: -100,
-                            to: -46,
-                            color: "#ebeff5",
-                        },
-                        {
-                            from: 2,
-                            to: 0,
-                            color: "#ebeff5",
-                        },
-                    ],
-                },
                 columnWidth: "60%",
                 borderRadius: 5,
             },
@@ -53,7 +32,7 @@
         stroke: {
             show: true,
             width: 2,
-            colors: ["#132B50", "#e4e7ed"], // Stroke colors for each series
+            colors: ["#132B50"], // Stroke color for the series
         },
         legend: {
             show: true,
@@ -76,7 +55,7 @@
             },
         },
         xaxis: {
-            categories: daysOfWeek, // Days of the week
+            categories: monthsOfYear, // Months of the year
             axisBorder: {
                 show: true,
                 color: "rgba(119, 119, 142, 0.05)",
@@ -89,7 +68,6 @@
                 width: 6,
                 offsetX: 0,
                 offsetY: 0,
-
             },
             labels: {
                 rotate: -90,
@@ -99,12 +77,5 @@
 
     document.getElementById('crm-profits-earned').innerHTML = '';
     var chart1 = new ApexCharts(document.querySelector("#crm-profits-earned"), options1);
-    console.log(options1.series);
     chart1.render();
-
-    function crmProfitsearned() {
-        chart1.updateOptions({
-            colors: ["rgba(" + myVarVal + ", 1)", "#ededed"],
-        });
-    }
 </script>

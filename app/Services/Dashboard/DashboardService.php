@@ -13,7 +13,7 @@ use PhpOffice\PhpSpreadsheet\Calculation\LookupRef\Offset;
 
 class DashboardService
 {
-    public function getDashboardData($period = 'month', $weekOffset = 0)
+    public function getDashboardData($period = 'month',)
     {
         // Set the current period and previous period based on the selected period
         switch ($period) {
@@ -62,9 +62,9 @@ class DashboardService
         $postsChangePercentage = $this->calculatePercentageChange($currentData['posts'], $previousData['posts']);
         $groupsChangePercentage = $this->calculatePercentageChange($currentData['groups'], $previousData['groups']);
 
-        $startOfWeek = Carbon::now()->startOfWeek();
-        $endOfWeek = Carbon::now()->endOfWeek();
-        $subscriptionData = $this->fetchSubscriptionData($weekOffset);
+
+        $subscriptionData = $this->fetchSubscriptionData();
+
         return [
             'currentUsers' => $currentData['users'],
             'currentCategories' => $currentData['categories'],
@@ -80,34 +80,35 @@ class DashboardService
     }
 
 
-    private function fetchSubscriptionData($weekOffset = 0)
+    private function fetchSubscriptionData($year = null)
     {
-        $subscriptionCounts = [];
-        $subscriptionRevenue = [];
-    
-        // Get the start and end of the week based on the week offset
-        $startOfWeek = Carbon::now()->subWeeks($weekOffset)->startOfWeek();
-        $endOfWeek = Carbon::now()->subWeeks($weekOffset)->endOfWeek();
-    
-        // Initialize daily data placeholders for each day in the week (Monday to Sunday)
-        $weeklyCounts = array_fill(0, 7, 0);
-        $weeklyRevenue = array_fill(0, 7, 0);
-    
-        // Populate daily data
-        for ($day = 0; $day < 7; $day++) {
-            $dayStart = $startOfWeek->copy()->addDays($day)->startOfDay();
-            $dayEnd = $dayStart->copy()->endOfDay();
-    
-            $weeklyCounts[$day] = Subscription::whereBetween('paid_on', [$dayStart, $dayEnd])->count();
-            $weeklyRevenue[$day] = Subscription::whereBetween('paid_on', [$dayStart, $dayEnd])->sum('price');
+        // Default to the current year if none is provided
+        $year = $year ?? Carbon::now()->year;
+
+        // Initialize counts and revenue arrays for each month of the year
+        $subscriptionCounts = array_fill(0, 12, 0);  // Array with 12 zeros, one for each month
+        $subscriptionRevenue = array_fill(0, 12, 0); // Array with 12 zeros, one for each month
+
+        // Loop through each month of the year
+        for ($month = 1; $month <= 12; $month++) {
+            // Define the start and end of the current month
+            $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+            // Fetch subscription count and revenue for the current month
+            $subscriptionCounts[$month - 1] = Subscription::whereBetween('paid_on', [$startOfMonth, $endOfMonth])->count();
+            $subscriptionRevenue[$month - 1] = Subscription::whereBetween('paid_on', [$startOfMonth, $endOfMonth])->sum('price');
         }
-    
+
         return [
-            'counts' => $weeklyCounts,
-            'revenue' => $weeklyRevenue,
+            'counts' => $subscriptionCounts,
+            'revenue' => $subscriptionRevenue,
         ];
     }
-    
+
+
+
+
 
     private function fetchData($startDate, $interval, $dataPoints)
     {
