@@ -49,7 +49,7 @@ class GroupController extends Controller
             $field = is_numeric($id) ? "id" : "uuid";
             $group = $this->group_service->getById($id, $field);
             $this->recent_view_service->create(["group_id" => $group->id]);
-            $this->post_stats_service->dispatch(["group_id" => $id, "clicks" => true]);
+            $this->post_stats_service->dispatch(["group_id" => $group->id, "clicks" => true]);
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group details returned successfully", $data);
         } catch (ModelNotFoundException $th) {
