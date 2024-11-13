@@ -264,7 +264,11 @@ class PromotionService
 
     public static function list(array $data = [])
     {
-        $promotions = Promotion::with(["user"]);
+        $promotions = Promotion::with(["user"])->where(function ($q) {
+            $creator = GroupMember::where(["user_id" => auth()->id(), "role" => UserConstants::OWNER])
+                ->first();
+            $q->whereIn("user_id", [auth()->id(), $creator?->user_id]);
+        });
 
         if (!empty($key = $data["search"] ?? null)) {
             $promotions = $promotions->where("name", "LIKE", "%$key%");
@@ -277,18 +281,11 @@ class PromotionService
         }
 
         if (!empty($key = $data["post_id"] ?? null)) {
-            $promotions = $promotions->where("post_id", $key)
-                ->where("user_id", auth()->id());
+            $promotions = $promotions->where("post_id", $key);
         }
 
         if (!empty($key = $data["group_id"] ?? null)) {
-            $promotions = $promotions->where("group_id", $key)
-                ->where(function ($q) use ($key) {
-                    $creator = GroupMember::where(["group_id" => $key, "role" => UserConstants::OWNER])->first();
-                    $q->whereIn("user_id", [auth()->id(), $creator?->user_id]);
-                });
-        } else {
-            $promotions = $promotions->where("user_id", auth()->id());
+            $promotions = $promotions->where("group_id", $key);
         }
 
         return $promotions;
