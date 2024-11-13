@@ -5,12 +5,9 @@ namespace App\Http\Resources\Promotion;
 use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Location\CountryResource;
 use App\Http\Resources\Post\PostResource;
-use App\Http\Resources\Post\TrendingResource;
 use App\Http\Resources\Stat\PostStatsResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\Country;
-use App\Models\TrendingTag;
-use App\Models\UserInterest;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PromotionResource extends JsonResource
