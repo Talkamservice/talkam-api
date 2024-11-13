@@ -268,7 +268,7 @@ class PromotionService
             $groups = GroupMember::where(["user_id" => auth()->id(), "role" => UserConstants::OWNER])->pluck("group_id")->toArray();
             $q->where("user_id", [auth()->id()]);
             if (count($groups) != 0) {
-                $q->whereIn("group_id", $groups);
+                $q->orWhereIn("group_id", $groups);
             }
         });
 
