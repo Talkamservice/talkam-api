@@ -265,9 +265,11 @@ class PromotionService
     public static function list(array $data = [])
     {
         $promotions = Promotion::with(["user"])->where(function ($q) {
-            $creator = GroupMember::where(["user_id" => auth()->id(), "role" => UserConstants::OWNER])
-                ->first();
-            $q->whereIn("user_id", [auth()->id(), $creator?->user_id]);
+            $groups = GroupMember::where(["user_id" => auth()->id(), "role" => UserConstants::OWNER])->pluck("group_id")->toArray();
+            $q->where("user_id", [auth()->id()]);
+            if (count($groups) != 0) {
+                $q->whereIn("group_id", $groups);
+            }
         });
 
         if (!empty($key = $data["search"] ?? null)) {
