@@ -265,8 +265,10 @@ class PromotionService
     public static function list(array $data = [])
     {
         $promotions = Promotion::with(["user"])->where(function ($q) {
-            $groups = GroupMember::where(["user_id" => auth()->id(), "role" => UserConstants::OWNER])->pluck("group_id")->toArray();
-            $q->where("user_id", [auth()->id()]);
+            $user = auth()->user();
+            $q->where("user_id", $user->id);
+
+            $groups = GroupMember::where(["user_id" => $user->id, "role" => UserConstants::OWNER])->pluck("group_id")->toArray();
             if (count($groups) != 0) {
                 $q->orWhereIn("group_id", $groups);
             }
