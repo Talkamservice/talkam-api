@@ -5,6 +5,7 @@ namespace App\Http\Resources\Promotion;
 use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Post\TrendingResource;
+use App\Http\Resources\Stat\PostStatsResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\TrendingTag;
 use App\Models\UserInterest;
@@ -38,6 +39,8 @@ class PromotionResource extends JsonResource
             "estimated_reach" => $this->estimated_reach,
             "total_reach" => $this->total_reach,
             "status" => $this->status,
+            "expires_at" =>  formatDate($this->expires_at),
+            "stats" => PostStatsResource::make($this->stat),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

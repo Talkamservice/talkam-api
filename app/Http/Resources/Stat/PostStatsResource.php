@@ -23,7 +23,7 @@ class PostStatsResource extends JsonResource
             "dislikes" => $this->dislikes,
             "shares" => $this->shares,
             "impressions" => $this->impressions,
-            "engagements" => $this->engagements,
+            "engagements" => ($this->likes + $this->dislikes + $this->shares + $this->clicks + $this->comments),
             "followers" => $this->followers,
             "profile_visits" => $this->profile_visits,
             "clicks" => $this->clicks,

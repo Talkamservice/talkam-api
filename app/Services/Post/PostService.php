@@ -45,8 +45,8 @@ class PostService
 
     public function setUser($user)
     {
-       $this->user = $user;
-       return $this;
+        $this->user = $user;
+        return $this;
     }
 
     public static function validate($data, $id = null)
@@ -257,7 +257,12 @@ class PostService
                     }
 
                     $query->orWhereHas('promotions', function ($promotion_query) {
-                        $promotion_query->inRandomOrder();
+                        if (auth("sanctum")->check()) {
+                            $user = auth("sanctum")->user();
+                            $promotion_query->whereIn("country_id", [$user->country_id])->inRandomOrder();
+                        } else {
+                            $promotion_query->inRandomOrder();
+                        }
                     });
                 })->latest()->limit(10);
             }

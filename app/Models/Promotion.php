@@ -22,6 +22,11 @@ class Promotion extends Model
         return $this->belongsTo(Post::class, "post_id");
     }
 
+    public function getExpiresAtAttribute()
+    {
+        return carbon()->parse($this->created_at)->addDays($this->duration);
+    }
+
     public function group()
     {
         return $this->belongsTo(Group::class, "group_id");

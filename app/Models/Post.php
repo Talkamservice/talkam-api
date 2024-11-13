@@ -138,6 +138,11 @@ class Post extends Model
         return $this->promotions()->status()->first();
     }
 
+    public function stat()
+    {
+        return $this->belongsTo(PostStat::class, "post_id");
+    }
+
     public function scopeHideGroupPosts($query, $group_access = PostConstants::TYPE_CLOSED)
     {
         return $query->where(function ($query) use ($group_access) {
