@@ -11,6 +11,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Promotion;
+use App\Models\PromotionLocation;
 use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Finance\Payment\PaymentIntentService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
@@ -55,7 +56,8 @@ class PromotionService
             "post_id" => "bail|nullable|exists:posts,id",
             "group_id" => "bail|nullable|exists:groups,id",
             "state_id" => "bail|nullable|exists:states,id",
-            "country_id" => "bail|nullable|exists:countries,id",
+            "country_id" => "bail|nullable|array|max:3",
+            "country_id.*" => "exists:countries,id",
             "min_age" => "bail|nullable|numeric|" . Rule::requiredIf(empty($id)),
             "max_age" => "bail|nullable|numeric|" . Rule::requiredIf(empty($id)),
             "gender" => "bail|nullable|string",
@@ -189,11 +191,24 @@ class PromotionService
             $user = $this->user = auth()->user();
 
             $data["cost"] = $data["daily_budget"] * $data["duration"];
+            
+            $countries = $data["country_id"] ?? null;
+            unset($data["country_id"]);
+
             $promotion = Promotion::create(array_merge($data, [
                 "user_id" => $user->id,
                 "uuid" => MethodsHelper::getRandomToken(10),
             ]));
 
+            if (isset($countries)) {
+                foreach ($countries as $key => $country_id) {
+                    PromotionLocation::create([
+                        "promotion_id" => $promotion->id,
+                        "country_id" => $country_id
+                    ]);
+                }
+            }
+            
             (new ActivityLogService)
                 ->setEvent("created")
                 ->setTitle("Promotion Created")

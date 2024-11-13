@@ -19,4 +19,10 @@ class Country extends Model
     {
         return $query->where("name", "LIKE", "%$key%");
     }
+
+    public function promotionLocations()
+    {
+        return $this->hasMany(PromotionLocation::class, "country_id");
+    }
+
 }

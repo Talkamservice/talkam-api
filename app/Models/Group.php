@@ -65,8 +65,8 @@ class Group extends Model
         return $this->promotions()->status()->first();
     }
 
-    public function stat()
+    public function groupStat()
     {
-        return $this->belongsTo(PostStat::class, "group_id");
+        return $this->hasOne(PostStat::class, "group_id");
     }
 }

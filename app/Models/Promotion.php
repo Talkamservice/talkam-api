@@ -57,7 +57,6 @@ class Promotion extends Model
         });
     }
 
-
     public function scopeFilterByType($query, $type)
     {
         if ($type) {
@@ -103,5 +102,16 @@ class Promotion extends Model
             return 'Post';   // Promotion is related to a post
         }
         return 'Unknown';  // Return a default value if neither group_id nor post_id exists
+    }
+
+    public function stat()
+    {
+        if ($this->post?->postStat) {
+            return $this->post->postStat;
+        }
+
+        if ($this->group?->groupStat) {
+            return $this->group->groupStat;
+        }
     }
 }

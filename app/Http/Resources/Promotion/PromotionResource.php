@@ -3,10 +3,12 @@
 namespace App\Http\Resources\Promotion;
 
 use App\Http\Resources\Group\GroupResource;
+use App\Http\Resources\Location\CountryResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Post\TrendingResource;
 use App\Http\Resources\Stat\PostStatsResource;
 use App\Http\Resources\Users\UserResource;
+use App\Models\Country;
 use App\Models\TrendingTag;
 use App\Models\UserInterest;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,13 +25,14 @@ class PromotionResource extends JsonResource
 
     public function toArray($request)
     {
+        $countries = Country::whereRelation("promotionLocations", "promotion_id", $this->id)->get();
         return [
             "id" => $this->id,
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "post" => !empty($this->post) ? PostResource::make($this->post) : null,
             "group" => !empty($this->group) ? GroupResource::make($this->group) : null,
-            "state" => !empty($this->state) ? PostResource::custom($this->state) : null,
-            "country" => !empty($this->country) ? PostResource::custom($this->country) : null,
+            // "state" => !empty($this->state) ? PostResource::custom($this->state) : null,
+            "country" => $countries->isNotEmpty() ? CountryResource::collection($countries) : null,
             "min_age" => $this->min_age,
             "max_age" => $this->max_age,
             "gender" => $this->gender,
@@ -40,7 +43,7 @@ class PromotionResource extends JsonResource
             "total_reach" => $this->total_reach,
             "status" => $this->status,
             "expires_at" => formatDate($this->expires_at),
-            "stats" => PostStatsResource::make($this->stat),
+            "stats" => PostStatsResource::make($this->stat(), $countries),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];

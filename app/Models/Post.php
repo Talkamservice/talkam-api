@@ -138,9 +138,9 @@ class Post extends Model
         return $this->promotions()->status()->first();
     }
 
-    public function stat()
+    public function postStat()
     {
-        return $this->belongsTo(PostStat::class, "post_id");
+        return $this->hasOne(PostStat::class, "post_id");
     }
 
     public function scopeHideGroupPosts($query, $group_access = PostConstants::TYPE_CLOSED)

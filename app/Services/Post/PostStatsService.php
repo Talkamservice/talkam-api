@@ -4,7 +4,13 @@ namespace App\Services\Post;
 
 use App\Constants\General\AppConstants;
 use App\Jobs\PostStatsJob;
+use App\Models\ContentEngagementUser;
+use App\Models\ContentLocationStat;
+use App\Models\Group;
+use App\Models\Post;
 use App\Models\PostStat;
+use App\Models\User;
+use App\Models\WebUser;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -25,6 +31,7 @@ class PostStatsService
             "profile_visits" => "nullable",
             "clicks" => "nullable",
             "time_spent" => "nullable",
+            "web_user_id" => "nullable",
         ]);
 
         if ($validator->fails()) {
@@ -49,7 +56,6 @@ class PostStatsService
             $fields_to_update = ["comments", "likes", "dislikes", "shares", "impressions", "engagements", "followers", "profile_visits", "clicks"];
 
             $query = array_intersect_key($data, array_flip(["post_id", "group_id"]));
-            $query["user_id"] = auth()->check() ? auth()->id() : null;
 
             $post_stat = PostStat::firstOrCreate($query);
 
@@ -69,6 +75,15 @@ class PostStatsService
 
             unset($data["time_spent"]);
             $post_stat->update($data);
+
+            $user = auth("sanctum")->check() ? auth("sanctum")->user() : null;
+
+            if ($user) {
+                $this->createContentEngagementUser($post_stat, $user->id, User::class);
+            } elseif (!empty($data["web_user_id"] ?? null)) {
+                $this->createContentEngagementUser($post_stat, $data["web_user_id"], WebUser::class);
+            }
+
             return $post_stat->refresh();
         } catch (\Throwable $th) {
             throw $th;
@@ -145,6 +160,27 @@ class PostStatsService
                 ...$extras
             ]);
             $this->dispatch($data);
+        }
+    }
+
+    function createContentEngagementUser($post_stat, $user_id, $user_type)
+    {
+        if (!empty($post_id = $post_stat->post_id)) {
+            ContentEngagementUser::firstOrCreate([
+                "model_type" => Post::class,
+                "model_id" => $post_id,
+                "user_type" => $user_type,
+                "user_id" => $user_id,
+            ]);
+        }
+
+        if (!empty($group_id = $post_stat->group_id)) {
+            ContentEngagementUser::firstOrCreate([
+                "model_type" => Group::class,
+                "model_id" => $group_id,
+                "user_type" => $user_type,
+                "user_id" => $user_id,
+            ]);
         }
     }
 }
