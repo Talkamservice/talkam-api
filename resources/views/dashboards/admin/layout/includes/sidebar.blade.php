@@ -99,8 +99,8 @@
                             </a>
                             <ul class="slide-menu child1">
                                 <li class="slide">
-                                    <a href="{{ route('admin.promotions.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions.index' ? 'active' : '' }}">Report</a>
-                                    <a href="{{ route('admin.promotions-items') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions-items' ? 'active' : '' }}">Promotion</a>
+                                    <a href="{{ route('admin.promotions.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions.index' ? 'active' : '' }}">Reports</a>
+                                    <a href="{{ route('admin.promotions-items') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions-items' ? 'active' : '' }}">Promotions</a>
                                 </li>
                             </ul>
                         </li>
