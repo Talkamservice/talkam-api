@@ -103,11 +103,6 @@
                                         </td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a href="{{ route('admin.promotions.view-analytic', $promotion->id) }}"
-                                                    aria-label="anchor" data-bs-toggle="tooltip" title="View Analytic"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light">
-                                                    <i class="ri-eye-line"></i>
-                                                </a>
                                                 <a aria-label="anchor" data-bs-toggle="tooltip"
                                                     title="View Promoted Content" target="_blank"
                                                     href="{{ $promotion->contentWebUrl() }}"

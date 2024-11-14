@@ -2,6 +2,11 @@
     // Retrieve monthly revenue data from backend
     let monthlyRevenue = @json($revenue_data['revenue']);
 
+    // Function to format numbers with commas
+    function formatNumber(number) {
+        return number.toLocaleString();  // Formats number with commas (e.g., 23,092)
+    }
+
     // ApexCharts configuration
     var options = {
         series: [{
@@ -45,17 +50,17 @@
         yaxis: {
             labels: {
                 formatter: function(value) {
-                    return "₦" + value.toFixed(0);
+                    return "$" + formatNumber(value);
                 },
             },
             title: {
-                text: "Revenue (NGN)",
+                text: "Revenue (USD)",
             },
         },
         tooltip: {
             y: {
                 formatter: function(value) {
-                    return "NGN" + value.toFixed(0);
+                    return "USD" + formatNumber(value);
                 }
             }
         },
@@ -64,7 +69,7 @@
             customLegendItems: ["Revenue"],
         },
         title: {
-            text: "Revenue Analytics (NGN)",
+            text: "Revenue Analytics (USD)",
             align: "left",
             style: {
                 fontSize: ".8125rem",

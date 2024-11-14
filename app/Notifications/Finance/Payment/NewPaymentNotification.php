@@ -101,7 +101,7 @@ class NewPaymentNotification extends Notification
     public function buildMessage()
     {
         if (in_array($this->payment->activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
-            $message = "You have successfully made payment for promotion. Your content is now under review and would be approved after review!";
+            $message = "Your ad is live! Click to check your analytics for more insights";
         }
 
         return $message ?? "";
