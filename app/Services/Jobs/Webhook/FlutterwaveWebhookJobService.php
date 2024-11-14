@@ -47,6 +47,7 @@ class FlutterwaveWebhookJobService
 
     public function saveResponse($response, $status)
     {
+        logger("Webhook response", [$response, $status]);
         $this->webhook->update([
             "status" => $status,
             "response" => $response,

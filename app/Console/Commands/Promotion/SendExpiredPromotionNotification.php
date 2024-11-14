@@ -26,11 +26,11 @@ class SendExpiredPromotionNotification extends Command
                 $message = "Your {$type} ad has expired. Click to view the final analytics of this ad.";
                 $title = "Your {$type} ad has expired";
                 Notification::send($promotion->user, new PromotionImpressionNotification($promotion, $message, $title));
-            }
 
-            $promotion->update([
-                "status" => StatusConstants::COMPLETED
-            ]);
+                $promotion->update([
+                    "status" => StatusConstants::COMPLETED
+                ]);
+            }
         }
     }
 }
