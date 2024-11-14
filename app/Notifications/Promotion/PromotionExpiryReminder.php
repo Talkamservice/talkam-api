@@ -36,9 +36,8 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject($data['title'])
             ->line($data['message'])
-            ->line("Expiration Date: " . carbon()->parse($this->promotion->created_at)->addDays($this->promotion->duration))
+            ->line("Expiration Date: " . Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration))
             ->line("Status: " . ucfirst($data['status']))
-            // ->action('View Promotion', url('/promotions/' . $this->promotion->id))
             ->markdown('emails.bulk.notification', [
                 'title' => $data['title'],
                 'message' => $data['message'],
@@ -83,24 +82,33 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
      */
     protected function buildData($notifiable): array
     {
+        // Calculate the promotion's expiration date
         $expiresAt = Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration);
-        $remainingDays = Carbon::now()->diffInDays($expiresAt);
+        $remainingDays = Carbon::now()->diffInDays($expiresAt, false); // Get remaining days (can be negative if expired)
         
-        $data = [
+        // Customizing message based on remaining time
+        if ($remainingDays > 0) {
+            $title = "Your promotion is pending and will expire soon";
+            $message = "Your promotion is set to expire in {$remainingDays} day" . ($remainingDays > 1 ? 's' : '') . ". Please respond to ensure it remains active.";
+        } else {
+            $title = "Your promotion has expired";
+            $message = "Your promotion expired {$remainingDays} day" . ($remainingDays < -1 ? 's' : '') . " ago. Please take action if you'd like to reactivate it.";
+        }
+
+        return [
             'data' => [
                 'id' => $this->promotion->id,
                 'expires_at' => $remainingDays,
                 'status' => $this->promotion->status,
             ],
-            'title' => "Your promotion is pending and will expire soon",
-            'message' => "Your promotion is set to expire on {$remainingDays}. Please respond to ensure it remains active.",
-            'expires_at' => $remainingDays,
+            'title' => $title,
+            'message' => $message,
+            'expires_at' => $expiresAt->toDateString(),
             'status' => $this->promotion->status,
             'type' => 'promotion_expiry_reminder',
             'link' => null,
             'batch_no' => null,
             'extra' => []
         ];
-        return $data;
     }
 }
