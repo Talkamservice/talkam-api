@@ -39,6 +39,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('members:update-status')->everyMinute();
         $schedule->command('notifications:send-pending')->everyMinute();
         $schedule->command('announcements:update-expired')->everyMinute();
+        $schedule->command('promotions:notify-pending')->everyMinute();
+        $schedule->command('promotion:send-notifications')->dailyAt('00:00');
+        $schedule->command('promotion:send-expired-notifications')->everyMinute();
     }
 
     /**

@@ -13,15 +13,17 @@ use Illuminate\Support\Facades\DB;
 class PromotionStatsService
 {
     public $promotion_service;
+    public $single_promotion_service;
 
     public function __construct()
     {
         $this->promotion_service = new PromotionService;
+        // $this->single_promotion_service = new SinglePromotionService;
     }
 
     public function stats(array $data = [])
     {
-        $period = $data["period"] ?? null;
+        $period = $data["period"] ?? 'month';
 
         if (!in_array($period, ['day', 'week', 'month', 'year'])) {
             $period = 'month';
@@ -268,14 +270,13 @@ class PromotionStatsService
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->sum("cost");
 
-            $total_freemuim_users[$i] = User::whereDoesntHave("activeSubscription", function ($subscription) use ($startOfInterval, $endOfInterval) {
-                $subscription->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
+            $total_freemium_users[$i] = User::whereDoesntHave('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
+                $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
             })->count();
 
-            $total_premium_users[$i] = User::whereHas("activeSubscription", function ($subscription) use ($startOfInterval, $endOfInterval) {
-                $subscription->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
+            $total_premium_users[$i] = User::whereHas('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
+                $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
             })->count();
-
             $monthly_revenue[$i] = Subscription::whereBetween('paid_on', [$startOfInterval, $endOfInterval])->sum('price');
         }
 
@@ -305,5 +306,11 @@ class PromotionStatsService
         }
 
         return round((($currentTotal - $previousTotal) / $previousTotal) * 100, 2);
+    }
+
+    public function getSinglePromotion($promotionId, $period)
+    {
+        $promotion = (new SinglePromotionService())->getPromotionData($promotionId, $period);
+        return $promotion;
     }
 }

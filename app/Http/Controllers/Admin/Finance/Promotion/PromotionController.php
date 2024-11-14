@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Finance\Promotion;
 
 use App\Constants\Finance\Plan\PlanConstants;
+use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\Payment\PlanException as PaymentPlanException;
@@ -30,8 +31,10 @@ class PromotionController extends Controller
 
     public function index(Request $request)
     {
+        $period = $request->period;
+
         $high_promotions = Promotion::orderBy("cost", "desc")->limit(5)->get();
-        $promotion_stats = $this->promotion_stat_service->stats();
+        $promotion_stats = $this->promotion_stat_service->stats(['period' => $period]);
         $revenue_data = $this->promotion_stat_service->fetchrevenueData();
         return view('dashboards.admin.pages.finance.promotions.index', [
             'promotion_stats' => $promotion_stats,
@@ -50,10 +53,11 @@ class PromotionController extends Controller
             ->filterByType($request->type)  // Add filter for type
             ->filterByStatus($request->status)  // Add filter for status
             ->with('user')
-            ->get();
+            ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
 
         return view('dashboards.admin.pages.finance.promotions.list', [
             'promotions' => $promotions,
+            "sn" => $promotions->firstItem(),
         ]);
     }
 
@@ -82,18 +86,37 @@ class PromotionController extends Controller
 
     public function getByStatus(Request $request)
     {
-        $promotions = Promotion::where('status', $request->status)->latest()->search($request->search)->get();
+        $promotions = Promotion::where('status', $request->status)->latest()->search($request->search) 
+        ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         $promotion_status = [];
         if ($request->status === StatusConstants::ACTIVE) {
             $promotion_status = "Completed";
         } elseif ($request->status === StatusConstants::PENDING) {
             $promotion_status = "Ongoing";
         } else {
-            $promotion_status = "Pending";
+            $promotion_status = "Inactive";
         }
         return view('dashboards.admin.pages.finance.promotions.get-by-status', [
             'promotions' => $promotions,
             'promotion_status' => $promotion_status,
+            "sn" => $promotions->firstItem(),
+        ]);
+    }
+
+    public function viewAnalytic(Request $request, $promotionId)
+    {
+        $period = $request->get('period', 'day');
+
+        if (!in_array($period, ['day', 'week', 'month', 'year'])) {
+            $period = 'month';
+        }
+
+        // Pass the promotion ID to get data for the specified promotion
+        $promotionData = $this->promotion_stat_service->getSinglePromotion($promotionId, $period);
+        return view('dashboards.admin.pages.finance.promotions.single', [
+            'promotion_data' => $promotionData['promotion_data'],
+            'data_labels' => $promotionData['data_labels'],
+            'promotion' => $promotionData['uuid'],
         ]);
     }
 }

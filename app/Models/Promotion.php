@@ -109,9 +109,19 @@ class Promotion extends Model
         if ($this->post?->postStat) {
             return $this->post->postStat;
         }
-
         if ($this->group?->groupStat) {
             return $this->group->groupStat;
         }
+    }
+
+    public function statAttribute($attribute)
+    {
+        if ($this->post?->postStat) {
+            return $this->post->postStat->$attribute;
+        }
+        if ($this->group?->groupStat) {
+            return $this->group->groupStat->$attribute;
+        }
+        return null;  // return null if no related stat is found
     }
 }

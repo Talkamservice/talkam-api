@@ -261,6 +261,11 @@ class PromotionService
         }
     }
 
+    public function search()
+    {
+        $promotions = Promotion::with(["user"]);
+    }
+
 
     public static function list(array $data = [])
     {

@@ -23,7 +23,8 @@
                 <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
-                            <input class="form-control" type="text" placeholder="Search...." name="search" value="{{ request()->search }}">
+                            <input class="form-control" type="text" placeholder="Search...." name="search"
+                                value="{{ request()->search }}">
                         </div>
                         <div class="form-group me-2">
                             <select name="type" class="form-control">
@@ -35,10 +36,13 @@
                         <div class="form-group me-2">
                             <select name="status" class="form-control">
                                 <option value="">Select Status</option>
-                                <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="Active" {{ request()->status == 'Active' ? 'selected' : '' }}>Active</option>
-                                <option value="Completed" {{ request()->status == 'Completed' ? 'selected' : '' }}>Completed</option>
-                                <!-- Add more status options as needed -->
+                                <option value="">Select Status</option>
+                                <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Ongoing
+                                </option>
+                                <option value="Active" {{ request()->status == 'Active' ? 'selected' : '' }}>Completed
+                                </option>
+                                <option value="Inactive" {{ request()->status == 'Inactive' ? 'selected' : '' }}>Pending
+                                </option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -46,36 +50,64 @@
                         </div>
                     </form>
                 </div>
-                
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
                                 <tr>
+                                    <th scope="col">S/N</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Duration (Days)</th>
                                     <th scope="col">Cost</th>
                                     <th scope="col">Type</th>
+                                    <th scope="col">Stat</th>
                                     <th scope="col">Status</th>
-                                    <th scope="col">Date</th>
+                                    <th scope="col">Date Created</th>
+                                    <th scope="col">Expiry Date</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($promotions as $promotion)
                                     <tr>
+                                        <td>{{ $sn++ }}</td>
                                         <td>{{ optional($promotion->user)->getName() ?? 'N/A' }}</td>
                                         <td>{{ $promotion->duration }}</td>
                                         <td>{{ format_money($promotion->cost) }}</td>
-                                        <td>{{$promotion->type()}}</td>
+                                        <td>{{ $promotion->type() }}</td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#promotionStatContent_{{ $promotion->id }}">
+                                                    View
+                                                </button>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($promotion->status) }}-transparent">
                                                 {{ $promotion->status }}
                                             </span>
                                         </td>
                                         <td>{{ $promotion->created_at->format('Y-m-d h:i A') }}</td>
+                                        @php
+                                            $isExpired = \Carbon\Carbon::now()->greaterThan(
+                                                $promotion->getExpiresAtAttribute() ?? now(),
+                                            );
+                                        @endphp
+
+                                        <td class="{{ $isExpired ? 'text-danger' : '' }}">
+                                            @if ($promotion->getExpiresAtAttribute())
+                                                {{ \Carbon\Carbon::parse($promotion->getExpiresAtAttribute())->format('Y-m-d h:i A') }}
+                                                @if ($isExpired)
+                                                    <sub class="text-danger">(Expired)</sub>
+                                                @endif
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
+                                                <a href="{{ route('admin.promotions.view-analytic', $promotion->id) }}"
+                                                    aria-label="anchor" data-bs-toggle="tooltip" title="View Analytic"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
                                                 <a aria-label="anchor" data-bs-toggle="tooltip"
                                                     title="View Promoted Content" target="_blank"
                                                     href="{{ $promotion->contentWebUrl() }}"
@@ -93,6 +125,11 @@
                                                 </form>
                                             </div>
                                         </td>
+                                        @include('dashboards.admin.pages.finance.promotions.modal.stat',[
+                                            'modalKey' => "promotionStatContent_$promotion->id",
+                                            'modalContent' => $promotion->body,
+                                        ]
+                                    )
                                     </tr>
                                 @empty
                                     <div class="alert alert-info text-center">
@@ -102,14 +139,19 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-                {{-- <div class="card-footer">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            Showing 5 Entries
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="text-muted">
+                            Showing {{ $promotions->firstItem() }} to {{ $promotions->lastItem() }} of
+                            {{ $promotions->total() }} entries
                         </div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {{ $promotions->links('pagination::bootstrap-4') }}
+                            </ul>
+                        </nav>
                     </div>
-                </div> --}}
+                </div>
             </div>
         </div>
     </div>

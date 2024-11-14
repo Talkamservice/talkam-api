@@ -102,7 +102,7 @@ Route::middleware(["auth"])->group(
         });
 
         Route::put('plan/cancel/{id}', [PlanController::class, 'cancelPlan'])->name('plan.cancel');
-        
+
         Route::as("notifications.")->prefix("notifications")->group(function () {
             Route::get("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
             Route::get("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
@@ -153,13 +153,13 @@ Route::middleware(["auth"])->group(
         Route::post('feedback/respond/{id}', [FeedbackController::class, 'respondFeedback'])->name('feedback.respond');
 
         Route::prefix("waitlists")->as("waitlists.")->group(function () {
-        Route::get('/index', [WaitlistController::class, 'index'])->name('index');
-        Route::get('/export', [WaitlistController::class, 'export'])->name('export');
-        Route::delete('destroy/{id}', [WaitlistController::class, 'destroy'])->name('destroy');
+            Route::get('/index', [WaitlistController::class, 'index'])->name('index');
+            Route::get('/export', [WaitlistController::class, 'export'])->name('export');
+            Route::delete('destroy/{id}', [WaitlistController::class, 'destroy'])->name('destroy');
         });
 
         Route::get('promotions-items', [PromotionController::class, 'items'])->name('promotions-items');
         Route::get('promotions/{status}/get-by-status', [PromotionController::class, 'getBystatus'])->name('promotions.get-by-status');
-
+        Route::get('promotions/{promotion}/view-analytic', [PromotionController::class, 'viewAnalytic'])->name('promotions.view-analytic');
     }
 );

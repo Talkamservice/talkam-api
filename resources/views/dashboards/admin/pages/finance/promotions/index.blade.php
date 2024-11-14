@@ -1,5 +1,14 @@
 @extends('dashboards.admin.layout.app')
 @section('content')
+<style>
+    .disabled-link {
+    pointer-events: none;
+    color: #ccc; /* Change the color to indicate it's disabled */
+    text-decoration: none;
+    cursor: not-allowed; /* This will show a "not-allowed" cursor */
+}
+
+</style>
     <div class="container-fluid">
 
         <!-- Start::page-header -->
@@ -24,7 +33,7 @@
                 </div>
 
                 <!-- Hidden input to capture selected period -->
-                <input type="hidden" name="period" id="selected-period" value="{{ request('period', 'day') }}">
+                <input type="hidden" name="period" id="selected-period" value="{{ request('period', 'month') }}">
             </form>
 
         </div>
@@ -81,7 +90,7 @@
                                         <div class="card-title">
                                             Revenue Analytics
                                         </div>
-                                        <div class="dropdown">
+                                        {{-- <div class="dropdown">
                                             <a href="javascript:void(0);" class="p-2 fs-12 text-muted"
                                                 data-bs-toggle="dropdown" aria-expanded="false">
                                                 View All<i
@@ -92,7 +101,7 @@
                                                 <li><a class="dropdown-item" href="javascript:void(0);">This Week</a></li>
                                                 <li><a class="dropdown-item" href="javascript:void(0);">Last Week</a></li>
                                             </ul>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                     <div class="card-body">
                                         <div class="content-wrapper">
@@ -171,22 +180,26 @@
                                         <li class="{{ $promotion_stat['class'] }}">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <p>
-                                                    <a href="{{ route('admin.promotions.get-by-status', $promotion_stat['status']) }}"
-                                                        target="_blank"
-                                                        rel="noopener noreferrer">{{ $promotion_stat['title'] }}</a>
-
+                                                    <a href="{{ $promotion_stat['value'] == 0 ? 'javascript:void(0);' : route('admin.promotions.get-by-status', $promotion_stat['status']) }}"
+                                                        target="{{ $promotion_stat['value'] == 0 ? '' : '_blank' }}"
+                                                        rel="noopener noreferrer"
+                                                        class="{{ $promotion_stat['value'] == 0 ? 'disabled-link' : '' }}">
+                                                        {{ $promotion_stat['title'] }}
+                                                    </a>
                                                 </p>
                                                 <p>
-                                                    <a href="{{ route('admin.promotions.get-by-status', $promotion_stat['status']) }}"
-                                                        target="_blank"
-                                                        rel="noopener noreferrer">{{ $promotion_stat['value'] }}</a>
-
+                                                    <a href="{{ $promotion_stat['value'] == 0 ? 'javascript:void(0);' : route('admin.promotions.get-by-status', $promotion_stat['status']) }}"
+                                                        target="{{ $promotion_stat['value'] == 0 ? '' : '_blank' }}"
+                                                        rel="noopener noreferrer"
+                                                        class="{{ $promotion_stat['value'] == 0 ? 'disabled-link' : '' }}">
+                                                        {{ $promotion_stat['value'] }}
+                                                    </a>
                                                 </p>
                                             </div>
                                         </li>
                                     @endforeach
-
                                 </ul>
+
                             </div>
                         </div>
                     </div>
