@@ -37,7 +37,6 @@ class SendPromotionNotification extends Command
                 // Send the notification to the user
                 Notification::send($promotion->user, new PromotionImpressionNotification($promotion, $message));
 
-                $this->info('Notification sent to: ' . $promotion->user->email);
             }
         }
 
