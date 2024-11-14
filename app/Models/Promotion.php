@@ -45,18 +45,18 @@ class Promotion extends Model
     public function scopeSearch($query, $key)
     {
         return $query->where(function ($q) use ($key) {
-            $q->where('status', $key)
-                ->whereHas("user", function ($user) use ($key) {
-                    $user->search($key);
-                })->orWhereHas("post", function ($post) use ($key) {
-                    $post->search($key);
-                })->orWhereHas("group", function ($group) use ($key) {
-                    $group->search($key);
-                })->orWhereHas("payment", function ($payment) use ($key) {
-                    $payment->search($key);
-                });
+            $q->whereHas("user", function ($user) use ($key) {
+                $user->search($key);
+            })->orWhereHas("post", function ($post) use ($key) {
+                $post->search($key);
+            })->orWhereHas("group", function ($group) use ($key) {
+                $group->search($key);
+            })->orWhereHas("payment", function ($payment) use ($key) {
+                $payment->search($key);
+            });
         });
     }
+
     public function scopeFilterByType($query, $type)
     {
         if ($type) {
