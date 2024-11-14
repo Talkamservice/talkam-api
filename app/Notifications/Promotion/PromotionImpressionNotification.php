@@ -15,7 +15,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
 {
     use Queueable;
 
-    public function __construct(public $promotion, public $message)
+    public function __construct(public $promotion, public $message, public $title = null)
     {
     }
 
@@ -84,12 +84,14 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
         $expiresAt = Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration);
 
         $data = [
-            'id' => $this->promotion->id,
-            'title' => "Your promotion has reached {$this->promotion->statAttribute('impressions')} impressions",
+            'data' => [
+                'id' => $this->promotion->id,
+            ],
+            'title' => $this->title ?? "Your promotion has reached {$this->promotion->statAttribute('impressions')} impressions",
             'message' => $this->message,
             'expires_at' => $expiresAt,
             'status' => $this->promotion->status,
-            'type' => 'promotion_impression_notification',
+            'type' => 'promotion',
             'link' => null,
             'batch_no' => null,
             'extra' => []
