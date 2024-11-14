@@ -21,14 +21,17 @@ class NotifyPendingPromotions extends Command
         $now = Carbon::now();
 
         // Get all pending promotions
-        $promotions = Promotion::where('status', StatusConstants::PENDING)->get();
+        $promotions = Promotion::with(['group', 'post'])->where('status', StatusConstants::PENDING)->get();
 
         foreach ($promotions as $promotion) {
             // Calculate the promotion's expiration time
             $expiresAt = Carbon::parse($promotion->created_at)->addDays(3);  // 3 days after creation
             $hoursRemaining = $now->diffInHours($expiresAt, false); // Negative if past expiry
 
-            if ($promotion->last_reminder_sent_at == null) {
+            // Ensure that last_reminder_sent_at is a Carbon instance
+            $lastReminderSentAt = $promotion->last_reminder_sent_at ? Carbon::parse($promotion->last_reminder_sent_at) : null;
+
+            if ($promotion->last_reminder_sent_at === null) {
                 // Send an immediate notification to the user about the pending promotion
                 Notification::send($promotion->user, new PromotionExpiryReminder($promotion));
 
@@ -40,7 +43,7 @@ class NotifyPendingPromotions extends Command
 
             if ($hoursRemaining > 0 && $hoursRemaining <= 72) {
                 // Check if it's been 12 hours since the last reminder
-                if (carbon()->parse($promotion->last_reminder_sent_at)->diffInHours($now) >= 12) {
+                if ($lastReminderSentAt && $lastReminderSentAt->diffInHours($now) >= 12) {
                     // Send a periodic reminder notification
                     Notification::send($promotion->user, new PromotionExpiryReminder($promotion));
 
@@ -49,8 +52,7 @@ class NotifyPendingPromotions extends Command
 
                     Log::info("Reminder sent to user for promotion ID: {$promotion->id}, expires in {$hoursRemaining} hours.");
                 }
-            } 
-            elseif ($hoursRemaining <= 0) {
+            } elseif ($hoursRemaining <= 0) {
                 // Send final expiration notification if the promotion has expired
                 Notification::send($promotion->user, new PromotionExpiryReminder($promotion, true)); // Pass true to signify expiration
 
