@@ -58,7 +58,7 @@ class FlutterwaveWebhookService
                 throw new InvalidRequestException($transaction["message"] ?? null);
             }
 
-            $meta = $transaction["data"]["meta"];
+            $meta = $transaction["data"]["meta"] ?? $payload["meta_data"];
             $activity = $meta["activity"];
 
             if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
