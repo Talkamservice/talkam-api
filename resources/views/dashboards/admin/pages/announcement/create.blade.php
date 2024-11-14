@@ -1,0 +1,194 @@
+@extends('dashboards.admin.layout.app')
+
+@section('content')
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+            <h1 class="page-name fw-semibold fs-18 mb-0">{{ isset($announcement) ? 'Edit' : 'Create' }} Announcement</h1>
+            <div class="ms-md-1 ms-0">
+                <nav>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('admin.announcements.index') }}">Announcements</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            {{ isset($announcement) ? 'Edit' : 'Create' }}
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <!-- Page Header Close -->
+
+        <!-- Start:: row-1 -->
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <form
+                            action="{{ isset($announcement) ? route('admin.announcements.update', $announcement->id) : route('admin.announcements.store') }}"
+                            method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @isset($announcement)
+                                @method('patch')
+                            @endisset
+
+                            <div class="gy-4 mb-4">
+                                <!-- Title Field -->
+                                <div class="row col-xl-9 col-sm-12 mb-3">
+                                    <label for="title"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Title</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="text" class="form-control" name="title" id="title"
+                                            value="{{ old('title') ?? ($announcement->title ?? '') }}"
+                                            placeholder="Enter title">
+                                    </div>
+                                </div>
+
+                                <!-- Body Field -->
+                                <div class="row col-xl-9 col-sm-12 mb-3">
+                                    <label for="body"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Body</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <textarea name="body" class="form-control" id="body" cols="30" rows="5">{{ old('body') ?? ($announcement->body ?? '') }}</textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Audience Field -->
+                                <div class="row col-xl-9 col-sm-12 mb-3">
+                                    <label for="audience"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Audience</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <select name="audience" id="audience" class="form-control">
+                                            <option value="" disabled selected>Select Audience</option>
+                                            <option value="Group_Admins"
+                                                {{ (old('audience') ?? ($announcement->audience ?? '')) == 'Group_Admins' ? 'selected' : '' }}>
+                                                Group Admins
+                                            </option>
+                                            <option value="General"
+                                                {{ (old('audience') ?? ($announcement->audience ?? '')) == 'General' ? 'selected' : '' }}>
+                                                General
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Banner Image Field -->
+                                <div class="row col-xl-9 col-sm-12 mb-3">
+                                    <label for="banner_image"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Banner</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="file" class="form-control" name="banner_image" id="banner_image">
+                                        {{-- @if (isset($announcement->banner_image))
+                                            <img src="{{ asset('storage/' . $announcement->banner_image) }}" alt="Banner Image" class="img-fluid mt-2">
+                                        @endif --}}
+                                    </div>
+                                </div>
+                                <!-- Status Field -->
+                                <div class="row col-xl-9 col-sm-12 mb-3">
+                                    <label for="status"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="" disabled selected>Select Status</option>
+                                            @foreach ($statusOptions as $statusOption)
+                                                <option value="{{ $statusOption }}"
+                                                    {{ (old('status') ?? ($announcement->status ?? '')) == $statusOption ? 'selected' : '' }}>
+                                                    {{ $statusOption }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- Published At Field -->
+                                <div class="row col-xl-9 col-sm-12 mb-3" id="published_at_wrapper">
+                                    <label for="published_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Publish
+                                        Date</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="datetime-local" class="form-control" name="published_at"
+                                            id="published_at"
+                                            value="{{ old('published_at') ?? (isset($announcement) && $announcement->published_at ? $announcement->published_at->format('Y-m-d\TH:i') : '') }}">
+                                    </div>
+                                </div>
+                                @php
+                                    $formattedExpiredAt =
+                                        isset($announcement) && $announcement->expired_at
+                                            ? \Carbon\Carbon::parse($announcement->expired_at)->format('Y-m-d\TH:i')
+                                            : '';
+                                @endphp
+                                <div class="row col-xl-9 col-sm-12 mb-3" id="expired_at">
+                                    <label for="expired_at" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Expiry
+                                        Date (Optional)</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="datetime-local" class="form-control" name="expired_at" id="expired_at"
+                                            value="{{ old('expired_at') ?? $formattedExpiredAt }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer d-none border-top-0"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+<!-- Include Select2 JavaScript and CSS for better multi-select functionality -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+
+
+@section('script')
+    <script>
+        classicEditorInit('#body');
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#audience').select2({
+                placeholder: "Select Audience",
+                allowClear: true
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            function toggleFields() {
+                const status = $('#status').val();
+                const isEditing = @json(isset($announcement));
+
+                if (!isEditing) {
+                    $('#status').closest('.row').hide(); // Hide status when creating
+                    $('#published_at_wrapper').hide(); // Hide publish date when creating
+                } else {
+                    $('#status').closest('.row').show(); // Show status when editing
+
+                    if (status === 'Inactive') {
+                        $('#published_at_wrapper').closest('.row').hide();
+                    }
+                    if (status === 'Active') {
+                        $('#published_at_wrapper').show(); // Show publish date when status is active
+                        if (!$('#published_at').val()) {
+                            // Auto-fill current date if the field is empty
+                            const currentDate = new Date().toISOString().slice(0, 16);
+                            $('#published_at').val(currentDate);
+                        }
+                    } else {
+                        $('#published_at_wrapper').hide(); // Hide publish date when status is inactive
+                    }
+                }
+            }
+
+            // Initially toggle fields based on current values
+            toggleFields();
+
+            // Toggle fields when status changes
+            $('#status').on('change', toggleFields);
+        });
+    </script>
+@endsection

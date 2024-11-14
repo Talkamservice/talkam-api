@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1\User\Promotion;
+
+use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
+use App\Exceptions\General\InvalidRequestException;
+use App\Exceptions\General\ModelNotFoundException;
+use App\Helpers\ApiHelper;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Finance\Payment\PaymentResource;
+use App\Http\Resources\Promotion\PromotionResource;
+use App\Services\Promotion\PromotionService;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+
+class PromotionController extends Controller
+{
+    protected $promotion_service;
+
+    public function __construct()
+    {
+        $this->promotion_service = new PromotionService;
+    }
+
+    public function index(Request $request)
+    {
+        try {
+            $promotionResource = $this->promotion_service->list($request->all())
+                ->where(function ($query) {
+                    $query->whereNotNull("post_id")
+                        ->orWhereNotNull("group_id");
+                })
+                ->latest()
+                ->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
+            $data = collectPagination($promotionResource);
+
+            $data["data"] = PromotionResource::collection($data["data"]);
+            return ApiHelper::validResponse("Promotions returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $promotion = $this->promotion_service->getById($id);
+            $data = PromotionResource::make($promotion);
+            return ApiHelper::validResponse("Promotion details returned successfully", $data);
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function initiate(Request $request)
+    {
+        try {
+            $payment = $this->promotion_service->initiatePayment($request->all());
+            $data = PaymentResource::make($payment);
+            return ApiHelper::validResponse("Payment initiated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data", ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $promotion = $this->promotion_service->update($request->all(), $id);
+            $data = PromotionResource::make($promotion);
+            return ApiHelper::validResponse("Promotion updated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data", ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            $promotion = $this->promotion_service->getById($id);
+            $promotion->delete();
+            return ApiHelper::validResponse("Promotion deleted successfully");
+        } catch (ModelNotFoundException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+
+    public function reinitiate(Request $request, $id)
+    {
+        try {
+            $payment = $this->promotion_service->reinitiatePayment($id);
+            $data = PaymentResource::make($payment);
+            return ApiHelper::validResponse("Payment reinitiated successfully", $data);
+        } catch (ValidationException $th) {
+            return ApiHelper::inputErrorResponse("The given data", ApiConstants::VALIDATION_ERR_CODE, null, $th);
+        } catch (ModelNotFoundException | InvalidRequestException $th) {
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
+        } catch (Exception $th) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
+        }
+    }
+}

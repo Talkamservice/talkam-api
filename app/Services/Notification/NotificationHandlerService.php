@@ -1,0 +1,162 @@
+<?php
+
+namespace App\Services\Notification;
+
+use App\Constants\Post\PostConstants;
+use App\Events\RefreshNotification;
+use App\Models\ThreadNotification;
+use App\Models\User;
+use App\Notifications\Comment\NewCommentMentionNotification;
+use App\Notifications\Comment\NewCommentNotification;
+use App\Notifications\Comment\NewCommentReactionNotification;
+use App\Notifications\Comment\NewCommentTagMentionNotification;
+use App\Notifications\Post\NewPostReactionNotification;
+use App\Notifications\Comment\NewThreadCommentNotification;
+use App\Notifications\Comment\NewThreadCommentReactionNotification;
+use App\Notifications\Post\NewThreadPostReactionNotification;
+use Illuminate\Support\Facades\Notification;
+
+class NotificationHandlerService
+{
+    protected $user;
+    protected $can_receive_talkam_news;
+    protected $can_receive_talkam_research;
+    protected $comments_notifications_type;
+    protected $can_receive_content_activities;
+    protected $can_receive_moderation_activities;
+    protected $thread_notification_builder;
+
+
+    public function init($user_id)
+    {
+        $this->user = User::find($user_id);
+        $this->setPreferences();
+        $this->thread_notification_builder = ThreadNotification::where("user_id", $user_id)->status();
+        return $this;
+    }
+
+    public function setPreferences()
+    {
+        $this->can_receive_talkam_news = $this->canSendNotification("talkam_news");
+        $this->can_receive_talkam_research = $this->canSendNotification("talkam_research");
+        $this->can_receive_moderation_activities = $this->canSendNotification("moderation_activities");
+        $this->can_receive_content_activities = $this->canSendNotification("user_activities");
+        $this->comments_notifications_type = $this->user->notificationPreference?->comments;
+    }
+
+    private function canSendNotification($content, $type = "bool")
+    {
+        $notification_preference = $this->user->notificationPreference();
+        $notification = ($type == "bool") ? $notification_preference->where($content, 1)->first() : $notification_preference->where($content, $type)->first();
+        return !empty($notification);
+    }
+
+    public function notifyPostOwnerOfNewComment($comment)
+    {
+        if ($this->comments_notifications_type == "mentions") {
+            return $this;
+        }
+
+        if ($this->user->id != $comment->user_id) {
+            Notification::send($comment->post->user, new NewCommentNotification($comment));
+            broadcast(new RefreshNotification($comment->post->user_id));
+        }
+
+        return $this;
+    }
+
+    public function notifyThreadUser($model, $type)
+    {
+        $notify_me = null;
+        if ($type == "comment") {
+            $notify_me = $this->thread_notification_builder->where("comment_id", $model->id)->first();
+            if (!empty($notify_me) && $model->post->user_id != $model->user_id) {
+                Notification::send($notify_me->user, new NewThreadCommentNotification($model));
+            }
+        }
+
+        if ($type == "post_reaction") {
+            $notify_me = $this->thread_notification_builder->where("post_id", $model->post_id)->first();
+            if (!empty($notify_me) && $model->post->user_id != $model->user_id) {
+                if ($model->action != PostConstants::DISLIKE) {
+                    Notification::send($notify_me->user, new NewThreadPostReactionNotification($model));
+                }
+            }
+        }
+
+        if ($type == "comment_reaction") {
+            $notify_me = $this->thread_notification_builder->where("post_id", $model->comment->post_id)->first();
+            if (!empty($notify_me) && $model->comment->user_id != $model->user_id) {
+                Notification::send($notify_me->user, new NewThreadCommentReactionNotification($model));
+            }
+        }
+
+        if (!empty($notify_me)) {
+            broadcast(new RefreshNotification($notify_me->user_id));
+        }
+
+        return $this;
+    }
+
+    public function notifyPostOwnerOfNewReaction($post_reaction)
+    {
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
+            if ($this->user->id != $post_reaction->user_id) {
+                if ($post_reaction->action != PostConstants::DISLIKE) {
+                    Notification::send($post_reaction->post->user, new NewPostReactionNotification($post_reaction));
+                    broadcast(new RefreshNotification($post_reaction->post->user_id));
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    public function notifyCommentOwnerOfNewComment($comment)
+    {
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
+            $reply_comment = $comment->repliedComment;
+            if ($comment->user_id != $reply_comment->user_id) {
+                Notification::send($reply_comment->user, new NewCommentMentionNotification($comment));
+                broadcast(new RefreshNotification($reply_comment->user_id));
+            }
+        }
+
+        return $this;
+    }
+
+    public function notifyCommentOwnerOfNewReaction($comment_reaction)
+    {
+        if (empty($this->can_receive_content_activities) || $this->can_receive_content_activities == 1) {
+            if ($this->user->id != $comment_reaction->user_id) {
+                if ($comment_reaction->action != PostConstants::DISLIKE) {
+                    Notification::send($comment_reaction->comment->user, new NewCommentReactionNotification($comment_reaction));
+                    broadcast(new RefreshNotification($comment_reaction->comment->user_id));
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    public function notifyMentionOfNewComment($comment)
+    {
+        if ($this->user->id != $comment->user_id) {
+            Notification::send($this->user, new NewCommentTagMentionNotification($comment));
+            broadcast(new RefreshNotification($this->user->id));
+        }
+
+        return $this;
+    }
+
+    public function notifyMentionOfNewPost($comment)
+    {
+        $reply_comment = $comment->repliedComment;
+        if ($comment->user_id != $reply_comment->user_id) {
+            Notification::send($reply_comment->user, new NewCommentMentionNotification($comment));
+            broadcast(new RefreshNotification($reply_comment->user_id));
+        }
+
+        return $this;
+    }
+}

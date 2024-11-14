@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Services\User;
+
+use App\Models\User;
+use App\Models\UserInterest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+
+class InterestService
+{
+    public ?User $user;
+    public array $files = [];
+
+    function __construct()
+    {
+        $this->user = auth()->user();
+    }
+
+    function setUser($user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    public function validate(array $data): array
+    {
+        $validator = Validator::make($data, [
+            "user_id" => "nullable|exists:users,id|" . Rule::requiredIf(empty($this->user)),
+            "category_id" => "required|exists:post_categories,id",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return $validator->validated();
+    }
+
+
+    public function save(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $data = self::validate($data);
+
+            if (empty($this->user)) {
+                $this->user = User::find($data["user_id"]);
+            }
+
+            UserInterest::firstOrCreate([
+                "user_id" => $this->user->id,
+                "category_id" => $data["category_id"],
+            ]);
+
+            DB::commit();
+            return $this->user->refresh();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function addRemove(array $data)
+    {
+        $validator = Validator::make($data, [
+            "user_id" => "nullable|exists:users,id|" . Rule::requiredIf(empty($this->user)),
+            "category_id" => "required|exists:post_categories,id",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $data = $validator->validated();
+
+        $data["user_id"] ??= auth()->id();
+        
+        if (self::isInterestPresent($data)) {
+            UserInterest::where($data)->delete();
+        } else {
+            UserInterest::create($data);
+        }
+
+        return self::isInterestPresent($data);
+    }
+
+    public static function isInterestPresent(array $data)
+    {
+        return UserInterest::where($data)->exists();
+    }
+}
