@@ -28,7 +28,7 @@ class NotifyPendingPromotions extends Command
             $expiresAt = Carbon::parse($promotion->created_at)->addDays(3);  // 3 days after creation
             $hoursRemaining = $now->diffInHours($expiresAt, false); // Negative if past expiry
 
-            if ($promotion->last_reminder_sent_at === null) {
+            if ($promotion->last_reminder_sent_at == null) {
                 // Send an immediate notification to the user about the pending promotion
                 Notification::send($promotion->user, new PromotionExpiryReminder($promotion));
 
@@ -40,7 +40,7 @@ class NotifyPendingPromotions extends Command
 
             if ($hoursRemaining > 0 && $hoursRemaining <= 72) {
                 // Check if it's been 12 hours since the last reminder
-                if ($promotion->last_reminder_sent_at->diffInHours($now) >= 12) {
+                if (carbon()->parse($promotion->last_reminder_sent_at)->diffInHours($now) >= 12) {
                     // Send a periodic reminder notification
                     Notification::send($promotion->user, new PromotionExpiryReminder($promotion));
 
