@@ -83,7 +83,7 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
     protected function buildData($notifiable): array
     {
         // Calculate the promotion's expiration date
-        $expiresAt = Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration);
+        $expiresAt = Carbon::parse($this->promotion->created_at)->addDays(3);
         $remainingDays = Carbon::now()->diffInDays($expiresAt, false); // Get remaining days (can be negative if expired)
         
         // Customizing message based on remaining time
