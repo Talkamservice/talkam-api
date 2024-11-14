@@ -17,8 +17,7 @@ class NotifyPendingPromotions extends Command
 
     public function handle()
     {
-        // Set the times for reminders and final expiration notifications
-        $threeDaysFromNow = Carbon::now()->addDays(3);
+        // Get the current time
         $now = Carbon::now();
 
         // Get all pending promotions
@@ -26,21 +25,32 @@ class NotifyPendingPromotions extends Command
 
         foreach ($promotions as $promotion) {
             // Calculate the promotion's expiration time
-            $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+            $expiresAt = Carbon::parse($promotion->created_at)->addDays(3);  // 3 days after creation
             $hoursRemaining = $now->diffInHours($expiresAt, false); // Negative if past expiry
 
+            if ($promotion->last_reminder_sent_at === null) {
+                // Send an immediate notification to the user about the pending promotion
+                Notification::send($promotion->user, new PromotionExpiryReminder($promotion));
+
+                // Update last reminder sent time
+                $promotion->update(['last_reminder_sent_at' => $now]);
+
+                Log::info("Initial reminder sent to user for promotion ID: {$promotion->id}.");
+            }
+
             if ($hoursRemaining > 0 && $hoursRemaining <= 72) {
-                // Check if we are in the 3-day window and if 12 hours have passed since last notification
-                if ($promotion->last_reminder_sent_at === null || $promotion->last_reminder_sent_at->diffInHours($now) >= 12) {
+                // Check if it's been 12 hours since the last reminder
+                if ($promotion->last_reminder_sent_at->diffInHours($now) >= 12) {
+                    // Send a periodic reminder notification
                     Notification::send($promotion->user, new PromotionExpiryReminder($promotion));
 
                     // Update last reminder sent time
                     $promotion->update(['last_reminder_sent_at' => $now]);
 
-                    // Log the reminder notification
-                    // Log::info("Reminder sent to user for promotion ID: {$promotion->id}, expires in {$hoursRemaining} hours.");
+                    Log::info("Reminder sent to user for promotion ID: {$promotion->id}, expires in {$hoursRemaining} hours.");
                 }
-            } elseif ($hoursRemaining <= 0) {
+            } 
+            elseif ($hoursRemaining <= 0) {
                 // Send final expiration notification if the promotion has expired
                 Notification::send($promotion->user, new PromotionExpiryReminder($promotion, true)); // Pass true to signify expiration
 
@@ -50,6 +60,7 @@ class NotifyPendingPromotions extends Command
                     'last_reminder_sent_at' => $now,
                 ]);
 
+                Log::info("Promotion expired for promotion ID: {$promotion->id}.");
             }
         }
 
