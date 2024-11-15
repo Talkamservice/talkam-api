@@ -125,13 +125,13 @@ class Promotion extends Model
         return null;  // return null if no related stat is found
     }
 
-    // public function getModelTypeAttribute()
-    // {
-    //     if ($this->group_id) {
-    //         return $this->group();  // Access related Group model
-    //     } elseif ($this->post_id) {
-    //         return $this->post();   // Access related Post model
-    //     }
-    //     return null;
-    // }
+    public function getModelTypeAttribute()
+    {
+        if ($this->group_id) {
+            return $this->group(); 
+        } elseif ($this->post_id) {
+            return $this->post();  
+        }
+        return null;
+    }
 }

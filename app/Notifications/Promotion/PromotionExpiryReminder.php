@@ -70,7 +70,7 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
-                'id' => $this->promotion->id,
+                'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
                 'extra' => [],
             ])
@@ -95,11 +95,9 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
             $message = "Your promotion expired {$remainingDays} day" . ($remainingDays < -1 ? 's' : '') . " ago. Please take action if you'd like to reactivate it.";
         }
 
-        return [
+        $data =  [
             'data' => [
-                'id' => $this->promotion->id,
-                'expires_at' => $remainingDays,
-                'status' => $this->promotion->status,
+                'id' => $this->promotion->getModelTypeAttribute->id,
             ],
             'title' => $title,
             'message' => $message,
@@ -110,5 +108,7 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
             'batch_no' => null,
             'extra' => []
         ];
+        Log::info($notifiable, $data);
+        return $data;
     }
 }

@@ -69,7 +69,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
-                'id' => $this->promotion->id,
+                'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
                 'extra' => [],
             ])
@@ -85,7 +85,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
 
         $data = [
             'data' => [
-                'id' => $this->promotion->id,
+                'id' => $this->promotion->getModelTypeAttribute->id,
             ],
             'title' => $this->title ?? "Your promotion has reached {$this->promotion->statAttribute('impressions')} impressions",
             'message' => $this->message,
@@ -96,9 +96,6 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
             'batch_no' => null,
             'extra' => []
         ];
-
-        Log::info('Promotion Impression Notification Data:', $data);
-
         return $data;
     }
 }
