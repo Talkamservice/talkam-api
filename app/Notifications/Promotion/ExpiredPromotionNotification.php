@@ -15,9 +15,7 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public $promotion, public $message)
-    {
-    }
+    public function __construct(public $promotion, public $message) {}
 
     /**
      * Get the notification's delivery channels.
@@ -67,7 +65,7 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
             ->setType($data['type'])
             ->byUserToken($notifiable->fcm_token)
             ->setMetadata([
-                'id' => $this->promotion->id,
+                'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
                 'extra' => [],
             ])
@@ -80,9 +78,9 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
     protected function buildData($notifiable): array
     {
         $expiresAt = Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration);
-
+       
         $data = [
-            'id' => $this->promotion->id,
+            'id' => $this->promotion->getModelTypeAttribute->id,
             'title' => "Your promotion has Expired",
             'message' => $this->message,
             'expired_at' => $expiresAt,
