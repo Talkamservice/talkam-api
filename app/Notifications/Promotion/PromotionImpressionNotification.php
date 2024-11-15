@@ -71,7 +71,9 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
             ->setMetadata([
                 'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
-                'extra' => [],
+                'extra' => [
+                    "type" => $this->promotion->type,
+                ],
             ])
             ->initiate();
     }
@@ -91,7 +93,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
             'message' => $this->message,
             'expires_at' => $expiresAt,
             'status' => $this->promotion->status,
-            'type' => 'promotion',
+            'type' => $this->promotion->type,
             'link' => null,
             'batch_no' => null,
             'extra' => []

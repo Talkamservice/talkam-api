@@ -67,7 +67,9 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
             ->setMetadata([
                 'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
-                'extra' => [],
+                'extra' => [
+                    "type" => $this->promotion->type,
+                ],
             ])
             ->initiate();
     }
@@ -84,7 +86,7 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
             'title' => "Your promotion has Expired",
             'message' => $this->message,
             'expired_at' => $expiresAt,
-            'type' => 'notification',
+            'type' => $this->promotion->type,
             'link' => null,
             'batch_no' => null,
             'extra' => []
