@@ -110,7 +110,6 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
             'batch_no' => null,
             'extra' => []
         ];
-        Log::info($notifiable, $data);
         return $data;
     }
 }
