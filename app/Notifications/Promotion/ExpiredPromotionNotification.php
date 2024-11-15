@@ -86,7 +86,7 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
             'title' => "Your promotion has Expired",
             'message' => $this->message,
             'expired_at' => $expiresAt,
-            'type' => $this->promotion->type,
+            'type' => 'promotion',
             'link' => null,
             'batch_no' => null,
             'extra' => []
