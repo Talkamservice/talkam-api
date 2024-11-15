@@ -105,7 +105,7 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
             'message' => $message,
             'expires_at' => $expiresAt->toDateString(),
             'status' => $this->promotion->status,
-            'type' => $this->promotion->type,
+            'type' => 'promotion',
             'link' => null,
             'batch_no' => null,
             'extra' => []

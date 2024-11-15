@@ -93,7 +93,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
             'message' => $this->message,
             'expires_at' => $expiresAt,
             'status' => $this->promotion->status,
-            'type' => $this->promotion->type,
+            'type' => 'promotion',
             'link' => null,
             'batch_no' => null,
             'extra' => []
