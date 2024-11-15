@@ -82,7 +82,9 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
         $expiresAt = Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration);
        
         $data = [
-            'id' => $this->promotion->getModelTypeAttribute->id,
+            'data' => [
+                'id' => $this->promotion->getModelTypeAttribute->id,
+            ],
             'title' => "Your promotion has Expired",
             'message' => $this->message,
             'expired_at' => $expiresAt,
@@ -92,5 +94,7 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
             'extra' => []
         ];
         return $data;
+
+        
     }
 }

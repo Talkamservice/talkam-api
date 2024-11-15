@@ -91,8 +91,6 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
             ],
             'title' => $this->title ?? "Your promotion has reached {$this->promotion->statAttribute('impressions')} impressions",
             'message' => $this->message,
-            'expires_at' => $expiresAt,
-            'status' => $this->promotion->status,
             'type' => 'promotion',
             'link' => null,
             'batch_no' => null,
