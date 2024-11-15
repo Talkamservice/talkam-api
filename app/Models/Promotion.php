@@ -88,7 +88,7 @@ class Promotion extends Model
         }
 
         if (!empty($id = $this->group_id)) {
-            $url = $web_url . "/groups/{$id}";
+            $url = $web_url . "/group/{$this->group->uuid}/new";
         }
 
         return $url ?? null;
