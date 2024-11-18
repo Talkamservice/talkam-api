@@ -89,6 +89,7 @@
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
                                 <tr>
+                                    <th scope="col">S/N</th>
                                     <th scope="col">Username</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Status</th>
@@ -99,6 +100,7 @@
                             <tbody>
                                 @foreach ($users as $user)
                                     <tr class="highlight-user-{{ $user->id }}">
+                                        <td>{{ $sn++ }}</td>
                                         <td>
                                             <div class="d-flex align-items-center fw-semibold">
                                                 <span class="avatar avatar-sm me-2 avatar-rounded">

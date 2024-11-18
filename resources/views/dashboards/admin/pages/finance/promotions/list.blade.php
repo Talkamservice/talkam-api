@@ -76,9 +76,9 @@
                                         <td>{{ format_money($promotion->cost) }}</td>
                                         <td>{{ $promotion->type() }}</td>
                                         <td><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#promotionStatContent_{{ $promotion->id }}">
-                                                    View
-                                                </button>
+                                                data-bs-target="#promotionStatContent_{{ $promotion->id }}">
+                                                View
+                                            </button>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($promotion->status) }}-transparent">
                                                 {{ $promotion->status }}
@@ -108,7 +108,7 @@
                                                     href="{{ $promotion->contentWebUrl() }}"
                                                     class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
                                                         class="ri-external-link-line"></i></a>
-                                                <form action="{{ route('admin.promotions.update', $promotion->id) }}"
+                                                <form action="{{ route('admin.promotions.cancel', $promotion->id) }}"
                                                     method="post" id="cancelPromotion_{{ $promotion->id }}"
                                                     onsubmit="return confirm('Are you sure of this action?')">
                                                     @csrf
@@ -120,11 +120,10 @@
                                                 </form>
                                             </div>
                                         </td>
-                                        @include('dashboards.admin.pages.finance.promotions.modal.stat',[
+                                        @include('dashboards.admin.pages.finance.promotions.modal.stat', [
                                             'modalKey' => "promotionStatContent_$promotion->id",
                                             'modalContent' => $promotion->body,
-                                        ]
-                                    )
+                                        ])
                                     </tr>
                                 @empty
                                     <div class="alert alert-info text-center">
@@ -150,4 +149,5 @@
             </div>
         </div>
     </div>
+
 @endsection

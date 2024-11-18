@@ -58,6 +58,18 @@
                                 </p>
                             </div>
                         </div>
+                        <div class="p-4 border-bottom border-block-end-dashed">
+                            <p class="fs-15 mb-2 me-4 fw-semibold">Additional Information :</p>
+                            <div class="text-muted">
+                                <p class="mb-2">
+                                    <span class="avatar avatar-sm avatar-rounded me-2 bg-light text-muted">
+                                        <i class="ri-vip-crown-line align-middle fs-14"></i> <!-- Changed icon -->
+                                    </span>
+                                    Current Plan: {{ $user->hasSubscription() }}
+                                </p>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>

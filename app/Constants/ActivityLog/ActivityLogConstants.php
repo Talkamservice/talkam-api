@@ -31,6 +31,7 @@ class ActivityLogConstants
     const ACTIVATED = "activated";
     const BANNED = "banned";
     const RESOLVED = "resolved";
+    const CANCELLED= "cancelled";
 
 
     const EVENTS = [
@@ -61,6 +62,7 @@ class ActivityLogConstants
         self::ACTIVATED,
         self::BANNED,
         self::RESOLVED,
+        self::CANCELLED,
     ];
 
     const CHANNEL_DEFAULT = "default";

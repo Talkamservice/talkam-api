@@ -42,7 +42,7 @@
 
         <!-- Start::row-1 -->
         <div class="row">
-            <div class="col-xxl-9 col-xl-12">
+            <div class="col-xxl-9 col-xl-9 md-9 sm-12">
                 <div class="row">
                     <div class="col-xl-12">
                         <div class="row">
@@ -114,7 +114,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xxl-3 col-xl-12">
+            <div class="col-xxl-3 col-xl-3 md-3 sm-12">
                 <div class="row">
                     <div class="col-xxl-12 col-xl-12">
                         <div class="row">
@@ -148,7 +148,7 @@
 
                         </div>
                     </div>
-                    <div class="col-xxl-12 col-xl-6">
+                    <div class="col-xxl-12 col-xl-12">
                         <div class="card custom-card">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">

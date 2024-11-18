@@ -161,5 +161,6 @@ Route::middleware(["auth"])->group(
         Route::get('promotions-items', [PromotionController::class, 'items'])->name('promotions-items');
         Route::get('promotions/{status}/get-by-status', [PromotionController::class, 'getBystatus'])->name('promotions.get-by-status');
         Route::get('promotions/{promotion}/view-analytic', [PromotionController::class, 'viewAnalytic'])->name('promotions.view-analytic');
+        Route::post('promotions/{promotion}/cancel', [PromotionController::class, 'cancelPromotedContent'])->name('promotions.cancel');
     }
 );

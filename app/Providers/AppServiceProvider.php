@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\User;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -34,10 +35,16 @@ class AppServiceProvider extends ServiceProvider
         view()->composer([
             "dashboards.admin.layout.includes.header"
         ], function ($view) {
-            $global_notifications = DatabaseNotification::where([
-                "notifiable_type" => User::class,
-                "notifiable_id" => auth()?->id()
-            ])->get();
+            $global_notifications = DatabaseNotification::where('notifiable_id', auth()->user()->id)
+            ->where(function ($query) {
+                $query->where('type', 'App\Notifications\Promotion\NewSubscriptionNotification')
+                        ->orWhere('type', 'App\Notifications\Promotion\SubscriptionRenewalNotification')
+                        ->orWhere('type', 'App\Notifications\Promotion\SubscriptionDisabledNotification')
+                        ->orWhere('type', 'App\Notifications\Finance\Payment\AdminNewPaymentNotification');
+            })
+            ->get();
+        
+            // dd($global_notifications);
             $view->with([
                 "global_notifications" => sudo()->notifications ?? $global_notifications
             ]);
