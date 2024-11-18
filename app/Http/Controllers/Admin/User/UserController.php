@@ -35,7 +35,8 @@ class UserController extends Controller
             ->appends($request->query());
         return view("dashboards.admin.pages.user.index", [
             "users" => $users,
-            "statuses" => StatusConstants::ACTIVE_OPTIONS
+            "statuses" => StatusConstants::ACTIVE_OPTIONS,
+            'sn' => $users->firstItem(),
         ]);
     }
 

@@ -38,7 +38,7 @@ class DashboardController extends Controller
                     'period' =>  $period,
                 ],
                 [
-                    "icon" => "categories",
+                    "icon" => "layout",
                     "title" => "Total Categories",
                     "value" => array_sum($dashboardData['currentCategories']),
                     "class" => "info",
@@ -47,7 +47,7 @@ class DashboardController extends Controller
                     'period' =>  $period,
                 ],
                 [
-                    "icon" => "posts",
+                    "icon" => "notebook",
                     "title" => "Total Posts",
                     "value" => array_sum($dashboardData['currentPosts']),
                     "class" => "warning",
@@ -56,7 +56,7 @@ class DashboardController extends Controller
                     'period' =>  $period,
                 ],
                 [
-                    "icon" => "groups",
+                    "icon" => "friends",
                     "title" => "Total Groups",
                     "value" => array_sum($dashboardData['currentGroups']),
                     "class" => "primary",

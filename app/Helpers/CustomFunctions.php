@@ -222,7 +222,7 @@ function findSpecialWords($string)
     return $matches[1];
 }
 
-function format_money($amount, $places = 2, $symbol = '₦')
+function format_money($amount, $places = 2, $symbol = '$')
 {
     return $symbol  . '' . int_format((float)$amount, $places);
 }

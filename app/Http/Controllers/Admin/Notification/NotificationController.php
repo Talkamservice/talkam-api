@@ -17,11 +17,26 @@ class NotificationController extends Controller
         try {
             $user = auth()->user();
             DatabaseNotification::where(["notifiable_type" => User::class, "notifiable_id" => $user->id])->delete();
-            return ApiHelper::validResponse("Notification cleared successfully");
+            $global_notifications = DatabaseNotification::where('notifiable_id', auth()->user()->id)
+                ->where(function ($query) {
+                    $query->where('type', 'App\Notifications\Promotion\NewSubscriptionNotification')
+                        ->orWhere('type', 'App\Notifications\Promotion\SubscriptionRenewalNotification')
+                        ->orWhere('type', 'App\Notifications\Promotion\SubscriptionDisabledNotification')
+                        ->orWhere('type', 'App\Notifications\Finance\Payment\AdminNewPaymentNotification');
+                })
+                ->get();
+            $notificationCount = $global_notifications->count();
+            return response()->json([
+                'success' => true,
+                'success_message' => 'All notifications cleared successfully',
+                'notifications' => $global_notifications,
+                'notification_count' => $notificationCount
+            ]);
         } catch (\Throwable $th) {
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE,  $request, $th);
+            return response()->json(['success' => false, 'error_message' => 'Failed to clear notifications.'], 500);
         }
     }
+
 
     public function markAll(Request $request)
     {
@@ -42,11 +57,25 @@ class NotificationController extends Controller
         try {
             $notification = DatabaseNotification::findOrFail($id);
             $notification->delete();
-            return ApiHelper::validResponse("Notification deleted successfully");
+            $global_notifications = DatabaseNotification::where('notifiable_id', auth()->user()->id)
+                ->where(function ($query) {
+                    $query->where('type', 'App\Notifications\Promotion\NewSubscriptionNotification')
+                        ->orWhere('type', 'App\Notifications\Promotion\SubscriptionRenewalNotification')
+                        ->orWhere('type', 'App\Notifications\Promotion\SubscriptionDisabledNotification')
+                        ->orWhere('type', 'App\Notifications\Finance\Payment\AdminNewPaymentNotification');
+                })
+                ->get();
+            $notificationCount = $global_notifications->count();
+            return response()->json([
+                'success' => true,
+                'success_message' => 'Notification deleted successfully',
+                'notifications' => $global_notifications,
+                'notification_count' => $notificationCount
+            ]);
         } catch (ModelNotFoundException $th) {
-            return ApiHelper::problemResponse("Notification does not exist on our record", ApiConstants::BAD_REQ_ERR_CODE, $request, $th);
+            return response()->json(['success' => false, 'error_message' => 'Notification not found'], 404);
         } catch (\Throwable $th) {
-            return ApiHelper::problemResponse("Something went wrong while trying to process your request.", ApiConstants::SERVER_ERR_CODE, $request, $th);
+            return response()->json(['success' => false, 'error_message' => 'Something went wrong.'], 500);
         }
     }
 }

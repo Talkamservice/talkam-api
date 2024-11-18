@@ -91,7 +91,7 @@ class User extends Authenticatable
         });
     }
 
-    public function isUser()    
+    public function isUser()
     {
         return $this->role == UserConstants::USER;
     }
@@ -137,13 +137,14 @@ class User extends Authenticatable
         return $this->hasOne(NotificationPreference::class, 'user_id');
     }
 
-    public function sendBulkNotifications() {
+    public function sendBulkNotifications()
+    {
         return $this->belongsToMany(SendBulkNotification::class, 'bulk_notification_user', 'user_id', 'send_bulk_notification_id');
     }
-    
+
     public function announcement()
     {
-       return $this->hasMany(Announcement::class);
+        return $this->hasMany(Announcement::class);
     }
 
     public function activityLogs()
@@ -164,7 +165,7 @@ class User extends Authenticatable
 
         return $query;
     }
-    
+
     public function isDisabled()
     {
         if (in_array(
@@ -204,7 +205,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Subscription::class, 'id', 'user_id')
             ->where("expires_at", ">", now())
-            ->status()
+            ->where('status', StatusConstants::ACTIVE)
             ->orderBy("expires_at", "desc");
+    }
+
+    public function hasSubscription()
+    {
+        $subscription = $this->activeSubscription()->first();
+        // Return the plan type
+        return $subscription ? 'Premium' : 'Freemium';
     }
 }
