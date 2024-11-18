@@ -86,8 +86,8 @@ class PromotionController extends Controller
 
     public function getByStatus(Request $request)
     {
-        $promotions = Promotion::where('status', $request->status)->latest()->search($request->search) 
-        ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $promotions = Promotion::where('status', $request->status)->latest()->search($request->search)
+            ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         $promotion_status = [];
         if ($request->status === StatusConstants::ACTIVE) {
             $promotion_status = "Completed";
@@ -118,5 +118,18 @@ class PromotionController extends Controller
             'data_labels' => $promotionData['data_labels'],
             'promotion' => $promotionData['uuid'],
         ]);
+    }
+
+    public function cancelPromotedContent($promotion)
+    {
+        try {
+            $this->promotion_service->cancelPromotion($promotion);
+            return back()->with(NotificationConstants::SUCCESS_MSG, "Promotion cancelled successfully");
+        } catch (ValidationException $th) {
+            throw $th;
+        } catch (\Throwable $th) {
+            throw $th;
+            return redirect()->back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
+        }
     }
 }

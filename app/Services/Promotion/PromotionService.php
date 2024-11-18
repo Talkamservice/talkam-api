@@ -17,6 +17,7 @@ use App\Models\PromotionLocation;
 use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Finance\Payment\PaymentIntentService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
+use App\Services\Finance\Subscription\SubscriptionService;
 use App\Services\Group\GroupService;
 use App\Services\Post\PostService;
 use Illuminate\Support\Facades\DB;
@@ -298,5 +299,51 @@ class PromotionService
         }
 
         return $promotions;
+    }
+
+    public function cancelPromotion($promotionId)
+    {
+        DB::beginTransaction();
+
+        try {
+            $promotion = self::getById($promotionId);
+
+            // Ensure the promotion is in a state that allows cancellation
+            if (!in_array($promotion->status, [StatusConstants::PENDING, StatusConstants::ACTIVE])) {
+                throw new InvalidRequestException("This promotion cannot be canceled as it is already {$promotion->status}.");
+            }
+            $promotion->update([
+                'status' => StatusConstants::CANCELLED
+            ]);
+            (new ActivityLogService)
+                ->setEvent("cancelled")
+                ->setTitle("Promotion Canceled")
+                ->setDescription((auth()->user()?->email) . " has canceled a promotion.")
+                ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
+                ->setActivity(ActivitiesConstants::PROMOTION_CANCELLED)
+                ->setModel(Promotion::class, $promotion->id)
+                ->setAdmin(auth()->user()->id)
+                ->setData([
+                    'promotion' => $promotion->toArray()
+                ])
+                ->setUrl(request()->fullUrl())
+                ->log();
+
+            // handle refund 
+            // if ($promotion->payment_id) {
+            //     $current_subscription = SubscriptionService::currentUserSubscription($this->user, $promotion->plan->plan_duration_id);
+
+            //     if (!empty($current_subscription)) {
+            //         SubscriptionService::cancel($current_subscription);
+            //     }
+            // }
+
+            DB::commit();
+
+            return $promotion->refresh();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }

@@ -20,6 +20,7 @@ class StatusConstants
     const CONFIRMED = "Comfirmed";
     const PROCESSING = "Processing";
     const CANCELLED = "Cancelled";
+    const CANCELED = "Canceled";
     const DECLINED = "Declined";
     const REFUNDED = "Refunded";
     const ROLLBACK = "Rollback";
