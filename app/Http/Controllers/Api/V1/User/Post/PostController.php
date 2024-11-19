@@ -36,14 +36,13 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $posts = $this->post_service->list($request->all())->status()->unblocked()->hideGroupPosts()
-                ->paginate(AppConstants::API_PAGINATION_SIZE)
-                ->appends($request->query());
-            $data = collectPagination($posts);
-
-            $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
+            $posts = $this->post_service->list($request->all());
+            $validPosts = $posts->items() ? array_filter($posts->items(), function ($post) {
+                return $post !== null; // Filter out any null values
+            }) : [];
+            $post_ids = $validPosts ? array_column($validPosts, 'id') : [];
             $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
-            $data["data"] = PostResource::collection($data["data"]);
+            $data["data"] = PostResource::collection(collect($validPosts));
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
@@ -110,17 +109,31 @@ class PostController extends Controller
     }
 
     public function trending(Request $request)
-    {
-        try {
-            $trends = $this->post_service->trends($request->all())->whereNotNull("category_id")->where("count", ">", 1)->status()
-                ->groupBy("tag")->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")->orderByDesc("count")
-                ->get();
-            $data = TrendingResource::collection($trends);
-            return ApiHelper::validResponse("Trends returned successfully", $data);
-        } catch (Exception $e) {
-            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
-        }
+{
+    try {
+        $threeDaysAgo = now()->subDays(3); // Define the 3-day interval
+
+        // Use the static `trends` method to build the query and fetch data
+        $trendsQuery = $this->post_service->trends($request->all())
+            ->whereNotNull("category_id") // Ensure the category is valid
+            ->where("count", ">", 1) // Include tags with a count greater than 1
+            ->where('created_at', '>=', $threeDaysAgo) // Filter by the last 3 days
+            ->groupBy("tag") // Group by the tag
+            ->selectRaw("tag, SUM(count) as count, MAX(created_at) as latest_created_at") // Aggregate data
+            ->orderByDesc("count") // Order by the highest count
+            ->limit(2); // Fetch the top 2 tags
+
+        // Execute the query and get results
+        $trends = $trendsQuery->get(); // Now get the results
+
+        // Return the response
+        $data = TrendingResource::collection($trends);
+        return ApiHelper::validResponse("Trends returned successfully", $data);
+    } catch (Exception $e) {
+        return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
     }
+}
+
 
     public function postWithComments(Request $request)
     {

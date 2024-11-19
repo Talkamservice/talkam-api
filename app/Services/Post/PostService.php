@@ -11,6 +11,7 @@ use App\Models\MergeMedia;
 use App\Models\Post;
 use App\Models\PostAttachment;
 use App\Models\PostComment;
+use App\Models\Promotion;
 use App\Models\TrendingTag;
 use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostPollService;
@@ -192,90 +193,125 @@ class PostService
         }
         return $code;
     }
-
+ 
     public static function list(array $data = [])
     {
         $builder = Post::with("user");
-
+    
+        // Apply filters as before
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
         }
-
+    
         if (!empty($key = $data["category_id"] ?? null)) {
             $builder = $builder->where("category_id", $key);
         }
-
-        if (!empty($key = $data["group_id"] ?? null)) {
-            $field = is_numeric($key) ? "id" : "uuid";
-            $builder = $builder->whereRelation("group", $field, $key);
+    
+        if (!empty($key = $data["status"] ?? null)) {
+            $builder = $builder->where("status", $key); // Apply status filter
         }
-
+    
         if (!empty($key = $data["type"] ?? null)) {
-            if (in_array($key, [PostConstants::MEDIA])) {
-                $builder = $builder->whereIn("type", [PostConstants::FILE, PostConstants::IMAGE, PostConstants::VIDEO]);
-            } else {
-                $builder = $builder->where("type", $key);
-            }
+            $builder = $builder->where("type", $key);
         }
-
-        if (!empty($key = $data["exclude_anonymous"] ?? null)) {
-            $builder = $builder->where("is_anonymous", 0);
-        }
-
-        if (!empty($key = $data["target"] ?? null)) {
-            if ($key == "group") {
-                $builder = $builder->whereRelation("group", "group_access", StatusConstants::OPENED);
-            }
-        }
-
-        if (!empty($key = $data["user_id"] ?? null)) {
-            $field = is_numeric($key) ? "id" : "username";
-            $builder = $builder->whereRelation("user", $field, $key);
-        }
-
-        if (!empty($key = $data["tab"] ?? null)) {
-            $tags = TrendingTag::orderByDesc("count")->limit(20)->pluck("tag")->toArray();
-
-            if ($key == "latest") {
-                $builder = $builder->latest();
-            }
-
-            if ($key == "trending") {
-                $builder = $builder->where(function ($query) use ($tags) {
-                    foreach ($tags as $tag) {
-                        $query->orWhere('title', 'like', "%{$tag}%")
-                            ->orWhere('body', 'like', "%{$tag}%");
-                    }
-                })->latest();
-            }
-
-            if ($key == "featured") {
-                $builder = $builder->where(function ($query) use ($tags) {
-                    foreach ($tags as $tag) {
-                        $query->orWhere('title', 'like', "%{$tag}%")
-                            ->orWhere('body', 'like', "%{$tag}%");
-                    }
-
-                    $query->orWhereHas('promotions', function ($promotion_query) {
-                        if (auth("sanctum")->check()) {
-                            $user = auth("sanctum")->user();
-                            $promotion_query->whereIn("country_id", [$user->country_id])->inRandomOrder();
-                        } else {
-                            $promotion_query->inRandomOrder();
-                        }
-                    });
-                })->latest()->limit(10);
-            }
-        }
-
-        return $builder;
+    
+        // Apply unblocked and hide group posts filters before fetching the data
+        $builder = $builder->unblocked()->hideGroupPosts();
+    
+        // Fetch posts and paginate
+        $posts = $builder->paginate(AppConstants::API_PAGINATION_SIZE);
+    
+        // Process and interleave posts
+        $regularPosts = $posts->items(); // Get the items of the paginated result
+        $interleavedPosts = self::interleavePromotedPosts($regularPosts);
+    
+        // Now, wrap the interleaved posts into a LengthAwarePaginator
+        $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
+            $interleavedPosts, // Interleaved posts
+            $posts->total(), // Total count of posts
+            $posts->perPage(), // Items per page
+            $posts->currentPage(), // Current page
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Path for pagination links
+        );
+    
+        return $paginatedData; // Return paginated interleaved posts
     }
-
-    public static function trends(array $data = [])
+    
+    public static function interleavePromotedPosts($regularPosts)
     {
-        $builder = TrendingTag::latest();
-        return $builder;
+        // Fetch only promotions that have a valid post_id (not null) and exclude those with group_id
+        $promotedPosts = Promotion::whereNotNull('post_id') // Only include promotions with a post_id
+            ->whereNull('group_id') // Exclude promotions with a group_id
+            ->with('post') // Eager load the related post
+            ->get()
+            ->filter(function ($promotion) {
+                // Filter out promotions that have expired based on the 'expires_at' attribute
+                return $promotion->expires_at->greaterThanOrEqualTo(now());
+            })
+            ->sortByDesc(function ($promotion) {
+                return $promotion->cost;
+            })
+            ->pluck('post'); // This will be a collection of post models
+    
+        $interleavedPosts = [];
+        $regularPostIndex = 0;
+        $promotedPostIndex = 0;
+        $regularPostInterval = 5; // Show 5 regular posts between promoted posts
+    
+        // First, add the first promoted post if available
+        if ($promotedPostIndex < $promotedPosts->count()) {
+            $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
+            $promotedPostIndex++;
+        }
+    
+        // Now, interleave regular posts with promoted posts
+        while ($regularPostIndex < count($regularPosts)) {
+            // Add 5 regular posts
+            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < count($regularPosts); $i++) {
+                $interleavedPosts[] = $regularPosts[$regularPostIndex];
+                $regularPostIndex++;
+            }
+    
+            // After 5 regular posts, add the next promoted post if available
+            if ($promotedPostIndex < $promotedPosts->count()) {
+                $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
+                $promotedPostIndex++;
+            }
+        }
+    
+        return $interleavedPosts;
     }
+    
+    
+    public static function trends(array $data = [])
+{
+    // Build the initial query with the latest scope and status scope
+    $builder = TrendingTag::latest()->status();
+
+   // Fetch paginated posts (this logic will stay in place)
+    $posts = $builder->paginate(AppConstants::API_PAGINATION_SIZE);
+
+    // Get the regular posts (items)
+    $regularPosts = $posts->items();
+
+    // Interleave promoted posts if needed
+    $interleavedPosts = self::interleavePromotedPosts($regularPosts);
+
+    // Create a paginated result with the interleaved posts
+    $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
+        $interleavedPosts, // Interleaved posts
+        $posts->total(), // Total posts count
+        $posts->perPage(), // Items per page
+        $posts->currentPage(), // Current page
+        ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Pagination links
+    );
+
+    // Return the query builder to allow further chaining
+    return $builder; 
+}
+
+
+    
 
     public static function getWithComments(array $data)
     {

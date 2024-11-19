@@ -32,11 +32,11 @@ class GroupController extends Controller
     public function index(Request $request)
     {
         try {
-            $groups = $this->group_service->list($request->all())->status()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $groups = $this->group_service->list($request->all());
             $data = collectPagination($groups);
-            $group_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
+            $group_ids = collect($data["data"])->pluck("id")->toArray();
             $this->post_stats_service->saveGroupImpressions($group_ids, ["impressions" => true]);
-            $data["data"] = GroupResource::collection($data["data"]);
+            $data["data"] = GroupResource::collection(collect($data["data"]));
             return ApiHelper::validResponse("Groups returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
