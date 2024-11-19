@@ -161,7 +161,7 @@ class PromotionStatsService
         $groupAdsChangePercentage = $this->calculatePercentageChange($currentData['total_group_ads'], $previousData['total_group_ads']);
         $postAdsRevenueChangePercentage = $this->calculatePercentageChange($currentData['total_post_ads_revenue'], $previousData['total_post_ads_revenue']);
         $groupAdsRevenueChangePercentage = $this->calculatePercentageChange($currentData['total_group_ads_revenue'], $previousData['total_group_ads_revenue']);
-        $freemiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_freemuim_users'], $previousData['total_freemuim_users']);
+        $freemiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_freemium_users'], $previousData['total_freemium_users']);
         $premiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_premium_users'], $previousData['total_premium_users']);
 
         return [
@@ -170,7 +170,7 @@ class PromotionStatsService
             'currentGroupAds' => $currentData['total_group_ads'],
             'currentPostAdRevenue' => $currentData['total_post_ads_revenue'],
             'currentGroupAdRevenue' => $currentData['total_group_ads_revenue'],
-            'currentFreemiumUser' => $currentData['total_freemuim_users'],
+            'currentFreemiumUser' => $currentData['total_freemium_users'],
             'currentPremiumUser' => $currentData['total_premium_users'],
             'totalSuccessfulPromotions' => $currentData['total_successful_promotions'],
             'totalPendingPromotions' => $currentData['total_pending_promotions'],
@@ -270,13 +270,13 @@ class PromotionStatsService
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->sum("cost");
 
-            $total_freemium_users[$i] = User::whereDoesntHave('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
-                $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
-            })->count();
+            $total_premium_users[$i] = User::whereHas('activeSubscription')
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
+                ->count();
 
-            $total_premium_users[$i] = User::whereHas('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
-                $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
-            })->count();
+            $total_freemium_users[$i] = User::whereDoesntHave('activeSubscription')
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
+                ->count();
             $monthly_revenue[$i] = Subscription::whereBetween('paid_on', [$startOfInterval, $endOfInterval])->sum('price');
         }
 
@@ -290,7 +290,7 @@ class PromotionStatsService
             'total_group_ads' => $total_group_ads,
             'total_post_ads_revenue' => $total_post_ads_revenue,
             'total_group_ads_revenue' => $total_group_ads_revenue,
-            'total_freemuim_users' => $total_freemuim_users,
+            'total_freemium_users' => $total_freemium_users,
             'total_premium_users' => $total_premium_users,
             'monthly_revenue' => $monthly_revenue
         ];
