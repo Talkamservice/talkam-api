@@ -273,6 +273,7 @@ class PromotionStatsService
             $total_premium_users[$i] = User::whereHas('activeSubscription')
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
+
             $total_freemium_users[$i] = User::whereDoesntHave('activeSubscription')
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
