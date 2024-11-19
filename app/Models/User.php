@@ -203,7 +203,7 @@ class User extends Authenticatable
 
     public function activeSubscription()
     {
-        return $this->belongsTo(Subscription::class, 'id', 'user_id')
+        return $this->hasOne(Subscription::class, 'user_id')
             ->where("expires_at", ">", now())
             ->where('status', StatusConstants::ACTIVE)
             ->orderBy("expires_at", "desc");
@@ -214,5 +214,10 @@ class User extends Authenticatable
         $subscription = $this->activeSubscription()->first();
         // Return the plan type
         return $subscription ? 'Premium' : 'Freemium';
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class, 'user_id');
     }
 }

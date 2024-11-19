@@ -69,8 +69,7 @@
                 <div class="main-header-dropdown dropdown-menu dropdown-menu-end" data-popper-placement="none">
                     <div class="p-3">
                         <div class="d-flex align-items-center justify-content-between">
-                            <p class="mb-0 fs-17 fw-semibold">Notifications</p>
-
+                            <p class="mb-0 fs-17 fw-semibold">Notifications({{ $global_notifications->count() }})</p>
                             <!-- Dropdown for "Clear All" button -->
                             <div class="btn-group">
                                 <i class="ri-menu-line dropdown-toggle" data-bs-toggle="dropdown"></i>
@@ -79,10 +78,9 @@
                                         data-url="{{ route('admin.notifications.clear-all') }}">Clear All</a>
                                 </div>
                             </div>
-                            <span class="badge bg-secondary-transparent"
-                                id="notifiation-data">{{ $global_notifications->count() }} Unread</span>
                         </div>
                     </div>
+                    
                     <div class="dropdown-divider"></div>
                     <ul class="list-unstyled mb-0" id="header-notification-scroll">
                         @forelse ($global_notifications as $notification)
