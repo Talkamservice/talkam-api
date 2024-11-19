@@ -42,8 +42,8 @@ class NotifyPendingPromotions extends Command
             }
 
             if ($hoursRemaining > 0 && $hoursRemaining <= 72) {
-                // Check if it's been 12 hours since the last reminder
-                if ($lastReminderSentAt && $lastReminderSentAt->diffInHours($now) >= 12) {
+                // Check if it's been 24 hours since the last reminder
+                if ($lastReminderSentAt && $lastReminderSentAt->diffInHours($now) >= 24) {
                     // Send a periodic reminder notification
                     Notification::send($promotion->user, new PromotionExpiryReminder($promotion));
 

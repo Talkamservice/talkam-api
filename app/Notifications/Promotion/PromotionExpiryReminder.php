@@ -91,7 +91,7 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
         // Customizing message based on remaining time
         if ($remainingDays > 0) {
             $title = "Your promotion is pending and will expire soon";
-            $message = "Your promotion is set to expire in {$remainingDays} day" . ($remainingDays > 1 ? 's' : '') . ". Please respond to ensure it remains active.";
+            $message = "Your promotion will expire in {$remainingDays} day" . ($remainingDays > 1 ? 's' : '') . " if payment is not finalized. Feel free to reach out if you need any assistance. We’re here to help!";
         } else {
             $title = "Your promotion has expired";
             $message = "Your promotion expired {$remainingDays} day" . ($remainingDays < -1 ? 's' : '') . " ago. Please take action if you'd like to reactivate it.";

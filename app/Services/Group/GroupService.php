@@ -3,6 +3,7 @@
 namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
+use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
@@ -10,6 +11,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Models\Promotion;
 use App\Models\User;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
@@ -24,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 class GroupService
 {
     public $user;
-    
+
     public static function getById($key, $column = "id"): Group
     {
         $group = Group::where($column, $key)->first();
@@ -36,8 +38,8 @@ class GroupService
 
     public function setUser($user)
     {
-       $this->user = $user;
-       return $this;
+        $this->user = $user;
+        return $this;
     }
 
     public static function getGroupAdmins($group_id)
@@ -165,6 +167,7 @@ class GroupService
     {
         $builder = Group::with("creator");
 
+        // Apply filters as before
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
         }
@@ -192,8 +195,67 @@ class GroupService
             };
         }
 
-        return $builder;
+        // Fetch groups and paginate before interleaving
+        $groups = $builder->paginate(AppConstants::API_PAGINATION_SIZE); // Paginate here
+
+        // Process and interleave groups
+        $regularGroups = $groups->items(); // Get the items of the paginated result
+        $interleavedGroups = self::interleavePromotedGroups($regularGroups);
+
+        // Now, wrap the interleaved groups into a LengthAwarePaginator
+        $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
+            $interleavedGroups, // Interleaved groups
+            $groups->total(), // Total count of groups
+            $groups->perPage(), // Items per page
+            $groups->currentPage(), // Current page
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Path for pagination links
+        );
+
+        return $paginatedData; // Return paginated interleaved groups
     }
+
+
+    public static function interleavePromotedGroups($regularGroups)
+    {
+        $promotedGroups = Promotion::whereNotNull('group_id')
+            ->with('group')->get()->filter(function ($promotion) {
+                // Filter out promotions that have expired based on the 'expires_at' attribute
+                return $promotion->expires_at->greaterThanOrEqualTo(now());
+            })
+            ->sortByDesc(function ($promotion) {
+                return $promotion->group->cost; 
+            })->pluck('group') ->toArray();
+
+        $interleavedGroups = [];
+        $regularGroupIndex = 0;
+        $promotedGroupIndex = 0;
+        $regularGroupInterval = 5; // Show 5 regular groups between promoted groups
+
+        // First, add the first promoted group if available
+        if ($promotedGroupIndex < count($promotedGroups)) {
+            $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
+            $promotedGroupIndex++;
+        }
+
+        // Now, interleave regular groups with promoted groups
+        while ($regularGroupIndex < count($regularGroups)) {
+            // Add 5 regular groups
+            for ($i = 0; $i < $regularGroupInterval && $regularGroupIndex < count($regularGroups); $i++) {
+                $interleavedGroups[] = $regularGroups[$regularGroupIndex];
+                $regularGroupIndex++;
+            }
+
+            // After 5 regular groups, add the next promoted group if available
+            if ($promotedGroupIndex < count($promotedGroups)) {
+                $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
+                $promotedGroupIndex++;
+            }
+        }
+
+        return $interleavedGroups;
+    }
+
+
 
     public static function following(array $data = [])
     {
