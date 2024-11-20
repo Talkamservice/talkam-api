@@ -284,34 +284,10 @@ class PostService
     
     
     public static function trends(array $data = [])
-{
-    // Build the initial query with the latest scope and status scope
-    $builder = TrendingTag::latest()->status();
-
-   // Fetch paginated posts (this logic will stay in place)
-    $posts = $builder->paginate(AppConstants::API_PAGINATION_SIZE);
-
-    // Get the regular posts (items)
-    $regularPosts = $posts->items();
-
-    // Interleave promoted posts if needed
-    $interleavedPosts = self::interleavePromotedPosts($regularPosts);
-
-    // Create a paginated result with the interleaved posts
-    $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
-        $interleavedPosts, // Interleaved posts
-        $posts->total(), // Total posts count
-        $posts->perPage(), // Items per page
-        $posts->currentPage(), // Current page
-        ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Pagination links
-    );
-
-    // Return the query builder to allow further chaining
-    return $builder; 
-}
-
-
-    
+    {
+        $builder = TrendingTag::latest();
+        return $builder;
+    }
 
     public static function getWithComments(array $data)
     {
