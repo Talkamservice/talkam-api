@@ -250,17 +250,15 @@ class PostService
             }
 
             if ($key == "trending") {
-                $builder = $builder->withCount('comments')
-                    // Custom 'likes' count based on the action being 'LIKE'
+                $builder = $builder->withCount('comments') // Counts the comments
                     ->withCount(['reactions as likes_count' => function ($query) {
-                        $query->where('action', PostConstants::LIKE);
+                        $query->where('action', PostConstants::LIKE); // Counts likes in the user_post_reactions table
                     }])
-                    // Order by comment count and likes count
-                    ->orderByDesc('comments_count')
-                    ->orderByDesc('likes_count')
-                    ->latest();
+                    ->orderByRaw('(comments_count + likes_count) DESC') // Sort by total engagement
+                    ->orderByDesc('created_at'); // Ensure posts are sorted by recency after engagement
             }
-
+            
+            
             if ($key == "featured") {
                 $builder = $builder->where(function ($query) use ($tags) {
                     foreach ($tags as $tag) {
@@ -317,32 +315,26 @@ class PostService
         $regularPostIndex = 0;
         $promotedPostIndex = 0;
         $regularPostInterval = 5; // Number of regular posts between promoted posts
+        $totalRegularPosts = count($regularPosts);
+        $totalPromotedPosts = count($promotedPosts);
 
-        // Loop through the regular posts and interleave promoted posts
-        while ($regularPostIndex < count($regularPosts)) {
-            // Add regular posts up to the interval
-            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < count($regularPosts); $i++) {
+        // Use a loop that runs while we have remaining regular or promoted posts
+        while ($regularPostIndex < $totalRegularPosts || $promotedPostIndex < $totalPromotedPosts) {
+            // Add up to `regularPostInterval` regular posts
+            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < $totalRegularPosts; $i++) {
                 $interleavedPosts[] = $regularPosts[$regularPostIndex];
                 $regularPostIndex++;
             }
 
-            // Add a promoted post if available
-            if ($promotedPostIndex < count($promotedPosts)) {
+            // Add one promoted post if available
+            if ($promotedPostIndex < $totalPromotedPosts) {
                 $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
                 $promotedPostIndex++;
             }
         }
 
-        // Add any remaining promoted posts
-        while ($promotedPostIndex < count($promotedPosts)) {
-            $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
-            $promotedPostIndex++;
-        }
-
         return $interleavedPosts;
     }
-
-
 
     public static function trends(array $data = [])
     {

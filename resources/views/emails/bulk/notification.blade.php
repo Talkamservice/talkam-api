@@ -11,10 +11,6 @@
            <b>Please, note: </b> {!! $message !!}
         </p>
         <p class="detailCont-p">
-            {!! $message !!}
-        </p>
-
-        <p class="detailCont-p">
             Warm regards,
         </p>
         <p class="detailCont-p">

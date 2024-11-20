@@ -20,6 +20,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class PostController extends Controller
@@ -38,20 +39,34 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $posts = $this->post_service->list($request->all());
-            $regularPosts = $posts->items(); // Extract the items
-            $interleavedPosts = PostService::interleavePromotedPosts($regularPosts);
-            dd($interleavedPosts);
+            // Get posts and apply filters
+            $posts = $this->post_service->list($request->all())
+                ->status()
+                ->unblocked()
+                ->hideGroupPosts()
+                ->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
+
+            // Collect pagination data
+            $data = collectPagination($posts);
+
+            // Save post impressions
+            $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
+            $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
+
+            // Convert to array for interleaving
+            $interleavedPosts = PostService::interleavePromotedPosts($posts->items());
+
             // Wrap interleaved posts in a paginator
             $paginatedData = new LengthAwarePaginator(
-                $interleavedPosts,
-                $posts->total(),
-                $posts->perPage(),
-                $posts->currentPage(),
+                collect($interleavedPosts),  // Interleaved posts as a collection
+                $posts->total(),            // Total original count
+                $posts->perPage(),          // Posts per page
+                $posts->currentPage(),      // Current page
                 ['path' => Paginator::resolveCurrentPath()]
             );
-
-            $data["data"] = PostResource::collection(collect($paginatedData->items()));
+            // Transform with resource
+            $data["data"] = PostResource::collection($paginatedData->items());
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
