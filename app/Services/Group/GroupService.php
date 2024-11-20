@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
 use App\Services\Guideline\GuidelineService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -220,11 +221,12 @@ class GroupService
 {
     $promotedGroups = Promotion::whereNotNull('group_id')
     ->whereNull('post_id')
+    ->where('status', '!=', StatusConstants::PENDING)
         ->with('group')
         ->get()
         ->filter(function ($promotion) {
-            // Filter out promotions that have expired based on the 'expires_at' attribute
-            return $promotion->expires_at->greaterThanOrEqualTo(now());
+            $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+            return $expiresAt->greaterThanOrEqualTo(now());
         })
         ->sortByDesc(function ($promotion) {
             return $promotion->group->cost; 

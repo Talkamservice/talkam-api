@@ -15,6 +15,7 @@ use App\Models\Promotion;
 use App\Models\TrendingTag;
 use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostPollService;
+use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -193,38 +194,117 @@ class PostService
         }
         return $code;
     }
- 
+
     public static function list(array $data = [])
     {
         $builder = Post::with("user");
-    
-        // Apply filters as before
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
         }
-    
+
         if (!empty($key = $data["category_id"] ?? null)) {
             $builder = $builder->where("category_id", $key);
         }
-    
+
         if (!empty($key = $data["status"] ?? null)) {
-            $builder = $builder->where("status", $key); // Apply status filter
+            $builder = $builder->where("status", $key);
         }
-    
+
         if (!empty($key = $data["type"] ?? null)) {
             $builder = $builder->where("type", $key);
         }
-    
+
+        if (!empty($key = $data["group_id"] ?? null)) {
+            $field = is_numeric($key) ? "id" : "uuid";
+            $builder = $builder->whereRelation("group", $field, $key);
+        }
+
+        if (!empty($key = $data["type"] ?? null)) {
+            if (in_array($key, [PostConstants::MEDIA])) {
+                $builder = $builder->whereIn("type", [PostConstants::FILE, PostConstants::IMAGE, PostConstants::VIDEO]);
+            } else {
+                $builder = $builder->where("type", $key);
+            }
+        }
+
+        if (!empty($key = $data["exclude_anonymous"] ?? null)) {
+            $builder = $builder->where("is_anonymous", 0);
+        }
+
+        if (!empty($key = $data["target"] ?? null)) {
+            if ($key == "group") {
+                $builder = $builder->whereRelation("group", "group_access", StatusConstants::OPENED);
+            }
+        }
+
+        if (!empty($key = $data["user_id"] ?? null)) {
+            $field = is_numeric($key) ? "id" : "username";
+            $builder = $builder->whereRelation("user", $field, $key);
+        }
+
+        if (!empty($key = $data["tab"] ?? null)) {
+            $tags = TrendingTag::orderByDesc("count")->limit(20)->pluck("tag")->toArray();
+
+            if ($key == "latest") {
+                $builder = $builder->latest();
+            }
+
+            if ($key == "trending") {
+                $builder = $builder->withCount('comments')
+                    // Custom 'likes' count based on the action being 'LIKE'
+                    ->withCount(['reactions as likes_count' => function ($query) {
+                        $query->where('action', PostConstants::LIKE);
+                    }])
+                    // Order by comment count and likes count
+                    ->orderByDesc('comments_count')
+                    ->orderByDesc('likes_count')
+                    ->latest();
+            }
+
+            if ($key == "featured") {
+                $builder = $builder->where(function ($query) use ($tags) {
+                    foreach ($tags as $tag) {
+                        $query->orWhere('title', 'like', "%{$tag}%")
+                            ->orWhere('body', 'like', "%{$tag}%");
+                    }
+
+                    // Include posts that are part of promotions (with country filter if authenticated)
+                    $query->orWhereHas('promotions', function ($promotion_query) {
+                        if (auth("sanctum")->check()) {
+                            $user = auth("sanctum")->user();
+                            $promotion_query->whereIn('country_id', [$user->country_id])
+                                ->inRandomOrder();
+                        } else {
+                            $promotion_query->inRandomOrder();
+                        }
+                    });
+                });
+
+                // Include posts liked by the authenticated user
+                if (auth("sanctum")->check()) {
+                    $user = auth("sanctum")->user();
+                    $builder = $builder->orWhereHas('reactions', function ($reactionQuery) use ($user) {
+                        // Make sure to filter only "LIKE" reactions
+                        $reactionQuery->where('user_id', $user->id)
+                            ->where('action', PostConstants::LIKE);
+                    });
+                }
+
+                // Optionally, add ordering or limits as needed
+                $builder = $builder->latest()->limit(10);
+            }
+        }
+
         // Apply unblocked and hide group posts filters before fetching the data
         $builder = $builder->unblocked()->hideGroupPosts();
-    
+
         // Fetch posts and paginate
         $posts = $builder->paginate(AppConstants::API_PAGINATION_SIZE);
-    
+
         // Process and interleave posts
         $regularPosts = $posts->items(); // Get the items of the paginated result
         $interleavedPosts = self::interleavePromotedPosts($regularPosts);
-    
+
         // Now, wrap the interleaved posts into a LengthAwarePaginator
         $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
             $interleavedPosts, // Interleaved posts
@@ -233,37 +313,39 @@ class PostService
             $posts->currentPage(), // Current page
             ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Path for pagination links
         );
-    
+
         return $paginatedData; // Return paginated interleaved posts
     }
-    
+
+
     public static function interleavePromotedPosts($regularPosts)
     {
         // Fetch only promotions that have a valid post_id (not null) and exclude those with group_id
         $promotedPosts = Promotion::whereNotNull('post_id') // Only include promotions with a post_id
             ->whereNull('group_id') // Exclude promotions with a group_id
+            ->where('status', '!=', StatusConstants::PENDING)
             ->with('post') // Eager load the related post
             ->get()
             ->filter(function ($promotion) {
-                // Filter out promotions that have expired based on the 'expires_at' attribute
-                return $promotion->expires_at->greaterThanOrEqualTo(now());
+                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+                return $expiresAt->greaterThanOrEqualTo(now());
             })
             ->sortByDesc(function ($promotion) {
                 return $promotion->cost;
             })
             ->pluck('post'); // This will be a collection of post models
-    
+
         $interleavedPosts = [];
         $regularPostIndex = 0;
         $promotedPostIndex = 0;
         $regularPostInterval = 5; // Show 5 regular posts between promoted posts
-    
+
         // First, add the first promoted post if available
         if ($promotedPostIndex < $promotedPosts->count()) {
             $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
             $promotedPostIndex++;
         }
-    
+
         // Now, interleave regular posts with promoted posts
         while ($regularPostIndex < count($regularPosts)) {
             // Add 5 regular posts
@@ -271,18 +353,18 @@ class PostService
                 $interleavedPosts[] = $regularPosts[$regularPostIndex];
                 $regularPostIndex++;
             }
-    
+
             // After 5 regular posts, add the next promoted post if available
             if ($promotedPostIndex < $promotedPosts->count()) {
                 $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
                 $promotedPostIndex++;
             }
         }
-    
+
         return $interleavedPosts;
     }
-    
-    
+
+
     public static function trends(array $data = [])
     {
         $builder = TrendingTag::latest();
