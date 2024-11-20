@@ -109,31 +109,18 @@ class PostController extends Controller
     }
 
     public function trending(Request $request)
-{
-    try {
-        $threeDaysAgo = now()->subDays(3); // Define the 3-day interval
-
-        // Use the static `trends` method to build the query and fetch data
-        $trendsQuery = $this->post_service->trends($request->all())
-            ->whereNotNull("category_id") // Ensure the category is valid
-            ->where("count", ">", 1) // Include tags with a count greater than 1
-            ->where('created_at', '>=', $threeDaysAgo) // Filter by the last 3 days
-            ->groupBy("tag") // Group by the tag
-            ->selectRaw("tag, SUM(count) as count, MAX(created_at) as latest_created_at") // Aggregate data
-            ->orderByDesc("count") // Order by the highest count
-            ->limit(2); // Fetch the top 2 tags
-
-        // Execute the query and get results
-        $trends = $trendsQuery->get(); // Now get the results
-
-        // Return the response
-        $data = TrendingResource::collection($trends);
-        return ApiHelper::validResponse("Trends returned successfully", $data);
-    } catch (Exception $e) {
-        return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+    {
+        try {
+            $threeDaysAgo = now()->subDays(7);
+            $trends = $this->post_service->trends($request->all())->whereNotNull("category_id")->where("count", ">", 1)->where('created_at', '>=', $threeDaysAgo)
+                ->groupBy("tag")->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")->orderByDesc("count")->limit(2)
+                ->get();
+            $data = TrendingResource::collection($trends);
+            return ApiHelper::validResponse("Trends returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
     }
-}
-
 
     public function postWithComments(Request $request)
     {
