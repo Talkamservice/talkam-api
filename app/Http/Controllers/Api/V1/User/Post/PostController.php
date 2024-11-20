@@ -18,6 +18,8 @@ use App\Services\Post\PostStatsService;
 use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Validation\ValidationException;
 
 class PostController extends Controller
@@ -37,17 +39,25 @@ class PostController extends Controller
     {
         try {
             $posts = $this->post_service->list($request->all());
-            $validPosts = $posts->items() ? array_filter($posts->items(), function ($post) {
-                return $post !== null; // Filter out any null values
-            }) : [];
-            $post_ids = $validPosts ? array_column($validPosts, 'id') : [];
-            $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
-            $data["data"] = PostResource::collection(collect($validPosts));
+            $regularPosts = $posts->items(); // Extract the items
+            $interleavedPosts = PostService::interleavePromotedPosts($regularPosts);
+            dd($interleavedPosts);
+            // Wrap interleaved posts in a paginator
+            $paginatedData = new LengthAwarePaginator(
+                $interleavedPosts,
+                $posts->total(),
+                $posts->perPage(),
+                $posts->currentPage(),
+                ['path' => Paginator::resolveCurrentPath()]
+            );
+
+            $data["data"] = PostResource::collection(collect($paginatedData->items()));
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
 
     public function show($id)
     {

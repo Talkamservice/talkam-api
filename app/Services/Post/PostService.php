@@ -290,79 +290,58 @@ class PostService
                     });
                 }
 
-                // Optionally, add ordering or limits as needed
-                $builder = $builder->latest()->limit(10);
+                // // Optionally, add ordering or limits as needed
+                // $builder = $builder->latest()->limit(10);
             }
         }
 
-        // Apply unblocked and hide group posts filters before fetching the data
-        $builder = $builder->unblocked()->hideGroupPosts();
-
-        // Fetch posts and paginate
-        $posts = $builder->paginate(AppConstants::API_PAGINATION_SIZE);
-
-        // Process and interleave posts
-        $regularPosts = $posts->items(); // Get the items of the paginated result
-        $interleavedPosts = self::interleavePromotedPosts($regularPosts);
-
-        // Now, wrap the interleaved posts into a LengthAwarePaginator
-        $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
-            $interleavedPosts, // Interleaved posts
-            $posts->total(), // Total count of posts
-            $posts->perPage(), // Items per page
-            $posts->currentPage(), // Current page
-            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Path for pagination links
-        );
-
-        return $paginatedData; // Return paginated interleaved posts
+        return  $builder;
     }
 
 
     public static function interleavePromotedPosts($regularPosts)
     {
-        // Fetch only promotions that have a valid post_id (not null) and exclude those with group_id
-        $promotedPosts = Promotion::whereNotNull('post_id') // Only include promotions with a post_id
-            ->whereNull('group_id') // Exclude promotions with a group_id
+        $promotedPosts = Promotion::whereNotNull('post_id')
+            ->whereNull('group_id')
             ->where('status', '!=', StatusConstants::PENDING)
-            ->with('post') // Eager load the related post
+            ->with('post') // Eager load related posts
             ->get()
             ->filter(function ($promotion) {
                 $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
                 return $expiresAt->greaterThanOrEqualTo(now());
             })
-            ->sortByDesc(function ($promotion) {
-                return $promotion->cost;
-            })
-            ->pluck('post'); // This will be a collection of post models
+            ->sortByDesc('cost') // Sort promotions by cost descending
+            ->pluck('post'); // Get the related post models
 
         $interleavedPosts = [];
         $regularPostIndex = 0;
         $promotedPostIndex = 0;
-        $regularPostInterval = 5; // Show 5 regular posts between promoted posts
+        $regularPostInterval = 5; // Number of regular posts between promoted posts
 
-        // First, add the first promoted post if available
-        if ($promotedPostIndex < $promotedPosts->count()) {
-            $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
-            $promotedPostIndex++;
-        }
-
-        // Now, interleave regular posts with promoted posts
+        // Loop through the regular posts and interleave promoted posts
         while ($regularPostIndex < count($regularPosts)) {
-            // Add 5 regular posts
+            // Add regular posts up to the interval
             for ($i = 0; $i < $regularPostInterval && $regularPostIndex < count($regularPosts); $i++) {
                 $interleavedPosts[] = $regularPosts[$regularPostIndex];
                 $regularPostIndex++;
             }
 
-            // After 5 regular posts, add the next promoted post if available
-            if ($promotedPostIndex < $promotedPosts->count()) {
+            // Add a promoted post if available
+            if ($promotedPostIndex < count($promotedPosts)) {
                 $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
                 $promotedPostIndex++;
             }
         }
 
+        // Add any remaining promoted posts
+        while ($promotedPostIndex < count($promotedPosts)) {
+            $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
+            $promotedPostIndex++;
+        }
+
         return $interleavedPosts;
     }
+
 
 
     public static function trends(array $data = [])
