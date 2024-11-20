@@ -11,7 +11,6 @@ use App\Models\MergeMedia;
 use App\Models\Post;
 use App\Models\PostAttachment;
 use App\Models\PostComment;
-use App\Models\Promotion;
 use App\Models\TrendingTag;
 use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostPollService;
@@ -206,14 +205,6 @@ class PostService
             $builder = $builder->where("category_id", $key);
         }
 
-        if (!empty($key = $data["status"] ?? null)) {
-            $builder = $builder->where("status", $key);
-        }
-
-        if (!empty($key = $data["type"] ?? null)) {
-            $builder = $builder->where("type", $key);
-        }
-
         if (!empty($key = $data["group_id"] ?? null)) {
             $field = is_numeric($key) ? "id" : "uuid";
             $builder = $builder->whereRelation("group", $field, $key);
@@ -250,15 +241,12 @@ class PostService
             }
 
             if ($key == "trending") {
-                $builder = $builder->withCount('comments')
-                    // Custom 'likes' count based on the action being 'LIKE'
-                    ->withCount(['reactions as likes_count' => function ($query) {
-                        $query->where('action', PostConstants::LIKE);
-                    }])
-                    // Order by comment count and likes count
-                    ->orderByDesc('comments_count')
-                    ->orderByDesc('likes_count')
-                    ->latest();
+                $builder = $builder->where(function ($query) use ($tags) {
+                    foreach ($tags as $tag) {
+                        $query->orWhere('title', 'like', "%{$tag}%")
+                            ->orWhere('body', 'like', "%{$tag}%");
+                    }
+                })->latest();
             }
 
             if ($key == "featured") {
@@ -268,102 +256,20 @@ class PostService
                             ->orWhere('body', 'like', "%{$tag}%");
                     }
 
-                    // Include posts that are part of promotions (with country filter if authenticated)
                     $query->orWhereHas('promotions', function ($promotion_query) {
                         if (auth("sanctum")->check()) {
                             $user = auth("sanctum")->user();
-                            $promotion_query->whereIn('country_id', [$user->country_id])
-                                ->inRandomOrder();
+                            $promotion_query->whereIn("country_id", [$user->country_id])->inRandomOrder();
                         } else {
                             $promotion_query->inRandomOrder();
                         }
                     });
-                });
-
-                // Include posts liked by the authenticated user
-                if (auth("sanctum")->check()) {
-                    $user = auth("sanctum")->user();
-                    $builder = $builder->orWhereHas('reactions', function ($reactionQuery) use ($user) {
-                        // Make sure to filter only "LIKE" reactions
-                        $reactionQuery->where('user_id', $user->id)
-                            ->where('action', PostConstants::LIKE);
-                    });
-                }
-
-                // Optionally, add ordering or limits as needed
-                $builder = $builder->latest()->limit(10);
+                })->latest()->limit(10);
             }
         }
 
-        // Apply unblocked and hide group posts filters before fetching the data
-        $builder = $builder->unblocked()->hideGroupPosts();
-
-        // Fetch posts and paginate
-        $posts = $builder->paginate(AppConstants::API_PAGINATION_SIZE);
-
-        // Process and interleave posts
-        $regularPosts = $posts->items(); // Get the items of the paginated result
-        $interleavedPosts = self::interleavePromotedPosts($regularPosts);
-
-        // Now, wrap the interleaved posts into a LengthAwarePaginator
-        $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
-            $interleavedPosts, // Interleaved posts
-            $posts->total(), // Total count of posts
-            $posts->perPage(), // Items per page
-            $posts->currentPage(), // Current page
-            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Path for pagination links
-        );
-
-        return $paginatedData; // Return paginated interleaved posts
+        return $builder;
     }
-
-
-    public static function interleavePromotedPosts($regularPosts)
-    {
-        // Fetch only promotions that have a valid post_id (not null) and exclude those with group_id
-        $promotedPosts = Promotion::whereNotNull('post_id') // Only include promotions with a post_id
-            ->whereNull('group_id') // Exclude promotions with a group_id
-            ->where('status', '!=', StatusConstants::PENDING)
-            ->with('post') // Eager load the related post
-            ->get()
-            ->filter(function ($promotion) {
-                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
-                return $expiresAt->greaterThanOrEqualTo(now());
-            })
-            ->sortByDesc(function ($promotion) {
-                return $promotion->cost;
-            })
-            ->pluck('post'); // This will be a collection of post models
-
-        $interleavedPosts = [];
-        $regularPostIndex = 0;
-        $promotedPostIndex = 0;
-        $regularPostInterval = 5; // Show 5 regular posts between promoted posts
-
-        // First, add the first promoted post if available
-        if ($promotedPostIndex < $promotedPosts->count()) {
-            $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
-            $promotedPostIndex++;
-        }
-
-        // Now, interleave regular posts with promoted posts
-        while ($regularPostIndex < count($regularPosts)) {
-            // Add 5 regular posts
-            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < count($regularPosts); $i++) {
-                $interleavedPosts[] = $regularPosts[$regularPostIndex];
-                $regularPostIndex++;
-            }
-
-            // After 5 regular posts, add the next promoted post if available
-            if ($promotedPostIndex < $promotedPosts->count()) {
-                $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
-                $promotedPostIndex++;
-            }
-        }
-
-        return $interleavedPosts;
-    }
-
 
     public static function trends(array $data = [])
     {
