@@ -167,28 +167,34 @@ class GroupService
     public static function list(array $data = [])
     {
         $builder = Group::with("creator");
-    
+
         // Apply filters as before
+
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
         }
-    
+
         // Apply status filter here, before pagination
+
         if (!empty($key = $data["status"] ?? null)) {
             $builder = $builder->where("status", $key); // Apply the status filter on the query
+            $builder = $builder->where("status", $key);
         }
-    
+
+
         if (!empty($key = $data["recommend"] ?? null)) {
             if (auth("sanctum")->check()) {
                 $category_ids = auth("sanctum")->user()->interests->pluck("category_id")->toArray();
                 $builder = (count($category_ids) > 0) ? $builder->whereIn("id", $category_ids ?? []) : $builder->withCount("members")->orderBy("members_count", "desc");
             }
         }
-    
+
+
         if (!empty($key = $data["category_id"] ?? null)) {
             $builder = $builder->where("category_id", $key);
         }
-    
+
+
         if (!empty($key = $data["tab"] ?? null)) {
             $builder = match ($key) {
                 "latest" => $builder->latest(),
@@ -196,71 +202,56 @@ class GroupService
                 default => $builder->inRandomOrder()
             };
         }
-    
-        // Fetch groups and paginate before interleaving
-        $groups = $builder->paginate(AppConstants::API_PAGINATION_SIZE); // Paginate here
-    
-        // Process and interleave groups
-        $regularGroups = $groups->items(); // Get the items of the paginated result
-        $interleavedGroups = self::interleavePromotedGroups($regularGroups);
-    
-        // Now, wrap the interleaved groups into a LengthAwarePaginator
-        $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
-            $interleavedGroups, // Interleaved groups
-            $groups->total(), // Total count of groups
-            $groups->perPage(), // Items per page
-            $groups->currentPage(), // Current page
-            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()] // Path for pagination links
-        );
-    
-        return $paginatedData; // Return paginated interleaved groups
+        return $builder;
     }
-    
+
 
     public static function interleavePromotedGroups($regularGroups)
-{
-    $promotedGroups = Promotion::whereNotNull('group_id')
-    ->whereNull('post_id')
-    ->where('status', '!=', StatusConstants::PENDING)
-        ->with('group')
-        ->get()
-        ->filter(function ($promotion) {
-            $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
-            return $expiresAt->greaterThanOrEqualTo(now());
-        })
-        ->sortByDesc(function ($promotion) {
-            return $promotion->group->cost; 
-        })
-        ->pluck('group'); // This will return a collection of groups, not an array
+    {
+        // Fetch promoted groups
+        $promotedGroups = Promotion::whereNotNull('group_id')
+            ->whereNull('post_id')
+            ->where('status', '!=', StatusConstants::PENDING)
+            ->with('group')
+            ->get()
+            ->filter(function ($promotion) {
+                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+                return $expiresAt->greaterThanOrEqualTo(now());
+            })
+            ->sortByDesc(function ($promotion) {
+                return $promotion->group->cost;
+            })
+            ->pluck('group'); // Collection of groups
 
-    $interleavedGroups = [];
-    $regularGroupIndex = 0;
-    $promotedGroupIndex = 0;
-    $regularGroupInterval = 5; // Show 5 regular groups between promoted groups
+        $interleavedGroups = [];
+        $regularGroupIndex = 0;
+        $promotedGroupIndex = 0;
+        $regularGroupInterval = 5; // Number of regular groups between promoted groups
 
-    // First, add the first promoted group if available
-    if ($promotedGroupIndex < $promotedGroups->count()) {
-        $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
-        $promotedGroupIndex++;
-    }
+        // Interleave regular and promoted groups
+        while ($regularGroupIndex < count($regularGroups)) {
+            // Add up to 5 regular groups
+            for ($i = 0; $i < $regularGroupInterval && $regularGroupIndex < count($regularGroups); $i++) {
+                $interleavedGroups[] = $regularGroups[$regularGroupIndex];
+                $regularGroupIndex++;
+            }
 
-    // Now, interleave regular groups with promoted groups
-    while ($regularGroupIndex < count($regularGroups)) {
-        // Add 5 regular groups
-        for ($i = 0; $i < $regularGroupInterval && $regularGroupIndex < count($regularGroups); $i++) {
-            $interleavedGroups[] = $regularGroups[$regularGroupIndex];
-            $regularGroupIndex++;
+            // Add one promoted group if available
+            if ($promotedGroupIndex < $promotedGroups->count()) {
+                $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
+                $promotedGroupIndex++;
+            }
         }
 
-        // After 5 regular groups, add the next promoted group if available
-        if ($promotedGroupIndex < $promotedGroups->count()) {
+        // Append any remaining promoted groups (if necessary)
+        while ($promotedGroupIndex < $promotedGroups->count()) {
             $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
             $promotedGroupIndex++;
         }
+
+        return $interleavedGroups;
     }
 
-    return $interleavedGroups;
-}
 
 
 

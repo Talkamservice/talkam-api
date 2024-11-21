@@ -17,6 +17,8 @@ use App\Services\Group\GroupMemberService;
 use App\Services\Group\GroupService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
@@ -107,10 +109,18 @@ class GroupMemberController extends Controller
     {
         try {
             $groups = $this->group_service->following($request->all())
-                ->status()->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->status()->orderBy('name', 'asc')->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
             $data = collectPagination($groups);
-            $data["data"] = GroupResource::collection($data["data"]);
+            $interleavedPosts = GroupService::interleavePromotedGroups($groups->items());
+            $paginatedData = new LengthAwarePaginator(
+                collect($interleavedPosts),  // Interleaved groups as a collection
+                $groups->total(),            // Total original count
+                $groups->perPage(),          // Groups per page
+                $groups->currentPage(),      // Current page
+                ['path' => Paginator::resolveCurrentPath()]
+            );
+            $data["data"] = GroupResource::collection($paginatedData->items());
             return ApiHelper::validResponse("Groups returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
