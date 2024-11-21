@@ -206,14 +206,6 @@ class PostService
             $builder = $builder->where("category_id", $key);
         }
 
-        if (!empty($key = $data["status"] ?? null)) {
-            $builder = $builder->where("status", $key);
-        }
-
-        if (!empty($key = $data["type"] ?? null)) {
-            $builder = $builder->where("type", $key);
-        }
-
         if (!empty($key = $data["group_id"] ?? null)) {
             $field = is_numeric($key) ? "id" : "uuid";
             $builder = $builder->whereRelation("group", $field, $key);
@@ -266,12 +258,10 @@ class PostService
                             ->orWhere('body', 'like', "%{$tag}%");
                     }
 
-                    // Include posts that are part of promotions (with country filter if authenticated)
                     $query->orWhereHas('promotions', function ($promotion_query) {
                         if (auth("sanctum")->check()) {
                             $user = auth("sanctum")->user();
-                            $promotion_query->whereIn('country_id', [$user->country_id])
-                                ->inRandomOrder();
+                            $promotion_query->whereIn("country_id", [$user->country_id])->inRandomOrder();
                         } else {
                             $promotion_query->inRandomOrder();
                         }

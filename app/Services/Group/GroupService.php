@@ -3,7 +3,6 @@
 namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
-use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
@@ -27,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 class GroupService
 {
     public $user;
-
+    
     public static function getById($key, $column = "id"): Group
     {
         $group = Group::where($column, $key)->first();
@@ -39,8 +38,8 @@ class GroupService
 
     public function setUser($user)
     {
-        $this->user = $user;
-        return $this;
+       $this->user = $user;
+       return $this;
     }
 
     public static function getGroupAdmins($group_id)
@@ -189,11 +188,9 @@ class GroupService
             }
         }
 
-
         if (!empty($key = $data["category_id"] ?? null)) {
             $builder = $builder->where("category_id", $key);
         }
-
 
         if (!empty($key = $data["tab"] ?? null)) {
             $builder = match ($key) {

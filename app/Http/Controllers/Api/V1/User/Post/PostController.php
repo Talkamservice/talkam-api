@@ -136,9 +136,8 @@ class PostController extends Controller
     public function trending(Request $request)
     {
         try {
-            $threeDaysAgo = now()->subDays(7);
-            $trends = $this->post_service->trends($request->all())->whereNotNull("category_id")->where("count", ">", 1)->where('created_at', '>=', $threeDaysAgo)
-                ->groupBy("tag")->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")->orderByDesc("count")->limit(2)
+            $trends = $this->post_service->trends($request->all())->whereNotNull("category_id")->where("count", ">", 1)->status()
+                ->groupBy("tag")->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")->orderByDesc("count")
                 ->get();
             $data = TrendingResource::collection($trends);
             return ApiHelper::validResponse("Trends returned successfully", $data);
