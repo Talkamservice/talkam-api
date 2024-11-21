@@ -38,7 +38,7 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
             ->line($data['message'])
             ->line("Expiration Date: " . Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration))
             ->line("Status: " . ucfirst($data['status']))
-            ->markdown('emails.bulk.notification', [
+            ->markdown('emails.promotion.reminder', [
                 'title' => $data['title'],
                 'message' => $data['message'],
                 'expiration_date' => $data['expires_at'],
