@@ -11,6 +11,7 @@ use App\Models\MergeMedia;
 use App\Models\Post;
 use App\Models\PostAttachment;
 use App\Models\PostComment;
+use App\Models\Promotion;
 use App\Models\TrendingTag;
 use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostPollService;
@@ -241,14 +242,15 @@ class PostService
             }
 
             if ($key == "trending") {
-                $builder = $builder->where(function ($query) use ($tags) {
-                    foreach ($tags as $tag) {
-                        $query->orWhere('title', 'like', "%{$tag}%")
-                            ->orWhere('body', 'like', "%{$tag}%");
-                    }
-                })->latest();
+                $builder = $builder->withCount('comments') // Counts the comments
+                    ->withCount(['reactions as likes_count' => function ($query) {
+                        $query->where('action', PostConstants::LIKE); // Counts likes in the user_post_reactions table
+                    }])
+                    ->orderByRaw('(comments_count + likes_count) DESC') // Sort by total engagement
+                    ->orderByDesc('created_at'); // Ensure posts are sorted by recency after engagement
             }
-
+            
+            
             if ($key == "featured") {
                 $builder = $builder->where(function ($query) use ($tags) {
                     foreach ($tags as $tag) {
@@ -264,11 +266,64 @@ class PostService
                             $promotion_query->inRandomOrder();
                         }
                     });
-                })->latest()->limit(10);
+                });
+
+                // Include posts liked by the authenticated user
+                if (auth("sanctum")->check()) {
+                    $user = auth("sanctum")->user();
+                    $builder = $builder->orWhereHas('reactions', function ($reactionQuery) use ($user) {
+                        // Make sure to filter only "LIKE" reactions
+                        $reactionQuery->where('user_id', $user->id)
+                            ->where('action', PostConstants::LIKE);
+                    });
+                }
+
+                // // Optionally, add ordering or limits as needed
+                // $builder = $builder->latest()->limit(10);
             }
         }
 
-        return $builder;
+        return  $builder;
+    }
+
+
+    public static function interleavePromotedPosts($regularPosts)
+    {
+        $promotedPosts = Promotion::whereNotNull('post_id')
+            ->whereNull('group_id')
+            ->where('status', '!=', StatusConstants::PENDING)
+            ->with('post') // Eager load related posts
+            ->get()
+            ->filter(function ($promotion) {
+                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+                return $expiresAt->greaterThanOrEqualTo(now());
+            })
+            ->sortByDesc('cost') // Sort promotions by cost descending
+            ->pluck('post'); // Get the related post models
+
+        $interleavedPosts = [];
+        $regularPostIndex = 0;
+        $promotedPostIndex = 0;
+        $regularPostInterval = 5; // Number of regular posts between promoted posts
+        $totalRegularPosts = count($regularPosts);
+        $totalPromotedPosts = count($promotedPosts);
+
+        // Use a loop that runs while we have remaining regular or promoted posts
+        while ($regularPostIndex < $totalRegularPosts || $promotedPostIndex < $totalPromotedPosts) {
+            // Add up to `regularPostInterval` regular posts
+            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < $totalRegularPosts; $i++) {
+                $interleavedPosts[] = $regularPosts[$regularPostIndex];
+                $regularPostIndex++;
+            }
+
+            // Add one promoted post if available
+            if ($promotedPostIndex < $totalPromotedPosts) {
+                $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
+                $promotedPostIndex++;
+            }
+        }
+
+        return $interleavedPosts;
     }
 
     public static function trends(array $data = [])

@@ -14,6 +14,8 @@ use App\Services\Post\PostStatsService;
 use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Validation\ValidationException;
 
 class GroupController extends Controller
@@ -32,16 +34,30 @@ class GroupController extends Controller
     public function index(Request $request)
     {
         try {
-            $groups = $this->group_service->list($request->all())->status()->paginate(AppConstants::API_PAGINATION_SIZE)->appends($request->query());
+            $groups = $this->group_service->list($request->all())->paginate(AppConstants::API_PAGINATION_SIZE);
             $data = collectPagination($groups);
-            $group_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
+    
+            // Collect the group ids for impressions tracking
+            $group_ids = collect($data["data"])->pluck("id")->toArray();
             $this->post_stats_service->saveGroupImpressions($group_ids, ["impressions" => true]);
-            $data["data"] = GroupResource::collection($data["data"]);
+            $interleavedPosts = GroupService::interleavePromotedGroups($groups->items());
+            $paginatedData = new LengthAwarePaginator(
+                collect($interleavedPosts),  // Interleaved groups as a collection
+                $groups->total(),            // Total original count
+                $groups->perPage(),          // Groups per page
+                $groups->currentPage(),      // Current page
+                ['path' => Paginator::resolveCurrentPath()]
+            );
+    
+            // Transform with resource
+            $data["data"] = GroupResource::collection($paginatedData->items());
+    
             return ApiHelper::validResponse("Groups returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+    
 
     public function show($id)
     {
