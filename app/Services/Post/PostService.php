@@ -249,8 +249,8 @@ class PostService
                     ->orderByRaw('(comments_count + likes_count) DESC') // Sort by total engagement
                     ->orderByDesc('created_at'); // Ensure posts are sorted by recency after engagement
             }
-            
-            
+
+
             if ($key == "featured") {
                 $builder = $builder->where(function ($query) use ($tags) {
                     foreach ($tags as $tag) {
@@ -322,7 +322,7 @@ class PostService
                 $promotedPostIndex++;
             }
         }
-
+        // dd($interleavedPosts);
         return $interleavedPosts;
     }
 
