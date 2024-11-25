@@ -10,6 +10,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Models\Promotion;
 use App\Models\User;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
@@ -166,13 +167,19 @@ class GroupService
     {
         $builder = Group::with("creator");
 
+        // Apply filters as before
+
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
         }
 
+        // Apply status filter here, before pagination
+
         if (!empty($key = $data["status"] ?? null)) {
+            $builder = $builder->where("status", $key); // Apply the status filter on the query
             $builder = $builder->where("status", $key);
         }
+
 
         if (!empty($key = $data["recommend"] ?? null)) {
             if (auth("sanctum")->check()) {
@@ -188,13 +195,64 @@ class GroupService
         if (!empty($key = $data["tab"] ?? null)) {
             $builder = match ($key) {
                 "latest" => $builder->latest(),
-                "popular" => $builder->withCount("members")->orderBy("members_count", "desc"),
+                "popular" => $builder->orderBy("name", "asc"),
+                // "popular" => $builder->withCount("members")->orderBy("members_count", "desc"),
                 default => $builder->inRandomOrder()
             };
         }
-
         return $builder;
     }
+
+
+    public static function interleavePromotedGroups($regularGroups)
+    {
+        // Fetch promoted groups
+        $promotedGroups = Promotion::whereNotNull('group_id')
+            ->whereNull('post_id')
+            ->where('status', '!=', StatusConstants::PENDING)
+            ->with('group')
+            ->get()
+            ->filter(function ($promotion) {
+                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+                return $expiresAt->greaterThanOrEqualTo(now());
+            })
+            ->sortByDesc(function ($promotion) {
+                return $promotion->group->cost;
+            })
+            ->pluck('group'); // Collection of groups
+
+        $interleavedGroups = [];
+        $regularGroupIndex = 0;
+        $promotedGroupIndex = 0;
+        $regularGroupInterval = 5; // Number of regular groups between promoted groups
+
+        // Interleave regular and promoted groups
+        while ($regularGroupIndex < count($regularGroups)) {
+            // Add up to 5 regular groups
+            for ($i = 0; $i < $regularGroupInterval && $regularGroupIndex < count($regularGroups); $i++) {
+                $interleavedGroups[] = $regularGroups[$regularGroupIndex];
+                $regularGroupIndex++;
+            }
+
+            // Add one promoted group if available
+            if ($promotedGroupIndex < $promotedGroups->count()) {
+                $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
+                $promotedGroupIndex++;
+            }
+        }
+
+        // Append any remaining promoted groups (if necessary)
+        while ($promotedGroupIndex < $promotedGroups->count()) {
+            $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
+            $promotedGroupIndex++;
+        }
+
+        return $interleavedGroups;
+    }
+
+
+
+
 
     public static function following(array $data = [])
     {
