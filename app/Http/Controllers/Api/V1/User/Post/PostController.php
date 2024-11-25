@@ -56,7 +56,7 @@ class PostController extends Controller
 
             // Convert to array for interleaving
             $interleavedPosts = PostService::interleavePromotedPosts($posts->items());
-
+            // dd($interleavedPosts);
             // Wrap interleaved posts in a paginator
             $paginatedData = new LengthAwarePaginator(
                 collect($interleavedPosts),  // Interleaved posts as a collection
