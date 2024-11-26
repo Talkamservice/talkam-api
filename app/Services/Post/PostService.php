@@ -292,7 +292,7 @@ class PostService
         // Fetch promoted posts
         $promotedPosts = Promotion::whereNotNull('post_id')
             ->whereNull('group_id')
-            ->where('status', '!=', StatusConstants::PENDING)
+            ->where('status', StatusConstants::ACTIVE)
             ->with('post')
             ->get()
             ->filter(function ($promotion) {
