@@ -23,6 +23,8 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
+use function PHPUnit\Framework\isEmpty;
+
 class PostController extends Controller
 {
     protected $post_service;
@@ -39,24 +41,25 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get posts and apply filters
+            // Get posts and apply filters with eager loading for promotions
             $posts = $this->post_service->list($request->all())
                 ->status()
                 ->unblocked()
+                ->doesntHave('promotions') // remove post that has promotion because we are interleving them
                 ->hideGroupPosts()
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
-
+    
             // Collect pagination data
             $data = collectPagination($posts);
-
+    
             // Save post impressions
             $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
             $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
-
-            // Convert to array for interleaving
-            $interleavedPosts = PostService::interleavePromotedPosts($posts->items());
-            // dd($interleavedPosts);
+    
+            // Interleave promoted posts respecting the sorting order
+            $interleavedPosts = PostService::interleavePromotedPosts($posts);
+    
             // Wrap interleaved posts in a paginator
             $paginatedData = new LengthAwarePaginator(
                 collect($interleavedPosts),  // Interleaved posts as a collection
@@ -65,13 +68,18 @@ class PostController extends Controller
                 $posts->currentPage(),      // Current page
                 ['path' => Paginator::resolveCurrentPath()]
             );
+    
             // Transform with resource
             $data["data"] = PostResource::collection($paginatedData->items());
+    
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+    
+
+
 
 
     public function show($id)
