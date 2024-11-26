@@ -33,6 +33,8 @@ class PostCommentController extends Controller
     {
         try {
             $comments = $this->post_comment_service->list($request->all())->unblocked()->latest("id")->get();
+            // Interleave promoted posts into comments
+            // $interleavedComments = $this->interleavePromotedPostsIntoComments($comments);
             $data = PostCommentResource::collection($comments);
             return ApiHelper::validResponse("Post comments returned successfully", $data);
         } catch (ModelNotFoundException $th) {

@@ -197,13 +197,13 @@ class PromotionStatsService
             $monthEnd = $monthStart->copy()->endOfMonth();
 
             // Calculate subscription revenue for the current month
-            $subscriptionRevenue = Subscription::whereBetween('paid_on', [$monthStart, $monthEnd])->sum('price');
+            $monthlyRevenue[$month] = Promotion::whereBetween('created_at', [$monthStart, $monthEnd])->sum('cost');
 
-            // Calculate promotion revenue from the payments table for the current month
-            $promotionRevenue = Payment::whereBetween('created_at', [$monthStart, $monthEnd])
-                ->sum(DB::raw('amount - fees')); // Calculate net amount by subtracting fees from amount
-            // Calculate total monthly revenue (subscriptions + promotions)
-            $monthlyRevenue[$month] = $subscriptionRevenue + $promotionRevenue;
+            // // Calculate promotion revenue from the payments table for the current month
+            // $promotionRevenue = Payment::whereBetween('created_at', [$monthStart, $monthEnd])
+            //     ->sum(DB::raw('amount - fees')); // Calculate net amount by subtracting fees from amount
+            // // Calculate total monthly revenue (subscriptions + promotions)
+            // $monthlyRevenue[$month] = $subscriptionRevenue + $promotionRevenue;
         }
 
         return [
@@ -221,7 +221,7 @@ class PromotionStatsService
         $total_group_ads = array_fill(0, $dataPoints, 0);
         $total_post_ads_revenue = array_fill(0, $dataPoints, 0);
         $total_group_ads_revenue = array_fill(0, $dataPoints, 0);
-        $total_freemuim_users = array_fill(0, $dataPoints, 0);
+        $total_freemium_users = array_fill(0, $dataPoints, 0);
         $total_premium_users = array_fill(0, $dataPoints, 0);
         $total_promotions = array_fill(0, $dataPoints, 0);
         $total_successful_promotions = array_fill(0, $dataPoints, 0);
@@ -277,7 +277,6 @@ class PromotionStatsService
             $total_freemium_users[$i] = User::whereDoesntHave('activeSubscription')
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
-            $monthly_revenue[$i] = Subscription::whereBetween('paid_on', [$startOfInterval, $endOfInterval])->sum('price');
         }
 
 
@@ -292,7 +291,6 @@ class PromotionStatsService
             'total_group_ads_revenue' => $total_group_ads_revenue,
             'total_freemium_users' => $total_freemium_users,
             'total_premium_users' => $total_premium_users,
-            'monthly_revenue' => $monthly_revenue
         ];
     }
 
