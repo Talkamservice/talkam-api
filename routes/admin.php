@@ -167,6 +167,7 @@ Route::middleware(["auth"])->group(
 
         Route::get('search-countries', [PlanCountryPricingController::class, 'fetchCountries'])->name('search-countries');
         Route::get('view-flutterwave-plans', [PlanCountryPricingController::class, 'fetchFlutterwavePlans'])->name('view-flutterwave-plans');
+        Route::delete('country-plan-pricings/{country_id}/delete', [PlanCountryPricingController::class, 'deleteCountryPlans'])->name('country-plan-pricings.delete');
 
     }
 

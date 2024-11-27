@@ -24,7 +24,8 @@
                 <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
-                            <input class="form-control" type="text" placeholder="Search...." name="search">
+                            <input class="form-control" type="text" placeholder="Search...." name="search"
+                                value="{{request()->search}}">
                         </div>
                         <div class="form-group">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
@@ -79,18 +80,19 @@
                                                         class="ri-edit-line"></i></a>
                                                 <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
                                                     href="#"
-                                                    onclick="openDeleteModal('{{ route('admin.country-plan-pricings.destroy', $country_plan->id) }}')"
+                                                    onclick="openMultipleDeleteModal('{{ route('admin.country-plan-pricings.delete', $country_plan->country_id) }}')"
                                                     data-bs-toggle="tooltip" title="Delete this plan">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </a>
                                                 <a aria-label="anchor" data-bs-toggle="tooltip"
-                                                title="View Flutterwave Plans" target="_blank"
-                                                href="{{route("admin.view-flutterwave-plans")}}"
-                                                class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
-                                                    class="ri-external-link-line"></i></a>
+                                                    title="View Flutterwave Plans. For developers testing only. would be remove before it goes live"
+                                                    target="_blank" href="{{ route('admin.view-flutterwave-plans') }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
+                                                        class="ri-external-link-line"></i></a>
                                             </div>
                                         </td>
                                     </tr>
+                                    @include('dashboards.admin.pages.finance.plan.country-pricing.delete-modal')
                                 @empty
                                     <tr>
                                         <td colspan="5" class="text-center">No records found</td>
@@ -101,11 +103,11 @@
                     </div>
                     <!-- Pagination -->
                     <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div class="text-muted">
+                        {{-- <div class="text-muted">
                             Showing {{ $country_plan_pricings->firstItem() }} to {{ $country_plan_pricings->lastItem() }}
                             of
                             {{ $country_plan_pricings->total() }} entries
-                        </div>
+                        </div> --}}
                         <nav aria-label="Page navigation">
                             <ul class="pagination">
                                 {{ $country_plan_pricings->links('pagination::bootstrap-4') }}

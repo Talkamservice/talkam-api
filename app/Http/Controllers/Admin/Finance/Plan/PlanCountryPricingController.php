@@ -29,9 +29,11 @@ class PlanCountryPricingController extends Controller
         $this->country_plan_pricing_service = new PlanCountryPricingService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $country_plan_pricings = PlanCountryPricing::with(['country', 'plan'])->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $search =  $request->get('search');
+
+        $country_plan_pricings = PlanCountryPricing::with(['country', 'plan'])->search($search)->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         return view('dashboards.admin.pages.finance.plan.country-pricing.index', [
             'country_plan_pricings' => $country_plan_pricings,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
@@ -126,5 +128,18 @@ class PlanCountryPricingController extends Controller
     public function fetchFlutterwavePlans()
     {
         $this->country_plan_pricing_service->getFlutterwavePlans();
+    }
+
+    public function deleteCountryPlans($country_id)
+    {
+          try {
+            $plans = PlanCountryPricing::where('country_id', $country_id)->get();
+            // dd($plans);
+            $this->country_plan_pricing_service->cancelCountryFlutterwavePlan($plans);
+            $plans->delete();
+            return back()->with(NotificationConstants::SUCCESS_MSG, 'Country plan Pricing deleted successfully');
+        } catch (Throwable $th) {
+            return back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
+        }
     }
 }

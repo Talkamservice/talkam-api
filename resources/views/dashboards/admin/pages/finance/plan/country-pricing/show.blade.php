@@ -31,10 +31,6 @@
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
-                    <div class="">
-                        <a href="{{ route('admin.country-plan-pricings.create') }}" class="btn btn-primary btn-sm"><i
-                                class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
-                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -46,8 +42,8 @@
                                     <th scope="col">Default Cost</th>
                                     <th scope="col">Lowered Cost (%)</th>
                                     <th scope="col">Discount</th>
-                                    <th scope="col">Date</th>
                                     <th scope="col">Status</th>
+                                    <th scope="col">Date</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -67,11 +63,7 @@
                                         <td>{{ $country_plan->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor"
-                                                    href="{{ route('admin.country-plan-pricings.edit', $country_plan->id) }}"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
-                                                        class="ri-edit-line"></i></a>
-
+                                                
                                                 <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
                                                     href="#"
                                                     onclick="openDeleteModal('{{ route('admin.country-plan-pricings.destroy', $country_plan->id) }}')"

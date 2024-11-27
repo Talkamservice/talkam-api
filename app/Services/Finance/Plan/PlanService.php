@@ -55,11 +55,12 @@ class PlanService
         DB::beginTransaction();
         try {
             $data = self::validate($data);
-
+            $currency = Currency::where('symbol', '$')->first();
             $plan = Plan::create([
                 "name" => $data["name"],
                 "description" => $data["description"],
                 "status" => $data["status"],
+                'currency_id' => $currency->id,
             ]);
 
             $plan->scopes()->delete();
@@ -107,11 +108,12 @@ class PlanService
         try {
             $data = self::validate($data, $id);
             $plan = self::getById($id);
-
+            $currency = Currency::where('symbol', '$')->first();
             $plan->update([
                 "name" => $data["name"],
                 "description" => $data["description"],
                 "status" => $data["status"],
+                'currency_id' => $currency->id,
             ]);
 
             $plan->scopes()->delete();
