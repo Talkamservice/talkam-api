@@ -83,7 +83,7 @@ class ExpiredPromotionNotification extends Notification implements ShouldQueue
        
         $data = [
             'data' => [
-                'id' => $this->promotion->getModelTypeAttribute->id,
+                'id' => $this->promotion->id,
             ],
             'title' => "Your promotion has Expired",
             'message' => $this->message,
