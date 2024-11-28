@@ -13,6 +13,8 @@
 
     <!-- Favicon -->
     <link rel="icon" href="{{ $admin_assets }}/images/brand-logos/favicon.ico" type="image/x-icon">
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Choices JS -->
     <script src="{{ $admin_assets }}/libs/choices.js/public/assets/scripts/choices.min.js"></script>

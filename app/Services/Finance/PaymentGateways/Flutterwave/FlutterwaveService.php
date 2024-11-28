@@ -126,6 +126,7 @@ class FlutterwaveService
         try {
             $full_url = "{$this->base_url}/payment-plans";
             $response = $this->client->post($full_url, $this->plan_data);
+            // dd( $response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
             }
@@ -178,6 +179,23 @@ class FlutterwaveService
         try {
             $full_url = "{$this->base_url}/payment-plans/$flutterwave_plan_id";
             $response = $this->client->get($full_url);
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred during plan cancellation');
+            }
+
+            return $response['data'];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            // throw new FlutterwaveException('Unable to get plan: ' . $e->getMessage());
+        }
+    }
+
+    public function getPlans()
+    {
+        try {
+            $full_url = "{$this->base_url}/payment-plans";
+            $response = $this->client->get($full_url);
+            dd($response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred during plan cancellation');
             }

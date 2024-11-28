@@ -6,9 +6,11 @@ use App\Constants\General\StatusConstants;
 use App\Constants\Post\PostConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PostComment;
+use App\Models\Promotion;
 use App\Models\UserCommentReaction;
 use App\Services\Notification\NotificationHandlerService;
 use App\Services\User\UserService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -111,6 +113,55 @@ class PostCommentService
 
         return $builder;
     }
+
+    public function interleavePromotedPostsIntoComments($regularComments)
+    {
+        // Fetch promoted posts for interleaving
+        $promotedPosts = Promotion::whereNotNull('post_id')
+            ->whereNull('group_id')
+            ->where('status', StatusConstants::ACTIVE)
+            ->with('post') // Load related post
+            ->get()
+            ->filter(function ($promotion) {
+                // Filter active promoted posts
+                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+                return $expiresAt->greaterThanOrEqualTo(now());
+            })
+            ->sortByDesc(function ($promotion) {
+                return $promotion->post->cost; // Sort by cost of the promoted post
+            })
+            ->pluck('post'); // Extract only the posts
+    
+        $interleavedComments = [];
+        $regularCommentIndex = 0;
+        $promotedPostIndex = 0;
+        $regularCommentInterval = 10; // Number of regular comments between promoted posts
+    
+        // Interleave regular comments and promoted posts
+        while ($regularCommentIndex < $regularComments->count()) {
+            // Add up to 10 regular comments
+            for ($i = 0; $i < $regularCommentInterval && $regularCommentIndex < $regularComments->count(); $i++) {
+                $interleavedComments[] = $regularComments->get($regularCommentIndex); // Add regular comment
+                $regularCommentIndex++;
+            }
+    
+            // Add one promoted post if available
+            if ($promotedPostIndex < $promotedPosts->count()) {
+                $interleavedComments[] = $promotedPosts->get($promotedPostIndex); // Add promoted post directly
+                $promotedPostIndex++;
+            }
+        }
+    
+        // Append any remaining promoted posts (if necessary)
+        while ($promotedPostIndex < $promotedPosts->count()) {
+            $interleavedComments[] = $promotedPosts->get($promotedPostIndex); // Add any remaining promoted posts
+            $promotedPostIndex++;
+        }
+    
+        return $interleavedComments;
+    }
+    
+
 
     public static function handleReaction(array $data)
     {

@@ -86,6 +86,9 @@
                         <ul class="slide-menu child1">
                             <li class="slide">
                                 <a href="{{ route('admin.plans.index') }}" class="side-menu__item list-item list-item-sub">Plans</a>
+                                <li class="slide">
+                                    <a href="{{ route('admin.country-plan-pricings.index') }}" class="side-menu__item list-item list-item-sub">Country</a>
+                                </li>
                             </li>
                         </ul>
                     </li>
