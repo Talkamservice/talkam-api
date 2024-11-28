@@ -159,10 +159,6 @@ class FlutterwaveOneOffPaymentWebhookService
                 "payment_id" => $this->payment->id,
             ]);
 
-            $this->user?->update([
-                "should_display_ads" => 0
-            ]);
-
             Notification::send($this->user, new NewPaymentNotification($this->payment));
             if (!empty(sudo())) {
                 Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
