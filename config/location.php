@@ -73,10 +73,10 @@ return [
     |
     */
 
-    'testing' => [
-        'ip' => '66.102.0.0',
-        // 'enabled' => env('LOCATION_TESTING', true),
-    ],
+    // 'testing' => [
+    //     'ip' => '66.102.0.0',
+    //     'enabled' => env('LOCATION_TESTING', false),
+    // ],
 
     /*
     |--------------------------------------------------------------------------
@@ -110,6 +110,10 @@ return [
 
     'ip_api' => [
         'token' => env('IP_API_TOKEN'),
+    ],
+
+    'ip_api' => [
+        'key' => env('IPAPI_KEY'),
     ],
 
     'ipinfo' => [

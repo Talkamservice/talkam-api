@@ -34,26 +34,16 @@
                                     <label for="country-select"
                                         class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <!-- Search box -->
-                                        <input type="text" id="country-search" class="form-control mb-2"
-                                            placeholder="Search for a country"
-                                            {{ isset($country_plan) ? 'disabled' : '' }} />
-
-                                        <!-- Dropdown for countries -->
-                                        <select name="country_id" id="country-select" class="form-control"
+                                        <!-- Dropdown for countries with search functionality inside -->
+                                        <select name="country_id" id="country-select" class="form-select"
                                             {{ isset($country_plan) ? 'disabled' : '' }}>
                                             <option value="" disabled selected>Select Country</option>
-                                            <!-- Existing countries will be populated here initially -->
                                             @foreach ($countries as $country)
                                                 <option value="{{ $country->id }}"
                                                     {{ (old('country_id') ?? ($country_plan->country_id ?? '')) == $country->id ? 'selected' : '' }}>
                                                     {{ $country->name }}
                                                 </option>
                                             @endforeach
-                                            @if (isset($country_plan))
-                                                <input type="hidden" name="country_id"
-                                                    value="{{ $country_plan->country_id }}">
-                                            @endif
                                         </select>
                                     </div>
                                 </div>
@@ -124,48 +114,45 @@
             }
         }
     </script>
+    <!-- Add these to your head section for Select2 styling and functionality -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
     <script>
         $(document).ready(function() {
-            // When user types in the search box
-            $('#country-search').on('input', function() {
-                var query = $(this).val(); // Get the search query
+            // Initialize Select2 for the country select box
+            $('#country-select').select2({
+                placeholder: "Select or search for a country", // Set the placeholder text
+                allowClear: true, // Allow clearing the selected country
+                minimumResultsForSearch: 10, // Show search box only after 10 options are displayed
+                ajax: {
+                    url: "{{ route('admin.search-countries') }}", // Your AJAX URL to search countries
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                            q: params.term // Send the search query to the server
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.map(function(country) {
+                                return {
+                                    id: country.id,
+                                    text: country.name
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
 
-                // If query is not empty, perform AJAX search
-                if (query.length >= 2) { // Start searching after 2 characters
-                    $.ajax({
-                        url: "{{ route('admin.search-countries') }}", // Route to search countries
-                        method: 'GET',
-                        data: {
-                            q: query // Send the search query
-                        },
-                        success: function(data) {
-                            // Clear the current options in the dropdown
-                            $('#country-select').empty().append(
-                                '<option value="" disabled selected>Select Country</option>'
-                                );
-
-                            // Populate dropdown with new results
-                            if (data.length > 0) {
-                                data.forEach(function(country) {
-                                    $('#country-select').append('<option value="' +
-                                        country.id + '">' + country.name +
-                                        '</option>');
-                                });
-                            } else {
-                                // If no results found
-                                $('#country-select').append(
-                                    '<option value="" disabled>No countries found</option>');
-                            }
-                        },
-                        error: function() {
-                            // Handle error
-                            alert('An error occurred while fetching countries.');
-                        }
-                    });
-                } else {
-                    // If input is less than 2 characters, clear the dropdown
-                    $('#country-select').empty().append(
-                        '<option value="" disabled selected>Select Country</option>');
+            // Display all countries initially in the dropdown (without search)
+            $('#country-select').on('select2:open', function() {
+                var dropdown = $(this).data('select2').dropdown.$dropdown;
+                if (!dropdown.find('.select2-search--dropdown').length) {
+                    dropdown.prepend(
+                        '<input type="text" class="select2-search__field" autocomplete="off" />');
                 }
             });
         });

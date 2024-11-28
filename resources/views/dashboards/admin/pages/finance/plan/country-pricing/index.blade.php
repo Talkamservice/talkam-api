@@ -25,7 +25,7 @@
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
                             <input class="form-control" type="text" placeholder="Search...." name="search"
-                                value="{{request()->search}}">
+                                value="{{ request()->search }}">
                         </div>
                         <div class="form-group">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
@@ -37,6 +37,16 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="container d-flex justify-content-center align-items-center">
+                        <div class="col-12 col-lg-8 col-xl-8 p-2">
+                            <p class="text-center">
+                                <span class="fw-bold fs-5 text-dark">Note:</span>
+                                <span class="fs-6">All countries adhere to the standard plan pricing and discount structure. However, newly created countries have specific pricing adjustments while maintaining the original discount rates applicable to all plans.</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
