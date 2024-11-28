@@ -4,11 +4,11 @@
 
         <!-- Page Header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-            <h1 class="page-title fw-semibold fs-18 mb-0">Country Plans</h1>
+            <h1 class="page-title fw-semibold fs-18 mb-0">Country Pricing</h1>
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item">Country Plans</li>
+                        <li class="breadcrumb-item">Country Pricing</li>
                         <li class="breadcrumb-item active" aria-current="page">Index</li>
                     </ol>
                 </nav>
@@ -53,7 +53,7 @@
                                 <tr>
                                     <th scope="col">S/N</th>
                                     <th scope="col">Country</th>
-                                    <th scope="col">Lowered Cost</th>
+                                    <th scope="col">Adjusted Pricing</th>
                                     <th scope="col">Discount</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
