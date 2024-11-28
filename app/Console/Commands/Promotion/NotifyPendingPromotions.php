@@ -22,8 +22,8 @@ class NotifyPendingPromotions extends Command
 
         // Get all pending promotions
         $promotions = Promotion::with(['group', 'post'])->where('status', StatusConstants::PENDING)->get();
+
         foreach ($promotions as $promotion) {
-            Log::info($promotion->getModelTypeAttribute->id);
             // Calculate the promotion's expiration time
             $expiresAt = Carbon::parse($promotion->created_at)->addDays(3);  // 3 days after creation
             $hoursRemaining = $now->diffInHours($expiresAt, false); // Negative if past expiry
