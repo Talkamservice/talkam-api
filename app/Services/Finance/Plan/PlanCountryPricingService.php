@@ -48,7 +48,11 @@ class PlanCountryPricingService
         DB::beginTransaction();
         try {
             $data = self::validate($data);
-
+            // Check if a plan already exists for the given country
+            $existingPlan = PlanCountryPricing::where('country_id', $data['country_id'])->exists();
+            if ($existingPlan) {
+                throw new Exception("Sorry, you cannot create a plan for this country again as one already exists. Please visit the country plan page to update the existing plan.");
+            }
             $plans = Plan::with('durations')->status()->get();
             if ($plans->isEmpty()) {
                 throw new Exception("No plans found to associate with country plan pricing.");

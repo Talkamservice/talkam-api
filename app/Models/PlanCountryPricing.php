@@ -45,5 +45,10 @@ class PlanCountryPricing extends Model
         });
     }
 
-  
+    public function getCountryName()
+    {
+        return $this->country ? $this->country->name : null;
+    }
+    
+
 }

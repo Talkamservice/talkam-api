@@ -71,10 +71,6 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-        $clientIp = request()->ip();
-        $position = Location::get();
-
-        dd($request->all(), $position, $clientIp, config("location.testing"));
         try {
             $user = $this->user_service->update($request->all(), auth()->id());
             return ApiHelper::validResponse("User data updated successfully", UserResource::make($user));

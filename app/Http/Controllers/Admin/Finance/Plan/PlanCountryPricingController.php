@@ -16,6 +16,7 @@ use App\Services\Finance\Plan\PlanBenefitService;
 use App\Services\Finance\Plan\PlanCountryPricingService;
 use App\Services\Finance\Plan\PlanScopeService;
 use App\Services\Finance\Plan\PlanService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -55,6 +56,9 @@ class PlanCountryPricingController extends Controller
             return redirect()->route("admin.country-plan-pricings.index")->with(NotificationConstants::SUCCESS_MSG, 'country plan pricing created successfully.');
         } catch (ValidationException $e) {
             throw $e;
+        } catch (Exception $e) {
+            // Catch the exception thrown when a country plan already exists
+            return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $e->getMessage());
         } catch (Throwable $e) {
             throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
@@ -91,8 +95,9 @@ class PlanCountryPricingController extends Controller
                 ->with(NotificationConstants::SUCCESS_MSG, 'Country plan pricing updated successfully');
         } catch (ValidationException $e) {
             throw $e;
-        } catch (PaymentPlanException $e) {
-            return back()->with(NotificationConstants::ERROR_MSG, $e->getMessage());
+        } catch (Exception $e) {
+            // Catch the exception thrown when a country plan already exists
+            return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $e->getMessage());
         } catch (Throwable $e) {
             throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");

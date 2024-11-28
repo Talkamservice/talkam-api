@@ -214,7 +214,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::prefix("payments")->as("payments")->group(function () {
                 Route::post("callback", [PaymentController::class,  "callback"])->name("callback");
             });
-        }); 
+        });     
     
 
         Route::prefix("notifications")->as("notifications.")->group(function () {
