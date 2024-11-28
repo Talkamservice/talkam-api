@@ -87,7 +87,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
 
         $data = [
             'data' => [
-                'id' => $this->promotion->getModelTypeAttribute->id,
+                'id' => $this->promotion->id,
             ],
             'title' => $this->title ?? "Your promotion has reached {$this->promotion->statAttribute('impressions')} impressions",
             'message' => $this->message,
