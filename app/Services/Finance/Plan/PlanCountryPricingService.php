@@ -315,6 +315,9 @@ class PlanCountryPricingService
 
     public static function getFlutterwavePlans()
     {
+        $position = Location::get(); // Leave empty for the current user location.
+        return $position ? $position->countryName : null;
+        dd($position);
         $response = (new FlutterwaveService)->getPlans();
         return $response;
     }

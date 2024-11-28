@@ -12,6 +12,7 @@ use App\Services\General\Guzzle\GuzzleService;
 use App\Services\System\ExceptionService;
 use Exception;
 use Illuminate\Http\Request;
+use Stevebauman\Location\Facades\Location;
 use Symfony\Contracts\Service\Attribute\SubscribedService;
 
 class FlutterwaveService
