@@ -146,9 +146,9 @@ class FlutterwaveOneOffPaymentWebhookService
                 throw new InvalidRequestException("We could not verify your promotion request.");
             }
 
-            // if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
-            //     throw new InvalidRequestException("Payment has already been verified.");
-            // }
+            if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+                throw new InvalidRequestException("Payment has already been verified.");
+            }
 
             $this->payment->update([
                 "status" => StatusConstants::COMPLETED
