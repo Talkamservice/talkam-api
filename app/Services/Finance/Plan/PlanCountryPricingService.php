@@ -311,7 +311,15 @@ class PlanCountryPricingService
 
     public static function getFlutterwavePlans()
     {
+
+        if ($position = Location::get()) {
+            // Successfully retrieved position.
+            dd($position->countryName);
+        } else {
+            // Failed retrieving position.
+        }
         $response = (new FlutterwaveService)->getPlans();
         return $response;
     }
+    
 }
