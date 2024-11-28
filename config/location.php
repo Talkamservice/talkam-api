@@ -73,10 +73,10 @@ return [
     |
     */
 
-    // 'testing' => [
-    //     'ip' => '66.102.0.0',
-    //     'enabled' => env('LOCATION_TESTING', false),
-    // ],
+    'testing' => [
+        'ip' => '66.102.0.0',
+        'enabled' => env('LOCATION_TESTING', false),
+    ],
 
     /*
     |--------------------------------------------------------------------------
