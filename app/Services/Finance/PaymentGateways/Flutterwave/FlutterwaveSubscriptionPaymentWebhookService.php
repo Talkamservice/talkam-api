@@ -100,11 +100,11 @@ class FlutterwaveSubscriptionPaymentWebhookService
 
         $subscription = SubscriptionService::subscribeToPlan($this->user, $plan_duration);
 
-        // if ($this->user->should_display_ads != 1) {
+        if ($this->user->should_display_ads != 1) {
             $this->user?->update([
                 "should_display_ads" => 0
             ]);
-        // }
+        }
 
         Notification::send($this->user, new NewSubscriptionNotification($subscription));
         // Notification::send(sudo(), new AdminNewSubscriptionNotification($subscription));
