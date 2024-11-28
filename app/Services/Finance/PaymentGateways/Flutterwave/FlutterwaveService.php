@@ -126,6 +126,7 @@ class FlutterwaveService
         try {
             $full_url = "{$this->base_url}/payment-plans";
             $response = $this->client->post($full_url, $this->plan_data);
+            // dd( $response);
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["error"]["message"] ?? 'Unknown error occurred');
             }

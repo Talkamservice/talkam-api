@@ -47,7 +47,7 @@
                     <div class="col-xl-12">
                         <div class="row">
                             @foreach ($promotion_stats['cards'] as $index => $card)
-                                <div class="col-12 col-md-6 col-lg-6 col-xl-6 col-xxl-4" id="stats-content">
+                                <div class="col-m-12 col-md-6 col-lg-6 col-xl-6" id="stats-content">
                                     <div class="card custom-card overflow-hidden">
                                         <div class="card-body d-flex flex-column">
                                             <div class="d-flex align-items-center justify-content-between">

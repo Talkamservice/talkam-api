@@ -45,7 +45,6 @@ class PostController extends Controller
             $posts = $this->post_service->list($request->all())
                 ->status()
                 ->unblocked()
-                ->doesntHave('promotions') // remove post that has promotion because we are interleving them
                 ->hideGroupPosts()
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());

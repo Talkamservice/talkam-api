@@ -31,32 +31,41 @@
                             @endisset
                             <div class="gy-4 mb-4">
                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
+                                    <label for="country-select"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Search box -->
-                                        <input type="text" id="country-search" class="form-control mb-2" placeholder="Search for a country" />
-                                
+                                        <input type="text" id="country-search" class="form-control mb-2"
+                                            placeholder="Search for a country"
+                                            {{ isset($country_plan) ? 'disabled' : '' }} />
+
                                         <!-- Dropdown for countries -->
-                                        <select name="country_id" id="country-select" class="form-control">
+                                        <select name="country_id" id="country-select" class="form-control"
+                                            {{ isset($country_plan) ? 'disabled' : '' }}>
                                             <option value="" disabled selected>Select Country</option>
                                             <!-- Existing countries will be populated here initially -->
                                             @foreach ($countries as $country)
-                                                <option value="{{ $country->id }}" 
+                                                <option value="{{ $country->id }}"
                                                     {{ (old('country_id') ?? ($country_plan->country_id ?? '')) == $country->id ? 'selected' : '' }}>
                                                     {{ $country->name }}
                                                 </option>
                                             @endforeach
+                                            @if (isset($country_plan))
+                                                <input type="hidden" name="country_id"
+                                                    value="{{ $country_plan->country_id }}">
+                                            @endif
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row col-xl-10 col-sm-12 mb-3">
                                     <label for="input-placeholder"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount (USD)</label>
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Lowered (USD)</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="number" class="form-control" name="discount" id="input-placeholder"
-                                            value="{{ old('discount') ?? ($country_plan->discount ?? '') }}"
-                                            placeholder="Enter Discount">
+                                        <input type="number" class="form-control" name="lowered_cost"
+                                            id="input-placeholder"
+                                            value="{{ old('lowered_cost') ?? ($country_plan->lowered_cost ?? '') }}"
+                                            placeholder="Enter New Amount">
                                     </div>
                                 </div>
                                 <div class="row col-xl-10 col-sm-12">
@@ -115,44 +124,50 @@
             }
         }
     </script>
- <script>
-    $(document).ready(function() {
-        // When user types in the search box
-        $('#country-search').on('input', function() {
-            var query = $(this).val();  // Get the search query
+    <script>
+        $(document).ready(function() {
+            // When user types in the search box
+            $('#country-search').on('input', function() {
+                var query = $(this).val(); // Get the search query
 
-            // If query is not empty, perform AJAX search
-            if (query.length >= 2) { // Start searching after 2 characters
-                $.ajax({
-                    url: "{{ route('admin.search-countries') }}", // Route to search countries
-                    method: 'GET',
-                    data: {
-                        q: query  // Send the search query
-                    },
-                    success: function(data) {
-                        // Clear the current options in the dropdown
-                        $('#country-select').empty().append('<option value="" disabled selected>Select Country</option>');
+                // If query is not empty, perform AJAX search
+                if (query.length >= 2) { // Start searching after 2 characters
+                    $.ajax({
+                        url: "{{ route('admin.search-countries') }}", // Route to search countries
+                        method: 'GET',
+                        data: {
+                            q: query // Send the search query
+                        },
+                        success: function(data) {
+                            // Clear the current options in the dropdown
+                            $('#country-select').empty().append(
+                                '<option value="" disabled selected>Select Country</option>'
+                                );
 
-                        // Populate dropdown with new results
-                        if (data.length > 0) {
-                            data.forEach(function(country) {
-                                $('#country-select').append('<option value="' + country.id + '">' + country.name + '</option>');
-                            });
-                        } else {
-                            // If no results found
-                            $('#country-select').append('<option value="" disabled>No countries found</option>');
+                            // Populate dropdown with new results
+                            if (data.length > 0) {
+                                data.forEach(function(country) {
+                                    $('#country-select').append('<option value="' +
+                                        country.id + '">' + country.name +
+                                        '</option>');
+                                });
+                            } else {
+                                // If no results found
+                                $('#country-select').append(
+                                    '<option value="" disabled>No countries found</option>');
+                            }
+                        },
+                        error: function() {
+                            // Handle error
+                            alert('An error occurred while fetching countries.');
                         }
-                    },
-                    error: function() {
-                        // Handle error
-                        alert('An error occurred while fetching countries.');
-                    }
-                });
-            } else {
-                // If input is less than 2 characters, clear the dropdown
-                $('#country-select').empty().append('<option value="" disabled selected>Select Country</option>');
-            }
+                    });
+                } else {
+                    // If input is less than 2 characters, clear the dropdown
+                    $('#country-select').empty().append(
+                        '<option value="" disabled selected>Select Country</option>');
+                }
+            });
         });
-    });
-</script>
+    </script>
 @endsection

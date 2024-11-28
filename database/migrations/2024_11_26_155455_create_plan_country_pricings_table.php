@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('country_id', 2)->constrained('countries')->cascadeOnDelete();
             $table->foreignId('plan_id')->constrained('plans')->nullable()->after('id');
             $table->double('lowered_cost', 12, 2)->nullable();    // Country-specific price
-            $table->double('discount', 12, 2)->nullable();    // Country-specific price
             $table->string('status')->nullable()->default(StatusConstants::ACTIVE);
             $table->timestamps();
         });

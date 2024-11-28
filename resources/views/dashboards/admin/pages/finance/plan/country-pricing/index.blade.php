@@ -60,8 +60,8 @@
                                         <td>{{ $country_plan->country->name }} <small
                                                 class="text-primary">({{ 'plus ' . $plans->count() - 1 . ' extra plan' }})</small>
                                         </td>
-                                        <td>{{ $country_plan->lowered_cost }}%</td>
                                         <td>{{ $country_plan->formattedAmount() }}</td>
+                                        <td>{{ $country_plan->plan->defaultDuration()?->discount }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($country_plan->status) }}-transparent">
                                                 {{ $country_plan->status }}

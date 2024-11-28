@@ -8,8 +8,8 @@
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{route('admin.country-plan-pricings.index')}}">Plans</a></li>
-                        <li class="breadcrumb-item">Country Plans</li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.country-plan-pricings.index')}}">Country Pricing</a></li>
+                        <li class="breadcrumb-item">Country</li>
                         <li class="breadcrumb-item active" aria-current="page">Show</li>
                     </ol>
                 </nav>
@@ -22,16 +22,7 @@
         <!-- Start::row-1 -->
         <div class="col-xl-12">
             <div class="card custom-card">
-                <div class="card-header d-flex justify-content-between">
-                    <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
-                        <div class="form-group me-2">
-                            <input class="form-control" type="text" placeholder="Search...." name="search">
-                        </div>
-                        <div class="form-group">
-                            <button class="btn btn-sm btn-success p-2">Filter</button>
-                        </div>
-                    </form>
-                </div>
+               
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
@@ -40,7 +31,8 @@
                                     <th scope="col">Country</th>
                                     <th scope="col">Plan Name</th>
                                     <th scope="col">Default Cost</th>
-                                    <th scope="col">Lowered Cost (%)</th>
+                                    <th scope="col">Lowered Cost</th>
+                                    <th scope="col">Percentage (%)</th>
                                     <th scope="col">Discount</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
@@ -52,9 +44,10 @@
                                     <tr>
                                         <td>{{ $country_plan->country->name }}</td>
                                         <td>{{ $country_plan->plan->name }}</td>
-                                        <td>{{ $country_plan->plan->defaultDuration()?->formattedAmount() }}</td>
-                                        <td>{{ $country_plan->lowered_cost }}%</td>
-                                        <td>{{ $country_plan->formattedAmount() }}</td>
+                                        <td>{{ $country_plan->plan->defaultDuration()?->formattedAmount()}}</td>
+                                        <td>{{ $country_plan->formattedAmount()  }}</td>
+                                        <td>{{ $country_plan->percentage }}%</td>
+                                        <td>{{ $country_plan->plan->defaultDuration()?->discount ?? 'N/A' }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($country_plan->status) }}-transparent">
                                                 {{ $country_plan->status }}
