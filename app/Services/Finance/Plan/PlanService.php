@@ -254,7 +254,7 @@ class PlanService
                 }
             }
             // If no country-specific plan found, assign the free plan or fallback plan
-            $free_plan = Plan::where("name", "LIKE", "%free%")->first();
+            $free_plan = Plan::where("name", "LIKE", "%free%")->status()->first();
             $plan_id = $free_plan ? $free_plan->id : null;
         }
         // If no plan is found, return null

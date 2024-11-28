@@ -315,9 +315,10 @@ class PlanCountryPricingService
 
     public static function getFlutterwavePlans()
     {
-        $position = Location::get(); // Leave empty for the current user location.
-        return $position ? $position->countryName : null;
-        dd($position);
+        $position = Location::get('https://api.ipapi.com/api/161.185.160.93?access_key=95ae89b321f3caaf15fc927a4a31e14a'); // Leave empty for the current user location.
+        // return $position ? $position->countryName : null;
+        
+        dd($position, request()->ip(), 'None');
         $response = (new FlutterwaveService)->getPlans();
         return $response;
     }
