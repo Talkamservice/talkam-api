@@ -322,18 +322,16 @@ class PostService
             }
     
             // Add one promoted post if available
-            if ($promotedPostIndex < $promotedPosts->count()) {
-                $promotedPost = $promotedPosts[$promotedPostIndex];
-                if ($promotedPost) { // Check for null
-                    $interleavedPosts[] = $promotedPost;
-                }
+            $promotedPost = $promotedPosts->get($promotedPostIndex);  // Safe access with `get()`
+            if ($promotedPost) { // Check for null
+                $interleavedPosts[] = $promotedPost;
                 $promotedPostIndex++;
             }
         }
     
         // Append any remaining promoted posts
         while ($promotedPostIndex < $promotedPosts->count()) {
-            $promotedPost = $promotedPosts[$promotedPostIndex];
+            $promotedPost = $promotedPosts->get($promotedPostIndex);  // Safe access with `get()`
             if ($promotedPost) { // Check for null
                 $interleavedPosts[] = $promotedPost;
             }
@@ -342,6 +340,7 @@ class PostService
     
         return $interleavedPosts;
     }
+    
     
 
 
