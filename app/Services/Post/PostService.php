@@ -300,38 +300,48 @@ class PostService
                 return $expiresAt->greaterThanOrEqualTo(now());
             })
             ->sortByDesc(function ($promotion) {
-                return $promotion->post->cost; // Sort by cost of the promoted post
+                return $promotion->cost;
             })
-            ->pluck('post'); // Collection of posts
-
+            ->pluck('post')
+            ->filter(); // Exclude null posts
+    
         $interleavedPosts = [];
         $regularPostIndex = 0;
         $promotedPostIndex = 0;
-        $regularPostInterval = 5; // Number of regular posts between promoted posts
-
+        $regularPostInterval = 5;
+    
         // Interleave regular and promoted posts
         while ($regularPostIndex < $regularPosts->count()) {
             // Add up to 5 regular posts
             for ($i = 0; $i < $regularPostInterval && $regularPostIndex < $regularPosts->count(); $i++) {
-                $interleavedPosts[] = $regularPosts->get($regularPostIndex); // Use get() for collections
+                $post = $regularPosts->get($regularPostIndex);
+                if ($post) { // Check for null
+                    $interleavedPosts[] = $post;
+                }
                 $regularPostIndex++;
             }
-
+    
             // Add one promoted post if available
-            if ($promotedPostIndex < $promotedPosts->count()) {
-                $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
+            $promotedPost = $promotedPosts->get($promotedPostIndex);  // Safe access with `get()`
+            if ($promotedPost) { // Check for null
+                $interleavedPosts[] = $promotedPost;
                 $promotedPostIndex++;
             }
         }
-
-        // Append any remaining promoted posts (if necessary)
+    
+        // Append any remaining promoted posts
         while ($promotedPostIndex < $promotedPosts->count()) {
-            $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
+            $promotedPost = $promotedPosts->get($promotedPostIndex);  // Safe access with `get()`
+            if ($promotedPost) { // Check for null
+                $interleavedPosts[] = $promotedPost;
+            }
             $promotedPostIndex++;
         }
-
+    
         return $interleavedPosts;
     }
+    
+    
 
 
 
