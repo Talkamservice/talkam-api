@@ -39,7 +39,7 @@ class PlanDurationResource extends JsonResource
      */
     public function getFlutterwaveId()
     {
-        if ($this->country_plans && $this->country_plans->isNotEmpty()) {
+        if ($this->country_plans) {
             $countryPlan = $this->country_plans->first();
             return $countryPlan->flutterwave_plan_id ?? $this->flutterwave_plan_id;
         }
@@ -52,7 +52,7 @@ class PlanDurationResource extends JsonResource
      */
     public function getPriceForPlan()
     {
-        if ($this->country_plans && $this->country_plans->isNotEmpty()) {
+        if ($this->country_plans) {
             $countryPlan = $this->country_plans->first();
             return $countryPlan->lowered_cost ?? $this->price;
         }
