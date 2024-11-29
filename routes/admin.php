@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\Faq\FaqController;
 use App\Http\Controllers\Admin\Feedback\FeedbackController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanBenefitsController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanController;
+use App\Http\Controllers\Admin\Finance\Plan\PlanCountryPricingController;
 use App\Http\Controllers\Admin\Finance\Promotion\PromotionController;
 use App\Http\Controllers\Admin\Finance\Subscription\Flutterwave\SubscriptionController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
@@ -52,6 +53,7 @@ Route::middleware(["auth"])->group(
             "faq-categories" => FaqCategoryController::class,
             "feedbacks" => FeedbackController::class,
             'plans' => PlanController::class,
+            'country-plan-pricings' => PlanCountryPricingController::class,
             'promotions' => PromotionController::class,
         ]);
 
@@ -162,5 +164,12 @@ Route::middleware(["auth"])->group(
         Route::get('promotions/{status}/get-by-status', [PromotionController::class, 'getBystatus'])->name('promotions.get-by-status');
         Route::get('promotions/{promotion}/view-analytic', [PromotionController::class, 'viewAnalytic'])->name('promotions.view-analytic');
         Route::post('promotions/{promotion}/cancel', [PromotionController::class, 'cancelPromotedContent'])->name('promotions.cancel');
+
+        Route::get('search-countries', [PlanCountryPricingController::class, 'fetchCountries'])->name('search-countries');
+        Route::get('view-flutterwave-plans', [PlanCountryPricingController::class, 'fetchFlutterwavePlans'])->name('view-flutterwave-plans');
+        Route::delete('country-plan-pricings/{country_id}/delete', [PlanCountryPricingController::class, 'deleteCountryPlans'])->name('country-plan-pricings.delete');
+
     }
+
+    
 );

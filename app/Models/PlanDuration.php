@@ -23,6 +23,6 @@ class PlanDuration extends Model
 
     public function formattedAmount()
     {
-        return format_money($this->price, 2, $this->plan->currency->symbol);
+        return format_money($this->price - $this->discount, 2, $this->plan->currency->symbol);
     }
 }

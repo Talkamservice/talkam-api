@@ -9,7 +9,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="list-group-item">
-                            <i class="bx bx-check-circle"></i> <strong>Status:</strong> {{ $promotion->statAttribute('status') ?? 'No data' }}
+                            <i class="bx bx-check-circle"></i> <strong>Status:</strong> {{ $promotion->status ?? 'No data' }}
                         </div>
                     </div>
                     <div class="col-md-4">

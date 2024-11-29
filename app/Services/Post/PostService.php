@@ -249,8 +249,8 @@ class PostService
                     ->orderByRaw('(comments_count + likes_count) DESC') // Sort by total engagement
                     ->orderByDesc('created_at'); // Ensure posts are sorted by recency after engagement
             }
-            
-            
+
+
             if ($key == "featured") {
                 $builder = $builder->where(function ($query) use ($tags) {
                     foreach ($tags as $tag) {
@@ -289,10 +289,11 @@ class PostService
 
     public static function interleavePromotedPosts($regularPosts)
     {
+        // Fetch promoted posts
         $promotedPosts = Promotion::whereNotNull('post_id')
             ->whereNull('group_id')
-            ->where('status', '!=', StatusConstants::PENDING)
-            ->with('post') // Eager load related posts
+            ->where('status', StatusConstants::ACTIVE)
+            ->with('post')
             ->get()
             ->filter(function ($promotion) {
                 $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
@@ -307,26 +308,33 @@ class PostService
         $regularPostIndex = 0;
         $promotedPostIndex = 0;
         $regularPostInterval = 5; // Number of regular posts between promoted posts
-        $totalRegularPosts = count($regularPosts);
-        $totalPromotedPosts = count($promotedPosts);
 
-        // Use a loop that runs while we have remaining regular or promoted posts
-        while ($regularPostIndex < $totalRegularPosts || $promotedPostIndex < $totalPromotedPosts) {
-            // Add up to `regularPostInterval` regular posts
-            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < $totalRegularPosts; $i++) {
-                $interleavedPosts[] = $regularPosts[$regularPostIndex];
+        // Interleave regular and promoted posts
+        while ($regularPostIndex < $regularPosts->count()) {
+            // Add up to 5 regular posts
+            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < $regularPosts->count(); $i++) {
+                $interleavedPosts[] = $regularPosts->get($regularPostIndex); // Use get() for collections
                 $regularPostIndex++;
             }
 
             // Add one promoted post if available
-            if ($promotedPostIndex < $totalPromotedPosts) {
+            if ($promotedPostIndex < $promotedPosts->count()) {
                 $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
                 $promotedPostIndex++;
             }
         }
 
+        // Append any remaining promoted posts (if necessary)
+        while ($promotedPostIndex < $promotedPosts->count()) {
+            $interleavedPosts[] = $promotedPosts[$promotedPostIndex];
+            $promotedPostIndex++;
+        }
+
         return $interleavedPosts;
     }
+
+
+
 
     public static function trends(array $data = [])
     {

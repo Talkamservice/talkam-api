@@ -18,6 +18,8 @@ use App\Services\User\UserService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Stevebauman\Location\Facades\Location;
+use Stevebauman\Location\Position;
 
 class UserController extends Controller
 {

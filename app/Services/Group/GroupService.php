@@ -195,7 +195,8 @@ class GroupService
         if (!empty($key = $data["tab"] ?? null)) {
             $builder = match ($key) {
                 "latest" => $builder->latest(),
-                "popular" => $builder->withCount("members")->orderBy("members_count", "desc"),
+                "popular" => $builder->orderBy("name", "asc"),
+                // "popular" => $builder->withCount("members")->orderBy("members_count", "desc"),
                 default => $builder->inRandomOrder()
             };
         }

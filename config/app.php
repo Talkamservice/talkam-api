@@ -173,6 +173,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\TelescopeServiceProvider::class,
         App\Providers\NotificationServiceProvider::class,
+
     ])->toArray(),
 
     /*
@@ -188,6 +189,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        
     ])->toArray(),
 
 ];
