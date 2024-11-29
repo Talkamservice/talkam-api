@@ -63,7 +63,7 @@ class PlanCountryPricingService
                 foreach ($plan->durations as $duration) {
                     $percentage =  ($data['lowered_cost'] / 100)  * floatval((new PlanService)->parsePlanPrice($duration));
                     $plan_country_pricing = PlanCountryPricing::create([
-                        "lowered_cost" => $data['lowered_cost'],
+                        "lowered_cost" => floatval((new PlanService)->parsePlanPrice($duration)) - $data['lowered_cost'],
                         "percentage" => $percentage,
                         "plan_id" => $plan->id,
                         "country_id" => $data['country_id'],
@@ -110,7 +110,7 @@ class PlanCountryPricingService
 
                     // Update the pricing record
                     $plan_country_pricing->update([
-                        "lowered_cost" => $data['lowered_cost'],
+                        "lowered_cost" => floatval((new PlanService)->parsePlanPrice($duration)) - $data['lowered_cost'],
                         "percentage" => $percentage,
                         'status' => $data['status'],
                     ]);
@@ -278,8 +278,6 @@ class PlanCountryPricingService
     }
 
 
-
-
     public static function cancelFlutterwavePlan($plan)
     {
         $durations = $plan->durations;
@@ -315,11 +313,11 @@ class PlanCountryPricingService
 
     public static function getFlutterwavePlans()
     {
-        $position = Location::get('https://api.ipapi.com/api/161.185.160.93?access_key=95ae89b321f3caaf15fc927a4a31e14a'); // Leave empty for the current user location.
-        // return $position ? $position->countryName : null;
-        
-        dd($position, request()->ip(), 'None');
         $response = (new FlutterwaveService)->getPlans();
+        $response = file_get_contents('http://api.ipapi.com/197.211.59.57?access_key=95ae89b321f3caaf15fc927a4a31e14a');
+        // Decode the JSON response into an associative array
+        $data = json_decode($response, true);
+        dd($data, $response);
         return $response;
     }
 }

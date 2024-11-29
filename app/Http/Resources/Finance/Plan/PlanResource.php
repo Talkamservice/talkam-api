@@ -14,14 +14,24 @@ class PlanResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
+    protected $country_plans;
+
+    public function __construct($resource, $country_plans = null)
+    {
+        // Pass the resource to the parent constructor
+        parent::__construct($resource);
+        // Store the country_plan data
+        $this->country_plans = $country_plans;
+    }
     public function toArray($request)
     {
-       $data = [
+        // dd( $this->country_plan->lowered_cost);
+        $data = [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             "frequency" => $this->defaultDuration()?->frequency,
-            "price" => $this->defaultDuration()?->price,
+            'price' => $this->getPriceForPlan(), // Use the adjusted price here
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
             "is_active_subscription" => false,
@@ -46,7 +56,31 @@ class PlanResource extends JsonResource
         return $data;
     }
 
-    public static function custom(Plan $model) {
+
+    public function getPriceForPlan()
+    {
+        // Check if there are any country plans
+        if ($this->country_plans) {
+            $countryPlan = $this->country_plans->first();
+            return $countryPlan->lowered_cost ?: $this->price; // Fallback to default price if lowered_cost is not set
+        }
+
+        return $this->price; // If no country plans, use the default price
+    }
+
+    public function getflutterwaveId()
+
+    { // Check if there are any country plans
+        if ($this->country_plans) {
+            $countryPlan = $this->country_plans->first();
+            return $countryPlan->flutterwave_plan_id;
+        }
+
+        return $this->price; // If no country plans, use the default price
+    }
+
+    public static function custom(Plan $model)
+    {
         return [
             'id' => $model->id,
             'name' => $model->name,
