@@ -7,5 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContentEngagementUser extends Model
 {
+    protected $guarded = [];
+
     use HasFactory;
 }

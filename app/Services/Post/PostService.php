@@ -300,9 +300,9 @@ class PostService
                 return $expiresAt->greaterThanOrEqualTo(now());
             })
             ->sortByDesc(function ($promotion) {
-                return $promotion->post->cost; // Sort by cost of the promoted post
-            })
-            ->pluck('post'); // Collection of posts
+                return $promotion->cost;
+            }) // Sort promotions by cost descending
+            ->pluck('post'); // Get the related post models
 
         $interleavedPosts = [];
         $regularPostIndex = 0;
