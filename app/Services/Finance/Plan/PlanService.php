@@ -6,7 +6,6 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Currency;
 use App\Models\Plan;
-use App\Models\PlanCountryPricing;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -175,48 +174,22 @@ class PlanService
         $position = Location::get(); // Leave empty for the current user location.
         return $position ? $position->countryName : null;
     }
+
     public static function list()
     {
-        $userCountryName = self::getLocationCountryName();
-        $defaultPlans = Plan::status()->latest()->get();
-        if ($userCountryName) {
-            // Fetch the country-specific plans
-            $countryPlans = PlanCountryPricing::with('plan')
-                ->whereHas('country', function ($query) use ($userCountryName) {
-                    $query->where('name', $userCountryName);
-                })->status()->latest()->get();
-            if ($countryPlans->isNotEmpty()) {
-                // Return country-specific plans
-                return $countryPlans->pluck('plan');
-            }
-        }
-        // If no country-specific plans, return default plans
-        return $defaultPlans;
+        $plans = Plan::status()->latest();
+        return $plans;
     }
-
 
     public static function listByCurrentPlan($plan_id)
     {
-        // Fetch the user's country name
-        $userCountryName = self::getLocationCountryName();
-        // Fetch the base plan
-        $plan = Plan::status()->orderByRaw("id = ? DESC", [$plan_id])->latest()->orderBy('id', 'DESC');
+        $plan = Plan::status()
+            ->orderByRaw("id = ? DESC", [$plan_id])
+            ->latest()
+            ->orderBy('id', 'DESC');
 
-        // If the user has a country, check for country-specific plans
-        if ($userCountryName) {
-            $countryPlan = PlanCountryPricing::with('plan')
-                ->whereHas('country', function ($query) use ($userCountryName) {
-                    $query->where('name', $userCountryName);
-                })->where('plan_id', $plan_id)->status()->latest()->first();
-            // If a country-specific plan exists, return it
-            if ($countryPlan && $countryPlan->plan) {
-                return $countryPlan->plan;
-            }
-        }
-        // If no country-specific plan, return the default plan
-        return $plan->first();
+        return $plan;
     }
-
 
 
     static function parsePlanPrice($duration)
@@ -232,35 +205,17 @@ class PlanService
 
     public static function fetchCurrentPlan()
     {
-        $userCountryName = self::getLocationCountryName();
         $user = auth()->user();
         $active_sub = $user->activeSubscription;
-        // Initialize $plan_id in case of no active subscription
-        $plan_id = null;
         if (!empty($active_sub)) {
-            // If an active subscription exists, set the plan_id from the subscription
             $plan_id = $active_sub->plan_id;
         } else {
-            if ($userCountryName) {
-                // Fetch the country-specific plan if available
-                $countryPlan = PlanCountryPricing::with('plan')
-                    ->whereHas('country', function ($query) use ($userCountryName) {
-                        $query->where('name', $userCountryName);
-                    })->where('plan_id', $plan_id)->status()->latest()->first();
-
-                // If a country-specific plan exists, return it
-                if ($countryPlan && $countryPlan->plan) {
-                    return $countryPlan->plan;
-                }
-            }
-            // If no country-specific plan found, assign the free plan or fallback plan
-            $free_plan = Plan::where("name", "LIKE", "%free%")->status()->first();
-            $plan_id = $free_plan ? $free_plan->id : null;
+            $free_plan = Plan::where("name", "LIKE", "%free%")->first();
+            $plan_id = $free_plan?->id;
         }
-        // If no plan is found, return null
-        return $plan_id ? Plan::find($plan_id) : null;
-    }
 
+        return $plan_id ?? null;
+    }
 
     public static function createFlutterwavePlan($plan)
     {
