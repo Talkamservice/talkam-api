@@ -298,7 +298,9 @@ class PostService
                 $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
                 return $expiresAt->greaterThanOrEqualTo(now());
             })
-            ->sortByDesc('cost') // Sort promotions by cost descending
+            ->sortByDesc(function ($promotion) {
+                return $promotion->cost;
+            }) // Sort promotions by cost descending
             ->pluck('post'); // Get the related post models
 
         $interleavedPosts = [];

@@ -216,7 +216,7 @@ class GroupService
                 return $expiresAt->greaterThanOrEqualTo(now());
             })
             ->sortByDesc(function ($promotion) {
-                return $promotion->group->cost;
+                return $promotion->cost;
             })
             ->pluck('group'); // Collection of groups
 
