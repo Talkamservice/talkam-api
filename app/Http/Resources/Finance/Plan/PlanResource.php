@@ -60,13 +60,14 @@ class PlanResource extends JsonResource
     public function getPriceForPlan()
     {
         // Check if there are any country plans
-        if ($this->country_plans) {
+        if ($this->country_plans && $this->country_plans->isNotEmpty()) {
             $countryPlan = $this->country_plans->first();
-            return $countryPlan->lowered_cost ?: $this->price; // Fallback to default price if lowered_cost is not set
+            return $countryPlan?->lowered_cost ?? $this->price; // Safely access lowered_cost and fallback to price
         }
-
+    
         return $this->price; // If no country plans, use the default price
     }
+    
 
     public function getflutterwaveId()
 
