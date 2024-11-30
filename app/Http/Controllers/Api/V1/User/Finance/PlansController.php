@@ -34,11 +34,11 @@ class PlansController extends Controller
             $plan_id = $this->plan_service->fetchCurrentPlan();
 
             // Modify the builder based on the current plan id
-            if (!empty($plan_id)) {
-                $builder = $builder->listByCurrentPlan($plan_id);
-            } else {
+            // if (!empty($plan_id)) {
+            //     $builder = $builder->listByCurrentPlan($plan_id);
+            // } else {
                 $builder = $builder->list();
-            }
+            // }
 
             // Fetch the plans using the builder
             $plans = $builder->get(); // Ensure you execute the query to get results as a collection
