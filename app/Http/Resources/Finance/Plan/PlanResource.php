@@ -4,6 +4,7 @@ namespace App\Http\Resources\Finance\Plan;
 
 use App\Constants\Account\User\UserConstants;
 use App\Models\Plan;
+use App\Services\Finance\Plan\PlanService;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlanResource extends JsonResource
@@ -15,6 +16,7 @@ class PlanResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     protected $country_plans;
+    protected $plan_service;
 
     public function __construct($resource, $country_plans = null)
     {
@@ -22,6 +24,7 @@ class PlanResource extends JsonResource
         parent::__construct($resource);
         // Store the country_plan data
         $this->country_plans = $country_plans;
+        $this->plan_service = new PlanService;
     }
     public function toArray($request)
     {
@@ -34,7 +37,7 @@ class PlanResource extends JsonResource
             'price' => $this->getPriceForPlan(), // Use the adjusted price here
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
-            "country" => $this->status,
+            "country" => $this->getCountry(),
             "is_active_subscription" => false,
             "currency" => $this->plan?->currency?->short_name ?? "USD",
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
