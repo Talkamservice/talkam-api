@@ -34,6 +34,7 @@ class PlanResource extends JsonResource
             'price' => $this->getPriceForPlan(), // Use the adjusted price here
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
+            "country" => $this->status,
             "is_active_subscription" => false,
             "currency" => $this->plan?->currency?->short_name ?? "USD",
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
@@ -64,10 +65,16 @@ class PlanResource extends JsonResource
             $countryPlan = $this->country_plans->first();
             return $countryPlan?->lowered_cost ?? $this->price; // Safely access lowered_cost and fallback to price
         }
-    
+
         return $this->price; // If no country plans, use the default price
     }
-    
+
+    public function getCountry()
+    {
+        $country = $this->plan_service->getLocationCountryName();
+        return $country ?? null; // Safely access lowered_cost and fallback to price
+    }
+
 
     public function getflutterwaveId()
 
