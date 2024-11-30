@@ -172,7 +172,7 @@ class PlanService
     public static function getLocationCountryName()
     {
         $position = Location::get(); // Leave empty for the current user location.
-        return $position ? $position->countryName : null;
+        return $position->countryName;
     }
 
     public static function list()
