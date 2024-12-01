@@ -48,15 +48,29 @@ class PlansController extends Controller
             $countryPlans = PlanCountryPricing::with('plan')
                 ->whereHas('country', function ($query) use ($userCountryName) {
                     $query->where('name', $userCountryName);
-                })->status()->latest()->get()->keyBy('plan_id'); // Key by plan_id to easily access country-specific plans
+                })
+                ->status()
+                ->latest()
+                ->get()
+                ->keyBy('plan_id'); // Key by plan_id to easily access country-specific plans
+
+            // Fetch all plans (including relationships like durations)
+            $plans = $builder->get();
 
             $plans->each(function ($plan) use ($countryPlans) {
-                $plan->country_plans = collect($countryPlans->where('plan_id', $plan->id));
+                $plan->country_plans = $countryPlans->where('plan_id', $plan->id);
             });
+
             // Map the plans and include durations and other necessary relationships
             $data = $plans->map(function ($plan) {
+                $durations = $plan->durations->map(function ($duration) use ($plan) {
+                    $country_plans = $plan->country_plans;
+                    return new PlanDurationResource($duration, $country_plans);
+                });
+
                 return new PlanResource($plan, $plan->country_plans);
             });
+
 
             // Return the response
             return ApiHelper::validResponse("Plans returned successfully", $data);
