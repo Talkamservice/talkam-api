@@ -3,11 +3,13 @@
     <div class="container-fluid">
         <!-- Page Header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-            <h1 class="page-title fw-semibold fs-18 mb-0">{{ isset($country_plan) ? 'Edit ' : 'Create ' }}Country Pricing</h1>
+            <h1 class="page-title fw-semibold fs-18 mb-0">{{ isset($country_plan) ? 'Edit ' : 'Create ' }}Country Pricing
+            </h1>
             <div class="ms-md-1 ms-0">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.country-plan-pricings.index') }}">Country Pricing</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.country-plan-pricings.index') }}">Country
+                                Pricing</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ isset($country_plan) ? 'Edit' : 'Create' }}
                         </li>
                     </ol>
@@ -30,10 +32,11 @@
                             @endisset
                             <div class="gy-4 mb-4">
                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
+                                    <label for="country-select"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Dropdown for countries with search functionality -->
-                                        <select name="country_id_display" id="country-select" class="form-select" 
+                                        <select name="country_id_display" id="country-select" class="form-select"
                                             {{ isset($country_plan) ? 'disabled' : '' }}>
                                             <option value="" disabled selected>Select Country</option>
                                             @foreach ($countries as $country)
@@ -43,21 +46,28 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                
+
                                         <!-- Hidden input to always submit country_id -->
-                                        <input type="hidden" name="country_id" 
+                                        <input type="hidden" name="country_id"
                                             value="{{ old('country_id') ?? ($country_plan->country_id ?? '') }}">
                                     </div>
                                 </div>
-                                
+
 
                                 <div class="row col-xl-10 col-sm-12 mb-3">
                                     <label for="input-placeholder"
                                         class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Lowered (USD)</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <!-- Display current lowered cost if it exists -->
+                                        @if (!empty($country_plan->lowered_cost))
+                                            <div class="mb-2 text-muted">
+                                                <strong>Current Lowered Price: </strong>
+                                                ${{ number_format($country_plan->lowered_cost, 2) }}
+                                            </div>
+                                        @endif
                                         <input type="number" class="form-control" name="lowered_cost"
                                             id="input-placeholder"
-                                            value="{{ old('lowered_cost') ?? ($country_plan->lowered_cost ?? '') }}"
+                                            value="{{ old('lowered_cost') }}"
                                             placeholder="Enter New Amount">
                                     </div>
                                 </div>
