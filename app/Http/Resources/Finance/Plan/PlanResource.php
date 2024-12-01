@@ -25,16 +25,16 @@ class PlanResource extends JsonResource
         // Store the country_plan data
         $this->country_plans = $country_plans;
         $this->plan_service = new PlanService;
+        // dd($this->country_plans); 
     }
     public function toArray($request)
     {
-        // dd( $this->country_plan->lowered_cost);
         $data = [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             "frequency" => $this->defaultDuration()?->frequency,
-            'price' => $this->getPriceForPlan(), // Use the adjusted price here
+            'price' => $this->getPriceForPlan() ?? $this->defaultDuration()?->price, // Use the adjusted price here
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
             "country" => $this->getCountry(),
@@ -64,12 +64,12 @@ class PlanResource extends JsonResource
     public function getPriceForPlan()
     {
         // Check if there are any country plans
-        if ($this->country_plans && $this->country_plans->isNotEmpty()) {
+        if ($this->country_plans) {
             $countryPlan = $this->country_plans->first();
-            return $countryPlan?->lowered_cost ?? $this->price; // Safely access lowered_cost and fallback to price
+            return $countryPlan?->lowered_cost ?? null; // Safely access lowered_cost and fallback to price
         }
 
-        return $this->price; // If no country plans, use the default price
+        return null; // If no country plans, use the default price
     }
 
     public function getCountry()
