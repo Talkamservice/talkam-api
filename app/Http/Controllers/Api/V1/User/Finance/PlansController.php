@@ -39,50 +39,28 @@ class PlansController extends Controller
             } else {
                 $builder = $builder->list();
             }
-
-            // Fetch the plans using the builder
-            $plans = $builder->get(); // Ensure you execute the query to get results as a collection
-
             // Fetch country-specific plans
             $userCountryName = $this->plan_service->getLocationCountryName(); // Replace with dynamic country if needed
+            $userCountryName = "Nigeria";
             $countryPlans = PlanCountryPricing::with('plan')
                 ->whereHas('country', function ($query) use ($userCountryName) {
                     $query->where('name', $userCountryName);
-                })
-                ->status()
-                ->latest()
-                ->get()
-                ->keyBy('plan_id'); // Key by plan_id to easily access country-specific plans
-
-            // Fetch all plans (including relationships like durations)
+                })->status()->latest()->get()->keyBy('plan_id');
             $plans = $builder->get();
-
-                $plans->each(function ($plan) use ($countryPlans) {
-                    $plan->country_plans = collect($countryPlans->where('plan_id', $plan->id)
-                        // ->where('plan_duration_id', $plan->durations()->first()->id)
-                    );
-                });
+            $plans->each(function ($plan) use ($countryPlans) {
+                $plan->country_plans = collect(
+                    $countryPlans->where('plan_id', $plan->id)
+                );
+            });
             // Map the plans and include durations and other necessary relationships
             $data = $plans->map(function ($plan) {
-                $durations = $plan->durations->map(function ($duration) use ($plan) {
-                    $country_plans = $plan->country_plans;
-                    return new PlanDurationResource($duration, $country_plans);
-                });
-
                 return new PlanResource($plan, $plan->country_plans);
             });
-
-
             // Return the response
             return ApiHelper::validResponse("Plans returned successfully", $data);
         } catch (Exception $e) {
             // Handle exceptions
-            return ApiHelper::problemResponse(
-                "Something went wrong while trying to process your request",
-                ApiConstants::SERVER_ERR_CODE,
-                $request,
-                $e
-            );
+            return ApiHelper::problemResponse("Something went wrong while trying to process your request", ApiConstants::SERVER_ERR_CODE, $request, $e);
         }
     }
 
