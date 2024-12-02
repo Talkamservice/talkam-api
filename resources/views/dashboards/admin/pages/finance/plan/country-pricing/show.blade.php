@@ -30,7 +30,7 @@
                                 <tr>
                                     <th scope="col">Country</th>
                                     <th scope="col">Plan Name</th>
-                                    <th scope="col">Duration Price</th>
+                                    <th scope="col">Default Cost</th>
                                     <th scope="col">Lowered Cost</th>
                                     <th scope="col">Percentage (%)</th>
                                     <th scope="col">Discount</th>
@@ -41,45 +41,32 @@
                             </thead>
                             <tbody>
                                 @forelse($country_plan_pricings as $country_plan)
-                                    @foreach($country_plan->plan->durations as $duration)
-                                        <tr>
-                                            <!-- Show country name and plan name once per row -->
-                                            @if ($loop->first)
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">{{ $country_plan->country->name }}</td>
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">{{ $country_plan->plan->name }}</td>
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">
-                                                    {{ format_money($duration->price, 2, $country_plan->plan->currency->symbol) }}
-                                                </td>
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">{{ $country_plan->formattedAmount() }}</td>
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">{{ $country_plan->percentage }}%</td>
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">
-                                                    {{ format_money($duration->discount, 2, $country_plan->plan->currency->symbol) ?? 'N/A'}}
-                                                </td>
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">
-                                                    <span class="badge bg-{{ pillClasses($country_plan->status) }}-transparent">
-                                                        {{ $country_plan->status }}
-                                                    </span>
-                                                </td>
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">
-                                                    {{ $country_plan->created_at->format('Y-m-d h:i A') }}
-                                                </td>
-                                            @endif
-                                            
-                                            <!-- Action button only displayed once per row -->
-                                            @if ($loop->first)
-                                                <td rowspan="{{ $country_plan->plan->durations->count() }}">
-                                                    <div class="hstack gap-2 fs-15">
-                                                        <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
-                                                           href="#"
-                                                           onclick="openDeleteModal('{{ route('admin.country-plan-pricings.destroy', $country_plan->id) }}')"
-                                                           data-bs-toggle="tooltip" title="Delete this plan">
-                                                            <i class="ri-delete-bin-line"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            @endif
-                                        </tr>
-                                    @endforeach
+                                    <tr>
+                                        <td>{{ $country_plan->country->name }}</td>
+                                        <td>{{ $country_plan->plan->name }}</td>
+                                        <td>{{ $country_plan->plan->defaultDuration()?->formattedAmount()}}</td>
+                                        <td>{{ $country_plan->formattedAmount()  }}</td>
+                                        <td>{{  number_format($country_plan->percentage, 2) }}%</td>
+                                        <td>{{ $country_plan->plan->defaultDuration()?->discount ?? 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ pillClasses($country_plan->status) }}-transparent">
+                                                {{ $country_plan->status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $country_plan->created_at->format('Y-m-d h:i A') }}</td>
+                                        <td>
+                                            <div class="hstack gap-2 fs-15">
+                                                
+                                                <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
+                                                    href="#"
+                                                    onclick="openDeleteModal('{{ route('admin.country-plan-pricings.destroy', $country_plan->id) }}')"
+                                                    data-bs-toggle="tooltip" title="Delete this plan">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @include('dashboards.admin.pages.delete-modal')
                                 @empty
                                     <div class="alert alert-info text-center">
                                         No records found
@@ -87,7 +74,6 @@
                                 @endforelse
                             </tbody>
                         </table>
-                        
                     </div>
                 </div>
                 {{-- <div class="card-footer">
