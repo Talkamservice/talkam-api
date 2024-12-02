@@ -20,43 +20,21 @@ class PlanDurationResource extends JsonResource
         $this->country_plans = $country_plans;
     }
 
-    public function toArray($request)
-    {
-        return [
-            'id' => $this->id,
-            'frequency' => $this->frequency,
-            'duration' => $this->duration,
-            'price' => $this->price,
-            'discount' => $this->discount,
-            'flutterwave_plan_id' => $this->flutterwave_plan_id,
-            'created_at' => formatDate($this->created_at),
-            'updated_at' => formatDate($this->updated_at),
-        ];
-    }
-
-    /**
-     * Get the flutterwave_plan_id from the country plans.
-     */
-    // public function getFlutterwaveId()
-    // {
-    //     if ($this->country_plans) {
-    //         $countryPlan = $this->country_plans->first();
-    //         return $countryPlan->flutterwave_plan_id ?? $this->flutterwave_plan_id;
-    //     }
-
-    //     return $this->flutterwave_plan_id; // Default value if not found
-    // }
-
-    // /**
-    //  * Get the price from country plans or fallback to the default price.
-    //  */
-    // public function getPriceForPlan()
-    // {
-    //     if ($this->country_plans) {
-    //         $countryPlan = $this->country_plans->first();
-    //         return $countryPlan->lowered_cost ?? $this->price;
-    //     }
-
-    //     return $this->price;
-    // }
+     public function toArray($request)
+     {
+         $countryPlan = $this->getCountryPlanDetails();
+         $frequency = strtolower($this->frequency); // Ensure frequency is lowercase (e.g., 'monthly', 'yearly')
+     
+         return [
+             'id' => $this->id,
+             'frequency' => $this->frequency,
+             'duration' => $this->duration,
+             'price' => isset($countryPlan[$frequency]) ? $countryPlan[$frequency]['lowered_cost'] : $this->price, // Check if frequency exists in $countryPlan
+             'discount' => $this->discount,
+             'flutterwave_plan_id' => isset($countryPlan[$frequency]) ? $countryPlan[$frequency]['flutterwave_plan_id'] : $this->flutterwave_plan_id, // Safely check for flutterwave_plan_id
+             'created_at' => formatDate($this->created_at),
+             'updated_at' => formatDate($this->updated_at),
+         ];
+     }
+     
 }

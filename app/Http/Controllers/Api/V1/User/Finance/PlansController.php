@@ -57,10 +57,11 @@ class PlansController extends Controller
             // Fetch all plans (including relationships like durations)
             $plans = $builder->get();
 
-            $plans->each(function ($plan) use ($countryPlans) {
-                $plan->country_plans = $countryPlans->where('plan_id', $plan->id);
-            });
-
+                $plans->each(function ($plan) use ($countryPlans) {
+                    $plan->country_plans = collect($countryPlans->where('plan_id', $plan->id)
+                        // ->where('plan_duration_id', $plan->durations()->first()->id)
+                    );
+                });
             // Map the plans and include durations and other necessary relationships
             $data = $plans->map(function ($plan) {
                 $durations = $plan->durations->map(function ($duration) use ($plan) {
