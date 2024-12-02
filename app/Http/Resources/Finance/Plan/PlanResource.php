@@ -78,18 +78,6 @@ class PlanResource extends JsonResource
         return $country ?? null; // Safely access lowered_cost and fallback to price
     }
 
-
-    public function getflutterwaveId()
-
-    { // Check if there are any country plans
-        if ($this->country_plans) {
-            $countryPlan = $this->country_plans->first();
-            return $countryPlan->flutterwave_plan_id;
-        }
-
-        return $this->price; // If no country plans, use the default price
-    }
-
     public static function custom(Plan $model)
     {
         return [

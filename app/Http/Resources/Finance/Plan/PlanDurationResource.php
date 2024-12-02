@@ -6,35 +6,24 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlanDurationResource extends JsonResource
 {
-    protected $country_plans;
 
-    /**
-     * Initialize the resource with country plans.
-     *
-     * @param mixed $resource
-     * @param mixed $country_plans
-     */
-    public function __construct($resource, $country_plans = null)
+    public function toArray($request)
     {
-        parent::__construct($resource);
-        $this->country_plans = $country_plans;
-    }
+        // Get the country plan details
+        $countryPlan = $this->getCountryPlanDetails();
+        // Use the country plan details if available, otherwise fallback to defaults
+        $price = isset($countryPlan['lowered_cost']) ? $countryPlan['lowered_cost'] : $this->price;
+        $flutterwavePlanId = isset($countryPlan['flutterwave_plan_id']) ? $countryPlan['flutterwave_plan_id'] : $this->flutterwave_plan_id;
 
-     public function toArray($request)
-     {
-         $countryPlan = $this->getCountryPlanDetails();
-         $frequency = strtolower($this->frequency); // Ensure frequency is lowercase (e.g., 'monthly', 'yearly')
-     
-         return [
-             'id' => $this->id,
-             'frequency' => $this->frequency,
-             'duration' => $this->duration,
-             'price' => isset($countryPlan[$frequency]) ? $countryPlan[$frequency]['lowered_cost'] : $this->price, // Check if frequency exists in $countryPlan
-             'discount' => $this->discount,
-             'flutterwave_plan_id' => isset($countryPlan[$frequency]) ? $countryPlan[$frequency]['flutterwave_plan_id'] : $this->flutterwave_plan_id, // Safely check for flutterwave_plan_id
-             'created_at' => formatDate($this->created_at),
-             'updated_at' => formatDate($this->updated_at),
-         ];
-     }
-     
+        return [
+            'id' => $this->id,
+            'frequency' => $this->frequency,
+            'duration' => $this->duration,
+            'price' => $price, // Use the price from the country plan or fallback to the default price
+            'discount' => $this->discount,
+            'flutterwave_plan_id' => $flutterwavePlanId, // Use the flutterwave plan ID from the country plan or fallback to the default ID
+            'created_at' => formatDate($this->created_at),
+            'updated_at' => formatDate($this->updated_at),
+        ];
+    }
 }
