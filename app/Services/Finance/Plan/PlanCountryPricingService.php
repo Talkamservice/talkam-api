@@ -30,6 +30,7 @@ class PlanCountryPricingService
 
     public static function validate(array $data, $id = null): array
     {
+        // dd($data);
         $validator = Validator::make($data, [
             "country_id" => 'required|exists:countries,id', // Corrected validation rule
             "lowered_cost" => "required|numeric",
@@ -48,90 +49,106 @@ class PlanCountryPricingService
         DB::beginTransaction();
         try {
             $data = self::validate($data);
-            // Check if a plan already exists for the given country
+
+            // Ensure a plan doesn't already exist for this country
             $existingPlan = PlanCountryPricing::where('country_id', $data['country_id'])->exists();
             if ($existingPlan) {
-                throw new Exception("Sorry, you cannot create a plan for this country again as one already exists. Please visit the country plan page to update the existing plan.");
-            }
-            $plans = Plan::with('durations')->status()->get();
-            if ($plans->isEmpty()) {
-                throw new Exception("No plans found to associate with country plan pricing.");
+                throw new Exception("A country-specific plan already exists. Update it instead.");
             }
 
-            $plan_country_pricing_records = [];
+            $plans = Plan::with('durations')->status()->get();
+            if ($plans->isEmpty()) {
+                throw new Exception("No active plans found to associate with country pricing.");
+            }
+
+            $planCountryPricingRecords = [];
+
             foreach ($plans as $plan) {
                 foreach ($plan->durations as $duration) {
-                    $percentage =  ($data['lowered_cost'] / 100)  * floatval((new PlanService)->parsePlanPrice($duration));
-                    $plan_country_pricing = PlanCountryPricing::create([
-                        "lowered_cost" => $data['lowered_cost'],
-                        "percentage" => $percentage,
+                    // Parse the original price
+                    $originalPrice = floatval((new PlanService)->parsePlanPrice($duration));
+
+                    // Calculate the reduced price and percentage reduction
+                    $loweredCost = $originalPrice - $data['lowered_cost'];
+                    if ($loweredCost < 0) {
+                        throw new Exception("Lowered cost cannot exceed the original price.");
+                    }
+
+                    $percentageReduction = ($data['lowered_cost'] / $originalPrice) * 100;
+
+                    $planCountryPricing = PlanCountryPricing::create([
+                        "lowered_cost" => $loweredCost,
+                        "percentage" => $percentageReduction,
                         "plan_id" => $plan->id,
+                        "plan_duration_id" => $duration->id,
                         "country_id" => $data['country_id'],
                         "status" => StatusConstants::ACTIVE,
                     ]);
 
-                    $plan_country_pricing_records[] = $plan_country_pricing;
+                    $planCountryPricingRecords[] = $planCountryPricing;
                 }
             }
 
+            // Create Flutterwave plans if required
             if (!empty($data["lowered_cost"])) {
-                self::createFlutterwavePlan($plan_country_pricing_records);
+                self::createFlutterwavePlan($planCountryPricingRecords);
             }
 
             DB::commit();
-            return $plan_country_pricing_records;
+            return $planCountryPricingRecords;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
-
 
     public static function update(array $data, $id)
     {
         DB::beginTransaction();
         try {
-            // Validate the data
             $data = self::validate($data, $id);
 
-            // Retrieve the existing PlanCountryPricing records
-            $plan_country_pricing_records = PlanCountryPricing::where('country_id', $data['country_id'])->get();
-
-            if ($plan_country_pricing_records->isEmpty()) {
+            $planCountryPricingRecords = PlanCountryPricing::where('country_id', $data['country_id'])->get();
+            if ($planCountryPricingRecords->isEmpty()) {
                 throw new Exception("No existing pricing records found for this country.");
             }
 
-            // Iterate through each pricing record and update
-            foreach ($plan_country_pricing_records as $plan_country_pricing) {
-                $plan = $plan_country_pricing->plan;
+            foreach ($planCountryPricingRecords as $planCountryPricing) {
+                $plan = $planCountryPricing->plan;
 
                 foreach ($plan->durations as $duration) {
-                    $percentage = ($data['lowered_cost'] / 100) * floatval((new PlanService)->parsePlanPrice($duration));
+                    // Parse the original price
+                    $originalPrice = floatval((new PlanService)->parsePlanPrice($duration));
+
+                    // Calculate the reduced price and percentage reduction
+                    $loweredCost = $originalPrice - $data['lowered_cost'];
+                    if ($loweredCost < 0) {
+                        throw new Exception("Lowered cost cannot exceed the original price.");
+                    }
+
+                    $percentageReduction = ($data['lowered_cost'] / $originalPrice) * 100;
 
                     // Update the pricing record
-                    $plan_country_pricing->update([
-                        "lowered_cost" => $data['lowered_cost'],
-                        "percentage" => $percentage,
+                    $planCountryPricing->update([
+                        "lowered_cost" => $loweredCost,
+                        "percentage" => $percentageReduction,
                         'status' => $data['status'],
                     ]);
                 }
             }
 
-            // Update Flutterwave plans if a lowered_cost is present
+            // Update Flutterwave plans if necessary
             if (!empty($data["lowered_cost"])) {
-                $existing_country_plan = $plan_country_pricing->flutterwave_plan_id;
-                self::updateFlutterwavePlan($plan_country_pricing_records, $existing_country_plan);
+                self::updateFlutterwavePlan($planCountryPricingRecords);
             }
 
             DB::commit();
-            return $plan_country_pricing_records;
+            return $planCountryPricingRecords;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
-
-
 
     public function save(array $data, $id = null)
     {
@@ -161,25 +178,24 @@ class PlanCountryPricingService
     }
 
 
-    private static function parseCountryPlanPrice($countryPricing, $defaultPrice)
+    public static function parseCountryPlanPrice($countryPricing, $durationIdentifier, $defaultPrice)
     {
-        // Ensure default price is valid
-        if ($defaultPrice <= 0) {
-            return 0; // Return 0 for invalid or free plans
-        }
-        // If `discount` is provided, calculate the new price
-        if (!empty($countryPricing->lowered_cost) && is_numeric($countryPricing->lowered_cost)) {
-            return max(0, $defaultPrice - $countryPricing->lowered_cost);
-        }
-        // If `lowered_cost` is provided as a percentage, calculate the new price
-        if (!empty($countryPricing->lowered_cost) && is_numeric($countryPricing->lowered_cost)) {
-            $discount = ($countryPricing->lowered_cost / 100) * $defaultPrice;
-            return max(0, $defaultPrice - $discount);
+        $plan = $countryPricing->plan; // Get the associated plan
+        $duration = $plan->durations->firstWhere('duration', $durationIdentifier); // Find the specific duration
+
+        if (!$duration) {
+            return $defaultPrice; // If no matching duration, return default price
         }
 
-        // If no discount is applied, return the default price
-        return $defaultPrice;
+        $loweredCost = $countryPricing->lowered_cost;
+
+        if ($loweredCost && $loweredCost > 0) {
+            return max(0, $duration->price - $loweredCost); // Apply lowered cost
+        }
+
+        return $duration->price; // Return the original price if no lowered cost
     }
+
 
 
     public static function fetchCurrentPlan()
@@ -200,83 +216,67 @@ class PlanCountryPricingService
     public static function createFlutterwavePlan($planCountryPricings)
     {
         foreach ($planCountryPricings as $plan_country_pricing) {
-            $plan = $plan_country_pricing->plan; // Retrieve related plan
+            $plan = $plan_country_pricing->plan;
 
             foreach ($plan->durations as $duration) {
                 $defaultPrice = floatval((new PlanService)->parsePlanPrice($duration));
-                $amount = floatval(self::parseCountryPlanPrice($plan_country_pricing, $defaultPrice));  // Pass plan_country_pricing to parse
-
+                $durationIdentifier = $duration->duration; // Or any unique identifier for the duration
+                $amount = floatval(self::parseCountryPlanPrice($plan_country_pricing, $durationIdentifier, $defaultPrice));
                 $currency = Currency::where('short_name', 'USD')->first();
 
                 $transaction_data = [
                     "amount" => $amount,
-                    "name" => $plan_country_pricing->plan->name,
+                    "name" => $plan->name,
                     "interval" => strtolower($duration->frequency),
                     "duration" => $duration->duration,
                     "currency" => $currency ? $currency->short_name : 'USD',
                 ];
 
-                // Create the plan on Flutterwave
-                $response = (new FlutterwaveService)->setPlanData($transaction_data)
-                    ->createPlan();
-                if (!empty($response)) {
-                    if (!empty($response['data']['id'])) {
-                        $plan_country_pricing->update([
-                            'flutterwave_plan_id' => $response["data"]['id']
-                        ]);
-                    }
+                $response = (new FlutterwaveService)->setPlanData($transaction_data)->createPlan();
+
+                if (!empty($response['data']['id'])) {
+                    $plan_country_pricing->update([
+                        'flutterwave_plan_id' => $response["data"]['id'],
+                        'flutterwave_plan_status' => $response["data"]['status'],
+                    ]);
                 }
             }
         }
     }
-
-
-
 
     public static function updateFlutterwavePlan($planCountryPricings)
     {
         foreach ($planCountryPricings as $plan_country_pricing) {
-            $plan = $plan_country_pricing->plan; // Retrieve the related plan
+            $plan = $plan_country_pricing->plan;
 
-            // Check if the Flutterwave plan ID exists
             if (!empty($plan_country_pricing->flutterwave_plan_id)) {
-                // Fetch plan details from Flutterwave
                 $existingPlan = (new FlutterwaveService)->getPlan($plan_country_pricing->flutterwave_plan_id);
 
-                if ($existingPlan && $existingPlan['data']['id'] == $plan_country_pricing->flutterwave_plan_id) {
-                    // Check the status and update the Flutterwave plan accordingly
+                if ($existingPlan && $existingPlan['data']['id'] === $plan_country_pricing->flutterwave_plan_id) {
+                    $transaction_data = [
+                        "status" => $plan_country_pricing->status,
+                    ];
+
                     if ($plan_country_pricing->status === 'inactive') {
-                        // Set the Flutterwave plan to inactive
-                        $response = (new FlutterwaveService)->setPlanData(['status' => 'inactive'])
-                            ->updatePlan($plan_country_pricing->flutterwave_plan_id);
-
-                        if (!empty($response)) {
-                            $plan_country_pricing->update([
-                                'flutterwave_plan_status' => 'inactive',
-                            ]);
-                        }
-                    } else {
-                        // Update the Flutterwave plan with other details if status is active
-                        $transaction_data = [
-                            "status" => $plan_country_pricing->status,
-                        ];
-                        $response = (new FlutterwaveService)->setPlanData($transaction_data)
-                            ->updatePlan($plan_country_pricing->flutterwave_plan_id);
-
-                        if (!empty($response)) {
-                            $plan_country_pricing->update([
-                                'flutterwave_plan_status' => 'active',
-                            ]);
-                        }
+                        $transaction_data['status'] = 'inactive';
                     }
+
+                    $response = (new FlutterwaveService)->setPlanData($transaction_data)
+                        ->updatePlan($plan_country_pricing->flutterwave_plan_id);
+
+                    if (!empty($response)) {
+                        $plan_country_pricing->update([
+                            'flutterwave_plan_status' => $transaction_data['status'],
+                        ]);
+                    }
+                } else {
+                    self::createFlutterwavePlan([$plan_country_pricing]);
                 }
             } else {
-                // Handle cases where Flutterwave plan ID is missing
                 self::createFlutterwavePlan([$plan_country_pricing]);
             }
         }
     }
-
 
 
 
@@ -315,10 +315,9 @@ class PlanCountryPricingService
 
     public static function getFlutterwavePlans()
     {
-        $position = Location::get('https://api.ipapi.com/api/161.185.160.93?access_key=95ae89b321f3caaf15fc927a4a31e14a'); // Leave empty for the current user location.
-        // return $position ? $position->countryName : null;
-        
-        dd($position, request()->ip(), 'None');
+        $position = Location::get(); // Leave empty for the current user location.
+        dd($position->countryName);
+        return $position ? $position->countryName : null;
         $response = (new FlutterwaveService)->getPlans();
         return $response;
     }

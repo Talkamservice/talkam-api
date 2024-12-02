@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 class PlanCountryPricing extends Model
 {
     use HasFactory;
-    protected $fillable = ['lowered_cost', 'plan_id', 'country_id', 'status', 'percentage', 'flutterwave_plan_id'];
+    protected $fillable = ['lowered_cost', 'plan_id', 'country_id', 'status', 'percentage', 'flutterwave_plan_id', 'plan_duration_id'];
 
 
-    public function plan() 
+public function plan() 
     {
         return $this->belongsTo(Plan::class, 'plan_id');
     }
@@ -49,6 +49,9 @@ class PlanCountryPricing extends Model
     {
         return $this->country ? $this->country->name : null;
     }
-    
+     public function defaultDuration()
+     {
+        return $this->plan->defaultDuration();
+     }
 
 }

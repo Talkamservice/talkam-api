@@ -46,7 +46,7 @@
                                         <td>{{ $country_plan->plan->name }}</td>
                                         <td>{{ $country_plan->plan->defaultDuration()?->formattedAmount()}}</td>
                                         <td>{{ $country_plan->formattedAmount()  }}</td>
-                                        <td>{{ $country_plan->percentage }}%</td>
+                                        <td>{{  number_format($country_plan->percentage, 2) }}%</td>
                                         <td>{{ $country_plan->plan->defaultDuration()?->discount ?? 'N/A' }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($country_plan->status) }}-transparent">

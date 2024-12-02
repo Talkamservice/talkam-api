@@ -69,7 +69,7 @@ class PlanCountryPricingController extends Controller
     {
         $plan = $this->country_plan_pricing_service->getById($id);
 
-        $country_plan_pricings = PlanCountryPricing::with(['plan', 'country'])
+        $country_plan_pricings = PlanCountryPricing::with(['plan.durations', 'country'])
             ->where('country_id', $plan->country_id)->latest()->get();
         return view("dashboards.admin.pages.finance.plan.country-pricing.show", [
             'country_plan_pricings' => $country_plan_pricings,
