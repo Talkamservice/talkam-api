@@ -36,8 +36,7 @@
                                         class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Dropdown for countries with search functionality -->
-                                        <select name="country_id_display" id="country-select" class="form-select"
-                                            {{ isset($country_plan) ? 'disabled' : '' }}>
+                                        <select name="country_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Country</option>
                                             @foreach ($countries as $country)
                                                 <option value="{{ $country->id }}"
@@ -46,10 +45,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-
-                                        <!-- Hidden input to always submit country_id -->
-                                        <input type="hidden" name="country_id"
-                                            value="{{ old('country_id') ?? ($country_plan->country_id ?? '') }}">
+                                        
                                     </div>
                                 </div>
 

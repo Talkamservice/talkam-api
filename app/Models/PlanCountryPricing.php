@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class PlanCountryPricing extends Model
 {
     use HasFactory;
-    protected $fillable = ['lowered_cost', 'plan_id', 'country_id', 'status', 'percentage', 'flutterwave_plan_id'];
+    protected $fillable = ['lowered_cost', 'plan_id', 'country_id', 'status', 'percentage', 'flutterwave_plan_id', 'plan_duration_id'];
 
 
 public function plan() 

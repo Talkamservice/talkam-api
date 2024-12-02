@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('plan_country_pricings', function (Blueprint $table) {
-            if (!Schema::hasColumns("plan_country_pricings", ["flutterwave_plan_id"])) {
-                $table->string('flutterwave_plan_id')->nullable()->after("country_id");
+            if (!Schema::hasColumns("plan_country_pricings", ["plan_duration_id"])) {
+            $table->foreignId('plan_duration_id')->nullable()->after('plan_id')->constrained('plan_durations')->nullOnDelete();
             }
         });
     }
@@ -24,8 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('plan_country_pricings', function (Blueprint $table) {
-            if (Schema::hasColumns("plan_country_pricings", ["flutterwave_plan_id'"])) {
-                $table->dropColumn("flutterwave_plan_id");
+            if (Schema::hasColumns("plan_country_pricings", ["plan_duration_id"])) {
+            $table->dropColumn('plan_duration_id');
             }
         });
     }

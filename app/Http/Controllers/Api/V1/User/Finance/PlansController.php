@@ -50,9 +50,11 @@ class PlansController extends Controller
                     $query->where('name', $userCountryName);
                 })->status()->latest()->get()->keyBy('plan_id'); // Key by plan_id to easily access country-specific plans
 
-            $plans->each(function ($plan) use ($countryPlans) {
-                $plan->country_plans = collect($countryPlans->where('plan_id', $plan->id));
-            });
+                $plans->each(function ($plan) use ($countryPlans) {
+                    $plan->country_plans = collect($countryPlans->where('plan_id', $plan->id)
+                        // ->where('plan_duration_id', $plan->durations()->first()->id)
+                    );
+                });
             // Map the plans and include durations and other necessary relationships
             $data = $plans->map(function ($plan) {
                 return new PlanResource($plan, $plan->country_plans);

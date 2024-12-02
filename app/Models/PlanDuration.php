@@ -33,30 +33,52 @@ class PlanDuration extends Model
     {
         return format_money($this->price - $this->discount, 2, $this->plan->currency->symbol);
     }
-
     public function getCountryPlanDetails()
     {
         // Define the user's country name (or make this dynamic)
-        $userCountryName = $this->plan_service->getLocationCountryName();
-
+        $userCountryName = $this->plan_service->getLocationCountryName(); // Replace with dynamic country if needed
         // Fetch the country-specific plan details
-        $countryPlan = PlanCountryPricing::with('plan')
-            ->where('plan_id', $this->plan_id) // Filter by this duration's plan ID
+        $countryPlans = PlanCountryPricing::with(['plan.durations', 'country'])
+            ->where('plan_id', $this->plan_id)
+            ->whereHas('plan.durations', function ($query) {
+                $query->where('is_default', 1); // Filter by the default duration, if applicable
+            })
             ->whereHas('country', function ($query) use ($userCountryName) {
                 $query->where('name', $userCountryName);
-            })->status()->latest()->first(); // Fetch only the latest record (if needed)
+            })
+            ->status()
+            ->latest()
+            ->get(); // Get all the records
 
-        // If no country-specific plan exists, return default values
-        if (!$countryPlan) {
+        if ($countryPlans->isEmpty()) {
             return [
                 'flutterwave_plan_id' => null,
                 'lowered_cost' => null,
             ];
         }
-        // Return the details
-        return [
-            'flutterwave_plan_id' => $countryPlan->flutterwave_plan_id,
-            'lowered_cost' => $countryPlan->lowered_cost,
-        ];
+
+        // Initialize the result array
+        $details = [];
+
+        // Loop through each country plan and assign the correct flutterwave_plan_id and lowered_cost
+        foreach ($countryPlans as $countryPlan) {
+            foreach ($countryPlan->plan->durations as $duration) {
+                // Ensure frequency is normalized to lowercase
+                $frequency = strtolower($duration->frequency);
+
+                if ($frequency === 'monthly') {
+                    $details['monthly'] = [
+                        'flutterwave_plan_id' => $countryPlan->flutterwave_plan_id,
+                        'lowered_cost' => $countryPlan->lowered_cost, // Assign price from PlanCountryPricing
+                    ];
+                } elseif ($frequency === 'yearly') {
+                    $details['yearly'] = [
+                        'flutterwave_plan_id' => $countryPlan->flutterwave_plan_id,
+                        'lowered_cost' => $countryPlan->lowered_cost, // Assign price from PlanCountryPricing
+                    ];
+                }
+            }
+        }
+        return $details;
     }
 }

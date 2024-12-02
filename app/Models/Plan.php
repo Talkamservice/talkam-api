@@ -57,4 +57,9 @@ class Plan extends Model
     {
         return $this->hasMany(PlanCountryPricing::class);
     }
+
+    public function formattedAmount()
+    {
+        return format_money($this->durations->price, 2, $this->plan->currency->symbol);
+    }
 }
