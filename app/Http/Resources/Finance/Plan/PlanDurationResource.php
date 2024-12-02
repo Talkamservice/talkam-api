@@ -6,12 +6,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlanDurationResource extends JsonResource
 {
+    protected $country_plans;
+
     /**
      * Initialize the resource with country plans.
      *
      * @param mixed $resource
-     * @param mixed $countryPlanDetails
+     * @param mixed $country_plans
      */
+    public function __construct($resource, $country_plans = null)
+    {
+        parent::__construct($resource);
+        $this->country_plans = $country_plans;
+    }
 
      public function toArray($request)
      {
