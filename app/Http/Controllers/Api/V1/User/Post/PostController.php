@@ -41,9 +41,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $target = $request->get('target', 'default'); // Get the target (group or post)
-    
-            // Fetch regular posts
+            // Get posts and apply filters with eager loading for promotions
             $posts = $this->post_service->list($request->all())
                 ->status()
                 ->unblocked()
@@ -58,18 +56,19 @@ class PostController extends Controller
             $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
             $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
     
-            // Interleave promoted posts
-            $interleavedPosts = PostService::interleavePromotedPosts($posts, $target);
+            // Interleave promoted posts respecting the sorting order
+            $interleavedPosts = PostService::interleavePromotedPosts($posts);
     
             // Wrap interleaved posts in a paginator
             $paginatedData = new LengthAwarePaginator(
-                collect($interleavedPosts),
-                $posts->total(),
-                $posts->perPage(),
-                $posts->currentPage(),
+                collect($interleavedPosts),  // Interleaved posts as a collection
+                $posts->total(),            // Total original count
+                $posts->perPage(),          // Posts per page
+                $posts->currentPage(),      // Current page
                 ['path' => Paginator::resolveCurrentPath()]
             );
     
+            // Transform with resource
             $data["data"] = PostResource::collection($paginatedData->items());
     
             return ApiHelper::validResponse("Posts returned successfully", $data);
@@ -77,7 +76,6 @@ class PostController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
-    
     
 
 
