@@ -288,68 +288,68 @@ class PostService
 
 
     public static function interleavePromotedPosts($regularPosts, $target)
-{
-    // Fetch promoted posts
-    $promotedPostsQuery = Promotion::where('status', StatusConstants::ACTIVE)
-        ->with('post')
-        ->get()
-        ->filter(function ($promotion) {
-            $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
-            return $expiresAt->greaterThanOrEqualTo(now());
-        })
-        ->sortByDesc(function ($promotion) {
-            return $promotion->cost;
-        });
+    {
+        // Fetch promoted posts
+        $promotedPostsQuery = Promotion::where('status', StatusConstants::ACTIVE)
+            ->with('post')
+            ->get()
+            ->filter(function ($promotion) {
+                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+                return $expiresAt->greaterThanOrEqualTo(now());
+            })
+            ->sortByDesc(function ($promotion) {
+                return $promotion->cost;
+            });
 
-    // Filter promoted posts based on the target
-    $promotedPosts = $promotedPostsQuery->filter(function ($promotion) use ($target) {
-        if ($target === 'group') {
-            // For group tab, include promotions with either group_id or post_id
-            return $promotion->group_id || $promotion->post_id;
-        } elseif ($target === 'post') {
-            // For post tab, include promotions with post_id only
-            return $promotion->post_id !== null;
-        }
-
-        // Default: include all promoted posts
-        return true;
-    })->pluck('post')->filter();
-
-    // Interleave promoted posts with regular posts
-    $interleavedPosts = [];
-    $regularPostIndex = 0;
-    $promotedPostIndex = 0;
-    $regularPostInterval = 5;
-
-    while ($regularPostIndex < $regularPosts->count()) {
-        for ($i = 0; $i < $regularPostInterval && $regularPostIndex < $regularPosts->count(); $i++) {
-            $post = $regularPosts->get($regularPostIndex);
-            if ($post) {
-                $interleavedPosts[] = $post;
+        // Filter promoted posts based on the target
+        $promotedPosts = $promotedPostsQuery->filter(function ($promotion) use ($target) {
+            if ($target === 'group') {
+                // For group tab, include promotions with either group_id or post_id
+                return $promotion->group_id || $promotion->post_id;
+            } elseif ($target === 'post') {
+                // For post tab, include promotions with post_id only
+                return $promotion->post_id !== null;
             }
-            $regularPostIndex++;
+
+            // Default: include all promoted posts
+            return true;
+        })->pluck('post')->filter();
+
+        // Interleave promoted posts with regular posts
+        $interleavedPosts = [];
+        $regularPostIndex = 0;
+        $promotedPostIndex = 0;
+        $regularPostInterval = 5;
+
+        while ($regularPostIndex < $regularPosts->count()) {
+            for ($i = 0; $i < $regularPostInterval && $regularPostIndex < $regularPosts->count(); $i++) {
+                $post = $regularPosts->get($regularPostIndex);
+                if ($post) {
+                    $interleavedPosts[] = $post;
+                }
+                $regularPostIndex++;
+            }
+
+            $promotedPost = $promotedPosts->get($promotedPostIndex);
+            if ($promotedPost) {
+                $interleavedPosts[] = $promotedPost;
+                $promotedPostIndex++;
+            }
         }
 
-        $promotedPost = $promotedPosts->get($promotedPostIndex);
-        if ($promotedPost) {
-            $interleavedPosts[] = $promotedPost;
+        while ($promotedPostIndex < $promotedPosts->count()) {
+            $promotedPost = $promotedPosts->get($promotedPostIndex);
+            if ($promotedPost) {
+                $interleavedPosts[] = $promotedPost;
+            }
             $promotedPostIndex++;
         }
+
+        return $interleavedPosts;
     }
 
-    while ($promotedPostIndex < $promotedPosts->count()) {
-        $promotedPost = $promotedPosts->get($promotedPostIndex);
-        if ($promotedPost) {
-            $interleavedPosts[] = $promotedPost;
-        }
-        $promotedPostIndex++;
-    }
 
-    return $interleavedPosts;
-}
 
-    
-    
 
 
 
