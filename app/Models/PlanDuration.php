@@ -2,11 +2,20 @@
 
 namespace App\Models;
 
+use App\Services\Finance\Plan\PlanService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PlanDuration extends Model
 {
+
+    protected $plan_service;
+
+    public function __construct()
+    {
+        $this->plan_service = new PlanService;
+    }
+
     use HasFactory;
 
     protected $guarded = [];
