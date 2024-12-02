@@ -41,7 +41,6 @@ class PlansController extends Controller
             }
             // Fetch country-specific plans
             $userCountryName = $this->plan_service->getLocationCountryName(); // Replace with dynamic country if needed
-            $userCountryName = "Nigeria";
             $countryPlans = PlanCountryPricing::with('plan')
                 ->whereHas('country', function ($query) use ($userCountryName) {
                     $query->where('name', $userCountryName);
