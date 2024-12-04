@@ -43,6 +43,7 @@ class PostController extends Controller
     {
         try {
             $posts = $this->post_service->list($request->all())
+                ->doesntHave('promotions')
                 ->status()
                 ->unblocked()
                 ->hideGroupPosts()
@@ -85,15 +86,10 @@ class PostController extends Controller
             // Transform with resource
             $data["data"] = PromotedPostResource::collection($posts);
 
-            return ApiHelper::validResponse("Promotion Posts returned successfully", $data);
+            return ApiHelper::validResponse("Promoted Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
-    }
-
-    public function getPromoteGroups()
-    {
-        dd('hello');
     }
 
     public function show($id)

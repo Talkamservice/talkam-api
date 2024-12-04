@@ -292,7 +292,7 @@ Route::prefix('user')->as('user.')->group(function () {
         Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions/list");
     });
     Route::prefix("groups")->as("groups.")->group(function () {
-        Route::get("promotions/list", [PostController::class, "getPromoteGroups"])->name("promotions/list");
+        Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
 
     });
 });
