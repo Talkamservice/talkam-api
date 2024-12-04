@@ -42,7 +42,6 @@ class PostController extends Controller
     {
         try {
             $target = $request->get('target', 'default'); // Get the target (group or post)
-    
             // Fetch regular posts
             $posts = $this->post_service->list($request->all())
                 ->status()
