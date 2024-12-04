@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Post\PostAttachmentResource;
 use App\Http\Resources\Post\PostCommentResource;
 use App\Http\Resources\Post\PostResource;
+use App\Http\Resources\Post\PromotedPostResource;
 use App\Http\Resources\Stat\PostStatsResource;
 use App\Http\Resources\Post\TrendingResource;
 use App\Services\Post\PostService;
@@ -41,46 +42,59 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $target = $request->get('target', 'default'); // Get the target (group or post)
-            // Fetch regular posts
             $posts = $this->post_service->list($request->all())
                 ->status()
                 ->unblocked()
                 ->hideGroupPosts()
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
-    
+
             // Collect pagination data
             $data = collectPagination($posts);
-    
+
             // Save post impressions
             $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
             $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
-    
-            // Interleave promoted posts
-            $interleavedPosts = PostService::interleavePromotedPosts($posts, $target);
-    
-            // Wrap interleaved posts in a paginator
-            $paginatedData = new LengthAwarePaginator(
-                collect($interleavedPosts),
-                $posts->total(),
-                $posts->perPage(),
-                $posts->currentPage(),
-                ['path' => Paginator::resolveCurrentPath()]
-            );
-    
-            $data["data"] = PostResource::collection($paginatedData->items());
-    
+
+            // Transform with resource
+            $data["data"] = PostResource::collection($posts);
+
             return ApiHelper::validResponse("Posts returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
-    
-    
 
+    public function getPrmotedPosts(Request $request)
+    {
+        try {
+            $posts = $this->post_service->getByPost($request->all())
+                ->status()
+                ->unblocked()
+                ->hideGroupPosts()
+                ->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
 
+            // Collect pagination data
+            $data = collectPagination($posts);
 
+            // Save post impressions
+            $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
+            $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
+
+            // Transform with resource
+            $data["data"] = PromotedPostResource::collection($posts);
+
+            return ApiHelper::validResponse("Promotion Posts returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function getPromoteGroups()
+    {
+        dd('hello');
+    }
 
     public function show($id)
     {
