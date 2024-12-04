@@ -299,7 +299,7 @@ class PostService
             });
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
-        }
+        }   
 
         if (!empty($key = $data["category_id"] ?? null)) {
             $builder = $builder->where("category_id", $key);
