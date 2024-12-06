@@ -43,9 +43,17 @@ class PostStatsService
 
     public function dispatch(array $data, $remove = false)
     {
-        $data = $this->validate($data);
-        dispatch(new PostStatsJob($data, $remove))
-            ->onQueue(AppConstants::STATS_QUEUE);
+        try {
+            $data = $this->validate($data);
+            dispatch(new PostStatsJob($data, $remove))
+                ->onQueue(AppConstants::STATS_QUEUE);
+        } catch (\Throwable $th) {
+            logger("Post stats job not running", [
+                "error" => $th->getMessage(),
+                "trace" => $th->getTrace()
+            ]);
+            // throw $th;
+        }
     }
 
     public function create(array $data)
