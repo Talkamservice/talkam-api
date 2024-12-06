@@ -14,9 +14,9 @@ return new class extends Migration
     {
         Schema::create('plan_country_pricings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('country_id', 2)->constrained('countries')->cascadeOnDelete();
-            $table->foreignId('plan_id')->constrained('plans')->nullable()->after('id');
-            $table->double('lowered_cost', 12, 2)->nullable();    // Country-specific price
+            $table->foreignId('country_id')->constrained('countries')->cascadeOnDelete();
+            $table->double('lowered_cost')->nullable();
+            $table->string('type')->nullable();
             $table->string('status')->nullable()->default(StatusConstants::ACTIVE);
             $table->timestamps();
         });
