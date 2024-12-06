@@ -34,7 +34,7 @@ class PlanCountryPricingService
         $validator = Validator::make($data, [
             "type" => "required|string|" . Rule::in(array_keys(PlanConstants::COUNTRY_TYPE_OPTIONS)),
             "country_id" => 'required|exists:countries,id', // Corrected validation rule
-            "plan_duration_id" => 'nullable|exists:plan_durations,id' . Rule::requiredIf(($data["type"] ?? null) == PlanConstants::SINGLE_PLAN), // Corrected validation rule
+            "plan_duration_id" => 'nullable|exists:plan_durations,id|' . Rule::requiredIf(($data["type"] ?? null) == PlanConstants::SINGLE_PLAN), // Corrected validation rule
             "lowered_cost" => "required|numeric",
             'status' => 'string|nullable',
         ]);

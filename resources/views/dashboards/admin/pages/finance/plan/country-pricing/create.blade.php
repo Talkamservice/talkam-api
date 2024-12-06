@@ -66,7 +66,7 @@
                                             <option value="" disabled selected>Select Plan</option>
                                             @foreach ($plan_durations as $plan_duration)
                                                 <option value="{{ $plan_duration->id }}" {{ old('plan_duration_id', $country_plan?->plan_duration_id ?? '') == $plan_duration->id ? 'selected' : '' }}>
-                                                    {{ $plan_duration?->plan?->name }} - {{ $plan_duration->frequency }} - {{ format_money($plan_duration->amount) }}
+                                                    {{ $plan_duration?->plan?->name }} - {{ $plan_duration->frequency }} - {{ format_money($plan_duration->price) }}
                                                 </option>
                                             @endforeach
                                         </select>
