@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\V1\User\Web\FaqController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
 use App\Http\Controllers\Api\V1\User\Web\TermAndConditionController;
 use App\Http\Controllers\Api\V1\Waitlist\WaitlistController;
+use App\Models\Promotion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -285,6 +286,14 @@ Route::prefix('user')->as('user.')->group(function () {
 
     Route::prefix("post-categories")->as("post-categories.")->group(function () {
         Route::get("merged-categories", [PostCategoryController::class, "mergedCategories"])->name("merged-categories");
+    });
+
+    Route::prefix("posts")->as("posts.")->group(function () {
+        Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions/list");
+    });
+    Route::prefix("groups")->as("groups.")->group(function () {
+        Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
+
     });
 });
 Route::post('/broadcasting/auth', [AuthController::class, "authenticate"])->middleware('auth:sanctum');

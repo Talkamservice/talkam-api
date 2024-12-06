@@ -20,6 +20,7 @@ use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use App\Services\Finance\Subscription\SubscriptionService;
 use App\Services\Group\GroupService;
 use App\Services\Post\PostService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -301,6 +302,7 @@ class PromotionService
         return $promotions;
     }
 
+
     public function cancelPromotion($promotionId)
     {
         DB::beginTransaction();
@@ -346,4 +348,6 @@ class PromotionService
             throw $th;
         }
     }
+
+  
 }

@@ -9,6 +9,7 @@ use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Group\GroupMemberResource;
 use App\Http\Resources\Group\GroupResource;
+use App\Http\Resources\Group\PromotedGroupResource;
 use App\Services\Group\GroupService;
 use App\Services\Post\PostStatsService;
 use App\Services\Post\RecentViewService;
@@ -40,17 +41,9 @@ class GroupController extends Controller
             // Collect the group ids for impressions tracking
             $group_ids = collect($data["data"])->pluck("id")->toArray();
             $this->post_stats_service->saveGroupImpressions($group_ids, ["impressions" => true]);
-            $interleavedPosts = GroupService::interleavePromotedGroups($groups->items());
-            $paginatedData = new LengthAwarePaginator(
-                collect($interleavedPosts),  // Interleaved groups as a collection
-                $groups->total(),            // Total original count
-                $groups->perPage(),          // Groups per page
-                $groups->currentPage(),      // Current page
-                ['path' => Paginator::resolveCurrentPath()]
-            );
-    
+
             // Transform with resource
-            $data["data"] = GroupResource::collection($paginatedData->items());
+            $data["data"] = GroupResource::collection($groups);
     
             return ApiHelper::validResponse("Groups returned successfully", $data);
         } catch (Exception $e) {
@@ -58,6 +51,24 @@ class GroupController extends Controller
         }
     }
     
+    public function getPromoteGroups(Request $request)
+    {
+        try {
+            $groups = $this->group_service->getByPromotedGroups($request->all())->paginate(AppConstants::API_PAGINATION_SIZE);
+            $data = collectPagination($groups);
+    
+            // Collect the group ids for impressions tracking
+            $group_ids = collect($data["data"])->pluck("id")->toArray();
+            $this->post_stats_service->saveGroupImpressions($group_ids, ["impressions" => true]);
+
+            // Transform with resource
+            $data["data"] = PromotedGroupResource::collection($groups);
+    
+            return ApiHelper::validResponse("Promoted Groups returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
 
     public function show($id)
     {

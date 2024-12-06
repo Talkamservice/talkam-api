@@ -26,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 class GroupService
 {
     public $user;
-    
+
     public static function getById($key, $column = "id"): Group
     {
         $group = Group::where($column, $key)->first();
@@ -38,8 +38,8 @@ class GroupService
 
     public function setUser($user)
     {
-       $this->user = $user;
-       return $this;
+        $this->user = $user;
+        return $this;
     }
 
     public static function getGroupAdmins($group_id)
@@ -196,59 +196,84 @@ class GroupService
             $builder = match ($key) {
                 "latest" => $builder->latest(),
                 "popular" => $builder->orderBy("name", "asc"),
-                // "popular" => $builder->withCount("members")->orderBy("members_count", "desc"),
+                    // "popular" => $builder->withCount("members")->orderBy("members_count", "desc"),
                 default => $builder->inRandomOrder()
             };
         }
         return $builder;
     }
 
-
-    public static function interleavePromotedGroups($regularGroups)
+    public function getByPromotedGroups()
     {
-        // Fetch promoted groups
-        $promotedGroups = Promotion::whereNotNull('group_id')
-            ->whereNull('post_id')
-            ->where('status', '!=', StatusConstants::PENDING)
-            ->with('group')
-            ->get()
-            ->filter(function ($promotion) {
-                $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
-                return $expiresAt->greaterThanOrEqualTo(now());
-            })
-            ->sortByDesc(function ($promotion) {
-                return $promotion->cost;
-            })
-            ->pluck('group'); // Collection of groups
-
-        $interleavedGroups = [];
-        $regularGroupIndex = 0;
-        $promotedGroupIndex = 0;
-        $regularGroupInterval = 5; // Number of regular groups between promoted groups
-
-        // Interleave regular and promoted groups
-        while ($regularGroupIndex < count($regularGroups)) {
-            // Add up to 5 regular groups
-            for ($i = 0; $i < $regularGroupInterval && $regularGroupIndex < count($regularGroups); $i++) {
-                $interleavedGroups[] = $regularGroups[$regularGroupIndex];
-                $regularGroupIndex++;
-            }
-
-            // Add one promoted group if available
-            if ($promotedGroupIndex < $promotedGroups->count()) {
-                $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
-                $promotedGroupIndex++;
-            }
+        $builder = Group::with("creator")
+            ->whereHas('promotions', function ($query) {
+                $query->whereNull('post_id') // Ensure `post_id` is NULL
+                    ->where(function ($query) {
+                        // Ensure promotion has not expired
+                        $query->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
+                    })
+                    ->where('status', StatusConstants::ACTIVE); // Ensure promotion is active
+            }); // Collection of groups
+            
+        if (!empty($key = $data["search"] ?? null)) {
+            $builder = $builder->search($key);
         }
 
-        // Append any remaining promoted groups (if necessary)
-        while ($promotedGroupIndex < $promotedGroups->count()) {
-            $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
-            $promotedGroupIndex++;
+        // Apply status filter here, before pagination
+
+        if (!empty($key = $data["status"] ?? null)) {
+            $builder = $builder->where("status", $key); // Apply the status filter on the query
+            $builder = $builder->where("status", $key);
         }
 
-        return $interleavedGroups;
+        return $builder;
     }
+
+    // public static function interleavePromotedGroups($regularGroups)
+    // {
+    //     // Fetch promoted groups
+    //     $promotedGroups = Promotion::whereNotNull('group_id')
+    //         ->whereNull('post_id')
+    //         ->where('status', '!=', StatusConstants::PENDING)
+    //         ->with('group')
+    //         ->get()
+    //         ->filter(function ($promotion) {
+    //             $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
+    //             return $expiresAt->greaterThanOrEqualTo(now());
+    //         })
+    //         ->sortByDesc(function ($promotion) {
+    //             return $promotion->cost;
+    //         })
+    //         ->pluck('group'); // Collection of groups
+
+    //     $interleavedGroups = [];
+    //     $regularGroupIndex = 0;
+    //     $promotedGroupIndex = 0;
+    //     $regularGroupInterval = 5; // Number of regular groups between promoted groups
+
+    //     // Interleave regular and promoted groups
+    //     while ($regularGroupIndex < count($regularGroups)) {
+    //         // Add up to 5 regular groups
+    //         for ($i = 0; $i < $regularGroupInterval && $regularGroupIndex < count($regularGroups); $i++) {
+    //             $interleavedGroups[] = $regularGroups[$regularGroupIndex];
+    //             $regularGroupIndex++;
+    //         }
+
+    //         // Add one promoted group if available
+    //         if ($promotedGroupIndex < $promotedGroups->count()) {
+    //             $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
+    //             $promotedGroupIndex++;
+    //         }
+    //     }
+
+    //     // Append any remaining promoted groups (if necessary)
+    //     while ($promotedGroupIndex < $promotedGroups->count()) {
+    //         $interleavedGroups[] = $promotedGroups[$promotedGroupIndex];
+    //         $promotedGroupIndex++;
+    //     }
+
+    //     return $interleavedGroups;
+    // }
 
 
 
