@@ -50,7 +50,7 @@ class Plan extends Model
 
         $plan_pricing_provider = PlanCountryPricingProvider::where([
             "plan_duration_id" => $default_duration?->id,
-        ])->whereRelation("planCountryPricing", "country_id", $user->country_id)
+        ])->whereRelation("planCountryPricing", "country_id", $user?->country_id)
             ->first();
 
         if (!empty($plan_pricing_provider)) {
