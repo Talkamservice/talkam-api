@@ -43,30 +43,25 @@ class PlanDuration extends Model
 
     public function getCountryPlanDetails()
     {
-        // Define the user's country name (or make this dynamic)
-        $userCountryName = $this->plan_service->getLocationCountryName(); 
-             // Fetch the country-specific plan details for the current plan_duration
-        $countryPlans = $this->countryPlan()
-            ->whereHas('country', function ($query) use ($userCountryName) {
-                $query->where('name', $userCountryName);
-            })
-            ->where('plan_id', $this->plan_id) // Ensure the correct plan is matched
+        // $userCountryName = $this->plan_service->getLocationCountryName(); 
+        $userCountryName = 'Nigeria';
+
+        $countryPlans = PlanCountryPricing::whereHas('country', function ($query) use ($userCountryName) {
+            $query->where('name', $userCountryName);
+        })
             ->status()
-            ->get(); // Get all the records
-          
-        if ($countryPlans->isEmpty()) {
+            ->get();
+        if (!$countryPlans) {
             return [
                 'flutterwave_plan_id' => null,
                 'lowered_cost' => null,
             ];
         }
-
-        // Find the matching country plan, for example, by matching the plan duration
-        $selectedPlan = $countryPlans->first();
-
-        return [
-            'flutterwave_plan_id' => $selectedPlan->flutterwave_plan_id,
-            'lowered_cost' => $selectedPlan->lowered_cost,
-        ];
+        return $countryPlans->map(function ($countryPlan) {
+            return [
+                'flutterwave_plan_id' => $countryPlan->flutterwave_plan_id,
+                'lowered_cost' => $countryPlan->lowered_cost,
+            ];
+        });
     }
 }

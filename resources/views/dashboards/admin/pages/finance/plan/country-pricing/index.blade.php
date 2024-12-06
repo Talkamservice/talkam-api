@@ -37,14 +37,15 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="container d-flex justify-content-center align-items-center">
-                        <div class="col-12 col-lg-8 col-xl-8 p-2">
-                            <p class="text-center">
-                                <span class="fw-bold fs-5 text-dark">Note:</span>
-                                <span class="fs-6">All countries adhere to the standard plan pricing and discount structure. However, newly created countries have specific pricing adjustments while maintaining the original discount rates applicable to all plans.</span>
+                    <div class="container d-flex align-items-center">
+                        <div class="p-2 flex-grow-1">
+                            <p class="mb-0">
+                                <span class="fw-bold fs-6 text-dark">Note:</span>
+                                <span>All countries adhere to the standard plan pricing and discount structure. However, newly created countries have specific pricing adjustments while maintaining the original discount rates applicable to all plans.</span>
                             </p>
                         </div>
                     </div>
+                    
                     
                     
                     <div class="table-responsive">
@@ -67,9 +68,8 @@
                                     @endphp
                                     <tr>
                                         <td>{{ $sn++ }}</td>
-                                        <td>{{ $country_plan->country->name }} <small
-                                                class="text-primary">({{ 'plus ' . $plans->count() - 1 . ' extra plan' }})</small>
-                                        </td>
+                                        <td data-bs-toggle="tooltip"
+                                        title="{{ 'plus ' . $plans->count() - 1 . ' extra plan' }}">{{ $country_plan->country->name }}</td>
                                         <td>{{ $country_plan->formattedAmount() }}</td>
                                         <td>{{ $country_plan->plan->defaultDuration()?->discount ?? 'N/A'}}</td>
                                         <td>
