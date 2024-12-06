@@ -199,7 +199,6 @@
 
     </div>
 
-
     <!-- Scroll To Top -->
     <div class="scrollToTop">
         <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
@@ -207,8 +206,7 @@
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
 
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
 
     <!-- Popper JS -->
     <script src="{{ $admin_assets }}/libs/@popperjs/core/umd/popper.min.js"></script>
@@ -254,7 +252,7 @@
     <!-- Custom-Switcher JS -->
     <script src="{{ $admin_assets }}/js/custom-switcher.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="{{ asset('admin_assets/js/dynamic_select.js') }}"></script>
@@ -275,7 +273,7 @@
                 });
         }
     </script>
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             $(".deleteNotificationBtn").on("click", function() {
                 let notificationId = $(this).data("id");
@@ -315,6 +313,136 @@
                 });
             });
         });
+    </script> --}}
+     <script>
+        // Deleting a single notification
+        $('.deleteNotificationBtn').on('click', function(e) {
+            e.preventDefault();
+            var url = $(this).data('url'); // URL to delete the notification
+            var notificationId = $(this).data('id'); // Notification ID
+
+            // Perform AJAX request to delete the notification
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        // On success, remove the notification from the DOM
+                        $('.notificationItem_' + notificationId).remove();
+
+                        // Update the notification count and list dynamically
+                        updateNotificationList(response.notifications, response.notification_count);
+
+                        // Show success message
+                        showMessage('success_message', response.success_message);
+                    } else {
+                        showMessage('error_message', response.error_message); // Show error message
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Failed to delete notification:', xhr);
+                    showMessage('error_message',
+                    'Failed to delete notification.'); // Show error message
+                }
+            });
+        });
+
+        // Handle clicking the "Clear All" button
+        $('.deleteAllNotification').on('click', function(e) {
+            e.preventDefault();
+            var url = $(this).data('url'); // URL to clear all notifications
+
+            // Perform AJAX request to delete all notifications
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        // On success, clear all notifications from the DOM
+                        $('#header-notification-scroll').empty(); // Remove all notifications
+
+                        // Update the notification count and list dynamically
+                        updateNotificationList(response.notifications, response.notification_count);
+
+                        // Show success message
+                        showMessage('success_message', response.success_message);
+                    } else {
+                        showMessage('error_message', response.error_message); // Show error message
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Failed to clear all notifications:', xhr);
+                    showMessage('error_message',
+                    'Failed to clear all notifications.'); // Show error message
+                }
+            });
+        });
+
+        // Function to show success, error, or info messages
+        function showMessage(type, message) {
+            if (type === 'success_message') {
+                if (message) {
+                    showToast(message, 'success');
+                }
+            } else if (type === 'error_message') {
+                if (message) {
+                    showToast(message, 'error');
+                }
+            }
+        }
+
+        // Function to show toast messages
+        function showToast(message, type) {
+            var toastType = type === 'success' ? 'bg-success' : 'bg-danger';
+            var toastHTML = `<div class="toast align-items-center text-white ${toastType} mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>`;
+            $('#toast-container').append(toastHTML); // Assuming you have a toast container with id 'toast-container'
+            var toastElement = $('#toast-container .toast').last();
+            var toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+
+        // Function to update the notification list and count dynamically
+        function updateNotificationList(notifications, count) {
+            var notificationListHtml = '';
+
+            // Build the notification list HTML dynamically
+            if (notifications.length > 0) {
+                notifications.forEach(function(notification) {
+                    var data = notification.data; // Assuming `data` contains the notification details
+                    notificationListHtml += `
+                        <li class="dropdown-item notificationItem_${notification.id} allNotifcationDiv">
+                            <div class="d-flex align-items-start">
+                                <div class="pe-2">
+                                    <span class="avatar avatar-md bg-success-transparent avatar-rounded"><i class="ti ti-clock fs-18"></i></span>
+                                </div>
+                                <div class="flex-grow-1 d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="mb-0 fw-semibold"><a href="#">${data.title}</a></p>
+                                        <span class="text-muted fw-normal fs-12 header-notification-text">${data.message}</span>
+                                    </div>
+                                    <div>
+                                        <a href="javascript:void(0);" data-id="${notification.id}" data-url="/notifications/${notification.id}/delete" class="min-w-fit-content text-muted me-1 dropdown-item-close1 deleteNotificationBtn"><i class="ti ti-x fs-16"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>`;
+                });
+            } else {
+                notificationListHtml =
+                    '<li class="dropdown-item"><div class="text-center"><h6 class="fw-semibold mt-3">No New Notifications</h6></div></li>';
+            }
+
+            // Update the notification list and count in the DOM
+            $('#header-notification-scroll').html(notificationListHtml);
+            $('#notifiation-data').text(count + ' Unread'); // Update the notification count display
+        }
     </script>
     @yield('script')
 </body>
