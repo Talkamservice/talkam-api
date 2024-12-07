@@ -27,7 +27,7 @@ class PlanResource extends JsonResource
             'price' => $this->displayPrice(),
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
-            "country" => $user->country?->name,
+            "country" => $user?->country?->name,
             "is_active_subscription" => false,
             "currency" => $this->plan?->currency?->short_name ?? "USD",
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
