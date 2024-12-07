@@ -43,11 +43,11 @@ class PlanDuration extends Model
 
     public function displayPrice()
     {
-        $user = auth()->user();
+        $user = auth("sanctum")->user();
 
         $plan_pricing_provider = PlanCountryPricingProvider::where([
             "plan_duration_id" => $this->id,
-        ])->whereRelation("planCountryPricing", "country_id", $user->country_id)
+        ])->whereRelation("planCountryPricing", "country_id", $user?->country_id)
             ->first();
 
         if (!empty($plan_pricing_provider)) {
