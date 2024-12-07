@@ -17,7 +17,7 @@ class PlanResource extends JsonResource
 
     public function toArray($request)
     {
-        $user = auth()->user();
+        $user = auth("sanctum")->user();
 
         $data = [
             'id' => $this->id,
