@@ -2,6 +2,7 @@
 
 use App\Constants\General\AppConstants;
 use App\Helpers\MethodsHelper;
+use App\Models\Country;
 use App\Models\User;
 use App\Services\User\BlockUserService;
 use Carbon\Carbon;
@@ -29,7 +30,7 @@ function slugify($value)
 
 function sudo()
 {
-    return User::where("email", env("SUDO_EMAIL", "info@talkam.net"))->first(); 
+    return User::where("email", env("SUDO_EMAIL", "info@talkam.net"))->first();
 }
 
 
@@ -230,4 +231,11 @@ function format_money($amount, $places = 2, $symbol = '$')
 function int_format($number, $decimals = 0, $decPoint = '.', $thousandsSep = ',')
 {
     return MethodsHelper::int_format($number, $decimals, $decPoint, $thousandsSep);
+}
+
+function countryByName($country_name = null)
+{
+    $country_name ??= MethodsHelper::getLocationCountryName();
+    $country = !empty($country_name) ? Country::where("name", "LIKE", "%$country_name%")->first() : null;
+    return $country ?? null;
 }

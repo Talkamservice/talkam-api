@@ -80,7 +80,7 @@ Route::prefix("location")->as("location.")->group(function () {
 });
 
 Route::middleware(["auth:sanctum"])->group(function () {
-    Route::prefix("user")->as("user.")->group(function () {
+    Route::prefix("user")->as("user.")->middleware(["pricingCountry"])->group(function () {
         Route::get("/me", [UserController::class, "me"])->name("me");
         Route::get("/get-by-username/{username}", [UserController::class, "getByUsername"])->name("get-by-username");
 
