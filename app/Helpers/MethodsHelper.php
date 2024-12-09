@@ -471,4 +471,17 @@ class MethodsHelper
         return null;
     }
 
+   static function validateCurrencyCode($currencyCode) {
+        $validCurrencies = [
+            'GBP', 'CAD', 'XAF', 'CLP', 'COP', 'EGP', 'EUR', 'GHS', 'GNF', 
+            'KES', 'MWK', 'MAD', 'NGN', 'RWF', 'SLL', 'STD', 'ZAR', 'TZS', 
+            'UGX', 'USD', 'XOF', 'ZMW'
+        ];
+    
+        if (in_array(strtoupper($currencyCode), $validCurrencies, true)) {
+            return strtoupper($currencyCode); // Return the valid code
+        }
+
+        return null;
+    }
 }
