@@ -3,8 +3,10 @@
 namespace App\Http\Resources\Finance\Plan;
 
 use App\Constants\Account\User\UserConstants;
+use App\Helpers\MethodsHelper;
 use App\Models\Plan;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Stevebauman\Location\Facades\Location;
 
 class PlanResource extends JsonResource
 {
@@ -18,6 +20,7 @@ class PlanResource extends JsonResource
     public function toArray($request)
     {
         $user = auth("sanctum")->user();
+        $position = Location::get();
 
         $data = [
             'id' => $this->id,
@@ -29,7 +32,7 @@ class PlanResource extends JsonResource
             "status" => $this->status,
             "country" => $user?->country?->name,
             "is_active_subscription" => false,
-            "currency" => $this->plan?->currency?->short_name ?? "USD",
+            "currency" => MethodsHelper::validateCurrencyCode($position->currencyCode) ?? $this->plan?->currency?->short_name ?? "USD",
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
             "benefits" => PlanBenefitResource::collection($this->whenLoaded("benefits", $this->benefits)),
             "created_at" => formatDate($this->created_at),
