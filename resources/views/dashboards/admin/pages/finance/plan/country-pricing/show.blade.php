@@ -31,6 +31,7 @@
                                     <th scope="col">Plan Name</th>
                                     <th scope="col">Default Cost</th>
                                     <th scope="col">Lowered Cost</th>
+                                    <th scope="col">Discount</th>
                                     <th scope="col">Percentage (%)</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
@@ -44,6 +45,7 @@
                                         <td>{{ $country_plan_pricing_provider->plan->name }} - {{ $country_plan_pricing_provider->planDuration?->frequency }}</td>
                                         <td>{{ format_money($country_plan_pricing_provider->planDuration?->price) }}</td>
                                         <td>{{ format_money($country_plan_pricing_provider->price) }}</td>
+                                        <td>{{ format_money($country_plan_pricing_provider->planDuration?->price - $country_plan_pricing_provider->price) ?? "N/A"}}</td>
                                         <td>{{ $country_plan_pricing_provider->getPercentage()  }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($country_plan_pricing_provider->status) }}-transparent">

@@ -58,7 +58,6 @@
                                     <th scope="col">Country</th>
                                     <th scope="col">Type</th>
                                     <th scope="col">Adjusted Pricing</th>
-                                    <th scope="col">Discount</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Action</th>
@@ -81,7 +80,6 @@
                                         </td>
                                         <td>{{ $country_plan_pricing->type }}</td>
                                         <td>{{ $country_plan_pricing->formattedAmount() }}</td>
-                                        <td>{{ $country_plan_pricing->plan?->defaultDuration()?->discount ?? 'N/A' }}</td>
                                         <td>
                                             <span
                                                 class="badge bg-{{ pillClasses($country_plan_pricing->status) }}-transparent">
