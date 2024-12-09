@@ -35,7 +35,7 @@ class GroupController extends Controller
     public function index(Request $request)
     {
         try {
-            $groups = $this->group_service->list($request->all())->doesntHave('promotions')->paginate(AppConstants::API_PAGINATION_SIZE);
+            $groups = $this->group_service->list($request->all())->paginate(AppConstants::API_PAGINATION_SIZE);
             $data = collectPagination($groups);
     
             // Collect the group ids for impressions tracking
