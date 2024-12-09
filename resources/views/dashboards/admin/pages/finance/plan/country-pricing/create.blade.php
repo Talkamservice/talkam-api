@@ -24,59 +24,49 @@
             <div class="col-xl-12">
                 <div class="card custom-card">
                     <div class="card-body">
-                        <form
-                            action="{{ isset($country_plan) ? route('admin.country-plan-pricings.update', $country_plan->id) : route('admin.country-plan-pricings.store') }}"
-                            method="POST" enctype="multipart/form-data"> @csrf
+                        <form action="{{ isset($country_plan) ? route('admin.country-plan-pricings.update', $country_plan->id) : route('admin.country-plan-pricings.store') }}" method="POST" enctype="multipart/form-data"> @csrf
                             @isset($country_plan)
                                 @method('put')
                             @endisset
                             <div class="gy-4 mb-4">
                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="country-select"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
+                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Dropdown for countries with search functionality -->
                                         <select name="country_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Country</option>
                                             @foreach ($countries as $country)
-                                                <option value="{{ $country->id }}"
-                                                    {{ old('country_id') == $country->id || (isset($country_plan) && isset($country_plan->country_id) && $country_plan->country_id == $country->id) ? 'selected' : '' }}>
+                                                <option value="{{ $country->id }}" {{ (old('country_id') ?? ($country_plan->country_id ?? '')) == $country->id ? 'selected' : '' }}>
                                                     {{ $country->name }}
                                                 </option>
                                             @endforeach
                                         </select>
+
                                     </div>
                                 </div>
 
                                 <div class="row col-xl-10 col-sm-12">
-                                    <label for="input-placeholder"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Types</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Types</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="type" class="form-control typeSelect">
                                             <option value="" disabled selected>Select Option</option>
                                             @foreach ($typeOptions as $key => $value)
-                                                <option value="{{ $key }}"
-                                                    {{ old('type') == $key || (isset($country_plan) && isset($country_plan->type) && $country_plan->type == $key) ? 'selected' : '' }}>
-                                                    {{ $value }}
-                                                </option>
+                                                <option value="{{ $key }}" {{ (old('status') ?? ($country_plan->type ?? '')) == $key ? 'selected' : '' }}>
+                                                    {{ $value }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
 
                                 <div class="row col-xl-10 col-sm-12 mt-3" id="planDiv" style="display: none">
-                                    <label for="country-select"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Plan</label>
+                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Plan</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Dropdown for countries with search functionality -->
                                         <select name="plan_duration_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Plan</option>
                                             @foreach ($plan_durations as $plan_duration)
-                                                <option value="{{ $plan_duration->id }}"
-                                                    {{ old('plan_duration_id') == $plan_duration->id || (isset($country_plan) && isset($country_plan->plan_duration_id) && $country_plan->plan_duration_id == $plan_duration->id) ? 'selected' : '' }}>
-                                                    {{ isset($plan_duration->plan) ? $plan_duration->plan->name : '' }} -
-                                                    {{ $plan_duration->frequency }} -
-                                                    {{ format_money($plan_duration->price) }}
+                                                <option value="{{ $plan_duration->id }}" {{ old('plan_duration_id', $country_plan?->plan_duration_id ?? '') == $plan_duration->id ? 'selected' : '' }}>
+                                                    {{ $plan_duration?->plan?->name }} - {{ $plan_duration->frequency }} - {{ format_money($plan_duration->price) }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -84,27 +74,20 @@
                                 </div>
 
                                 <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
-                                    <label for="input-placeholder"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Lowered (USD)</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Lowered (USD)</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Display current lowered cost if it exists -->
-                                        <input type="number" class="form-control" name="lowered_cost"
-                                            value="{{ old('lowered_cost') ?? (isset($country_plan) && isset($country_plan->lowered_cost) ? $country_plan->lowered_cost : '') }}"
-                                            placeholder="Enter New Amount">
-
+                                        <input type="number" class="form-control" name="lowered_cost" id="input-placeholder" value="{{ old('lowered_cost', $country_plan->lowered_cost ?? '') }}" placeholder="Enter New Amount">
                                     </div>
                                 </div>
                                 <div class="row col-xl-10 col-sm-12">
-                                    <label for="input-placeholder"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="status" id="" class="form-control">
                                             <option value="" disabled selected>Select Option</option>
                                             @foreach ($statusOptions as $key => $value)
-                                                <option value="{{ $key }}"
-                                                    {{ old('status') == $key || (isset($country_plan) && isset($country_plan->status) && $country_plan->status == $key) ? 'selected' : '' }}>
-                                                    {{ $value }}
-                                                </option>
+                                                <option value="{{ $key }}" {{ (old('status') ?? ($country_plan->status ?? '')) == $key ? 'selected' : '' }}>
+                                                    {{ $value }}</option>
                                             @endforeach
                                         </select>
                                     </div>
