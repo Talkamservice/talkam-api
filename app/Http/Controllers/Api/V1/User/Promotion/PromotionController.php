@@ -37,7 +37,9 @@ class PromotionController extends Controller
                 ->appends($request->query());
             $data = collectPagination($promotionResource);
 
-            $data["data"] = PromotionResource::collection($data["data"], false);
+            $data["data"] = $data["data"]->map(function ($item) {
+                return new PromotionResource($item, false);
+            });
             return ApiHelper::validResponse("Promotions returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
