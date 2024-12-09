@@ -112,15 +112,15 @@ class GroupMemberController extends Controller
                 ->status()->orderBy('name', 'asc')->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
             $data = collectPagination($groups);
-            $interleavedPosts = GroupService::interleavePromotedGroups($groups->items());
-            $paginatedData = new LengthAwarePaginator(
-                collect($interleavedPosts),  // Interleaved groups as a collection
-                $groups->total(),            // Total original count
-                $groups->perPage(),          // Groups per page
-                $groups->currentPage(),      // Current page
-                ['path' => Paginator::resolveCurrentPath()]
-            );
-            $data["data"] = GroupResource::collection($paginatedData->items());
+            // $interleavedPosts = GroupService::interleavePromotedGroups($groups->items());
+            // $paginatedData = new LengthAwarePaginator(
+            //     collect($interleavedPosts),  // Interleaved groups as a collection
+            //     $groups->total(),            // Total original count
+            //     $groups->perPage(),          // Groups per page
+            //     $groups->currentPage(),      // Current page
+            //     ['path' => Paginator::resolveCurrentPath()]
+            // );
+            $data["data"] = GroupResource::collection($groups);
             return ApiHelper::validResponse("Groups returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
