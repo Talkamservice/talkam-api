@@ -344,15 +344,4 @@ class PlanService
             return $response;
         }
     }
-
-    public static function getFlutterwavePlan($plan)
-    {
-        $durations = $plan->durations;
-        foreach ($durations as $duration) {
-            $response = (new FlutterwaveService)
-                ->getPlan($duration->flutterwave_plan_id);
-
-            return $response;
-        }
-    }
 }

@@ -41,27 +41,27 @@ class PlanDuration extends Model
         return format_money($this->price - $this->discount, 2, $this->plan->currency->symbol);
     }
 
-    public function getCountryPlanDetails()
+    public function displayPrice()
     {
-        // $userCountryName = $this->plan_service->getLocationCountryName(); 
-        $userCountryName = 'Nigeria';
+        $user = auth("sanctum")->user();
 
-        $countryPlans = PlanCountryPricing::whereHas('country', function ($query) use ($userCountryName) {
-            $query->where('name', $userCountryName);
-        })
-            ->status()
-            ->get();
-        if (!$countryPlans) {
-            return [
-                'flutterwave_plan_id' => null,
-                'lowered_cost' => null,
+        $plan_pricing_provider = PlanCountryPricingProvider::where([
+            "plan_duration_id" => $this->id,
+        ])->whereRelation("planCountryPricing", "country_id", $user?->country_id)
+            ->first();
+
+        if (!empty($plan_pricing_provider)) {
+            $response = [
+                "price" => $plan_pricing_provider?->price,
+                "flutterwave_plan_id" => $plan_pricing_provider->provider_plan_id
+            ];
+        } else {
+            $response = [
+                "price" => $this?->price,
+                "flutterwave_plan_id" => $this->flutterwave_plan_id
             ];
         }
-        return $countryPlans->map(function ($countryPlan) {
-            return [
-                'flutterwave_plan_id' => $countryPlan->flutterwave_plan_id,
-                'lowered_cost' => $countryPlan->lowered_cost,
-            ];
-        });
+
+        return $response;
     }
 }

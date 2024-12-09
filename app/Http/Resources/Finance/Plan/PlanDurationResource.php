@@ -23,14 +23,14 @@ class PlanDurationResource extends JsonResource
 
     public function toArray($request)
     {
-        $countryPlanDetails = $this->getCountryPlanDetails();
+        $display = $this->displayPrice();
         return [
             'id' => $this->id,
             'frequency' => $this->frequency,
             'duration' => $this->duration,
-            'price' => $countryPlanDetails['lowered_cost'] ?? $this->price,
+            'price' => $display["price"],
             'discount' => $this->discount,
-            'flutterwave_plan_id' => $countryPlanDetails['flutterwave_plan_id'] ?? $this->flutterwave_plan_id,
+            'flutterwave_plan_id' => $display["flutterwave_plan_id"],
             'created_at' => formatDate($this->created_at),
             'updated_at' => formatDate($this->updated_at),
         ];

@@ -24,58 +24,69 @@
             <div class="col-xl-12">
                 <div class="card custom-card">
                     <div class="card-body">
-                        <form
-                            action="{{ isset($country_plan) ? route('admin.country-plan-pricings.update', $country_plan->id) : route('admin.country-plan-pricings.store') }}"
-                            method="POST" enctype="multipart/form-data"> @csrf
+                        <form action="{{ isset($country_plan) ? route('admin.country-plan-pricings.update', $country_plan->id) : route('admin.country-plan-pricings.store') }}" method="POST" enctype="multipart/form-data"> @csrf
                             @isset($country_plan)
                                 @method('put')
                             @endisset
                             <div class="gy-4 mb-4">
                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="country-select"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
+                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Dropdown for countries with search functionality -->
                                         <select name="country_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Country</option>
                                             @foreach ($countries as $country)
-                                                <option value="{{ $country->id }}"
-                                                    {{ (old('country_id') ?? ($country_plan->country_id ?? '')) == $country->id ? 'selected' : '' }}>
+                                                <option value="{{ $country->id }}" {{ (old('country_id') ?? ($country_plan->country_id ?? '')) == $country->id ? 'selected' : '' }}>
                                                     {{ $country->name }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        
+
                                     </div>
                                 </div>
 
+                                <div class="row col-xl-10 col-sm-12">
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Types</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <select name="type" class="form-control typeSelect">
+                                            <option value="" disabled selected>Select Option</option>
+                                            @foreach ($typeOptions as $key => $value)
+                                                <option value="{{ $key }}" {{ (old('status') ?? ($country_plan->type ?? '')) == $key ? 'selected' : '' }}>
+                                                    {{ $value }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
 
-                                <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="input-placeholder"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Lowered (USD)</label>
+                                <div class="row col-xl-10 col-sm-12 mt-3" id="planDiv" style="display: none">
+                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Plan</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <!-- Dropdown for countries with search functionality -->
+                                        <select name="plan_duration_id" id="country-select" class="form-select">
+                                            <option value="" disabled selected>Select Plan</option>
+                                            @foreach ($plan_durations as $plan_duration)
+                                                <option value="{{ $plan_duration->id }}" {{ old('plan_duration_id', $country_plan?->plan_duration_id ?? '') == $plan_duration->id ? 'selected' : '' }}>
+                                                    {{ $plan_duration?->plan?->name }} - {{ $plan_duration->frequency }} - {{ format_money($plan_duration->price) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Lowered (USD)</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Display current lowered cost if it exists -->
-                                        @if (!empty($country_plan->lowered_cost))
-                                            <div class="mb-2 text-muted">
-                                                <strong>Current Lowered Price: </strong>
-                                                ${{ number_format($country_plan->lowered_cost, 2) }}
-                                            </div>
-                                        @endif
-                                        <input type="number" class="form-control" name="lowered_cost"
-                                            id="input-placeholder"
-                                            value="{{ old('lowered_cost') }}"
-                                            placeholder="Enter New Amount">
+                                        <input type="number" class="form-control" name="lowered_cost" id="input-placeholder" value="{{ old('lowered_cost', $country_plan->lowered_cost ?? '') }}" placeholder="Enter New Amount">
                                     </div>
                                 </div>
                                 <div class="row col-xl-10 col-sm-12">
-                                    <label for="input-placeholder"
-                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="status" id="" class="form-control">
                                             <option value="" disabled selected>Select Option</option>
                                             @foreach ($statusOptions as $key => $value)
-                                                <option value="{{ $key }}"
-                                                    {{ (old('status') ?? ($country_plan->status ?? '')) == $key ? 'selected' : '' }}>
+                                                <option value="{{ $key }}" {{ (old('status') ?? ($country_plan->status ?? '')) == $key ? 'selected' : '' }}>
                                                     {{ $value }}</option>
                                             @endforeach
                                         </select>
@@ -98,35 +109,29 @@
 @endsection
 
 @section('script')
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
-        $(".addPlanDurationItem").on("click", function() {
-            const sectionClone = $(".plan-duration-section:first").clone();
-            sectionClone.find("input").val("");
+        $(".typeSelect").on("change", function() {
+            const value = $(this).val();
+            console.log(value);
+            updateType(value)
+        });
 
-            sectionClone.prepend('<div class="btn btn-sm mt-3"></div>');
-            sectionClone.append(
-                '<label class=""><button type="button" class="btn btn-sm mb-3 btn-outline-danger btn-md remove-section">Remove</button></label>'
-            );
-            $("#planDuration").append(sectionClone);
-        });
-        // Function to remove a logistics section
-        $("#planDuration").on("click", ".remove-section", function() {
-            $(this).closest(".plan-duration-section").remove();
-        });
-    </script>
-    <script>
-        function validateDiscount(input) {
-            if (input.value > 100) {
-                input.value = 100;
+        function updateType(value) {
+            if (value == "General") {
+                $('#planDiv').fadeOut(400);
+            } else if (value == "Single") {
+                $('#planDiv').fadeIn(400);
+            } else {
+                $('#planDiv').fadeOut(400);
             }
         }
-    </script>
-    <!-- Add these to your head section for Select2 styling and functionality -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+        $(window).on("load", function() {
+            const value = $(".typeSelect").find("option:selected").val();
+            updateType(value);
+        })
+    </script>
     <script>
         $(document).ready(function() {
             // Initialize Select2 for the country select box
