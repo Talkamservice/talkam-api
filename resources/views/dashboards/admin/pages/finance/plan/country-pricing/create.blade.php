@@ -65,7 +65,7 @@
                                         <select name="plan_duration_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Plan</option>
                                             @foreach ($plan_durations as $plan_duration)
-                                                <option value="{{ $plan_duration->id }}" {{ old('plan_duration_id', $country_plan?->plan_duration_id ?? '') == $plan_duration->id ? 'selected' : '' }}>
+                                                <option value="{{ $plan_duration->id }}" {{ old('plan_duration_id', ($country_plan?->plan_duration_id ?? '')) == $plan_duration->id ? 'selected' : '' }}>
                                                     {{ $plan_duration?->plan?->name }} - {{ $plan_duration->frequency }} - {{ format_money($plan_duration->price) }}
                                                 </option>
                                             @endforeach
@@ -77,7 +77,7 @@
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Lowered (USD)</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <!-- Display current lowered cost if it exists -->
-                                        <input type="number" class="form-control" name="lowered_cost" id="input-placeholder" value="{{ old('lowered_cost', $country_plan->lowered_cost ?? '') }}" placeholder="Enter New Amount">
+                                        <input type="number" class="form-control" name="lowered_cost" id="input-placeholder" value="{{ old('lowered_cost', ($country_plan->lowered_cost ?? '')) }}" placeholder="Enter New Amount">
                                     </div>
                                 </div>
                                 <div class="row col-xl-10 col-sm-12">
