@@ -24,14 +24,16 @@
                 <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
-                            <input class="form-control" type="text" placeholder="Search...." name="search" value="{{ request()->search }}">
+                            <input class="form-control" type="text" placeholder="Search...." name="search"
+                                value="{{ request()->search }}">
                         </div>
                         <div class="form-group">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
                     <div class="">
-                        <a href="{{ route('admin.country-plan-pricings.create') }}" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                        <a href="{{ route('admin.country-plan-pricings.create') }}" class="btn btn-primary btn-sm"><i
+                                class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -39,13 +41,15 @@
                         <div class="p-2 flex-grow-1">
                             <p class="mb-0">
                                 <span class="fw-bold fs-6 text-dark">Note:</span>
-                                <span>All countries adhere to the standard plan pricing and discount structure. However, newly created countries have specific pricing adjustments while maintaining the original discount rates applicable to all plans.</span>
+                                <span>All countries adhere to the standard plan pricing and discount structure. However,
+                                    newly created countries have specific pricing adjustments while maintaining the original
+                                    discount rates applicable to all plans.</span>
                             </p>
                         </div>
                     </div>
-                    
-                    
-                    
+
+
+
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
@@ -65,23 +69,40 @@
                                     <tr>
                                         <td>{{ $sn++ }}</td>
                                         <td>{{ $country_plan_pricing->country->name }}
-                                            <small class="text-primary">({{ 'plus ' . $country_plan_pricing->pricingProviders->groupBy('plan_id')->count() . ' extra plan' }})</small>
+                                            @if ($country_plan_pricing->pricingProviders->groupBy('plan_id')->count() > 1)
+                                            <small>
+                                                <span data-bs-toggle="tooltip" 
+                                                      title="{{ 'plus ' . $country_plan_pricing->pricingProviders->groupBy('plan_id')->count() - 1 . ' extra plan' }}" 
+                                                      style="cursor: pointer;">
+                                                    <i class="fas fa-question-circle"></i> <!-- Font Awesome icon -->
+                                                </span>
+                                            </small>
+                                            @endif
                                         </td>
                                         <td>{{ $country_plan_pricing->type }}</td>
                                         <td>{{ $country_plan_pricing->formattedAmount() }}</td>
                                         <td>{{ $country_plan_pricing->plan?->defaultDuration()?->discount ?? 'N/A' }}</td>
                                         <td>
-                                            <span class="badge bg-{{ pillClasses($country_plan_pricing->status) }}-transparent">
+                                            <span
+                                                class="badge bg-{{ pillClasses($country_plan_pricing->status) }}-transparent">
                                                 {{ $country_plan_pricing->status }}
                                             </span>
                                         </td>
                                         <td>{{ $country_plan_pricing->created_at->format('Y-m-d h:i A') }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor" href="{{ route('admin.country-plan-pricings.show', $country_plan_pricing->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i class="ri-eye-line"></i></a>
-                                                <a aria-label="anchor" href="{{ route('admin.country-plan-pricings.edit', $country_plan_pricing->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light" href="#" onclick="openMultipleDeleteModal('{{ route('admin.country-plan-pricings.destroy', $country_plan_pricing->id) }}')" data-bs-toggle="tooltip"
-                                                    title="Delete this plan">
+                                                <a aria-label="anchor"
+                                                    href="{{ route('admin.country-plan-pricings.show', $country_plan_pricing->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
+                                                        class="ri-eye-line"></i></a>
+                                                <a aria-label="anchor"
+                                                    href="{{ route('admin.country-plan-pricings.edit', $country_plan_pricing->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
+                                                        class="ri-edit-line"></i></a>
+                                                <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
+                                                    href="#"
+                                                    onclick="openMultipleDeleteModal('{{ route('admin.country-plan-pricings.destroy', $country_plan_pricing->id) }}')"
+                                                    data-bs-toggle="tooltip" title="Delete this plan">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </a>
                                                 {{-- <a aria-label="anchor" data-bs-toggle="tooltip"
