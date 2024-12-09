@@ -479,7 +479,7 @@ class MethodsHelper
         ];
     
         if (in_array(strtoupper($currencyCode), $validCurrencies, true)) {
-            return strtoupper($currencyCode); // Return the valid code
+            return strtoupper($currencyCode);
         }
 
         return null;
