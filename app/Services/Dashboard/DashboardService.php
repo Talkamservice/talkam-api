@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\User;
 use App\Constants\Account\User\UserConstants;
+use App\Constants\General\StatusConstants;
 use App\Models\Group;
 use App\Models\Subscription;
 use Carbon\Carbon;
@@ -124,7 +125,7 @@ class DashboardService
             // Debugging: Print start and end of interval
             // dd($startOfInterval, $endOfInterval);
 
-            $users[$i] = User::where("role", UserConstants::USER)
+            $users[$i] = User::where('status', StatusConstants::ACTIVE)
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
 

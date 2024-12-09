@@ -28,9 +28,8 @@ class PromotionStatsService
         if (!in_array($period, ['day', 'week', 'month', 'year'])) {
             $period = 'month';
         }
-
         $promotion_data = $this->getPromotionData($period);
-
+        // dd( $period,  $promotion_data );
         $data = [
             "cards" => [
                 [
@@ -121,7 +120,7 @@ class PromotionStatsService
                 $currentStartDate = Carbon::today();
                 $previousStartDate = Carbon::yesterday();
                 $interval = 'hour';
-                $dataPoints = 24; // 24 hours in a day
+                $dataPoints =  Carbon::now()->hour; // 24 hours in a day
                 break;
             case 'week':
                 $currentStartDate = Carbon::now()->startOfWeek();
@@ -188,31 +187,16 @@ class PromotionStatsService
 
     public function fetchrevenueData()
     {
-        $monthlyRevenue = array_fill(0, 12, 0); // Initialize array for each month of the year
-
-        // Loop through each month of the current year
+        $monthlyRevenue = array_fill(0, 12, 0);
         for ($month = 0; $month < 12; $month++) {
-            // Define the start and end dates for the current month
             $monthStart = Carbon::now()->startOfYear()->addMonths($month)->startOfMonth();
             $monthEnd = $monthStart->copy()->endOfMonth();
-
-            // Calculate subscription revenue for the current month
             $monthlyRevenue[$month] = Promotion::whereBetween('created_at', [$monthStart, $monthEnd])->sum('cost');
-
-            // // Calculate promotion revenue from the payments table for the current month
-            // $promotionRevenue = Payment::whereBetween('created_at', [$monthStart, $monthEnd])
-            //     ->sum(DB::raw('amount - fees')); // Calculate net amount by subtracting fees from amount
-            // // Calculate total monthly revenue (subscriptions + promotions)
-            // $monthlyRevenue[$month] = $subscriptionRevenue + $promotionRevenue;
         }
-
         return [
             'revenue' => $monthlyRevenue,
         ];
     }
-
-
-
     private function fetchData($startDate, $interval, $dataPoints)
     {
         $promotions = Promotion::whereHas("payment");
@@ -227,9 +211,6 @@ class PromotionStatsService
         $total_successful_promotions = array_fill(0, $dataPoints, 0);
         $total_pending_promotions = array_fill(0, $dataPoints, 0);
         $total_inactive_promotions = array_fill(0, $dataPoints, 0);
-
-        // Initialize monthly data placeholders for each month in the year (Jan to Dec)
-        $monthly_revenue = array_fill(0, $dataPoints, 0);
 
         for ($i = 0; $i < $dataPoints; $i++) {
             $startOfInterval = $startDate->copy()->add($i, $interval);
@@ -274,7 +255,7 @@ class PromotionStatsService
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
 
-            $total_freemium_users[$i] = User::whereDoesntHave('activeSubscription')
+            $total_freemium_users[$i] = User::where('status', StatusConstants::ACTIVE)->whereDoesntHave('activeSubscription')
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
         }

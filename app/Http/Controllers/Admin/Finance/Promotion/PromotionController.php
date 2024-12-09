@@ -31,8 +31,7 @@ class PromotionController extends Controller
 
     public function index(Request $request)
     {
-        $period = $request->period;
-
+        $period = $request->period ?? 'month';
         $high_promotions = Promotion::orderBy("cost", "desc")->limit(5)->get();
         $promotion_stats = $this->promotion_stat_service->stats(['period' => $period]);
         $revenue_data = $this->promotion_stat_service->fetchrevenueData();

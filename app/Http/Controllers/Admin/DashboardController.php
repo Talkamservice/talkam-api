@@ -30,7 +30,7 @@ class DashboardController extends Controller
             "cards" => [
                 [
                     "icon" => "users",
-                    "title" => "Total Users",
+                    "title" => "Total Active Users",
                     "value" => array_sum($dashboardData['currentUsers']),
                     "class" => "primary",
                     "url" => route("admin.users.index"),
