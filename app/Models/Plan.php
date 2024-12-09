@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Constants\General\StatusConstants;
-use App\Helpers\MethodsHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -41,6 +40,25 @@ class Plan extends Model
         }
 
         return $default_duration;
+    }
+
+    public function displayPrice()
+    {
+        $user = auth()->user();
+        $default_duration = $this->defaultDuration();
+
+        $plan_pricing_provider = PlanCountryPricingProvider::where([
+            "plan_duration_id" => $default_duration?->id,
+        ])->whereRelation("planCountryPricing", "country_id", $user?->pricing_country_id)
+            ->first();
+
+        if (!empty($plan_pricing_provider)) {
+            $price = $this->plan_pricing_provider?->price;
+        }else {
+            $price = $default_duration?->price;
+        }
+        
+        return $price;
     }
 
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)

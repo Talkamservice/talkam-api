@@ -83,4 +83,12 @@ class PlanConstants
             "data" => AppConstants::BOOL_OPTIONS,
         ],
     ];
+
+    const GENERAL  = "General";
+    const SINGLE_PLAN = "Single";
+
+    const COUNTRY_TYPE_OPTIONS = [
+        self::GENERAL => "General",
+        self::SINGLE_PLAN => "Single Plan",
+    ];
 }

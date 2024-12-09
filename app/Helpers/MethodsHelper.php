@@ -459,4 +459,29 @@ class MethodsHelper
         }
         return $result;
     }
+
+    public static function getLocationCountryName()
+    {
+        $position = Location::get();
+
+        if (is_object($position) && property_exists($position, 'countryName')) {
+            return $position->countryName;
+        }
+        
+        return null;
+    }
+
+   static function validateCurrencyCode($currencyCode) {
+        $validCurrencies = [
+            'GBP', 'CAD', 'XAF', 'CLP', 'COP', 'EGP', 'EUR', 'GHS', 'GNF', 
+            'KES', 'MWK', 'MAD', 'NGN', 'RWF', 'SLL', 'STD', 'ZAR', 'TZS', 
+            'UGX', 'USD', 'XOF', 'ZMW'
+        ];
+    
+        if (in_array(strtoupper($currencyCode), $validCurrencies, true)) {
+            return strtoupper($currencyCode);
+        }
+
+        return null;
+    }
 }

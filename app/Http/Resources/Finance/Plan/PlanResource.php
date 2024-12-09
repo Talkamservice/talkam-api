@@ -3,9 +3,10 @@
 namespace App\Http\Resources\Finance\Plan;
 
 use App\Constants\Account\User\UserConstants;
+use App\Helpers\MethodsHelper;
 use App\Models\Plan;
-use App\Services\Finance\Plan\PlanService;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Stevebauman\Location\Facades\Location;
 
 class PlanResource extends JsonResource
 {
@@ -15,38 +16,31 @@ class PlanResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-    protected $country_plans;
-    protected $plan_service;
 
-    public function __construct($resource, $country_plans = null)
-    {
-        // Pass the resource to the parent constructor
-        parent::__construct($resource);
-        // Store the country_plan data
-        $this->country_plans = $country_plans;
-        $this->plan_service = new PlanService;
-    }
     public function toArray($request)
     {
-        // dd( $this->country_plan->lowered_cost);
+        $user = auth("sanctum")->user();
+        $position = Location::get();
+        $currency_code = isset($position->currencyCode) ? $position->currencyCode : null;
+
         $data = [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             "frequency" => $this->defaultDuration()?->frequency,
-            'price' => $this->getPriceForPlan(), // Use the adjusted price here
+            'price' => $this->displayPrice(),
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
-            "country" => $this->getCountry(),
+            "country" => $user?->country?->name,
             "is_active_subscription" => false,
-            "currency" => $this->plan?->currency?->short_name ?? "USD",
+            "currency" => MethodsHelper::validateCurrencyCode($currency_code) ?? $this->plan?->currency?->short_name ?? "USD",
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
             "benefits" => PlanBenefitResource::collection($this->whenLoaded("benefits", $this->benefits)),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];
 
-        if (!empty($user = auth()->user())) {
+        if (!empty($user)) {
             if ($user?->role == UserConstants::USER) {
                 $active_sub = $user->activeSubscription;
                 if (!empty($active_sub) && $active_sub->plan_id == $this->id) {
@@ -60,24 +54,6 @@ class PlanResource extends JsonResource
         return $data;
     }
 
-
-    public function getPriceForPlan()
-    {
-        // Check if there are any country plans
-        if ($this->country_plans && $this->country_plans->isNotEmpty()) {
-            $countryPlan = $this->country_plans->first();
-            return $countryPlan?->lowered_cost ?? $this->price; // Safely access lowered_cost and fallback to price
-        }
-
-        return $this->price; // If no country plans, use the default price
-    }
-
-    public function getCountry()
-    {
-        $country = $this->plan_service->getLocationCountryName();
-        return $country ?? null; // Safely access lowered_cost and fallback to price
-    }
-
     public static function custom(Plan $model)
     {
         return [
@@ -85,7 +61,7 @@ class PlanResource extends JsonResource
             'name' => $model->name,
             'description' => $model->description,
             "frequency" => $model->defaultDuration()?->frequency,
-            "price" => $model->defaultDuration()?->price,
+            'price' => $model->displayPrice(),
             "discount" => $model->defaultDuration()?->discount,
             "status" => $model->status,
             "created_at" => formatDate($model->created_at),

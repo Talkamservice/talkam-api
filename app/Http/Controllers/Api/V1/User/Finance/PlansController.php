@@ -27,35 +27,17 @@ class PlansController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get the plan service builder
             $builder = $this->plan_service;
-
-            // Fetch the current plan id
             $plan_id = $this->plan_service->fetchCurrentPlan();
-
-            // Modify the builder based on the current plan id
+    
             if (!empty($plan_id)) {
                 $builder = $builder->listByCurrentPlan($plan_id);
             } else {
                 $builder = $builder->list();
             }
-            // Fetch country-specific plans
-            $userCountryName = $this->plan_service->getLocationCountryName(); // Replace with dynamic country if needed
-            $countryPlans = PlanCountryPricing::with('plan')
-                ->whereHas('country', function ($query) use ($userCountryName) {
-                    $query->where('name', $userCountryName);
-                })->status()->latest()->get()->keyBy('plan_id');
+
             $plans = $builder->get();
-            $plans->each(function ($plan) use ($countryPlans) {
-                $plan->country_plans = collect(
-                    $countryPlans->where('plan_id', $plan->id)
-                );
-            });
-            // Map the plans and include durations and other necessary relationships
-            $data = $plans->map(function ($plan) {
-                return new PlanResource($plan, $plan->country_plans);
-            });
-            // Return the response
+            $data = PlanResource::collection($plans);
             return ApiHelper::validResponse("Plans returned successfully", $data);
         } catch (Exception $e) {
             // Handle exceptions
