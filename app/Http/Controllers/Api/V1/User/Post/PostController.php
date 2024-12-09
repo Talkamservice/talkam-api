@@ -43,7 +43,6 @@ class PostController extends Controller
     {
         try {
             $posts = $this->post_service->list($request->all())
-                ->doesntHave('promotions')
                 ->status()
                 ->unblocked()
                 ->hideGroupPosts()
