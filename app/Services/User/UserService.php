@@ -108,8 +108,8 @@ class UserService
 
         $data['password'] = !empty($data['password'] ?? null) ? Hash::make($data['password']) : null;
 
-        if (empty($data["country_id"] ?? null)) {
-            $data["country_id"] = countryByName()?->id ?? null;
+        if (empty($data["pricing_country_id"] ?? null)) {
+            $data["pricing_country_id"] = countryByName()?->id ?? null;
         }
         
         $user = User::create($data);
