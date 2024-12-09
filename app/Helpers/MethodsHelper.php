@@ -459,4 +459,16 @@ class MethodsHelper
         }
         return $result;
     }
+
+    public static function getLocationCountryName()
+    {
+        $position = Location::get();
+
+        if (is_object($position) && property_exists($position, 'countryName')) {
+            return $position->countryName;
+        }
+        
+        return null;
+    }
+
 }

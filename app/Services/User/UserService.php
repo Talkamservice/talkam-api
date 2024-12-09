@@ -107,6 +107,11 @@ class UserService
         ], $data);
 
         $data['password'] = !empty($data['password'] ?? null) ? Hash::make($data['password']) : null;
+
+        if (empty($data["country_id"] ?? null)) {
+            $data["country_id"] = countryByName()?->id ?? null;
+        }
+        
         $user = User::create($data);
 
         // Convert date_of_birth to Y-m-d format

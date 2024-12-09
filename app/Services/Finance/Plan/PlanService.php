@@ -169,19 +169,6 @@ class PlanService
         return $plan;
     }
 
-    public static function getLocationCountryName()
-    {
-        $position = Location::get(); // Leave empty for the current user location.
-
-        // Check if $position is valid and has the 'countryName' property
-        if (is_object($position) && property_exists($position, 'countryName')) {
-            return $position->countryName;
-        }
-
-        // Fallback if $position is null or doesn't have 'countryName'
-        return null;
-    }
-
     public static function list()
     {
         $plans = Plan::status()->latest();
