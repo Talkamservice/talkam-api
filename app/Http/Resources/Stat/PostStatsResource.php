@@ -7,11 +7,12 @@ use App\Models\Country;
 use App\Models\Group;
 use App\Models\Post;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostStatsResource extends JsonResource
 {
-    public function __construct(public $resource, public $countries = null) {
+    public function __construct(public $resource, public $countries = null, public $show_countries_stats = true) {
 
     }
     /**
@@ -36,8 +37,27 @@ class PostStatsResource extends JsonResource
             "clicks" => $this->clicks,
             "min_time_spent" => $this->min_time_spent,
             "max_time_spent" => $this->max_time_spent,
-            "countries" => $this->countriesStats(),
+            "countries" => $this->show_countries_stats ? $this->countriesStats() : null,
             "created_at" => formatDate($this->created_at),
+        ];
+    }
+
+    public function model(Model $model)
+    {
+        return [
+            "id" => $model->id,
+            "comments" => $model->comments,
+            "likes" => $model->likes,
+            "dislikes" => $model->dislikes,
+            "shares" => $model->shares,
+            "impressions" => $model->impressions,
+            "engagements" => divideNumber($model->impressions, $model->likes),
+            "followers" => $model->followers,
+            "profile_visits" => $model->profile_visits,
+            "clicks" => $model->clicks,
+            "min_time_spent" => $model->min_time_spent,
+            "max_time_spent" => $model->max_time_spent,
+            "created_at" => formatDate($model->created_at),
         ];
     }
 
