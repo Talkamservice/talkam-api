@@ -37,33 +37,34 @@ class GroupController extends Controller
         try {
             $groups = $this->group_service->list($request->all())->paginate(AppConstants::API_PAGINATION_SIZE);
             $data = collectPagination($groups);
-    
-            // Collect the group ids for impressions tracking
+
             $group_ids = collect($data["data"])->pluck("id")->toArray();
             $this->post_stats_service->saveGroupImpressions($group_ids, ["impressions" => true]);
 
-            // Transform with resource
             $data["data"] = GroupResource::collection($groups);
-    
+
             return ApiHelper::validResponse("Groups returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
-    
+
     public function getPromoteGroups(Request $request)
     {
         try {
-            $groups = $this->group_service->getByPromotedGroups($request->all())->latest()->paginate(AppConstants::API_PAGINATION_SIZE);
+            $user = auth("sanctum")->user();
+
+            $groups = (!empty($user) && $user->should_display_ads == 0) ? new LengthAwarePaginator([], 0, AppConstants::API_PAGINATION_SIZE) :
+                $this->group_service->getByPromotedGroups($request->all())
+                ->latest()
+                ->paginate(AppConstants::API_PAGINATION_SIZE);
+
             $data = collectPagination($groups);
-    
-            // Collect the group ids for impressions tracking
+
             $group_ids = collect($data["data"])->pluck("id")->toArray();
             $this->post_stats_service->saveGroupImpressions($group_ids, ["impressions" => true]);
-
-            // Transform with resource
             $data["data"] = PromotedGroupResource::collection($groups);
-    
+
             return ApiHelper::validResponse("Promoted Groups returned successfully", $data);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
@@ -106,9 +107,9 @@ class GroupController extends Controller
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group created successfully", $data);
         } catch (ValidationException $th) {
-            return ApiHelper::inputErrorResponse("The given data is invalid", ApiConstants::VALIDATION_ERR_CODE, null , $th);
+            return ApiHelper::inputErrorResponse("The given data is invalid", ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
-            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null , $th);
+            return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $th);
         }
@@ -121,7 +122,7 @@ class GroupController extends Controller
             $data = GroupResource::make($group);
             return ApiHelper::validResponse("Group updated successfully", $data);
         } catch (ValidationException $th) {
-            return ApiHelper::inputErrorResponse("The given data is invalid", ApiConstants::VALIDATION_ERR_CODE, null , $th);
+            return ApiHelper::inputErrorResponse("The given data is invalid", ApiConstants::VALIDATION_ERR_CODE, null, $th);
         } catch (ModelNotFoundException $th) {
             return ApiHelper::problemResponse($th->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $th);
         } catch (Exception $th) {
