@@ -24,11 +24,13 @@ class PostStatsResource extends JsonResource
 
     public function toArray($request)
     {
+        $reaction_stats = $this->reactionStats();
+
         return [
             "id" => $this->id,
-            "comments" => $this->comments,
-            "likes" => $this->likes,
-            "dislikes" => $this->dislikes,
+            "comments" => $reaction_stats["comments"],
+            "likes" => $reaction_stats["likes"],
+            "dislikes" => $reaction_stats["dislikes"],
             "shares" => $this->shares,
             "impressions" => $this->impressions,
             "engagements" => divideNumber($this->impressions, $this->likes),

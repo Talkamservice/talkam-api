@@ -128,9 +128,9 @@ class Promotion extends Model
     public function getModelTypeAttribute()
     {
         if ($this->group_id) {
-            return $this->group(); 
+            return $this->group();
         } elseif ($this->post_id) {
-            return $this->post();  
+            return $this->post();
         }
         return null;
     }
