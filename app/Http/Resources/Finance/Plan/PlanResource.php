@@ -20,8 +20,7 @@ class PlanResource extends JsonResource
     public function toArray($request)
     {
         $user = auth("sanctum")->user();
-        $position_country_code = app("position_country_code");
-        $currency_code_ = MethodsHelper::validateCurrencyCode($position_country_code) ?? $this->currency?->short_name ?? "USD";
+        $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? $this->currency?->short_name ?? "USD";
         
         $display_price = $this->displayPrice();
         $local_rate = self::calcLocalPrice($currency_code_, $display_price);

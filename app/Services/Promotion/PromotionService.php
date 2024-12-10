@@ -126,9 +126,11 @@ class PromotionService
                 throw new InvalidRequestException("You cannot proceed with this promotion. Kindly select a post or group to proceed");
             }
 
+            $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME;
+
             $payment = $this->payment_intent_service->setUser($promotion->user)
                 ->setAmount($promotion->cost)
-                ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME)
+                ->setCurrency($currency_code_)
                 ->setAdditionalData([
                     "type" => PaymentConstants::DEBIT,
                     "status" => StatusConstants::PENDING,
@@ -161,10 +163,11 @@ class PromotionService
         DB::beginTransaction();
         try {
             $promotion = $this->getById($id);
-
+            
+            $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME;
             $payment = $this->payment_intent_service->setUser($promotion->user)
                 ->setAmount($promotion->cost)
-                ->setCurrency(CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME)
+                ->setCurrency($currency_code_)
                 ->setAdditionalData([
                     "type" => PaymentConstants::DEBIT,
                     "status" => StatusConstants::PENDING,
