@@ -68,7 +68,7 @@ class DashboardController extends Controller
             "users" => User::latest()->paginate(5),
             "activity_logs" => ActivityLog::latest()->limit(5)->get(),
             "period" => $period,
-            "dashboardData" => $dashboardData, // Pass raw data to the view
+            "dashboardData" => $dashboardData, 
             "subscriptionCounts" => $dashboardData['subscriptionCounts'],
         ];
 
