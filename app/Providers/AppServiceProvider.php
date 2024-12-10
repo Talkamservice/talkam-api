@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Stevebauman\Location\Facades\Location;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(500);
 
+        $this->app->singleton('position_country_code', function () {
+            $position = Location::get();
+            return $position?->currencyCode ?? null;
+        });
+
         view()->composer('*', function ($view) {
             $view->with([
                 'admin_assets' => url('/') . env('RESOURCE_PATH') . '/admin_assets',
@@ -36,14 +42,14 @@ class AppServiceProvider extends ServiceProvider
             "dashboards.admin.layout.includes.header"
         ], function ($view) {
             $global_notifications = DatabaseNotification::where('notifiable_id', auth()->user()->id)
-            ->where(function ($query) {
-                $query->where('type', 'App\Notifications\Promotion\NewSubscriptionNotification')
+                ->where(function ($query) {
+                    $query->where('type', 'App\Notifications\Promotion\NewSubscriptionNotification')
                         ->orWhere('type', 'App\Notifications\Promotion\SubscriptionRenewalNotification')
                         ->orWhere('type', 'App\Notifications\Promotion\SubscriptionDisabledNotification')
                         ->orWhere('type', 'App\Notifications\Finance\Payment\AdminNewPaymentNotification');
-            })
-            ->get();
-        
+                })
+                ->get();
+
             // dd($global_notifications);
             $view->with([
                 "global_notifications" => sudo()->notifications ?? $global_notifications
@@ -53,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::if('canAll', function (...$permissions) {
             return auth()->user()->hasAllPermissions($permissions);
         });
-    
+
         Blade::if('canAny', function (...$permissions) {
             return auth()->user()->hasAnyPermission($permissions);
         });

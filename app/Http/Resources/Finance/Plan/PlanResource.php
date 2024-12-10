@@ -7,7 +7,6 @@ use App\Helpers\MethodsHelper;
 use App\Models\Currency;
 use App\Models\Plan;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Stevebauman\Location\Facades\Location;
 
 class PlanResource extends JsonResource
 {
@@ -21,10 +20,9 @@ class PlanResource extends JsonResource
     public function toArray($request)
     {
         $user = auth("sanctum")->user();
-        $position = Location::get();
-        $currency_code = isset($position->currencyCode) ? $position->currencyCode : null;
-        $currency_code_ = MethodsHelper::validateCurrencyCode($currency_code) ?? $this->currency?->short_name ?? "USD";
-
+        $position_country_code = app("position_country_code");
+        $currency_code_ = MethodsHelper::validateCurrencyCode($position_country_code) ?? $this->currency?->short_name ?? "USD";
+        
         $display_price = $this->displayPrice();
         $local_rate = self::calcLocalPrice($currency_code_, $display_price);
         
@@ -61,9 +59,9 @@ class PlanResource extends JsonResource
 
     public static function custom(Plan $model)
     {
-        $position = Location::get();
-        $currency_code = isset($position->currencyCode) ? $position->currencyCode : null;
-        $currency_code_ = MethodsHelper::validateCurrencyCode($currency_code) ?? $plan?->currency?->short_name ?? "USD";
+        $position_country_code = app("position_country_code");
+        $currency_code_ = MethodsHelper::validateCurrencyCode($position_country_code) ?? $model->currency?->short_name ?? "USD";
+        
         $display_price = $model->displayPrice();
         $local_rate = self::calcLocalPrice($currency_code_, $display_price);
 
