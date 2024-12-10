@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\BulkNotificationCommand;
+use App\Console\Commands\Finance\Currency\UpdateCurrencyRatesCommand;
 use App\Console\Commands\Group\UpdateSuspendedMembersStatus;
 use App\Console\Commands\Notification\SendPendingNotificationCommand;
 use App\Console\Commands\Post\PostCommand;
@@ -25,6 +26,7 @@ class Kernel extends ConsoleKernel
         TrendingPostCommand::class,
         UpdateSuspendedMembersStatus::class,
         SendPendingNotificationCommand::class,
+        UpdateCurrencyRatesCommand::class,
         \App\Console\Commands\TestGroupMemberRemoval::class,
     ];
 
@@ -42,6 +44,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('promotions:notify-pending')->everyMinute();
         $schedule->command('promotion:send-notifications')->dailyAt('00:00');
         $schedule->command('promotion:send-expired-notifications')->everyMinute();
+        $schedule->command('finance:currency_rates')->weekly();
     }
 
     /**

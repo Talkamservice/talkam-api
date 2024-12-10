@@ -8,7 +8,6 @@ use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\PostReport;
 use App\Models\UserPostReaction;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PromotedPostResource extends JsonResource

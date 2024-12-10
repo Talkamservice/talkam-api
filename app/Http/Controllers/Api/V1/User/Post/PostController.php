@@ -20,8 +20,6 @@ use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 use function PHPUnit\Framework\isEmpty;
@@ -43,6 +41,7 @@ class PostController extends Controller
     {
         try {
             $posts = $this->post_service->list($request->all())
+                ->with(["comments", "threadNotifications"])
                 ->status()
                 ->unblocked()
                 ->hideGroupPosts()
@@ -68,21 +67,22 @@ class PostController extends Controller
     public function getPrmotedPosts(Request $request)
     {
         try {
-            $posts = $this->post_service->getByPost($request->all())
+            $user = auth("sanctum")->user();
+
+            $posts = (!empty($user) && $user->should_display_ads == 0) ? new LengthAwarePaginator([], 0, AppConstants::API_PAGINATION_SIZE) :
+                $this->post_service->getByPost($request->all())
                 ->status()
                 ->unblocked()
                 ->hideGroupPosts()
+                ->latest()
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
 
-            // Collect pagination data
             $data = collectPagination($posts);
 
-            // Save post impressions
             $post_ids = $data["data"]?->pluck("id")?->toArray() ?? [];
             $this->post_stats_service->savePostImpressions($post_ids, ["impressions" => true]);
 
-            // Transform with resource
             $data["data"] = PromotedPostResource::collection($posts);
 
             return ApiHelper::validResponse("Promoted Posts returned successfully", $data);

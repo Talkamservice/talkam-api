@@ -27,13 +27,12 @@ class PlansController extends Controller
     public function index(Request $request)
     {
         try {
-            $builder = $this->plan_service;
             $plan_id = $this->plan_service->fetchCurrentPlan();
     
             if (!empty($plan_id)) {
-                $builder = $builder->listByCurrentPlan($plan_id);
+                $builder = $this->plan_service->listByCurrentPlan($plan_id);
             } else {
-                $builder = $builder->list();
+                $builder = $this->plan_service->list();
             }
 
             $plans = $builder->get();

@@ -228,6 +228,14 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("thread/add", [NotificationController::class, "sendThreadNotification"])->name("send-thread-notification");
             Route::get("get-notification-status", [NotificationController::class, "notificationStatus"])->name("get-notification-status");
         });
+
+        Route::prefix("posts")->as("posts.")->group(function () {
+            Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions/list");
+        });
+        
+        Route::prefix("groups")->as("groups.")->group(function () {
+            Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
+        });
     });
 });
 

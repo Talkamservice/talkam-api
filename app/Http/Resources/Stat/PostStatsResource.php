@@ -12,9 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostStatsResource extends JsonResource
 {
-    public function __construct(public $resource, public $countries = null, public $show_countries_stats = true) {
-
-    }
+    public function __construct(public $resource, public $countries = null, public $show_countries_stats = true) {}
     /**
      * Transform the resource into an array.
      *
@@ -24,14 +22,17 @@ class PostStatsResource extends JsonResource
 
     public function toArray($request)
     {
+        $reaction_stats = $this->reactionStats();
+
         return [
             "id" => $this->id,
-            "comments" => $this->comments,
-            "likes" => $this->likes,
-            "dislikes" => $this->dislikes,
+            "comments" => $reaction_stats["comments"],
+            "likes" => $reaction_stats["likes"],
+            "dislikes" => $reaction_stats["dislikes"],
             "shares" => $this->shares,
             "impressions" => $this->impressions,
-            "engagements" => divideNumber($this->impressions, $this->likes),
+            "engagements" => divideNumber($this->impressions, $reaction_stats["likes"]),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this),
             "followers" => $this->followers,
             "profile_visits" => $this->profile_visits,
             "clicks" => $this->clicks,
@@ -44,14 +45,16 @@ class PostStatsResource extends JsonResource
 
     public function model(Model $model)
     {
+        $reaction_stats = $this->reactionStats();
         return [
             "id" => $model->id,
-            "comments" => $model->comments,
-            "likes" => $model->likes,
-            "dislikes" => $model->dislikes,
+            "comments" => $reaction_stats["comments"],
+            "likes" => $reaction_stats["likes"],
+            "dislikes" => $reaction_stats["dislikes"],
             "shares" => $model->shares,
             "impressions" => $model->impressions,
-            "engagements" => divideNumber($model->impressions, $model->likes),
+            "engagements" => divideNumber($model->impressions, $reaction_stats["likes"]),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model),
             "followers" => $model->followers,
             "profile_visits" => $model->profile_visits,
             "clicks" => $model->clicks,
@@ -59,6 +62,13 @@ class PostStatsResource extends JsonResource
             "max_time_spent" => $model->max_time_spent,
             "created_at" => formatDate($model->created_at),
         ];
+    }
+
+    public function calcEngagementRates($reaction_stats, $model)
+    {
+        $engagement_rates = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $model->shares) / 100;
+        $data = int_format($engagement_rates, 2);
+        return $data;
     }
 
     public function countriesStats()
