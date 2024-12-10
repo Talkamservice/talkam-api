@@ -54,7 +54,7 @@ class GroupController extends Controller
     public function getPromoteGroups(Request $request)
     {
         try {
-            $groups = $this->group_service->getByPromotedGroups($request->all())->paginate(AppConstants::API_PAGINATION_SIZE);
+            $groups = $this->group_service->getByPromotedGroups($request->all())->latest()->paginate(AppConstants::API_PAGINATION_SIZE);
             $data = collectPagination($groups);
     
             // Collect the group ids for impressions tracking

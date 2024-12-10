@@ -70,6 +70,7 @@ class PostController extends Controller
                 ->status()
                 ->unblocked()
                 ->hideGroupPosts()
+                ->latest()
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
 

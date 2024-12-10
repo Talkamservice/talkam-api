@@ -219,7 +219,6 @@ class GroupService
         }
         if (!empty($key = $data["status"] ?? null)) {
             $builder = $builder->where("status", $key);
-            $builder = $builder->where("status", $key);
         }
 
         return $builder;
