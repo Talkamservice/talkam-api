@@ -46,11 +46,12 @@ class PostStatsResource extends JsonResource
 
     public function model(Model $model)
     {
+        $reaction_stats = $this->reactionStats();
         return [
             "id" => $model->id,
-            "comments" => $model->comments,
-            "likes" => $model->likes,
-            "dislikes" => $model->dislikes,
+            "comments" => $reaction_stats["comments"],
+            "likes" => $reaction_stats["likes"],
+            "dislikes" => $reaction_stats["dislikes"],
             "shares" => $model->shares,
             "impressions" => $model->impressions,
             "engagements" => divideNumber($model->impressions, $model->likes),
