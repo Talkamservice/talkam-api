@@ -33,7 +33,7 @@ class SubscriptionResource extends JsonResource
     {
         return [
             'id' => $model->id,
-            "plan" => PlanResource::make($model->plan),
+            "plan" => PlanResource::custom($model->plan),
             "flutterwave_subscription_id" => $model->flutterwave_subscription_id,
             "status" => $model->status,
             "expires_at" => formatDate($model->expires_at),
