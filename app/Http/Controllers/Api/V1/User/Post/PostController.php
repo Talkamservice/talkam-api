@@ -19,9 +19,6 @@ use App\Services\Post\PostStatsService;
 use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 use function PHPUnit\Framework\isEmpty;
