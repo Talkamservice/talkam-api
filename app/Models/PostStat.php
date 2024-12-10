@@ -31,9 +31,9 @@ class PostStat extends Model
             $comments = $this->post->comments()->topLevel()->count();
     
             return [
-                "likes" => $reactions->likes,
-                "comments" => $comments,
-                "dislikes" => $reactions->dislikes,
+                "likes" => intval($reactions->likes),
+                "comments" => intval($comments),
+                "dislikes" => intval($reactions->dislikes),
             ];
         }
     
