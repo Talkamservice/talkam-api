@@ -220,7 +220,7 @@ class UserService
             (new ActivityLogService)
                 ->setEvent("updated")
                 ->setTitle("User Account Updated")
-                ->setDescription(($user?->email) . " update their account")
+                ->setDescription(($user?->email) . " updated their account")
                 ->setType(ActivityLogConstants::SYSTEM_URL_TYPE)
                 ->setActivity(ActivitiesConstants::UPDATED_USER_ACCOUNT)
                 ->setModel(User::class, $user->id)

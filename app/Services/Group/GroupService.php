@@ -207,22 +207,18 @@ class GroupService
     {
         $builder = Group::with("creator")
             ->whereHas('promotions', function ($query) {
-                $query->whereNull('post_id') // Ensure `post_id` is NULL
+                $query->whereNull('post_id') 
                     ->where(function ($query) {
-                        // Ensure promotion has not expired
                         $query->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
                     })
-                    ->where('status', StatusConstants::ACTIVE); // Ensure promotion is active
-            }); // Collection of groups
+                    ->where('status', StatusConstants::ACTIVE);
+            });
             
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
         }
-
-        // Apply status filter here, before pagination
-
         if (!empty($key = $data["status"] ?? null)) {
-            $builder = $builder->where("status", $key); // Apply the status filter on the query
+            $builder = $builder->where("status", $key);
             $builder = $builder->where("status", $key);
         }
 
