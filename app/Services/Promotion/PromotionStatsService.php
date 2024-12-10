@@ -114,13 +114,12 @@ class PromotionStatsService
 
     public function getPromotionData($period = 'month',)
     {
-        // Set the current period and previous period based on the selected period
         switch ($period) {
             case 'day':
                 $currentStartDate = Carbon::today();
                 $previousStartDate = Carbon::yesterday();
                 $interval = 'hour';
-                $dataPoints =  Carbon::now()->hour; // 24 hours in a day
+                $dataPoints =  24; // 24 hours in a day
                 break;
             case 'week':
                 $currentStartDate = Carbon::now()->startOfWeek();
@@ -153,7 +152,7 @@ class PromotionStatsService
         // Fetch the current and previous period data
         $currentData = $this->fetchData($currentStartDate, $interval, $dataPoints);
         $previousData = $this->fetchData($previousStartDate, $interval, $dataPoints);
-// dd($currentStartDate, $interval, $dataPoints);
+
         // Calculate percentage changes
         $totalPromotionPercentage = $this->calculatePercentageChange($currentData['total_promotions'], $previousData['total_promotions']);
         $postAdsChangePercentage = $this->calculatePercentageChange($currentData['total_post_ads'], $previousData['total_post_ads']);
@@ -162,7 +161,6 @@ class PromotionStatsService
         $groupAdsRevenueChangePercentage = $this->calculatePercentageChange($currentData['total_group_ads_revenue'], $previousData['total_group_ads_revenue']);
         $freemiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_freemium_users'], $previousData['total_freemium_users']);
         $premiumUsersChangePercentage = $this->calculatePercentageChange($currentData['total_premium_users'], $previousData['total_premium_users']);
-// dd($currentData['total_freemium_users'],);
         return [
             'totalPromotions' => $currentData['total_promotions'],
             'currentPostAds' => $currentData['total_post_ads'],
@@ -215,7 +213,6 @@ class PromotionStatsService
         for ($i = 0; $i < $dataPoints; $i++) {
             $startOfInterval = $startDate->copy()->add($i, $interval);
             $endOfInterval = $startOfInterval->copy()->endOf($interval);
-
             $total_post_ads[$i] = $promotions->clone()->whereNotNull("post_id")
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
@@ -251,13 +248,19 @@ class PromotionStatsService
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->sum("cost");
 
-            $total_premium_users[$i] = User::whereHas('activeSubscription')
-                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
-                ->count();
+                $total_premium_users[$i] = User::where('status', StatusConstants::ACTIVE)
+                ->whereHas('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
+                    $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
+                })->count();
+            
 
-            $total_freemium_users[$i] = User::
-                 whereDoesntHave('activeSubscription')
-                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])->count();
+                $total_freemium_users[$i] = User::where('status', StatusConstants::ACTIVE)
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval]) // Filter users created in a specific period
+                ->whereDoesntHave('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
+                    $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
+                })
+                ->count();
+            
         }
 
         return [
@@ -273,6 +276,7 @@ class PromotionStatsService
             'total_premium_users' => $total_premium_users,
         ];
     }
+
 
     private function calculatePercentageChange($currentData, $previousData)
     {
