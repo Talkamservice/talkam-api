@@ -205,8 +205,8 @@ class PromotionStatsService
         $total_group_ads = array_fill(0, $dataPoints, 0);
         $total_post_ads_revenue = array_fill(0, $dataPoints, 0);
         $total_group_ads_revenue = array_fill(0, $dataPoints, 0);
-        $total_freemium_users = array_fill(0, $dataPoints, 0);
-        $total_premium_users = array_fill(0, $dataPoints, 0);
+        // $total_freemium_users = array_fill(0, $dataPoints, 0);
+        // $total_premium_users = array_fill(0, $dataPoints, 0);
         $total_promotions = array_fill(0, $dataPoints, 0);
         $total_successful_promotions = array_fill(0, $dataPoints, 0);
         $total_pending_promotions = array_fill(0, $dataPoints, 0);
@@ -255,11 +255,12 @@ class PromotionStatsService
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->count();
 
-            $total_freemium_users[$i] = User::where('status', StatusConstants::ACTIVE)->whereDoesntHave('activeSubscription')
-                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
-                ->count();
+                $total_freemium_users[$i] = User::where('status', StatusConstants::ACTIVE)
+                ->whereDoesntHave('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
+                    $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
+                })->count();
+            
         }
-
 
         return [
             'total_successful_promotions' => $total_successful_promotions,

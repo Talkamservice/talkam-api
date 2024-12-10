@@ -21,7 +21,7 @@
                 <div class="dropdown">
                     <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ !empty(request()->period) ? 'Sort Stats By ' . ucfirst(request()->period) : 'Sort Stats By' }}<i
+                       Sort Stats By {{ucfirst(request()->period ?? 'month')}}<i
                             class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
@@ -33,7 +33,7 @@
                 </div>
 
                 <!-- Hidden input to capture selected period -->
-                <input type="hidden" name="period" id="selected-period" value="{{ request('period', 'month') }}">
+                <input type="hidden" name="period" id="selected-period" value="{{ request()->period ?? 'month'}}">
             </form>
 
         </div>
