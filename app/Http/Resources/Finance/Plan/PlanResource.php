@@ -21,6 +21,7 @@ class PlanResource extends JsonResource
     {
         $user = auth("sanctum")->user();
         $position = Location::get();
+        $currency_code = isset($position->currencyCode) ? $position->currencyCode : null;
 
         $data = [
             'id' => $this->id,
@@ -32,7 +33,7 @@ class PlanResource extends JsonResource
             "status" => $this->status,
             "country" => $user?->country?->name,
             "is_active_subscription" => false,
-            "currency" => MethodsHelper::validateCurrencyCode($position->currencyCode) ?? $this->plan?->currency?->short_name ?? "USD",
+            "currency" => MethodsHelper::validateCurrencyCode($currency_code) ?? $this->plan?->currency?->short_name ?? "USD",
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
             "benefits" => PlanBenefitResource::collection($this->whenLoaded("benefits", $this->benefits)),
             "created_at" => formatDate($this->created_at),

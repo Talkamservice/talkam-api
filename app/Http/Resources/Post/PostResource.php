@@ -5,7 +5,6 @@ namespace App\Http\Resources\Post;
 use App\Constants\Post\PostConstants;
 use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\PostCategory\PostCategoryResource;
-use App\Http\Resources\Promotion\PromotionResource;
 use App\Http\Resources\Users\UserResource;
 use App\Models\PostReport;
 use App\Models\UserPostReaction;

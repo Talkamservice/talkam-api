@@ -12,13 +12,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PromotionResource extends JsonResource
 {
+    public function __construct(public $resource, public $show_countries_stats = true) {}
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-    public $resource;
 
     public function toArray($request)
     {
@@ -28,7 +28,6 @@ class PromotionResource extends JsonResource
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
             "post" => !empty($this->post) ? PostResource::make($this->post) : null,
             "group" => !empty($this->group) ? GroupResource::make($this->group) : null,
-            // "state" => !empty($this->state) ? PostResource::custom($this->state) : null,
             "country" => $countries->isNotEmpty() ? CountryResource::collection($countries) : null,
             "min_age" => $this->min_age,
             "max_age" => $this->max_age,
@@ -40,7 +39,7 @@ class PromotionResource extends JsonResource
             "total_reach" => $this->total_reach,
             "status" => $this->status,
             "expires_at" => formatDate($this->expires_at),
-            "stats" => PostStatsResource::make($this->stat(), $countries),
+            "stats" => PostStatsResource::make($this->stat(), $countries, $this->show_countries_stats),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
         ];
