@@ -290,12 +290,11 @@ class PostService
     {
         $builder = Post::with("user")
             ->whereHas('promotions', function ($query) {
-                $query->whereNull('group_id') // Ensure `group_id` is NULL
+                $query->whereNull('group_id')
                     ->where(function ($query) {
-                        // Ensure promotion has not expired
                         $query->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
                     })
-                    ->where('status', StatusConstants::ACTIVE); // Ensure promotion is active
+                    ->where('status', StatusConstants::ACTIVE); 
             });
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
