@@ -478,8 +478,10 @@ class MethodsHelper
             'UGX', 'USD', 'XOF', 'ZMW'
         ];
     
-        if (in_array(strtoupper($currencyCode), $validCurrencies, true)) {
-            return strtoupper($currencyCode);
+        if (!empty($currencyCode)) {
+            if (in_array(strtoupper($currencyCode), $validCurrencies, true)) {
+                return strtoupper($currencyCode);
+            }
         }
 
         return null;
