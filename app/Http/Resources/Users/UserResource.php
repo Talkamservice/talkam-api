@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Users;
 
+use App\Helpers\MethodsHelper;
 use App\Http\Resources\Finance\Subscription\SubscriptionResource;
 use App\Http\Resources\Location\CountryResource;
 use App\Http\Resources\Location\StateResource;
@@ -28,6 +29,8 @@ class UserResource extends JsonResource
             "blocked_user_id" => auth("sanctum")->id(),
         ])->exists();
 
+        $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? "USD";
+
         return [
             "id" => (int) $this->id,
             "avatar" => $this->avatar,
@@ -49,6 +52,7 @@ class UserResource extends JsonResource
             "public_group_count" => $this->public_group_count ?? 0,
             "date_of_birth" => formatDateOfBirth($this->date_of_birth),
             "should_display_ads" => $this->should_display_ads,
+            "pricing_currency" => $currency_code_,
             "active_subscription" => !empty($this->activeSubscription) ? SubscriptionResource::custom($this->activeSubscription) : null,
             "state" => !empty($this->state) ? StateResource::make($this->whenLoaded("state", $this->state)) : null,
             "country" => !empty($this->country) ? CountryResource::make($this->whenLoaded("country", $this->country)) : null,
