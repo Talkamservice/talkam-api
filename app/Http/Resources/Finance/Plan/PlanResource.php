@@ -4,6 +4,7 @@ namespace App\Http\Resources\Finance\Plan;
 
 use App\Constants\Account\User\UserConstants;
 use App\Helpers\MethodsHelper;
+use App\Models\Currency;
 use App\Models\Plan;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Stevebauman\Location\Facades\Location;
@@ -22,18 +23,22 @@ class PlanResource extends JsonResource
         $user = auth("sanctum")->user();
         $position = Location::get();
         $currency_code = isset($position->currencyCode) ? $position->currencyCode : null;
+        $currency_code_ = MethodsHelper::validateCurrencyCode($currency_code) ?? $this->currency?->short_name ?? "USD";
 
+        $display_price = $this->displayPrice();
+        $local_rate = self::calcLocalPrice($currency_code_, $display_price);
+        
         $data = [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             "frequency" => $this->defaultDuration()?->frequency,
-            'price' => $this->displayPrice(),
+            'price' => $local_rate ?? $this->displayPrice(),
             "discount" => $this->defaultDuration()?->discount,
             "status" => $this->status,
             "country" => $user?->country?->name,
             "is_active_subscription" => false,
-            "currency" => MethodsHelper::validateCurrencyCode($currency_code) ?? $this->plan?->currency?->short_name ?? "USD",
+            "currency" => $currency_code_,
             "durations" => PlanDurationResource::collection($this->whenLoaded("durations", $this->durations)),
             "benefits" => PlanBenefitResource::collection($this->whenLoaded("benefits", $this->benefits)),
             "created_at" => formatDate($this->created_at),
@@ -56,16 +61,30 @@ class PlanResource extends JsonResource
 
     public static function custom(Plan $model)
     {
+        $position = Location::get();
+        $currency_code = isset($position->currencyCode) ? $position->currencyCode : null;
+        $currency_code_ = MethodsHelper::validateCurrencyCode($currency_code) ?? $plan?->currency?->short_name ?? "USD";
+        $display_price = $model->displayPrice();
+        $local_rate = self::calcLocalPrice($currency_code_, $display_price);
+
         return [
             'id' => $model->id,
             'name' => $model->name,
             'description' => $model->description,
             "frequency" => $model->defaultDuration()?->frequency,
-            'price' => $model->displayPrice(),
+            "currency" => $currency_code_,
+            'price' => $local_rate ?? $model->displayPrice(),
             "discount" => $model->defaultDuration()?->discount,
             "status" => $model->status,
             "created_at" => formatDate($model->created_at),
             "updated_at" => formatDate($model->updated_at)
         ];
+    }
+
+    public static function calcLocalPrice($currency_code, $amount)
+    {
+        $rate = Currency::status()->where("short_name", $currency_code)->first()?->price_per_dollar;
+        $data = $rate * $amount;
+        return $data;
     }
 }

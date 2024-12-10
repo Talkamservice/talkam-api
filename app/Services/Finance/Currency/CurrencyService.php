@@ -69,4 +69,27 @@ class CurrencyService
         $currencies = Currency::query();
         return $currencies;
     }
+
+    public function updateRate($short_name, $rate)
+    {
+        $currency = Currency::where("short_name", $short_name)->first();
+
+        if (empty($currency)) {
+            $currency = Currency::firstOrCreate([
+                "group" => CurrencyConstants::FIAT_GROUP,
+                "short_name" => $short_name,
+            ], [
+                "name" => $short_name,
+                "price_per_dollar" => $rate,
+                "type" => $short_name,
+                "status" => StatusConstants::ACTIVE
+            ]);
+        }
+
+        $currency->update([
+            "price_per_dollar" => $rate
+        ]);
+
+        return $currency;
+    }
 }
