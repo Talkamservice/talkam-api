@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User\Promotion;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\AppConstants;
+use App\Constants\General\StatusConstants;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Promotion\PromotionPricingResource;
@@ -22,16 +23,16 @@ class PromotionPricingSettingController extends Controller
         $this->promotion_pricing_service = new PromotionPricingService;
     }
 
-    public function promotionPricing($promotion_pricing)
+    public function promotionPricing(Request $request)
     {
         try {
             $user = auth()->user();
-            if ($user && !is_null($user->country_id)) {
-                $promotionPricingResource = PromotionPricing::where('id', $promotion_pricing)
-                    ->where('country_id', $user->country_id)
+            if ($user && !is_null($user->pricing_country_id)) {
+                $promotionPricingResource = PromotionPricing::where('country_id', $user->pricing_country_id)
+                    ->where("status", StatusConstants::ACTIVE)
                     ->first();
             } else {
-                $promotionPricingResource = PromotionPricing::where('id', $promotion_pricing)->first();
+                $promotionPricingResource = PromotionPricing::where('default', 1)->first();
             }
             $data = PromotionPricingResource::make($promotionPricingResource);
             return ApiHelper::validResponse("Promotions returned successfully", $data);

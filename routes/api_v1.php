@@ -235,7 +235,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions.list");
         });
-        Route::get("promotion-pricings/{id}/get", [PromotionPricingSettingController::class, "promotionPricing"])->name("promotion-pricings.get");
+        Route::get("promotion-pricings/get", [PromotionPricingSettingController::class, "promotionPricing"])->name("promotion-pricings.get");
     });
 });
 

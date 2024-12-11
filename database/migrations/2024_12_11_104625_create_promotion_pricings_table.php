@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('country_id')->constrained('countries')->cascadeOnDelete();
             $table->foreignId('currency_id')->constrained('currencies')->cascadeOnDelete();
             $table->double('amount')->nullable();
+            $table->double("max_daily_amount")->nullable()->default(0);
+            $table->tinyInteger("default")->default(0);
             $table->bigInteger('impressions')->nullable();
             $table->string('status')->nullable()->default(StatusConstants::ACTIVE);
             $table->timestamps();
