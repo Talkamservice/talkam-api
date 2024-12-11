@@ -89,6 +89,9 @@
                                 <li class="slide">
                                     <a href="{{ route('admin.country-plan-pricings.index') }}" class="side-menu__item list-item list-item-sub">Country</a>
                                 </li>
+                                <li class="slide">
+                                    <a href="{{ route('admin.promotion-pricings.index') }}" class="side-menu__item list-item list-item-sub">Promotion Pricing</a>
+                                </li>
                             </li>
                         </ul>
                     </li>
