@@ -19,8 +19,11 @@ class PromotionPricingResource extends JsonResource
             "id" => $this->id,
             "amount" => $this->amount,
             "impressions" => $this->impressions,
-            "currency-name" => $this->currency->name,
-            "currency-symbol" => $this->currency->symbol,
+            'currency' => [
+                "name" => $this->currency->name,
+                "symbol" => $this->currency->symbol,
+                "short_name" => $this->currency->short_name,
+            ],
             "country" => !empty($this->country) ? CountryResource::make($this->whenLoaded("country", $this->country)) : null,
             "status" => $this->status,
         ];

@@ -56,7 +56,7 @@ class PromotionPricingSettingController extends Controller
     {
         try {
             $this->promotion_pricing_service->save($request->all());
-            return redirect()->route("admin.promotion-pricings.index")->with(NotificationConstants::SUCCESS_MSG, 'country plan pricing created successfully.');
+            return redirect()->route("admin.promotion-pricings.index")->with(NotificationConstants::SUCCESS_MSG, 'Promotion pricing created successfully.');
         } catch (ValidationException $e) {
             throw $e;
         } catch (Throwable $e) {
@@ -78,9 +78,9 @@ class PromotionPricingSettingController extends Controller
      */
     public function edit(string $id)
     {
-        $country_plan_pricing = $this->promotion_pricing_service->getById($id);
+        $promotion_pricing = $this->promotion_pricing_service->getById($id);
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.create', [
-            'promotion-pricing' => $country_plan_pricing,
+            'promotion_pricing' => $promotion_pricing,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
             'countries' => Country::all(),
             'currencies' => Currency::all(),
