@@ -201,17 +201,17 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("finance")->as("finance.")->group(function () {
 
-            // Route::prefix("plans")->as("plans")->group(function () {
-            //     Route::get("/", [PlansController::class,  "index"])->name("index");
-            //     Route::get("{plan}/show", [PlansController::class,  "show"])->name("show");
-            // });
+            Route::prefix("plans")->as("plans")->group(function () {
+                Route::get("/", [PlansController::class,  "index"])->name("index");
+                Route::get("{plan}/show", [PlansController::class,  "show"])->name("show");
+            });
 
-            // Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
-            //     Route::get("/", [SubscriptionsController::class,  "index"])->name("index");
-            //     Route::get("{subscription}/show", [SubscriptionsController::class,  "show"])->name("show");
-            //     Route::post("initiate", [SubscriptionsController::class,  "initiate"])->name("initiate");
-            //     Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
-            // });
+            Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
+                Route::get("/", [SubscriptionsController::class,  "index"])->name("index");
+                Route::get("{subscription}/show", [SubscriptionsController::class,  "show"])->name("show");
+                Route::post("initiate", [SubscriptionsController::class,  "initiate"])->name("initiate");
+                Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
+            });
 
             Route::prefix("payments")->as("payments")->group(function () {
                 Route::post("callback", [PaymentController::class,  "callback"])->name("callback");
