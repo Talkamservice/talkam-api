@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
 use App\Http\Controllers\Api\V1\User\Post\SearchController;
 use App\Http\Controllers\Api\V1\User\PostCategory\PostCategoryController;
 use App\Http\Controllers\Api\V1\User\Promotion\PromotionController;
+use App\Http\Controllers\Api\V1\User\Promotion\PromotionPricingSettingController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\Web\FaqController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
@@ -200,23 +201,23 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("finance")->as("finance.")->group(function () {
 
-            Route::prefix("plans")->as("plans")->group(function () {
-                Route::get("/", [PlansController::class,  "index"])->name("index");
-                Route::get("{plan}/show", [PlansController::class,  "show"])->name("show");
-            });
-    
-            Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
-                Route::get("/", [SubscriptionsController::class,  "index"])->name("index");
-                Route::get("{subscription}/show", [SubscriptionsController::class,  "show"])->name("show");
-                Route::post("initiate", [SubscriptionsController::class,  "initiate"])->name("initiate");
-                Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
-            });
+            // Route::prefix("plans")->as("plans")->group(function () {
+            //     Route::get("/", [PlansController::class,  "index"])->name("index");
+            //     Route::get("{plan}/show", [PlansController::class,  "show"])->name("show");
+            // });
+
+            // Route::prefix("subscriptions")->as("subscriptions.")->group(function () {
+            //     Route::get("/", [SubscriptionsController::class,  "index"])->name("index");
+            //     Route::get("{subscription}/show", [SubscriptionsController::class,  "show"])->name("show");
+            //     Route::post("initiate", [SubscriptionsController::class,  "initiate"])->name("initiate");
+            //     Route::post("{subscription}/cancel", [SubscriptionsController::class,  "cancel"])->name("cancel");
+            // });
 
             Route::prefix("payments")->as("payments")->group(function () {
                 Route::post("callback", [PaymentController::class,  "callback"])->name("callback");
             });
-        });     
-    
+        });
+
 
         Route::prefix("notifications")->as("notifications.")->group(function () {
             Route::get("list", [NotificationController::class, "index"])->name("index");
@@ -232,10 +233,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("posts")->as("posts.")->group(function () {
             Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions/list");
         });
-        
+
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
         });
+        Route::get("promotion-pricings/{id}/get", [PromotionPricingSettingController::class, "promotionPricing"])->name("promotion-pricings.get");
     });
 });
 
@@ -301,7 +303,7 @@ Route::prefix('user')->as('user.')->group(function () {
     });
     Route::prefix("groups")->as("groups.")->group(function () {
         Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
-
     });
+
 });
 Route::post('/broadcasting/auth', [AuthController::class, "authenticate"])->middleware('auth:sanctum');
