@@ -173,7 +173,7 @@ class PostStatsService
     function createContentEngagementUser($post_stat, $user_id, $user_type)
     {
         if (!empty($post_id = $post_stat->post_id)) {
-            ContentEngagementUser::firstOrCreate([
+            $engagement = ContentEngagementUser::updateOrCreate([
                 "model_type" => Post::class,
                 "model_id" => $post_id,
                 "user_type" => $user_type,
@@ -182,12 +182,14 @@ class PostStatsService
         }
 
         if (!empty($group_id = $post_stat->group_id)) {
-            ContentEngagementUser::firstOrCreate([
+            $engagement = ContentEngagementUser::updateOrCreate([
                 "model_type" => Group::class,
                 "model_id" => $group_id,
                 "user_type" => $user_type,
                 "user_id" => $user_id,
             ]);
         }
+
+        return $engagement ?? null;
     }
 }
