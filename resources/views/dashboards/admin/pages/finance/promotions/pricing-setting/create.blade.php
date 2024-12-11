@@ -59,15 +59,6 @@
                                     </div>
                                 </div>
 
-
-                                <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Max Daily Amount</label>
-                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <!-- Display current lowered cost if it exists -->
-                                        <input type="number" class="form-control" name="max_daily_amount" id="input-placeholder1" value="{{ old('max_daily_amount', ($promotion_pricing->max_daily_amount ?? '')) }}" placeholder="Enter Max Daily Amount">
-                                    </div>
-                                </div>
-
                                 <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Amount</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
@@ -83,6 +74,15 @@
                                         <input type="number" class="form-control" name="impressions" id="input-placeholder2" value="{{ old('impressions', ($promotion_pricing->impressions ?? '')) }}" placeholder="Enter Number of impressions">
                                     </div>
                                 </div>
+
+                                <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Max Daily Amount</label>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <!-- Display current lowered cost if it exists -->
+                                        <input type="number" class="form-control" name="max_daily_amount" id="input-placeholder1" value="{{ old('max_daily_amount', ($promotion_pricing->max_daily_amount ?? '')) }}" placeholder="Enter Max Daily Amount">
+                                    </div>
+                                </div>
+                                
                                 <div class="row col-xl-10 col-sm-12">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Default</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
