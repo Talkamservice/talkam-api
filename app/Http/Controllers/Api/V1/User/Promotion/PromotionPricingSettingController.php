@@ -25,9 +25,13 @@ class PromotionPricingSettingController extends Controller
     {
         try {
             $user = auth()->user();
-            $promotion_pricing = !is_null($user->pricing_country_id) ? PromotionPricing::where('country_id', $user->pricing_country_id)
+            $promotion_pricing = !is_null($user->pricing_country_id) ? PromotionPricing::where('country_id', $user?->pricing_country_id)
                 ->where("status", StatusConstants::ACTIVE)
-                ->first() : PromotionPricing::where('default', 1)->latest()->first();
+                ->first() : null;
+
+            if (empty($promotion_pricing)) {
+                $promotion_pricing = PromotionPricing::where('default', 1)->latest()->first();
+            }
 
             $data = !empty($promotion_pricing) ? PromotionPricingResource::make($promotion_pricing) : null;
             return ApiHelper::validResponse("Promotions returned successfully", $data);
