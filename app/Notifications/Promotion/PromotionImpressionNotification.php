@@ -72,7 +72,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
                 'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
                 'extra' => [
-                    "type" => $this->promotion->type,
+                    "type" => isset($this->promotion?->type) ? $this->promotion?->type : null,
                 ],
             ])
             ->initiate();
