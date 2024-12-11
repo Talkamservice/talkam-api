@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services\Promotion;
+
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\PromotionPricing;
@@ -25,6 +26,8 @@ class PromotionPricingService
             "country_id" => 'required|exists:countries,id',
             "currency_id" => 'required|exists:countries,id',
             "amount" => "required|numeric",
+            "max_daily_amount" => "required|numeric",
+            "default" => "nullable|string",
             "impressions" => "required|numeric",
             'status' => 'string|nullable',
         ]);
@@ -47,8 +50,18 @@ class PromotionPricingService
                 "currency_id" => $data['currency_id'],
                 "amount" => $data['amount'],
                 "impressions" => $data['impressions'],
+                "max_daily_amount" => $data['max_daily_amount'],
+                "default" => $data['default'] ?? 0,
                 "status" => StatusConstants::ACTIVE,
             ]);
+
+            if ($promotion_pricing?->default == 1) {
+                PromotionPricing::whereNotIn("id", [$promotion_pricing?->id])
+                    ->update([
+                        "default" => 0
+                    ]);
+            }
+
             DB::commit();
             return $promotion_pricing->refresh();
         } catch (\Throwable $th) {

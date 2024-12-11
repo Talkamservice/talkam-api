@@ -44,6 +44,7 @@ class PromotionPricingSettingController extends Controller
     {
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.create', [
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
+            "boolOptions" => AppConstants::BOOL_OPTIONS,
             'countries' => Country::all(),
             'currencies' => Currency::all(),
         ]);
@@ -81,6 +82,7 @@ class PromotionPricingSettingController extends Controller
         $promotion_pricing = $this->promotion_pricing_service->getById($id);
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.create', [
             'promotion_pricing' => $promotion_pricing,
+            "boolOptions" => AppConstants::BOOL_OPTIONS,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
             'countries' => Country::all(),
             'currencies' => Currency::all(),
