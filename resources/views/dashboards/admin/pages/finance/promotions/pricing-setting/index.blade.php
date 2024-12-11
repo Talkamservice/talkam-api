@@ -39,13 +39,10 @@
                         <div class="p-2 flex-grow-1">
                             <p class="mb-0">
                                 <span class="fw-bold fs-6 text-dark">Note:</span>
-                                <span>All countries adhere to the standard plan pricing and discount structure. However, newly created countries have specific pricing adjustments while maintaining the original discount rates applicable to all plans.</span>
+                                <span>Each pricing plan defines the estimated number of impressions a promotion will generate based on the amount paid in a specific country.</span>
                             </p>
                         </div>
                     </div>
-
-
-
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
