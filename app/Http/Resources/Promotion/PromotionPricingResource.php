@@ -22,7 +22,7 @@ class PromotionPricingResource extends JsonResource
             "max_daily_amount" => $this->max_daily_amount,
             'currency' => [
                 "name" => $this->currency->name,
-                "symbol" => $this->currency->symbol,
+                // "symbol" => $this->currency->symbol,
                 "short_name" => $this->currency->short_name,
             ],
             "country" => !empty($this->country) ? CountryResource::make($this->whenLoaded("country", $this->country)) : null,
