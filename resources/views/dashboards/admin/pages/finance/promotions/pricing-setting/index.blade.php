@@ -66,7 +66,7 @@
                                         <td>{{ $promotion_pricing->country->name }}</td>
                                         <td>{{ $promotion_pricing->currency->name }}</td>
                                         <td>{{ $promotion_pricing->formattedAmount() }}</td>
-                                        <td>{{ $promotion_pricing->impressions }}</td>
+                                        <td>{{ number_format($promotion_pricing->impressions) }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($promotion_pricing->status) }}-transparent">
                                                 {{ $promotion_pricing->status }}
