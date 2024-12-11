@@ -200,7 +200,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
 
         Route::prefix("finance")->as("finance.")->group(function () {
-
             Route::prefix("plans")->as("plans")->group(function () {
                 Route::get("/", [PlansController::class,  "index"])->name("index");
                 Route::get("{plan}/show", [PlansController::class,  "show"])->name("show");
@@ -233,7 +232,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("posts")->as("posts.")->group(function () {
             Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions/list");
         });
-
         Route::prefix("groups")->as("groups.")->group(function () {
             Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
         });
