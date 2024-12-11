@@ -45,6 +45,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('promotion:send-notifications')->dailyAt('00:00');
         $schedule->command('promotion:send-expired-notifications')->everyMinute();
         $schedule->command('finance:currency_rates')->weekly();
+        $schedule->command('process:post-stats-command')->everySixHours();
     }
 
     /**
