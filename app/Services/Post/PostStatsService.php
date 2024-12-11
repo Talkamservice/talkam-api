@@ -8,6 +8,7 @@ use App\Models\ContentEngagementUser;
 use App\Models\Group;
 use App\Models\Post;
 use App\Models\PostStat;
+use App\Models\PostStatLog;
 use App\Models\User;
 use App\Models\WebUser;
 use Illuminate\Support\Facades\Validator;
@@ -64,24 +65,36 @@ class PostStatsService
 
             $query = array_intersect_key($data, array_flip(["post_id", "group_id"]));
 
+
             $post_stat = PostStat::firstOrCreate($query);
+
+            $logData = array_fill_keys($fields_to_update, 0);
 
             foreach ($fields_to_update as $field) {
                 if (isset($data[$field]) && $data[$field] == true) {
                     $data[$field] = $post_stat->$field + 1;
+                    $logData[$field] = 1;
                 }
             }
 
             if (isset($data["time_spent"]) && $data["time_spent"] > $post_stat->max_time_spent) {
                 $data["max_time_spent"] = $data["time_spent"];
+                $logData["time_spent"] = $data["time_spent"];
             }
 
             if (isset($data["time_spent"]) && $data["time_spent"] < $post_stat->min_time_spent) {
                 $data["min_time_spent"] = $data["time_spent"];
+                $logData["time_spent"] = $data["time_spent"];
             }
 
             unset($data["time_spent"]);
             $post_stat->update($data);
+
+            PostStatLog::create(array_merge($logData, [
+                'post_id' => $post_stat->post_id,
+                'user_id' => auth("sanctum")->id() ?? null, // Optional user association
+                'logged_at' => now(),
+            ]));
 
             $user = auth("sanctum")->check() ? auth("sanctum")->user() : null;
 

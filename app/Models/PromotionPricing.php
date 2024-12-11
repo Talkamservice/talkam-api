@@ -26,9 +26,9 @@ class PromotionPricing extends Model
         return $this->belongsTo(Currency::class);
     }
 
-    public function formattedAmount()
+    public function formattedAmount($field = "amount")
     {
-        return format_money($this->amount, 2, $this->currency?->symbol ?? "$");
+        return format_money($this->$field, 2, $this->currency?->symbol ?? "$");
     }
 
     public function scopeSearch($query, $key)

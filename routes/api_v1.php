@@ -230,12 +230,12 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
 
         Route::prefix("posts")->as("posts.")->group(function () {
-            Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions/list");
+            Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions.list");
         });
         Route::prefix("groups")->as("groups.")->group(function () {
-            Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
+            Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions.list");
         });
-        Route::get("promotion-pricings/{id}/get", [PromotionPricingSettingController::class, "promotionPricing"])->name("promotion-pricings.get");
+        Route::get("promotion-pricings/get", [PromotionPricingSettingController::class, "promotionPricing"])->name("promotion-pricings.get");
     });
 });
 

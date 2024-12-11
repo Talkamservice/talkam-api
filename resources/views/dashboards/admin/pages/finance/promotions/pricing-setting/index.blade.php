@@ -35,11 +35,11 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="container d-flex align-items-center">
-                        <div class="p-2 flex-grow-1">
+                    <div class="d-flex justify-content-start align-items-center mb-2 alert alert-info">
+                        <div class="p-2 d-flex justify-content-center">
                             <p class="mb-0">
                                 <span class="fw-bold fs-6 text-dark">Note:</span>
-                                <span>Each pricing plan defines the estimated number of impressions a promotion will generate based on the amount paid in a specific country.</span>
+                                <span class="fw-bold text-dark">Current daily amount of impressions per post: <b>{{ number_format(1000) }}</b></span>
                             </p>
                         </div>
                     </div>
@@ -51,6 +51,7 @@
                                     <th scope="col">Country</th>
                                     <th scope="col">Currency</th>
                                     <th scope="col">Amount</th>
+                                    <th scope="col">Max Daily Amount</th>
                                     <th scope="col">Impressions</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Action</th>
@@ -63,6 +64,7 @@
                                         <td>{{ $promotion_pricing->country->name }}</td>
                                         <td>{{ $promotion_pricing->currency->name }}</td>
                                         <td>{{ $promotion_pricing->formattedAmount() }}</td>
+                                        <td>{{ $promotion_pricing->formattedAmount("max_daily_amount") }}</td>
                                         <td>{{ number_format($promotion_pricing->impressions) }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($promotion_pricing->status) }}-transparent">
