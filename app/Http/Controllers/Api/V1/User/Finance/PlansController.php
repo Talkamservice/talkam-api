@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\User\Finance;
 
 use App\Constants\Account\User\UserConstants;
 use App\Constants\General\ApiConstants;
-use App\Exceptions\Finance\PlanException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
