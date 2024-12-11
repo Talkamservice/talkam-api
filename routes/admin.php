@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\Finance\Plan\PlanBenefitsController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanController;
 use App\Http\Controllers\Admin\Finance\Plan\PlanCountryPricingController;
 use App\Http\Controllers\Admin\Finance\Promotion\PromotionController;
+use App\Http\Controllers\Admin\Finance\Promotion\PromotionPricingSettingController;
 use App\Http\Controllers\Admin\Finance\Subscription\Flutterwave\SubscriptionController;
 use App\Http\Controllers\Admin\Guideline\GuidelineController;
 use App\Http\Controllers\Admin\Member\MemberController;
@@ -55,6 +56,7 @@ Route::middleware(["auth"])->group(
             'plans' => PlanController::class,
             'country-plan-pricings' => PlanCountryPricingController::class,
             'promotions' => PromotionController::class,
+            'promotion-pricings' => PromotionPricingSettingController::class,
         ]);
 
 
@@ -169,8 +171,7 @@ Route::middleware(["auth"])->group(
         Route::get('view-flutterwave-plans', [PlanCountryPricingController::class, 'fetchFlutterwavePlans'])->name('view-flutterwave-plans');
 
         Route::delete('country-plan-pricings/{plan_pricing_id}/delete/{plan_pricing_provider_id}', [PlanCountryPricingController::class, 'deleteCountryPlanProvider'])->name('country-plan-pricings.provider.delete');
-
     }
 
-    
+
 );
