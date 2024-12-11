@@ -32,7 +32,7 @@ class PromotionPricingSettingController extends Controller
                     ->where("status", StatusConstants::ACTIVE)
                     ->first();
             } else {
-                $promotionPricingResource = PromotionPricing::where('default', 1)->first();
+                $promotionPricingResource = PromotionPricing::where('default', 1)->latest()->first();
             }
             $data = PromotionPricingResource::make($promotionPricingResource);
             return ApiHelper::validResponse("Promotions returned successfully", $data);

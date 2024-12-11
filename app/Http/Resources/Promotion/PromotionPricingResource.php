@@ -19,6 +19,7 @@ class PromotionPricingResource extends JsonResource
             "id" => $this->id,
             "amount" => $this->amount,
             "impressions" => $this->impressions,
+            "max_daily_amount" => $this->max_daily_amount,
             'currency' => [
                 "name" => $this->currency->name,
                 "symbol" => $this->currency->symbol,
