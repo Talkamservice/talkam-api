@@ -35,7 +35,12 @@ class PromotionPricing extends Model
     {
         return $query->where(function ($query) use ($key) {
             $query->where("status", "LIKE", "%$key%")
+                ->where("amount", "LIKE", "%$key%")
+                ->where("impressions", "LIKE", "%$key%")
                 ->whereHas("country", function ($query) use ($key) {
+                    $query->where("name", "LIKE", "%$key%");
+                })
+                ->whereHas("currency", function ($query) use ($key) {
                     $query->where("name", "LIKE", "%$key%");
                 });
         });
@@ -45,5 +50,4 @@ class PromotionPricing extends Model
     {
         return $this->country ? $this->country->name : null;
     }
-
 }
