@@ -8,6 +8,7 @@ use App\Constants\General\StatusConstants;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\PostPerformance;
 use App\Models\PromotionPricing;
 use App\Services\Promotion\PromotionPricingService;
 use Exception;
@@ -30,10 +31,14 @@ class PromotionPricingSettingController extends Controller
     {
         $search =  $request->get('search');
         $promotion_pricings = PromotionPricing::with(['country', 'currency'])->search($search)->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $post_performance = PostPerformance::whereNull("post_id")
+            ->where("group_id")
+            ->first();
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.index', [
             'promotion_pricings' => $promotion_pricings,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
             "sn" => $promotion_pricings->firstItem(),
+            "post_performance" => $post_performance
         ]);
     }
 
@@ -42,11 +47,15 @@ class PromotionPricingSettingController extends Controller
      */
     public function create()
     {
+        $post_performance = PostPerformance::whereNull("post_id")
+            ->where("group_id")
+            ->first();
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.create', [
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
             "boolOptions" => AppConstants::BOOL_OPTIONS,
             'countries' => Country::all(),
             'currencies' => Currency::all(),
+            "post_performance" => $post_performance
         ]);
     }
 
