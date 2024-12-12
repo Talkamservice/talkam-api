@@ -37,6 +37,11 @@ class Promotion extends Model
         return $this->belongsTo(Payment::class, "payment_id");
     }
 
+    public function promotionLocations()
+    {
+        return $this->hasMany(PromotionLocation::class, "promotion_id");
+    }
+
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
         return $query->where("status", $status);
