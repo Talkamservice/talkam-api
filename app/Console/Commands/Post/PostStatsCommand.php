@@ -29,39 +29,31 @@ class PostStatsCommand extends Command
     {
         $endDate = now();
         $startDate = $endDate->clone()->subHours(6);
-        $postIds = DB::table('post_stat_logs')->distinct()->pluck('post_id');
-        foreach ($postIds as $postId) {
-            $aggregatedStats = DB::table('post_stat_logs')
-                ->selectRaw("
+
+        $aggregatedStats = DB::table('post_stat_logs')
+            ->selectRaw("
                     AVG(daily_impressions) as avg_impressions_per_day, 
                     AVG(daily_time_spent) as avg_time_spent_per_day
                 ")
-                ->fromSub(function ($query) use ($postId, $startDate, $endDate) {
-                    $query->from('post_stat_logs')
-                        ->selectRaw("
+            ->fromSub(function ($query) use ($startDate, $endDate) {
+                $query->from('post_stat_logs')
+                    ->selectRaw("
                             DATE(logged_at) as day, 
                             SUM(impressions) as daily_impressions, 
                             SUM(time_spent) as daily_time_spent
                         ")
-                        ->where('post_id', $postId)
-                        ->whereBetween('logged_at', [$startDate, $endDate])
-                        ->groupBy(DB::raw("DATE(logged_at)"));
-                }, 'daily_stats')
-                ->first();
-                Log::info((array) $aggregatedStats);
-                
-            if ($aggregatedStats) {
-                DB::table('post_performances')->updateOrInsert(
-                    ['post_id' => $postId],
-                    [
-                        'avg_impressions_per_day' => $aggregatedStats->avg_impressions_per_day ?? 0,
-                        'avg_time_spent_per_day' => $aggregatedStats->avg_time_spent_per_day ?? 0,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]
-                );
-            }
+                    ->whereBetween('logged_at', [$startDate, $endDate])
+                    ->groupBy(DB::raw("DATE(logged_at)"));
+            }, 'daily_stats')
+            ->first();
+
+        if ($aggregatedStats) {
+            DB::table('post_performances')->updateOrInsert([
+                'avg_impressions_per_day' => $aggregatedStats->avg_impressions_per_day ?? 0,
+                'avg_time_spent_per_day' => $aggregatedStats->avg_time_spent_per_day ?? 0,
+            ]);
         }
+        
         $this->info('Post stats calculated and updated successfully.');
     }
 }
