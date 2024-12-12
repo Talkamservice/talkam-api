@@ -36,7 +36,7 @@ class PostStatsCommand extends Command
     {
         $stats = DB::table('post_stat_logs')
             ->whereNotNull("post_id")
-            ->whereNull("post_id")
+            ->whereNull("group_id")
             ->selectRaw("
                     AVG(daily_impressions) as avg_impressions_per_day, 
                     AVG(daily_time_spent) as avg_time_spent_per_day
@@ -53,6 +53,11 @@ class PostStatsCommand extends Command
             ->latest()->first();
 
         if ($stats) {
+            DB::table('post_performances')
+                ->whereNotNull("post_id")
+                ->whereNull("group_id")
+                ->delete();
+
             PostPerformance::create([
                 'avg_impressions_per_day' => $stats->avg_impressions_per_day ?? 0,
                 'avg_time_spent_per_day' => $stats->avg_time_spent_per_day ?? 0,
@@ -83,7 +88,7 @@ class PostStatsCommand extends Command
                 ->first();
 
             if ($stats) {
-                PostPerformance::firstOrCreate([
+                PostPerformance::updateOrCreate([
                     "post_id" => $post_id,
                 ], [
                     'avg_impressions_per_day' => $stats->avg_impressions_per_day ?? 0,
@@ -116,7 +121,7 @@ class PostStatsCommand extends Command
                 ->first();
 
             if ($stats) {
-                PostPerformance::firstOrCreate([
+                PostPerformance::updateOrCreate([
                     "group_id" => $group_id,
                 ], [
                     'avg_impressions_per_day' => $stats->avg_impressions_per_day ?? 0,
