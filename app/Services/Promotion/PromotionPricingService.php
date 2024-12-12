@@ -102,4 +102,35 @@ class PromotionPricingService
         $promotion_pricings = PromotionPricing::status()->latest();
         return $promotion_pricings;
     }
+
+    static function calculatePricing(array $data)
+    {
+        try {
+            $validator = Validator::make($data, [
+                "amount" => "required|numeric",
+                "daily_budget" => "required|numeric",
+                "duration" => "required|numeric",
+                "impressions" => "required|numeric",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            $daily_payment = $data["impressions"] / $data["amount"] * $data["daily_budget"];
+            $total_amount = $daily_payment * $data["duration"];
+            $total_impressions = $data["impressions"] * $data["duration"];
+
+            return [
+                "duration" => $data["duration"],
+                "total_amount" => $total_amount,
+                "daily_payment" => $daily_payment,
+                "total_impressions" => $total_impressions,
+            ];
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
