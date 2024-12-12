@@ -35,6 +35,7 @@ class PostStatsCommand extends Command
     public function withoutPostId()
     {
         $stats = DB::table('post_stat_logs')
+            ->whereNotNull("post_id")
             ->selectRaw("
                     AVG(daily_impressions) as avg_impressions_per_day, 
                     AVG(daily_time_spent) as avg_time_spent_per_day
@@ -48,7 +49,7 @@ class PostStatsCommand extends Command
                         ")
                     ->groupBy(DB::raw("DATE(logged_at)"));
             }, 'daily_stats')
-            ->first();
+            ->latest()->first();
 
         if ($stats) {
             PostPerformance::create([
