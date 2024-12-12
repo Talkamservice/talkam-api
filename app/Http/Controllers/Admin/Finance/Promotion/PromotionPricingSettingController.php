@@ -32,7 +32,7 @@ class PromotionPricingSettingController extends Controller
         $search =  $request->get('search');
         $promotion_pricings = PromotionPricing::with(['country', 'currency'])->search($search)->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         $post_performance = PostPerformance::whereNull("post_id")
-            ->where("group_id")
+            ->whereNull("group_id")
             ->first();
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.index', [
             'promotion_pricings' => $promotion_pricings,
@@ -48,7 +48,7 @@ class PromotionPricingSettingController extends Controller
     public function create()
     {
         $post_performance = PostPerformance::whereNull("post_id")
-            ->where("group_id")
+            ->whereNull("group_id")
             ->first();
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.create', [
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
