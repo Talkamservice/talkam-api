@@ -49,6 +49,7 @@ class PostStatsCommand extends Command
                 }, 'daily_stats')
                 ->first();
                 Log::info((array) $aggregatedStats);
+                
             if ($aggregatedStats) {
                 DB::table('post_performances')->updateOrInsert(
                     ['post_id' => $postId],
