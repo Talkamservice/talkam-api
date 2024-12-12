@@ -35,26 +35,25 @@ class PostStatsCommand extends Command
     public function withoutPostId()
     {
         $stats = DB::table('post_stat_logs')
-            ->whereNotNull("post_id")
             ->whereNull("group_id")
-            ->selectRaw("
-                    AVG(daily_impressions) as avg_impressions_per_day, 
-                    AVG(daily_time_spent) as avg_time_spent_per_day
-                ")
+                    ->selectRaw("
+                AVG(daily_impressions) as avg_impressions_per_day, 
+                AVG(daily_time_spent) as avg_time_spent_per_day
+            ")
             ->fromSub(function ($query) {
                 $query->from('post_stat_logs')
                     ->selectRaw("
-                            DATE(logged_at) as day, 
-                            SUM(impressions) as daily_impressions, 
-                            SUM(time_spent) as daily_time_spent
-                        ")
-                    ->groupBy(DB::raw("DATE(logged_at)"));
-            }, 'daily_stats')
-            ->latest()->first();
+                DATE(logged_at) as day, 
+                SUM(impressions) as daily_impressions, 
+                SUM(time_spent) as daily_time_spent,
+                group_id
+            ")
+                    ->groupBy(DB::raw("DATE(logged_at), group_id"));  // Also group by post_id and group_id
+            }, 'daily_stats')->first();
 
         if ($stats) {
             DB::table('post_performances')
-                ->whereNotNull("post_id")
+                ->whereNull("post_id")
                 ->whereNull("group_id")
                 ->delete();
 
