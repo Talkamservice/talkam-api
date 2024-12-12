@@ -36,6 +36,7 @@ class PostStatsCommand extends Command
     {
         $stats = DB::table('post_stat_logs')
             ->whereNotNull("post_id")
+            ->whereNull("post_id")
             ->selectRaw("
                     AVG(daily_impressions) as avg_impressions_per_day, 
                     AVG(daily_time_spent) as avg_time_spent_per_day
