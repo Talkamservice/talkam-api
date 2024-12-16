@@ -31,20 +31,25 @@ class PromotionPricing extends Model
         return format_money($this->$field, 2, $this->currency?->symbol ?? "$");
     }
 
-    public function scopeSearch($query, $key)
+    public function scopeSearch($query, $key = null)
     {
-        return $query->where(function ($query) use ($key) {
-            $query->where("status", "LIKE", "%$key%")
-                ->where("amount", "LIKE", "%$key%")
-                ->where("impressions", "LIKE", "%$key%")
-                ->whereHas("country", function ($query) use ($key) {
-                    $query->where("name", "LIKE", "%$key%");
-                })
-                ->whereHas("currency", function ($query) use ($key) {
-                    $query->where("name", "LIKE", "%$key%");
-                });
-        });
+        if (!empty($key)) {
+            $query->where(function ($query) use ($key) {
+                $query->orWhere("status", "LIKE", "%$key%")
+                    ->orWhere("amount", "LIKE", "%$key%")
+                    ->orWhere("impressions", "LIKE", "%$key%")
+                    ->orWhereHas("country", function ($query) use ($key) {
+                        $query->where("name", "LIKE", "%$key%");
+                    })
+                    ->orWhereHas("currency", function ($query) use ($key) {
+                        $query->where("name", "LIKE", "%$key%");
+                    });
+            });
+        }
+
+        return $query;
     }
+
 
     public function getCountryName()
     {
