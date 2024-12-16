@@ -39,4 +39,14 @@ class PromotionPricingSettingController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
+    public function calculatePricing(Request $request)
+    {
+        try {
+            $data = (new PromotionPricingService)->calculatePricing($request->all());
+            return ApiHelper::validResponse("Promotion pricing calculation successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
 }

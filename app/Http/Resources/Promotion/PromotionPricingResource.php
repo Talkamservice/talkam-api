@@ -24,8 +24,8 @@ class PromotionPricingResource extends JsonResource
             "impressions" => $this->impressions,
             "max_daily_amount" => self::calcLocalPrice($currency_code_, $this->max_daily_amount),
             'currency' => [
-                "name" => $this->currency->name,
-                "short_name" => $this->currency->short_name,
+                "name" => $currency_code_ ?? $this->currency->name,
+                "short_name" => $currency_code_ ?? $this->currency->short_name,
             ],
             "country" => !empty($this->country) ? CountryResource::make($this->whenLoaded("country", $this->country)) : null,
             "status" => $this->status,

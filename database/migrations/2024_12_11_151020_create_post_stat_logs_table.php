@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('post_stat_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("post_id")->constrained("posts")->cascadeOnDelete();
-            $table->foreignId("group_id")->constrained("groups")->cascadeOnDelete();
+            $table->foreignId("post_id")->nullable()->constrained("posts")->cascadeOnDelete();
+            $table->foreignId("group_id")->nullable()->constrained("groups")->cascadeOnDelete();
             $table->foreignId("user_id")->nullable()->constrained("users")->cascadeOnDelete();
             $table->bigInteger("comments")->default(0);
             $table->bigInteger("likes")->default(0);

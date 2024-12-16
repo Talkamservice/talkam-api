@@ -112,13 +112,12 @@ class UserService
             $data["pricing_country_id"] = countryByName()?->id ?? null;
         }
         
-        $user = User::create($data);
-
-        // Convert date_of_birth to Y-m-d format
         if (isset($data['date_of_birth'])) {
-            // Assuming the input is in 'Y-d-m' format, convert it to 'Y-m-d'
-            $data['date_of_birth'] = Carbon::createFromFormat('Y-d-m', $data['date_of_birth'])->format('Y-m-d');
+            $data['date_of_birth'] = Carbon::parse($data['date_of_birth'])->format('Y-m-d');
+            $data["age"] = Carbon::parse($data['date_of_birth'])->diffInYears(now());
         }
+
+        $user = User::create($data);
 
         if (!empty($avatar = $data["avatar"] ?? null)) {
             (new AvatarService)->setUser($user)->update([
@@ -197,10 +196,9 @@ class UserService
                 $data["password"] = Hash::make($data["password"]);
             }
 
-            // Convert date_of_birth to Y-m-d format
             if (isset($data['date_of_birth'])) {
-                // Assuming the input is in 'Y-d-m' format, convert it to 'Y-m-d'
-                $data['date_of_birth'] = Carbon::createFromFormat('Y-d-m', $data['date_of_birth'])->format('Y-m-d');
+                $data['date_of_birth'] = Carbon::parse($data['date_of_birth'])->format('Y-m-d');
+                $data["age"] = Carbon::parse($data['date_of_birth'])->diffInYears(now());
             }
 
             if (isset($data["interests"])) {

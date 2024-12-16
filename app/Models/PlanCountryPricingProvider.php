@@ -39,7 +39,7 @@ class PlanCountryPricingProvider extends Model
 
     public function getPercentage()
     {
-        $percentage = $this->price / $this->planDuration->price * 100;
+        $percentage = divideNumber($this->price, $this->planDuration?->price) * 100;
         return $percentage;
     }
 }

@@ -288,17 +288,34 @@ class PostService
 
     public function getByPost()
     {
-        $builder = Post::with("user")
+        $builder = Post::with('user')
             ->whereHas('promotions', function ($query) {
-                $query->whereNull('group_id')
-                    ->where(function ($query) {
-                        $query->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
-                    })
-                    ->where('status', StatusConstants::ACTIVE); 
+                $user = auth('sanctum')->user();
+                $query->whereNull('group_id');
+
+                if (!empty($country_id = $user?->country_id)) {
+                    $query->whereRelation("promotionLocations", 'country_id', $country_id);
+                }
+
+                if (!empty($age = $user?->age)) {
+                    $query->where(function ($q) use ($age) {
+                        $q->where('min_age', '<=', $age)
+                            ->where('max_age', '>=', $age);
+                    });
+                }
+
+                if (!empty($gender = $user?->gender)) {
+                    $query->where('gender', $gender);
+                }
+
+                $query->where(function ($q) {
+                    $q->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
+                })->where('status', StatusConstants::ACTIVE);
             });
+
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
-        }   
+        }
 
         if (!empty($key = $data["category_id"] ?? null)) {
             $builder = $builder->where("category_id", $key);

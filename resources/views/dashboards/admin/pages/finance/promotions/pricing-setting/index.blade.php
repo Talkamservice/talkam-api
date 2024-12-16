@@ -39,7 +39,7 @@
                         <div class="p-2 d-flex justify-content-center">
                             <p class="mb-0">
                                 <span class="fw-bold fs-6 text-dark">Note:</span>
-                                <span class="fw-bold text-dark">Current daily amount of impressions per post: <b>{{ number_format(1000) }}</b></span>
+                                <span class="fw-bold text-dark">Current daily amount of impressions per post: <b>{{ number_format($post_performance->avg_impressions_per_day ?? 0) }}</b></span>
                             </p>
                         </div>
                     </div>

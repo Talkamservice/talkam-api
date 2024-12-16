@@ -11,16 +11,16 @@ use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
+use App\Models\Currency;
 use App\Models\GroupMember;
 use App\Models\Promotion;
 use App\Models\PromotionLocation;
+use App\Models\PromotionPricing;
 use App\Services\ActivityLog\ActivityLogService;
 use App\Services\Finance\Payment\PaymentIntentService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
-use App\Services\Finance\Subscription\SubscriptionService;
 use App\Services\Group\GroupService;
 use App\Services\Post\PostService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -163,7 +163,7 @@ class PromotionService
         DB::beginTransaction();
         try {
             $promotion = $this->getById($id);
-            
+
             $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME;
             $payment = $this->payment_intent_service->setUser($promotion->user)
                 ->setAmount($promotion->cost)
@@ -190,6 +190,37 @@ class PromotionService
         }
     }
 
+    function getPromotionPricing()
+    {
+        $user = auth()->user();
+
+        $promotion_pricing = $user->pricing_country_id
+            ? PromotionPricing::where('country_id', $user->pricing_country_id)
+            ->where('status', StatusConstants::ACTIVE)
+            ->first()
+            : null;
+
+        if (!$promotion_pricing) {
+            $promotion_pricing = PromotionPricing::where('default', 1)->latest()->first();
+        }
+
+        $currency_code = MethodsHelper::validateCurrencyCode(app('position_country_code'))
+            ?? $promotion_pricing->currency?->short_name
+            ?? 'USD';
+
+        $rate = Currency::status()
+            ->where('short_name', $currency_code)
+            ->first()?->price_per_dollar
+            ?? 1;
+
+        $local_amount = $rate * $promotion_pricing->amount;
+
+        return [
+            'amount' => $local_amount,
+            'impressions' => $promotion_pricing->impressions
+        ];
+    }
+
     public function create(array $data)
     {
         DB::beginTransaction();
@@ -197,7 +228,17 @@ class PromotionService
             $data = self::validate($data);
             $user = $this->user = auth()->user();
 
-            $data["cost"] = $data["daily_budget"] * $data["duration"];
+            $promotion_pricing_data = $this->getPromotionPricing();
+
+            $promotion_pricing = (new PromotionPricingService)->calculatePricing([
+                "amount" => $promotion_pricing_data["amount"],
+                "daily_budget" => $data["daily_budget"],
+                "duration" => $data["duration"],
+                "impressions" => $promotion_pricing_data["impressions"],
+            ]);
+
+            $data["cost"] = $promotion_pricing["total_amount"];
+            $data["estimated_reach"] = $promotion_pricing["total_impressions"];
 
             $countries = $data["country_id"] ?? null;
             unset($data["country_id"]);
@@ -351,6 +392,4 @@ class PromotionService
             throw $th;
         }
     }
-
-  
 }
