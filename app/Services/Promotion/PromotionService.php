@@ -204,6 +204,10 @@ class PromotionService
             $promotion_pricing = PromotionPricing::where('default', 1)->latest()->first();
         }
 
+        if (!$promotion_pricing) {
+            $promotion_pricing = PromotionPricing::orderBy("id", "desc")->first();
+        }
+        
         $currency_code = MethodsHelper::validateCurrencyCode(app('position_country_code'))
             ?? $promotion_pricing->currency?->short_name
             ?? 'USD';

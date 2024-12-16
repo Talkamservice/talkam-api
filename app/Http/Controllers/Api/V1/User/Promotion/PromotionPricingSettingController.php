@@ -33,6 +33,10 @@ class PromotionPricingSettingController extends Controller
                 $promotion_pricing = PromotionPricing::where('default', 1)->latest()->first();
             }
 
+            if (empty($promotion_pricing)) {
+                $promotion_pricing = PromotionPricing::orderBy("id", "desc")->first();
+            }
+
             $data = !empty($promotion_pricing) ? PromotionPricingResource::make($promotion_pricing) : null;
             return ApiHelper::validResponse("Promotions returned successfully", $data);
         } catch (Exception $e) {

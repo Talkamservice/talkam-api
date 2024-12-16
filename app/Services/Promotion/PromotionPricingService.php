@@ -119,8 +119,8 @@ class PromotionPricingService
 
             $data = $validator->validated();
 
-            $daily_payment = $data["impressions"] / $data["amount"] * $data["daily_budget"];
-            $total_amount = $daily_payment * $data["duration"];
+            $daily_payment = $data["daily_budget"];
+            $total_amount = $data["daily_budget"] * $data["duration"];
             $total_impressions = $data["impressions"] * $data["duration"];
 
             return [
