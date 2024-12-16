@@ -70,7 +70,7 @@ class PromotionPricingSettingController extends Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (Throwable $e) {
-            throw $e;
+            // throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }
@@ -113,7 +113,7 @@ class PromotionPricingSettingController extends Controller
             // Catch the exception thrown when a country plan already exists
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $e->getMessage());
         } catch (Throwable $e) {
-            throw $e;
+            // throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
         }
     }
