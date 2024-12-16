@@ -46,7 +46,7 @@
                                         <td>{{ format_money($country_plan_pricing_provider->planDuration?->price) }}</td>
                                         <td>{{ format_money($country_plan_pricing_provider->price) }}</td>
                                         <td>{{ format_money($country_plan_pricing_provider->planDuration?->price - $country_plan_pricing_provider->price) ?? "N/A"}}</td>
-                                        <td>{{ $country_plan_pricing_provider->getPercentage()  }}</td>
+                                        <td>{{ number_format($country_plan_pricing_provider->getPercentage(), 2) }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($country_plan_pricing_provider->status) }}-transparent">
                                                 {{ $country_plan_pricing_provider->status }}
