@@ -6,6 +6,7 @@ use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\PlanCountryPricing;
@@ -57,6 +58,8 @@ class PlanCountryPricingController extends Controller
             return redirect()->route("admin.country-plan-pricings.index")->with(NotificationConstants::SUCCESS_MSG, 'country plan pricing created successfully.');
         } catch (ValidationException $e) {
             throw $e;
+        } catch (InvalidRequestException $e) {
+            return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $e->getMessage());
         } catch (Throwable $e) {
             throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
