@@ -32,26 +32,19 @@ class PostStatsCommand extends Command
         $postIds = DB::table('post_stat_logs')->distinct()->pluck('post_id');
         foreach ($postIds as $postId) {
             $aggregatedStats = DB::table('post_stat_logs')
-                ->selectRaw("
-                    AVG(daily_impressions) as avg_impressions_per_day, 
-                    AVG(daily_time_spent) as avg_time_spent_per_day
-                ")
+                ->selectRaw(" AVG(daily_impressions) as avg_impressions_per_day, 
+                AVG(daily_time_spent) as avg_time_spent_per_day ")
                 ->fromSub(function ($query) use ($postId, $startDate, $endDate) {
                     $query->from('post_stat_logs')
-                        ->selectRaw("
-                            DATE(logged_at) as day, 
-                            SUM(impressions) as daily_impressions, 
-                            SUM(time_spent) as daily_time_spent
-                        ")
-                        ->where('post_id', $postId)
-                        ->whereBetween('logged_at', [$startDate, $endDate])
-                        ->groupBy(DB::raw("DATE(logged_at)"));
-                }, 'daily_stats')
-                ->first();
-                Log::info((array) $aggregatedStats);
+                        ->selectRaw(" DATE(logged_at) as day, 
+                        SUM(impressions) as daily_impressions, 
+                        SUM(time_spent) as daily_time_spent ")
+                        ->where('post_id', $postId)->whereBetween('logged_at', [$startDate, $endDate])->groupBy(DB::raw("DATE(logged_at)"));
+                }, 'daily_stats')->first();
+            Log::info((array) $aggregatedStats);
             if ($aggregatedStats) {
                 DB::table('post_performances')->updateOrInsert(
-                    ['post_id' => $postId],
+                    ['id' => 1],
                     [
                         'avg_impressions_per_day' => $aggregatedStats->avg_impressions_per_day ?? 0,
                         'avg_time_spent_per_day' => $aggregatedStats->avg_time_spent_per_day ?? 0,

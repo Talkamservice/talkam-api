@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('post_performances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete();
+            $table->foreignId('post_id')->constrained('posts')->nullable()->cascadeOnDelete();
             $table->bigInteger('avg_impressions_per_day')->default(0);
             $table->bigInteger('avg_time_spent_per_day')->default(0);
             $table->timestamps();
