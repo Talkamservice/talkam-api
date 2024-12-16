@@ -73,7 +73,7 @@
                                         <td>{{ $sn++ }}</td>
                                         <td>{{ optional($promotion->user)->getName() ?? 'N/A' }}</td>
                                         <td>{{ $promotion->duration }}</td>
-                                        <td>{{ format_money($promotion->cost) }}</td>
+                                        <td>{{ format_money($promotion->cost, $promotion->currency?->symbol ?? $promotion->currency?->short_name) }}</td>
                                         <td>{{ $promotion->type() }}</td>
                                         <td><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#promotionStatContent_{{ $promotion->id }}">

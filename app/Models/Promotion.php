@@ -82,7 +82,10 @@ class Promotion extends Model
         return $query;
     }
 
-
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class, "currency_id");
+    }
 
     public function contentWebUrl()
     {
