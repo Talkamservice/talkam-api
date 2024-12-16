@@ -78,16 +78,16 @@
                     <!-- End::slide__category -->
 
                     <li class="slide has-sub">
-                        <a href="javascript:void(0);" class="side-menu__item list-item">
+                        <a href="javascript:void(0);" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.plans.index', 'admin.country-plan-pricings.index']) ? 'active' : '' }}">
                             <i class="bx bx-dollar-circle side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Billings</span>
                             <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide">
-                                <a href="{{ route('admin.plans.index') }}" class="side-menu__item list-item list-item-sub">Plans</a>
+                                <a href="{{ route('admin.plans.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.plans.index' ? 'active' : '' }}">Plans</a>
                                 <li class="slide">
-                                    <a href="{{ route('admin.country-plan-pricings.index') }}" class="side-menu__item list-item list-item-sub">Country</a>
+                                    <a href="{{ route('admin.country-plan-pricings.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.country-plan-pricings.index' ? 'active' : '' }}">Country</a>
                                 </li>
                             </li>
                         </ul>
@@ -95,7 +95,7 @@
 
                     @can(slugPermission('read promotion'))
                         <li class="slide has-sub">
-                            <a href="javascript:void(0);" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.promotions.index', 'admin.promotions-items']) ? 'active' : '' }}">
+                            <a href="javascript:void(0);" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.promotions.index', 'admin.promotions-items', 'admin.promotion-pricings.index']) ? 'active' : '' }}">
                                 <i class="bx bx-dollar-circle side-menu__icon list-item-icon"></i>
                                 <span class="side-menu__label list-item-label">Ads Management</span>
                                 <i class="fe fe-chevron-right side-menu__angle list-angle"></i>
