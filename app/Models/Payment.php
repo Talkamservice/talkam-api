@@ -21,6 +21,11 @@ class Payment extends Model
         return $this->belongsTo(User::class, "user_id");
     }
 
+    public function currencyModel()
+    {
+        return $this->belongsTo(Currency::class, "currency", "short_name");
+    }
+
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
         return $query->where("status", $status);
