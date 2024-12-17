@@ -32,8 +32,9 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         $period = $request->period ?? 'month';
+        $currency = $$request->currency ?? 'naira';
         $high_promotions = Promotion::orderBy("cost", "desc")->limit(5)->get();
-        $promotion_stats = $this->promotion_stat_service->stats(['period' => $period]);
+        $promotion_stats = $this->promotion_stat_service->stats(['period' => $period, 'currency' =>$currency]);
         $revenue_data = $this->promotion_stat_service->fetchrevenueData();
         return view('dashboards.admin.pages.finance.promotions.index', [
             'promotion_stats' => $promotion_stats,

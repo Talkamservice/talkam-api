@@ -2,6 +2,7 @@
 
 namespace App\Services\Promotion;
 
+use App\Constants\Finance\Currency\CurrencyConstants;
 use App\Constants\General\StatusConstants;
 use App\Models\Payment;
 use App\Models\Promotion;
@@ -24,11 +25,14 @@ class PromotionStatsService
     public function stats(array $data = [])
     {
         $period = $data["period"] ?? 'month';
-
+        $currency = $data['currency'] ?? 'naira';
         if (!in_array($period, ['day', 'week', 'month', 'year'])) {
             $period = 'month';
         }
-        $promotion_data = $this->getPromotionData($period);
+        if (!in_array($currency, CurrencyConstants::CURRENCY_OPTIONS)) {
+            $currency = 'Nigerian Naira (NGN)';
+        }
+        $promotion_data = $this->getPromotionData($period, $currency);
         // dd( $period,  $promotion_data );
         $data = [
             "cards" => [
@@ -39,6 +43,7 @@ class PromotionStatsService
                     "class" => "primary",
                     "percentage" => $promotion_data['postAdsChangePercentage'],
                     'period' =>  $period,
+                    'currency' => $currency,
                 ],
                 [
                     "icon" => "home",
@@ -46,7 +51,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentGroupAds']),
                     "class" => "primary",
                     "percentage" => $promotion_data['groupAdsChangePercentage'],
-                    'period' =>  $period,
+                    'currency' => $currency,
                 ],
                 [
                     "icon" => "receipt",
@@ -54,7 +59,7 @@ class PromotionStatsService
                     "value" => format_money(array_sum($promotion_data['currentPostAdRevenue'])),
                     "class" => "primary",
                     "percentage" => $promotion_data['postAdsRevenueChangePercentage'],
-                    'period' =>  $period,
+                    'currency' => $currency,
                 ],
                 [
                     "icon" => "home",
@@ -62,7 +67,7 @@ class PromotionStatsService
                     "value" => format_money(array_sum($promotion_data['currentGroupAdRevenue'])),
                     "class" => "primary",
                     "percentage" => $promotion_data['groupAdsRevenueChangePercentage'],
-                    'period' =>  $period,
+                    'currency' => $currency,
                 ],
                 [
                     "icon" => "users",
@@ -70,7 +75,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentFreemiumUser']),
                     "class" => "primary",
                     "percentage" => $promotion_data['freemiumUsersChangePercentage'],
-                    'period' =>  $period,
+                    'currency' => $currency,
                 ],
                 [
                     "icon" => "users",
@@ -78,7 +83,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentPremiumUser']),
                     "class" => "primary",
                     "percentage" => $promotion_data['premiumUsersChangePercentage'],
-                    'period' =>  $period,
+                    'currency' => $currency,
                 ]
             ],
 
@@ -248,19 +253,18 @@ class PromotionStatsService
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->sum("cost");
 
-                $total_premium_users[$i] = User::where('status', StatusConstants::ACTIVE)
+            $total_premium_users[$i] = User::where('status', StatusConstants::ACTIVE)
                 ->whereHas('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
                     $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
                 })->count();
-            
 
-                $total_freemium_users[$i] = User::where('status', StatusConstants::ACTIVE)
+
+            $total_freemium_users[$i] = User::where('status', StatusConstants::ACTIVE)
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval]) // Filter users created in a specific period
                 ->whereDoesntHave('activeSubscription', function ($query) use ($startOfInterval, $endOfInterval) {
                     $query->whereBetween('created_at', [$startOfInterval, $endOfInterval]);
                 })
                 ->count();
-            
         }
 
         return [

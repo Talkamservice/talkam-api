@@ -75,4 +75,95 @@ class CurrencyConstants
         return $amount / $price_per_dollar;
     }
 
+    const NIGERIA_NAIRA = 'Nigerian Naira (NGN)';
+    const US_DOLLAR = 'US Dollar (USD)';
+    const EURO = 'Euro (EUR)';
+    const BRITISH_POUND = 'British Pound (GBP)';
+    const CANADIAN_DOLLAR = 'Canadian Dollar (CAD)';
+    const CHILEAN_PESO = 'Chilean Peso (CLP)';
+    const COLOMBIAN_PESO = 'Colombian Peso (COP)';
+    const EGYPTIAN_POUND = 'Egyptian Pound (EGP)';
+    const GHANAIAN_CEDI = 'Ghanaian Cedi (GHS)';
+    const GUINEAN_FRANC = 'Guinean Franc (GNF)';
+    const KENYAN_SHILLING = 'Kenyan Shilling (KES)';
+    const MOROCCAN_DIRHAM = 'Moroccan Dirham (MAD)';
+    const MALAWIAN_KWACHA = 'Malawian Kwacha (MWK)';
+    const RWANDAN_FRANC = 'Rwandan Franc (RWF)';
+    const SIERRA_LEONEAN_LEONE = 'Sierra Leonean Leone (SLL)';
+    const TANZANIAN_SHILLING = 'Tanzanian Shilling (TZS)';
+    const UGANDAN_SHILLING = 'Ugandan Shilling (UGX)';
+    const CENTRAL_AFRICAN_CFA_FRANC = 'Central African CFA Franc (XAF)';
+    const WEST_AFRICAN_CFA_FRANC = 'West African CFA Franc (XOF)';
+    const SOUTH_AFRICAN_RAND = 'South African Rand (ZAR)';
+    const ZAMBIAN_KWACHA = 'Zambian Kwacha (ZMW)';
+
+    const SYMBOL_NIGERIA_NAIRA = '₦';
+    const SYMBOL_US_DOLLAR = '$';
+    const SYMBOL_EURO = '€';
+    const SYMBOL_BRITISH_POUND = '£';
+    const SYMBOL_CANADIAN_DOLLAR = 'C$';
+    const SYMBOL_CHILEAN_PESO = '$';
+    const SYMBOL_COLOMBIAN_PESO = '$';
+    const SYMBOL_EGYPTIAN_POUND = '£';
+    const SYMBOL_GHANAIAN_CEDI = '₵';
+    const SYMBOL_GUINEAN_FRANC = 'FG';
+    const SYMBOL_KENYAN_SHILLING = 'KSh';
+    const SYMBOL_MOROCCAN_DIRHAM = 'د.م';
+    const SYMBOL_MALAWIAN_KWACHA = 'MK';
+    const SYMBOL_RWANDAN_FRANC = 'FRw';
+    const SYMBOL_SIERRA_LEONEAN_LEONE = 'Le';
+    const SYMBOL_TANZANIAN_SHILLING = 'TSh';
+    const SYMBOL_UGANDAN_SHILLING = 'USh';
+    const SYMBOL_CENTRAL_AFRICAN_CFA_FRANC = 'FCFA';
+    const SYMBOL_WEST_AFRICAN_CFA_FRANC = 'CFA';
+    const SYMBOL_SOUTH_AFRICAN_RAND = 'R';
+    const SYMBOL_ZAMBIAN_KWACHA = 'ZK';
+
+    const CURRENCY_OPTIONS = [
+        self::NIGERIA_NAIRA,
+        self::US_DOLLAR,
+        self::EURO,
+        self::BRITISH_POUND,
+        self::CANADIAN_DOLLAR,
+        self::CHILEAN_PESO,
+        self::COLOMBIAN_PESO,
+        self::EGYPTIAN_POUND,
+        self::GHANAIAN_CEDI,
+        self::GUINEAN_FRANC,
+        self::KENYAN_SHILLING,
+        self::MOROCCAN_DIRHAM,
+        self::MALAWIAN_KWACHA,
+        self::RWANDAN_FRANC,
+        self::SIERRA_LEONEAN_LEONE,
+        self::TANZANIAN_SHILLING,
+        self::UGANDAN_SHILLING,
+        self::CENTRAL_AFRICAN_CFA_FRANC,
+        self::WEST_AFRICAN_CFA_FRANC,
+        self::SOUTH_AFRICAN_RAND,
+        self::ZAMBIAN_KWACHA,
+    ];
+
+    const CURRENCY_SYMBOLS = [
+        self::SYMBOL_NIGERIA_NAIRA,
+        self::SYMBOL_US_DOLLAR,
+        self::SYMBOL_EURO,
+        self::SYMBOL_BRITISH_POUND,
+        self::SYMBOL_CANADIAN_DOLLAR,
+        self::SYMBOL_CHILEAN_PESO,
+        self::SYMBOL_COLOMBIAN_PESO,
+        self::SYMBOL_EGYPTIAN_POUND,
+        self::SYMBOL_GHANAIAN_CEDI,
+        self::SYMBOL_GUINEAN_FRANC,
+        self::SYMBOL_KENYAN_SHILLING,
+        self::SYMBOL_MOROCCAN_DIRHAM,
+        self::SYMBOL_MALAWIAN_KWACHA,
+        self::SYMBOL_RWANDAN_FRANC,
+        self::SYMBOL_SIERRA_LEONEAN_LEONE,
+        self::SYMBOL_TANZANIAN_SHILLING,
+        self::SYMBOL_UGANDAN_SHILLING,
+        self::SYMBOL_CENTRAL_AFRICAN_CFA_FRANC,
+        self::SYMBOL_WEST_AFRICAN_CFA_FRANC,
+        self::SYMBOL_SOUTH_AFRICAN_RAND,
+        self::SYMBOL_ZAMBIAN_KWACHA,
+    ];
 }

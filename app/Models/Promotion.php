@@ -82,7 +82,10 @@ class Promotion extends Model
         return $query;
     }
 
-
+    public function formattedAmount($field = "cost")
+    {
+        return format_money($this->$field, 2, $this->payment->currency?->symbol ?? "$");
+    }
 
     public function contentWebUrl()
     {
