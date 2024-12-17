@@ -41,10 +41,10 @@
                         Select Currency: {{ request()->currency ?? 'Nigerian Naira (NGN)' }}<i
                             class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
                     </button>
-                    <ul class="dropdown-menu" role="menu">
+                    <ul class="dropdown-menu scrollable-dropdown" role="menu">
                         @foreach (\App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_OPTIONS as $currency)
                             <li>
-                                <a class="dropdown-item" href="javascript:void(0);" data-currency="{{ $currency }}"
+                                <a class="dropdown-item " href="javascript:void(0);" data-currency="{{ $currency }}"
                                     data-currency-short-name="{{ \App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_NAME_TO_CODE[$currency] ?? '' }}"
                                     data-currency-symbol="{{ \App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_NAME_TO_SYMBOL[$currency] ?? '' }}">
                                     {{ $currency }}
@@ -100,7 +100,7 @@
                                                         class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
                                                         {{ $card['percentage'] >= 0 ? '+' : '' }}{{ $card['percentage'] }}%
                                                     </p>
-                                                    {{-- <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span> --}}
+                                                    <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span>
                                                 </div>
                                             </div>
                                         </div>

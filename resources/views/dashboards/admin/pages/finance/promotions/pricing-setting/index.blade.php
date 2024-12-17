@@ -24,28 +24,35 @@
                 <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
                         <div class="form-group me-2">
-                            <input class="form-control" type="text" placeholder="Search...." name="search" value="{{ request()->search }}">
+                            <input class="form-control" type="text" placeholder="Search...." name="search"
+                                value="{{ request()->search }}">
                         </div>
                         <div class="form-group">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
                     <div class="">
-                        <a href="{{ route('admin.promotion-pricings.create') }}" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
+                        <a href="{{ route('admin.promotion-pricings.create') }}" class="btn btn-primary btn-sm"><i
+                                class="fe fe-plus"></i> <span class="ml-3">Create</span></a>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-start align-items-center mb-2 alert alert-info">
-                        <div class="p-2 d-flex justify-content-center">
+                    <div class="d-flex flex-column align-items-start mb-2 alert alert-info">
+                        <div class="p-2">
                             <p class="mb-0">
                                 <span class="fw-bold fs-6 text-dark">Note:</span>
-                                <span class="fw-bold text-dark">Current daily amount of impressions per post: <b>{{ number_format($post_performance->avg_impressions_per_day ?? 0) }}</b></span>
+                                <span class="fw-bold text-dark">Current daily amount of impressions per post:
+                                    <b>{{ number_format($post_performance->avg_impressions_per_day ?? 0) }}</b></span>
                             </p>
                         </div>
-                        <p>
-                            The default will be used for all promotions from countries that do not have specific impresions set for them
-                        </p>
+                        <div class="p-2">
+                            <p class="mt-2 mb-0 fw-bold text-dark">
+                                The default will be used for all promotions for countries that do not have specific
+                                impressions set for them.
+                            </p>
+                        </div>
                     </div>
+
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
@@ -67,19 +74,25 @@
                                         <td>{{ $promotion_pricing->country->name }}</td>
                                         <td>{{ $promotion_pricing->currency->name }}</td>
                                         <td>{{ $promotion_pricing->formattedAmount() }}</td>
-                                        <td>{{ $promotion_pricing->formattedAmount("max_daily_amount") }}</td>
+                                        <td>{{ $promotion_pricing->formattedAmount('max_daily_amount') }}</td>
                                         <td>{{ number_format($promotion_pricing->impressions) }}</td>
                                         <td>
-                                            <span class="badge bg-{{ pillClasses($promotion_pricing->status) }}-transparent">
+                                            <span
+                                                class="badge bg-{{ pillClasses($promotion_pricing->status) }}-transparent">
                                                 {{ $promotion_pricing->status }}
                                             </span>
                                         </td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
                                                 {{-- <a aria-label="anchor" href="{{ route('admin.promotion-pricings.show', $promotion_pricing->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i class="ri-eye-line"></i></a> --}}
-                                                <a aria-label="anchor" href="{{ route('admin.promotion-pricings.edit', $promotion_pricing->id) }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
-                                                <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light" href="#" onclick="openMultipleDeleteModal('{{ route('admin.promotion-pricings.destroy', $promotion_pricing->id) }}')" data-bs-toggle="tooltip"
-                                                    title="Delete this plan">
+                                                <a aria-label="anchor"
+                                                    href="{{ route('admin.promotion-pricings.edit', $promotion_pricing->id) }}"
+                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-info-light"><i
+                                                        class="ri-edit-line"></i></a>
+                                                <a class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
+                                                    href="#"
+                                                    onclick="openMultipleDeleteModal('{{ route('admin.promotion-pricings.destroy', $promotion_pricing->id) }}')"
+                                                    data-bs-toggle="tooltip" title="Delete this plan">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </a>
                                                 {{-- <a aria-label="anchor" data-bs-toggle="tooltip"
