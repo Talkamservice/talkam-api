@@ -24,15 +24,15 @@
             <div class="col-xl-12">
                 <div class="card custom-card">
                     <div class="card-body">
-                        <form action="{{ isset($promotion_pricing) ? route('admin.promotion-pricings.update', $promotion_pricing->id) : route('admin.promotion-pricings.store') }}" method="POST" enctype="multipart/form-data"> @csrf
+                        <form action="{{ isset($promotion_pricing) ? route('admin.promotion-pricings.update', $promotion_pricing->id) : route('admin.promotion-pricings.store') }}" method="POST" enctype="multipart/form-data"> 
+                            @csrf
                             @isset($promotion_pricing)
                                 @method('put')
                             @endisset
                             <div class="gy-4 mb-4">
                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country</label>
+                                    <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" data-bs-toggle="tooltip" title="Select the country for the promotion">Choose Country <span class="text-primary" style="cursor: pointer;">&#8505;</span></label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <!-- Dropdown for countries with search functionality -->
                                         <select name="country_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Country</option>
                                             @foreach ($countries as $country)
@@ -41,12 +41,11 @@
                                                 </option>
                                             @endforeach
                                         </select>
-
                                     </div>
                                 </div>
-
+                        
                                 <div class="row col-xl-10 col-sm-12">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Currency</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" data-bs-toggle="tooltip" title="Select the currency to be used">Currency <span class="text-primary" style="cursor: pointer;">&#8505;</span></label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="currency_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Currency</option>
@@ -58,33 +57,30 @@
                                         </select>
                                     </div>
                                 </div>
-
+                        
                                 <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Amount</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" data-bs-toggle="tooltip" title="Enter the promotional price amount">Amount <span class="text-primary" style="cursor: pointer;">&#8505;</span></label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <!-- Display current lowered cost if it exists -->
                                         <input type="number" class="form-control" name="amount" id="input-placeholder" value="{{ old('amount', ($promotion_pricing->amount ?? '')) }}" placeholder="Enter New Amount">
                                     </div>
                                 </div>
-
+                        
                                 <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Impressions</label>
+                                    <label for="input-placeholder2" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" data-bs-toggle="tooltip" title="Enter the number of impressions for the promotion">Impressions <span class="text-primary" style="cursor: pointer;">&#8505;</span></label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <!-- Display current lowered cost if it exists -->
                                         <input type="number" class="form-control" name="impressions" id="input-placeholder2" value="{{ old('impressions', ($promotion_pricing->impressions ?? '')) }}" placeholder="Enter Number of impressions">
                                     </div>
                                 </div>
-
+                        
                                 <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Max Daily Amount</label>
+                                    <label for="input-placeholder1" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" data-bs-toggle="tooltip" title="Enter the maximum daily amount for the promotion">Max Daily Amount <span class="text-primary" style="cursor: pointer;">&#8505;</span></label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <!-- Display current lowered cost if it exists -->
                                         <input type="number" class="form-control" name="max_daily_amount" id="input-placeholder1" value="{{ old('max_daily_amount', ($promotion_pricing->max_daily_amount ?? '')) }}" placeholder="Enter Max Daily Amount">
                                     </div>
                                 </div>
-                                
+                        
                                 <div class="row col-xl-10 col-sm-12">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Default</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" data-bs-toggle="tooltip" title="Choose if this pricing is the default option">Default <span class="text-primary" style="cursor: pointer;">&#8505;</span></label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="default" id="" class="form-control">
                                             <option value="" disabled selected>Select Option</option>
@@ -95,8 +91,9 @@
                                         </select>
                                     </div>
                                 </div>
+                        
                                 <div class="row col-xl-10 col-sm-12 mt-3">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
+                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" data-bs-toggle="tooltip" title="Select the current status of the pricing">Status <span class="text-primary" style="cursor: pointer;">&#8505;</span></label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="status" id="" class="form-control">
                                             <option value="" disabled selected>Select Option</option>
@@ -108,11 +105,22 @@
                                     </div>
                                 </div>
                             </div>
-
+                        
                             <div class="mt-3">
                                 <button type="submit" class="btn btn-success">Submit</button>
                             </div>
                         </form>
+                        
+                        <script>
+                            // Initialize tooltips
+                            document.addEventListener('DOMContentLoaded', function () {
+                                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                                })
+                            });
+                        </script>
+                        
                     </div>
                     <div class="card-footer d-none border-top-0">
                     </div>
