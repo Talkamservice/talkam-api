@@ -71,7 +71,7 @@
                                         <td>{{ $sn++ }}</td>
                                         <td>{{ $promotion->user->getName() }}</td>
                                         <td>{{ $promotion->duration }}</td>
-                                        <td>{{ format_money($promotion->cost) }}</td>
+                                        <td>{{ format_money($promotion->cost, 2, ($promotion->currency?->symbol ?? $promotion->currency?->short_name ?? $promotion->payment?->currencyModel?->symbol ?? "$")) }}</td>
                                         <td>{{ $promotion->type() }}</td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($promotion->status) }}-transparent">

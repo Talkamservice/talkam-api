@@ -32,8 +32,13 @@ class PromotionController extends Controller
     public function index(Request $request)
     {
         $period = $request->period ?? 'month';
-        $high_promotions = Promotion::orderBy("cost", "desc")->limit(5)->get();
-        $promotion_stats = $this->promotion_stat_service->stats(['period' => $period]);
+        $currency = request()->input('currency') ?? 'Nigerian Naira (NGN)';
+        $period = $request->currency_short_name ?? 'NGN';
+        $currency_symbol = $this->promotion_stat_service->getCurrencySymbol();
+        $high_promotions = Promotion::whereHas('currency', function ($query) use ($currency_symbol) {
+            $query->where('symbol', $currency_symbol);
+        })->with('currency')->orderBy("cost", "desc")->limit(5)->get();
+        $promotion_stats = $this->promotion_stat_service->stats(['period' => $period, 'currency' => $currency]);
         $revenue_data = $this->promotion_stat_service->fetchrevenueData();
         return view('dashboards.admin.pages.finance.promotions.index', [
             'promotion_stats' => $promotion_stats,

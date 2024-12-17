@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Finance\Promotion;
 use App\Constants\General\AppConstants;
 use App\Constants\General\NotificationConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\Currency;
@@ -69,7 +70,9 @@ class PromotionPricingSettingController extends Controller
             return redirect()->route("admin.promotion-pricings.index")->with(NotificationConstants::SUCCESS_MSG, 'Promotion pricing created successfully.');
         } catch (ValidationException $e) {
             throw $e;
-        } catch (Throwable $e) {
+        }catch (InvalidRequestException $e) {
+            return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $e->getMessage());
+        }catch (Throwable $e) {
             // throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
@@ -109,7 +112,7 @@ class PromotionPricingSettingController extends Controller
                 ->with(NotificationConstants::SUCCESS_MSG, 'Promotion pricing updated successfully');
         } catch (ValidationException $e) {
             throw $e;
-        } catch (Exception $e) {
+        } catch (InvalidRequestException $e) {
             // Catch the exception thrown when a country plan already exists
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $e->getMessage());
         } catch (Throwable $e) {

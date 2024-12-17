@@ -42,6 +42,9 @@
                                 <span class="fw-bold text-dark">Current daily amount of impressions per post: <b>{{ number_format($post_performance->avg_impressions_per_day ?? 0) }}</b></span>
                             </p>
                         </div>
+                        <p>
+                            The default will be used for all promotions from countries that do not have specific impresions set for them
+                        </p>
                     </div>
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
