@@ -52,10 +52,13 @@ class PromotionController extends Controller
 
     public function items(Request $request)
     {
-        $promotions = Promotion::latest()
+        $currency_symbol = $this->promotion_stat_service->getCurrencySymbol();
+        $promotions = Promotion::latest()->whereHas('currency', function ($query) use ($currency_symbol) {
+            $query->where('symbol',  $currency_symbol);
+        })->with('currency')
             ->search($request->search)
-            ->filterByType($request->type)  // Add filter for type
-            ->filterByStatus($request->status)  // Add filter for status
+            ->filterByType($request->type)
+            ->filterByStatus($request->status)
             ->with('user')
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
 
@@ -90,7 +93,10 @@ class PromotionController extends Controller
 
     public function getByStatus(Request $request)
     {
-        $promotions = Promotion::where('status', $request->status)->latest()->search($request->search)
+        $currency_symbol = $this->promotion_stat_service->getCurrencySymbol();
+        $promotions = Promotion::where('status', $request->status)->latest()->whereHas('currency', function ($query) use ($currency_symbol) {
+            $query->where('symbol',  $currency_symbol);
+        })->with('currency')->search($request->search)
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         $promotion_status = [];
         if ($request->status === StatusConstants::ACTIVE) {

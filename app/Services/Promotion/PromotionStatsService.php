@@ -57,6 +57,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentGroupAds']),
                     "class" => "primary",
                     "percentage" => $promotion_data['groupAdsChangePercentage'],
+                    'period' =>  $period,
                     'currency_symbol' => $currency_symbol,
                 ],
                 [
@@ -65,6 +66,7 @@ class PromotionStatsService
                     "value" => format_stat_money(array_sum($promotion_data['currentPostAdRevenue']), 2, $currency_symbol),
                     "class" => "primary",
                     "percentage" => $promotion_data['postAdsRevenueChangePercentage'],
+                    'period' =>  $period,
                     'currency_symbol' => $currency_symbol,
                 ],
                 [
@@ -73,6 +75,7 @@ class PromotionStatsService
                     "value" => format_stat_money(array_sum($promotion_data['currentGroupAdRevenue']), 2, $currency_symbol),
                     "class" => "primary",
                     "percentage" => $promotion_data['groupAdsRevenueChangePercentage'],
+                    'period' =>  $period,
                     'currency_symbol' => $currency_symbol,
                 ],
                 [
@@ -81,6 +84,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentFreemiumUser']),
                     "class" => "primary",
                     "percentage" => $promotion_data['freemiumUsersChangePercentage'],
+                    'period' =>  $period,
                     'currency_symbol' => $currency_symbol,
                 ],
                 [
@@ -89,6 +93,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentPremiumUser']),
                     "class" => "primary",
                     "percentage" => $promotion_data['premiumUsersChangePercentage'],
+                    'period' =>  $period,
                     'currency_symbol' => $currency_symbol,
                 ]
             ],

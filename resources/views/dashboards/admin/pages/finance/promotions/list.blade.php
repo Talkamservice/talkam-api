@@ -1,5 +1,6 @@
 @extends('dashboards.admin.layout.app')
 @section('content')
+
     <div class="container-fluid">
 
         <!-- Page Header -->
@@ -21,7 +22,8 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-between">
-                    <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between">
+                    <form action="{{ url()->current() }}" method="get" id="filter-form"
+                        class="d-flex justify-content-between">
                         <div class="form-group me-2">
                             <input class="form-control" type="text" placeholder="Search...." name="search"
                                 value="{{ request()->search }}">
@@ -36,7 +38,6 @@
                         <div class="form-group me-2">
                             <select name="status" class="form-control">
                                 <option value="">Select Status</option>
-                                <option value="">Select Status</option>
                                 <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Ongoing
                                 </option>
                                 <option value="Active" {{ request()->status == 'Active' ? 'selected' : '' }}>Completed
@@ -45,10 +46,31 @@
                                 </option>
                             </select>
                         </div>
+                        <div class="dropdown d-inline ms-2 ">
+                            <!-- Dropdown Button -->
+                            <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light p-2"
+                                id="dropdown-currency" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select Currency: {{ request()->currency ?? 'Nigerian Naira (NGN)' }}
+                                <i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                            </button>
+                            <ul class="dropdown-menu scrollable-dropdown" id="currency-dropdown" role="menu">
+                                @foreach (\App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_OPTIONS as $currency)
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);"
+                                            data-currency="{{ $currency }}">
+                                            {{ $currency }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <input type="hidden" name="currency" id="currency-input"
+                            value="{{ request()->currency ?? 'Nigerian Naira (NGN)' }}">
                         <div class="form-group">
                             <button class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
+
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -73,7 +95,8 @@
                                         <td>{{ $sn++ }}</td>
                                         <td>{{ optional($promotion->user)->getName() ?? 'N/A' }}</td>
                                         <td>{{ $promotion->duration }}</td>
-                                        <td>{{ format_money($promotion->cost, 2, ($promotion->currency?->symbol ?? $promotion->currency?->short_name ?? $promotion->payment?->currencyModel?->symbol ?? "$")) }}</td>
+                                        <td>{{ format_money($promotion->cost, 2, $promotion->currency?->symbol ?? ($promotion->currency?->short_name ?? ($promotion->payment?->currencyModel?->symbol ?? "$"))) }}
+                                        </td>
                                         <td>{{ $promotion->type() }}</td>
                                         <td><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#promotionStatContent_{{ $promotion->id }}">
@@ -149,5 +172,27 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update hidden currency input on dropdown item click
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const currency = this.getAttribute('data-currency');
+                    document.getElementById('currency-input').value = currency;
+                    document.getElementById('dropdown-currency').innerHTML =
+                        `Select Currency: ${currency} <i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>`;
+                });
+            });
 
+            // Prevent form submission unless Filter button is clicked
+            const form = document.getElementById('filter-form');
+            form.addEventListener('submit', (event) => {
+                if (event.submitter && event.submitter.classList.contains('btn-success')) {
+                    // Allow submission only for the Filter button
+                    return true;
+                }
+                event.preventDefault();
+            });
+        });
+    </script>
 @endsection

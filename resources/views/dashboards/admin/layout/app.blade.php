@@ -102,6 +102,17 @@
             width: 40%;
         }
     </style>
+    <style>
+        .scrollable-dropdown {
+        max-height: 200px; /* Adjust as needed */
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0.5rem;
+        border: 1px solid #ddd; /* Optional: add a border */
+        border-radius: 4px; /* Optional: add rounded corners */
+    }
+    
+    </style>
 </head>
 
 <body>
