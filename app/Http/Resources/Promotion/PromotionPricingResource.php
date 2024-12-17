@@ -10,6 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PromotionPricingResource extends JsonResource
 {
+    public function __construct(public $resource, public $should_calc = true) {}
+
     /**
      * Transform the resource into an array.
      *
@@ -20,9 +22,9 @@ class PromotionPricingResource extends JsonResource
         $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? $this->currency?->short_name ?? "USD";
         return [
             "id" => $this->id,
-            "amount" => self::calcLocalPrice($currency_code_, $this->amount),
+            "amount" => $this->should_calc ? self::calcLocalPrice($currency_code_, $this->amount) : $this->amount,
             "impressions" => $this->impressions,
-            "max_daily_amount" => self::calcLocalPrice($currency_code_, $this->max_daily_amount),
+            "max_daily_amount" => $this->should_calc ? self::calcLocalPrice($currency_code_, $this->max_daily_amount) : $this->max_daily_amount,
             'currency' => [
                 "name" => $currency_code_ ?? $this->currency->name,
                 "short_name" => $currency_code_ ?? $this->currency->short_name,

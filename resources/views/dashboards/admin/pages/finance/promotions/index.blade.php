@@ -43,13 +43,20 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         @foreach (\App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_OPTIONS as $currency)
-                            <li><a class="dropdown-item" href="javascript:void(0);"
-                                    data-currency="{{ $currency }}">{{ $currency }}</a></li>
+                            <li>
+                                <a class="dropdown-item" href="javascript:void(0);" data-currency="{{ $currency }}"
+                                    data-currency-short-name="{{ \App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_NAME_TO_CODE[$currency] ?? '' }}"
+                                    data-currency-symbol="{{ \App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_NAME_TO_SYMBOL[$currency] ?? '' }}">
+                                    {{ $currency }}
+                                </a>
+                            </li>
                         @endforeach
                     </ul>
                 </div>
                 <input type="hidden" name="period" id="selected-period" value="{{ request()->period ?? 'month' }}">
                 <input type="hidden" name="currency" id="selected-currency" value="{{ request()->currency ?? '' }}">
+                <input type="hidden" name="currency_short_name" id="selected-currency-short-name"
+                    value="{{ request()->currency_short_name ?? '' }}">
             </form>
 
         </div>
@@ -93,7 +100,7 @@
                                                         class="mb-0 text-{{ $card['percentage'] >= 0 ? 'success' : 'danger' }} fw-semibold">
                                                         {{ $card['percentage'] >= 0 ? '+' : '' }}{{ $card['percentage'] }}%
                                                     </p>
-                                                    <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span>
+                                                    {{-- <span class="text-muted op-7 fs-11">this {{ $card['period'] }}</span> --}}
                                                 </div>
                                             </div>
                                         </div>
@@ -153,7 +160,7 @@
                                                                 class="text-muted fs-12">{{ $high_promotion->user->email }}</span>
                                                         </div>
                                                         <div class="fw-semibold fs-15">
-                                                            {{ format_money($high_promotion->cost) }}</div>
+                                                            {{ format_stat_money($high_promotion->cost, 2) }}</div>
                                                     </div>
                                                 </li>
                                             @endforeach
@@ -239,13 +246,19 @@
                 item.addEventListener('click', function() {
                     const period = this.getAttribute('data-period');
                     const currency = this.getAttribute('data-currency');
+                    const currencyShortName = this.getAttribute('data-currency-short-name');  // Get short name (e.g., 'NGN')
                     const form = this.closest('form');
+                    console.log('Currency Short Name:', currencyShortName);
 
                     if (period) {
                         form.querySelector('#selected-period').value = period;
                     }
                     if (currency) {
                         form.querySelector('#selected-currency').value = currency;
+                    }
+                    if (currencyShortName) {
+                        form.querySelector('#selected-currency-short-name').value =
+                            currencyShortName;
                     }
 
                     form.submit(); // Submit the form automatically

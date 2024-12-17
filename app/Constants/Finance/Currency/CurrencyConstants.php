@@ -166,4 +166,54 @@ class CurrencyConstants
         self::SYMBOL_SOUTH_AFRICAN_RAND,
         self::SYMBOL_ZAMBIAN_KWACHA,
     ];
+
+    const CURRENCY_NAME_TO_SYMBOL = [
+        self::NIGERIA_NAIRA => self::SYMBOL_NIGERIA_NAIRA,
+        self::US_DOLLAR => self::SYMBOL_US_DOLLAR,
+        self::EURO => self::SYMBOL_EURO,
+        self::BRITISH_POUND => self::SYMBOL_BRITISH_POUND,
+        self::CANADIAN_DOLLAR => self::SYMBOL_CANADIAN_DOLLAR,
+        self::CHILEAN_PESO => self::SYMBOL_CHILEAN_PESO,
+        self::COLOMBIAN_PESO => self::SYMBOL_COLOMBIAN_PESO,
+        self::EGYPTIAN_POUND => self::SYMBOL_EGYPTIAN_POUND,
+        self::GHANAIAN_CEDI => self::SYMBOL_GHANAIAN_CEDI,
+        self::GUINEAN_FRANC => self::SYMBOL_GUINEAN_FRANC,
+        self::KENYAN_SHILLING => self::SYMBOL_KENYAN_SHILLING,
+        self::MOROCCAN_DIRHAM => self::SYMBOL_MOROCCAN_DIRHAM,
+        self::MALAWIAN_KWACHA => self::SYMBOL_MALAWIAN_KWACHA,
+        self::RWANDAN_FRANC => self::SYMBOL_RWANDAN_FRANC,
+        self::SIERRA_LEONEAN_LEONE => self::SYMBOL_SIERRA_LEONEAN_LEONE,
+        self::TANZANIAN_SHILLING => self::SYMBOL_TANZANIAN_SHILLING,
+        self::UGANDAN_SHILLING => self::SYMBOL_UGANDAN_SHILLING,
+        self::CENTRAL_AFRICAN_CFA_FRANC => self::SYMBOL_CENTRAL_AFRICAN_CFA_FRANC,
+        self::WEST_AFRICAN_CFA_FRANC => self::SYMBOL_WEST_AFRICAN_CFA_FRANC,
+        self::SOUTH_AFRICAN_RAND => self::SYMBOL_SOUTH_AFRICAN_RAND,
+        self::ZAMBIAN_KWACHA => self::SYMBOL_ZAMBIAN_KWACHA,
+    ];
+
+    const CURRENCY_NAME_TO_CODE = [
+        self::NIGERIA_NAIRA => 'NGN',
+        self::US_DOLLAR => 'USD',
+        self::EURO => 'EUR',
+        self::BRITISH_POUND => 'GBP',
+        self::CANADIAN_DOLLAR => 'CAD',
+        self::CHILEAN_PESO => 'CLP',
+        self::COLOMBIAN_PESO => 'COP',
+        self::EGYPTIAN_POUND => 'EGP',
+        self::GHANAIAN_CEDI => 'GHS',
+        self::GUINEAN_FRANC => 'GNF',
+        self::KENYAN_SHILLING => 'KES',
+        self::MOROCCAN_DIRHAM => 'MAD',
+        self::MALAWIAN_KWACHA => 'MWK',
+        self::RWANDAN_FRANC => 'RWF',
+        self::SIERRA_LEONEAN_LEONE => 'SLL',
+        self::TANZANIAN_SHILLING => 'TZS',
+        self::UGANDAN_SHILLING => 'UGX',
+        self::CENTRAL_AFRICAN_CFA_FRANC => 'XAF',
+        self::WEST_AFRICAN_CFA_FRANC => 'XOF',
+        self::SOUTH_AFRICAN_RAND => 'ZAR',
+        self::ZAMBIAN_KWACHA => 'ZMW',
+    ];
+    
+    
 }

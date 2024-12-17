@@ -60,6 +60,7 @@ class PromotionService
             "post_id" => "bail|nullable|exists:posts,id",
             "group_id" => "bail|nullable|exists:groups,id",
             "state_id" => "bail|nullable|exists:states,id",
+            "currency_id" => "bail|nullable|exists:currencies,id",
             "country_id" => "bail|nullable|array|max:3",
             "country_id.*" => "exists:countries,id",
             "min_age" => "bail|nullable|numeric|" . Rule::requiredIf(empty($id)),
@@ -112,6 +113,10 @@ class PromotionService
     {
         DB::beginTransaction();
         try {
+            $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME;
+            
+            $data["currency_id"] = Currency::where("short_name", $currency_code_)->first()?->id;
+            
             $promotion = $this->create($data);
 
             if (($data["payload"]["type"] ?? null) == "Post") {
@@ -125,8 +130,6 @@ class PromotionService
             if (empty($data["post_id"] ?? null) && empty($data["group_id"] ?? null) && empty($data["payload"] ?? null)) {
                 throw new InvalidRequestException("You cannot proceed with this promotion. Kindly select a post or group to proceed");
             }
-
-            $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME;
 
             $payment = $this->payment_intent_service->setUser($promotion->user)
                 ->setAmount($promotion->cost)
@@ -202,6 +205,10 @@ class PromotionService
 
         if (!$promotion_pricing) {
             $promotion_pricing = PromotionPricing::where('default', 1)->latest()->first();
+        }
+
+        if (!$promotion_pricing) {
+            $promotion_pricing = PromotionPricing::orderBy("id", "desc")->first();
         }
 
         $currency_code = MethodsHelper::validateCurrencyCode(app('position_country_code'))

@@ -1,10 +1,11 @@
 <script>
     // Retrieve monthly revenue data from backend
     let monthlyRevenue = @json($revenue_data['revenue']);
+    let currencySymbol = @json($revenue_data['currency_symbol']);
+    let currencyShortName  = @json(request()->currency_short_name);
 
-    // Function to format numbers with commas
     function formatNumber(number) {
-        return number.toLocaleString();  // Formats number with commas (e.g., 23,092)
+        return number.toLocaleString();
     }
 
     // ApexCharts configuration
@@ -50,7 +51,7 @@
         yaxis: {
             labels: {
                 formatter: function(value) {
-                    return "$" + formatNumber(value);
+                    return currencySymbol + formatNumber(value);
                 },
             },
             title: {
@@ -69,7 +70,7 @@
             customLegendItems: ["Revenue"],
         },
         title: {
-            text: "Revenue Analytics (USD)",
+            text: "Revenue Analytics" + " " + currencyShortName,
             align: "left",
             style: {
                 fontSize: ".8125rem",

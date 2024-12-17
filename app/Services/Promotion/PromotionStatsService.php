@@ -25,15 +25,21 @@ class PromotionStatsService
     public function stats(array $data = [])
     {
         $period = $data["period"] ?? 'month';
-        $currency = $data['currency'] ?? 'naira';
+        $currency = $data['currency'] ?? 'Nigerian Naira (NGN)';
+        // dd($currency);
         if (!in_array($period, ['day', 'week', 'month', 'year'])) {
             $period = 'month';
         }
-        if (!in_array($currency, CurrencyConstants::CURRENCY_OPTIONS)) {
-            $currency = 'Nigerian Naira (NGN)';
+        if ($period === 'month') {
+            $this->fetchrevenueData();
         }
+        if (!in_array($currency, CurrencyConstants::CURRENCY_OPTIONS)) {
+            $currency =  request()->input('currency') ?? 'Nigerian Naira (NGN)';
+        }
+
         $promotion_data = $this->getPromotionData($period, $currency);
-        // dd( $period,  $promotion_data );
+        $currency_symbol = $this->getCurrencySymbol();
+
         $data = [
             "cards" => [
                 [
@@ -43,7 +49,7 @@ class PromotionStatsService
                     "class" => "primary",
                     "percentage" => $promotion_data['postAdsChangePercentage'],
                     'period' =>  $period,
-                    'currency' => $currency,
+                    'currency_symbol' => $currency_symbol,
                 ],
                 [
                     "icon" => "home",
@@ -51,23 +57,23 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentGroupAds']),
                     "class" => "primary",
                     "percentage" => $promotion_data['groupAdsChangePercentage'],
-                    'currency' => $currency,
+                    'currency_symbol' => $currency_symbol,
                 ],
                 [
                     "icon" => "receipt",
                     "title" => "Total Post Ad Revenue",
-                    "value" => format_money(array_sum($promotion_data['currentPostAdRevenue'])),
+                    "value" => format_stat_money(array_sum($promotion_data['currentPostAdRevenue']), 2, $currency_symbol),
                     "class" => "primary",
                     "percentage" => $promotion_data['postAdsRevenueChangePercentage'],
-                    'currency' => $currency,
+                    'currency_symbol' => $currency_symbol,
                 ],
                 [
                     "icon" => "home",
                     "title" => "Total Group Ad Revenue",
-                    "value" => format_money(array_sum($promotion_data['currentGroupAdRevenue'])),
+                    "value" => format_stat_money(array_sum($promotion_data['currentGroupAdRevenue']), 2, $currency_symbol),
                     "class" => "primary",
                     "percentage" => $promotion_data['groupAdsRevenueChangePercentage'],
-                    'currency' => $currency,
+                    'currency_symbol' => $currency_symbol,
                 ],
                 [
                     "icon" => "users",
@@ -75,7 +81,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentFreemiumUser']),
                     "class" => "primary",
                     "percentage" => $promotion_data['freemiumUsersChangePercentage'],
-                    'currency' => $currency,
+                    'currency_symbol' => $currency_symbol,
                 ],
                 [
                     "icon" => "users",
@@ -83,7 +89,7 @@ class PromotionStatsService
                     "value" => array_sum($promotion_data['currentPremiumUser']),
                     "class" => "primary",
                     "percentage" => $promotion_data['premiumUsersChangePercentage'],
-                    'currency' => $currency,
+                    'currency_symbol' => $currency_symbol,
                 ]
             ],
 
@@ -194,15 +200,22 @@ class PromotionStatsService
         for ($month = 0; $month < 12; $month++) {
             $monthStart = Carbon::now()->startOfYear()->addMonths($month)->startOfMonth();
             $monthEnd = $monthStart->copy()->endOfMonth();
-            $monthlyRevenue[$month] = Promotion::whereHas("payment")->whereBetween('created_at', [$monthStart, $monthEnd])->sum('cost');
+            $currency_symbol = $this->getCurrencySymbol();
+            $monthlyRevenue[$month] = Promotion::whereHas("payment")->whereBetween('created_at', [$monthStart, $monthEnd])->whereHas('currency', function ($query) use ( $currency_symbol) {
+                $query->where('symbol',  $currency_symbol);
+            })->with('currency')->sum('cost');
         }
         return [
             'revenue' => $monthlyRevenue,
+            'currency_symbol' => $currency_symbol
         ];
     }
     private function fetchData($startDate, $interval, $dataPoints)
     {
-        $promotions = Promotion::whereHas("payment");
+         $currency_symbol = $this->getCurrencySymbol();
+        $promotions = Promotion::whereHas("payment")->whereHas('currency', function ($query) use ( $currency_symbol) {
+            $query->where('symbol',  $currency_symbol);
+        })->with('currency');
 
         $total_post_ads = array_fill(0, $dataPoints, 0);
         $total_group_ads = array_fill(0, $dataPoints, 0);
@@ -298,5 +311,18 @@ class PromotionStatsService
     {
         $promotion = (new SinglePromotionService())->getPromotionData($promotionId, $period);
         return $promotion;
+    }
+
+    public function getCurrencySymbol()
+    {
+        $currencyName = request()->input('currency') ?? 'Nigerian Naira (NGN)';
+        // dd($currencyName);
+         $currency_symbol = CurrencyConstants::CURRENCY_NAME_TO_SYMBOL[$currencyName] ?? null;
+        if ( $currency_symbol) {
+            return  $currency_symbol;
+        }
+        if (! $currency_symbol) {
+            return redirect()->back()->withErrors(['currency' => 'Not sure you selected the right currency.']);
+        }
     }
 }

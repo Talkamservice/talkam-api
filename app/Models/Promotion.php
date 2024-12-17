@@ -82,9 +82,9 @@ class Promotion extends Model
         return $query;
     }
 
-    public function formattedAmount($field = "cost")
+    public function currency()
     {
-        return format_money($this->$field, 2, $this->payment->currency?->symbol ?? "$");
+        return $this->belongsTo(Currency::class, "currency_id");
     }
 
     public function contentWebUrl()

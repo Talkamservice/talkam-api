@@ -4,6 +4,7 @@ use App\Constants\General\AppConstants;
 use App\Helpers\MethodsHelper;
 use App\Models\Country;
 use App\Models\User;
+use App\Services\Promotion\PromotionStatsService;
 use App\Services\User\BlockUserService;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -225,6 +226,12 @@ function findSpecialWords($string)
 
 function format_money($amount, $places = 2, $symbol = '$')
 {
+    return $symbol  . '' . int_format((float)$amount, $places);
+}
+
+function format_stat_money($amount, $places = 2, $symbol = [])
+{
+    $symbol = (new PromotionStatsService())->getCurrencySymbol();
     return $symbol  . '' . int_format((float)$amount, $places);
 }
 

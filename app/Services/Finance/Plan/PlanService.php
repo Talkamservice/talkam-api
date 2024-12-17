@@ -331,4 +331,11 @@ class PlanService
             return $response;
         }
     }
+
+    public static function calcLocalPrice($currency_code, $amount)
+    {
+        $rate = Currency::status()->where("short_name", $currency_code)->first()?->price_per_dollar;
+        $data = $rate * $amount;
+        return $data;
+    }
 }

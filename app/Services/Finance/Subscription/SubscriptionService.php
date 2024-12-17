@@ -2,15 +2,18 @@
 
 namespace App\Services\Finance\Subscription;
 
+use App\Constants\Finance\Currency\CurrencyConstants;
 use App\Constants\Finance\Payment\PaymentConstants;
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Helpers\MethodsHelper;
 use App\Models\PlanDuration;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\Finance\Payment\PaymentIntentService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
+use App\Services\Finance\Plan\PlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -130,9 +133,14 @@ class SubscriptionService
     {
         DB::beginTransaction();
         try {
+            $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? $plan_duration->plan?->currency?->short_name ?? CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME;
+            
+            $display = $plan_duration->displayPrice();
+            $local_rate = PlanService::calcLocalPrice($currency_code_, $display["price"]);
+
             $payment = $this->payment_intent_service->setUser($this->user)
-                ->setAmount($plan_duration->price)
-                ->setCurrency($plan_duration->plan?->currency?->short_name)
+                ->setAmount($local_rate)
+                ->setCurrency($currency_code_)
                 ->setAdditionalData([
                     "type" => PaymentConstants::DEBIT,
                     "status" => StatusConstants::PENDING,
@@ -155,4 +163,6 @@ class SubscriptionService
             throw $th;
         }
     }
+
+
 }
