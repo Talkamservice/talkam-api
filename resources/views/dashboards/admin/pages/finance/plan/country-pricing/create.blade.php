@@ -109,7 +109,7 @@
                                     <label for="status" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">
                                         Status
                                         <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" 
-                                           title="Select the status of the pricing. Options include 'Active' for current usage and 'Inactive' for pricing that is no longer in effect."></i>
+                                           title="Set the status of the plan (e.g., active, inactive)."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="status" id="status" class="form-control">
