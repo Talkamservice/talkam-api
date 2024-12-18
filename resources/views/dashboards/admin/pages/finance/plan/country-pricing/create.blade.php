@@ -30,77 +30,93 @@
                                 @method('put')
                             @endisset
                             <div class="gy-4 mb-4">
+                                <!-- Country Selection -->
                                 <div class="row col-xl-10 col-sm-12 mb-3">
                                     <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">
                                         Choose Country
-                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Select the country for this pricing plan"></i>
+                                        <i class="bi bi-info-circle text-primary" data-bs-toggle="tooltip" 
+                                           title="Select the country for which this pricing plan applies."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="country_id" id="country-select" class="form-select">
                                             <option value="" disabled selected>Select Country</option>
                                             @foreach ($countries as $country)
-                                                <option value="{{ $country->id }}" {{ (old('country_id') ?? ($country_plan->country_id ?? '')) == $country->id ? 'selected' : '' }}>
+                                                <option value="{{ $country->id }}" 
+                                                        {{ (old('country_id') ?? ($country_plan->country_id ?? '')) == $country->id ? 'selected' : '' }}>
                                                     {{ $country->name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
-                        
-                                <div class="row col-xl-10 col-sm-12">
+                            
+                                <!-- Type Selection -->
+                                <div class="row col-xl-10 col-sm-12 mb-3">
                                     <label for="type" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">
-                                        Types
-                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" title="Select the type of plan"></i>
+                                        Plan Type
+                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" 
+                                           title="Choose the type of plan to be applied."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="type" class="form-control typeSelect">
                                             <option value="" disabled selected>Select Option</option>
                                             @foreach ($typeOptions as $key => $value)
-                                                <option value="{{ $key }}" {{ (old('status') ?? ($country_plan->type ?? '')) == $key ? 'selected' : '' }}>
+                                                <option value="{{ $key }}" 
+                                                        {{ (old('status') ?? ($country_plan->type ?? '')) == $key ? 'selected' : '' }}>
                                                     {{ $value }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
-                        
+                            
+                                <!-- Plan Duration -->
                                 <div class="row col-xl-10 col-sm-12 mt-3" id="planDiv" style="display: none">
                                     <label for="plan-duration" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">
-                                        Choose Plan
-                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" title="Select the plan duration"></i>
+                                        Plan Duration
+                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" 
+                                           title="Choose the duration for this plan."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="plan_duration_id" id="plan-duration" class="form-select">
                                             <option value="" disabled selected>Select Plan</option>
                                             @foreach ($plan_durations as $plan_duration)
-                                                <option value="{{ $plan_duration->id }}" {{ (isset($country_plan) ? $country_plan?->plan_duration_id :  old('plan_duration_id')) == $plan_duration->id ? 'selected' : '' }}>
-                                                    {{ $plan_duration?->plan?->name }} - {{ $plan_duration->frequency }} - {{ format_money($plan_duration->price) }}
+                                                <option value="{{ $plan_duration->id }}" 
+                                                        {{ (isset($country_plan) ? $country_plan?->plan_duration_id : old('plan_duration_id')) == $plan_duration->id ? 'selected' : '' }}>
+                                                    {{ $plan_duration?->plan?->name }} - {{ $plan_duration->frequency }} - 
+                                                    {{ format_money($plan_duration->price) }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
-                        
+                            
+                                <!-- Lowered Cost -->
                                 <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
                                     <label for="lowered-cost" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">
-                                        Lowered (USD)
-                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" title="Enter the lowered cost in USD"></i>
+                                        Lowered Cost (USD)
+                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" 
+                                           title="Enter the reduced cost for this plan in USD."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="number" class="form-control" name="lowered_cost" id="lowered-cost" value="{{ old('lowered_cost', ($country_plan->lowered_cost ?? '')) }}" placeholder="Enter New Amount">
+                                        <input type="number" class="form-control" name="lowered_cost" id="lowered-cost" 
+                                               value="{{ old('lowered_cost', ($country_plan->lowered_cost ?? '')) }}" placeholder="Enter New Amount">
                                     </div>
                                 </div>
-                        
+                            
+                                <!-- Status Selection -->
                                 <div class="row col-xl-10 col-sm-12">
                                     <label for="status" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">
                                         Status
-                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" title="Set the current status of the plan"></i>
+                                        <i class="bi bi-info-circle text-primary ms-2" data-bs-toggle="tooltip" 
+                                           title="Set the status of the plan (e.g., active, inactive)."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="status" id="status" class="form-control">
                                             <option value="" disabled selected>Select Option</option>
                                             @foreach ($statusOptions as $key => $value)
-                                                <option value="{{ $key }}" {{ (old('status') ?? ($country_plan->status ?? '')) == $key ? 'selected' : '' }}>
+                                                <option value="{{ $key }}" 
+                                                        {{ (old('status') ?? ($country_plan->status ?? '')) == $key ? 'selected' : '' }}>
                                                     {{ $value }}
                                                 </option>
                                             @endforeach
@@ -108,6 +124,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                         
                             <div class="mt-3">
                                 <button type="submit" class="btn btn-success">Submit</button>
