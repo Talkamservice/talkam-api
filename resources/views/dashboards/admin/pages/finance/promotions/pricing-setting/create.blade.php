@@ -46,7 +46,7 @@
                                     </div>
                                 </div>
                         
-                                <div class="row col-xl-10 col-sm-12">
+                                {{-- <div class="row col-xl-10 col-sm-12">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Currency 
                                         <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Select the currency to be used"></i>
                                     </label>
@@ -60,35 +60,37 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                </div> --}}
+            
+                                <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
+                                    <label for="input-placeholder2" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">
+                                        Impressions 
+                                        <i class="bi bi-info-circle text-primary" data-bs-toggle="tooltip" title="Enter the daily impressions. This is the number of impressions a post can reach in a day before charges are applied. It must be less than or equal to the system's already calculated daily impressions."></i>
+                                        <small class="text-primary">(Current impressions:{{ number_format($post_performance->avg_impressions_per_day ?? 0) }})</small>
+                                    </label>
+                                    <!-- Place the paragraph text under the input field, outside of the label -->
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                        <input type="number" class="form-control" name="impressions" id="input-placeholder2" value="{{ old('impressions', ($promotion_pricing->impressions ?? '')) }}" placeholder="Enter Number of impressions">
+                                    </div>
+                                    
                                 </div>
-                        
+                                
                                 <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Amount
-                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Enter the promotional price amount"></i>
+                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Enter the daily amount. This is the payment to be made each day if a post reaches the specified daily impressions."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <input type="number" class="form-control" name="amount" id="input-placeholder" value="{{ old('amount', ($promotion_pricing->amount ?? '')) }}" placeholder="Enter New Amount">
                                     </div>
                                 </div>
-                        
-                                <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
-                                    <label for="input-placeholder2" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Impressions 
-                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Enter the number of impressions for the promotion"></i>
-
-                                    </label>
-                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="number" class="form-control" name="impressions" id="input-placeholder2" value="{{ old('impressions', ($promotion_pricing->impressions ?? '')) }}" placeholder="Enter Number of impressions">
-                                    </div>
-                                </div>
-                        
-                                <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
+                                {{-- <div class="row col-xl-10 col-sm-12 mb-3 mt-3">
                                     <label for="input-placeholder1" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Max Daily Amount
                                         <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Enter the maximum daily amount for the promotion"></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <input type="number" class="form-control" name="max_daily_amount" id="input-placeholder1" value="{{ old('max_daily_amount', ($promotion_pricing->max_daily_amount ?? '')) }}" placeholder="Enter Max Daily Amount">
                                     </div>
-                                </div>
+                                </div> --}}
                         
                                 <div class="row col-xl-10 col-sm-12">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" >Default 

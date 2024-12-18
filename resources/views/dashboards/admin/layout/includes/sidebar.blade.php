@@ -104,7 +104,7 @@
                                 <li class="slide">
                                     <a href="{{ route('admin.promotions.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions.index' ? 'active' : '' }}">Reports</a>
                                     <a href="{{ route('admin.promotions-items') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotions-items' ? 'active' : '' }}">Promotions</a>
-                                    <a href="{{ route('admin.promotion-pricings.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotion-pricings.index' ? 'active' : '' }}">Promotion Pricing</a>
+                                    <a href="{{ route('admin.promotion-pricings.index') }}" class="side-menu__item list-item list-item-sub {{ Route::currentRouteName() == 'admin.promotion-pricings.index' ? 'active' : '' }}">Advertising cost</a>
                                 </li>
                             </ul>
                         </li>

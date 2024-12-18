@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('promotion_pricings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('country_id')->constrained('countries')->cascadeOnDelete();
-            $table->foreignId('currency_id')->constrained('currencies')->cascadeOnDelete();
+            // $table->foreignId('currency_id')->constrained('currencies')->cascadeOnDelete();
             $table->double('amount')->nullable();
             $table->double("max_daily_amount")->nullable()->default(0);
             $table->tinyInteger("default")->default(0);
