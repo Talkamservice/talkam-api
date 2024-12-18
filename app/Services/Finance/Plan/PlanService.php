@@ -178,8 +178,8 @@ class PlanService
     public static function listByCurrentPlan($plan_id)
     {
         $plan = Plan::status()
-            ->orderByRaw("id = ? DESC", [$plan_id])
-            ->latest()
+            // ->orderByRaw("id = ? DESC", [$plan_id])
+            // ->latest()
             ->orderBy('id', 'DESC');
 
         return $plan;
