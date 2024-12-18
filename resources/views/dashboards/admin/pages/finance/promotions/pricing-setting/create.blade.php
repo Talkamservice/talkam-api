@@ -32,7 +32,7 @@
                             <div class="gy-4 mb-4">
                                 <div class="row col-xl-10 col-sm-12 mb-3">
                                     <label for="country-select" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Choose Country 
-                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Select the country for the promotion"></i>
+                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Select the country where the promotion pricing will apply. If no specific country is chosen, the default settings will be used."></i>
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="country_id" id="country-select" class="form-select">
@@ -94,7 +94,7 @@
                         
                                 <div class="row col-xl-10 col-sm-12">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" >Default 
-                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Choose if this pricing is the default option"></i>
+                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Choose if this pricing is the default option. It will be used as default for countries without specific settings."></i>
 
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
@@ -110,7 +110,7 @@
                         
                                 <div class="row col-xl-10 col-sm-12 mt-3">
                                     <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2" >Status 
-                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Select the current status of the pricing"></i>
+                                        <i class="bi bi-info-circle text-primary " data-bs-toggle="tooltip" title="Select the status of the pricing. Options include 'Active' for current usage and 'Inactive' for pricing that is no longer in effect."></i>
 
                                     </label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
