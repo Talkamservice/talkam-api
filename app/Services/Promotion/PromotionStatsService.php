@@ -206,7 +206,7 @@ class PromotionStatsService
             $monthStart = Carbon::now()->startOfYear()->addMonths($month)->startOfMonth();
             $monthEnd = $monthStart->copy()->endOfMonth();
             $currency_symbol = $this->getCurrencySymbol();
-            $monthlyRevenue[$month] = Promotion::whereHas("payment")->whereBetween('created_at', [$monthStart, $monthEnd])->whereHas('currency', function ($query) use ( $currency_symbol) {
+            $monthlyRevenue[$month] = Promotion::whereHas("payment")->whereBetween('created_at', [$monthStart, $monthEnd])->whereHas('currency', function ($query) use ($currency_symbol) {
                 $query->where('symbol',  $currency_symbol);
             })->with('currency')->sum('cost');
         }
@@ -217,8 +217,8 @@ class PromotionStatsService
     }
     private function fetchData($startDate, $interval, $dataPoints)
     {
-         $currency_symbol = $this->getCurrencySymbol();
-        $promotions = Promotion::whereHas("payment")->whereHas('currency', function ($query) use ( $currency_symbol) {
+        $currency_symbol = $this->getCurrencySymbol();
+        $promotions = Promotion::whereHas("payment")->whereHas('currency', function ($query) use ($currency_symbol) {
             $query->where('symbol',  $currency_symbol);
         })->with('currency');
 
@@ -322,8 +322,8 @@ class PromotionStatsService
     {
         $currencyName = request()->input('currency') ?? 'Nigerian Naira (NGN)';
         // dd($currencyName);
-         $currency_symbol = CurrencyConstants::CURRENCY_NAME_TO_SYMBOL[$currencyName] ?? null;
-        if ( $currency_symbol) {
+        $currency_symbol = CurrencyConstants::CURRENCY_NAME_TO_SYMBOL[$currencyName] ?? null;
+        if ($currency_symbol) {
             return  $currency_symbol;
         }
         if (! $currency_symbol) {
