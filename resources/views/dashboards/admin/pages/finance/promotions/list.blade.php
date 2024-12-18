@@ -23,7 +23,7 @@
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-between">
                     <form action="{{ url()->current() }}" method="get" id="filter-form"
-                        class="d-flex justify-content-between">
+                        class="d-flex justify-content-between gap-3">
                         <div class="form-group me-2">
                             <input class="form-control" type="text" placeholder="Search...." name="search"
                                 value="{{ request()->search }}">

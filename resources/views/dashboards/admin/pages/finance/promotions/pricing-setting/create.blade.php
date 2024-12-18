@@ -128,16 +128,6 @@
                             </div>
                         </form>
                         
-                        <script>
-                            // Initialize tooltips
-                            document.addEventListener('DOMContentLoaded', function () {
-                                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                                    return new bootstrap.Tooltip(tooltipTriggerEl)
-                                })
-                            });
-                        </script>
-                        
                     </div>
                     <div class="card-footer d-none border-top-0">
                     </div>
