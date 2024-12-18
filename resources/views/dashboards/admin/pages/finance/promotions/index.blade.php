@@ -38,7 +38,7 @@
                     <!-- Currency Selection -->
                     <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        Select Currency: {{ request()->currency ?? 'Nigerian Naira (NGN)' }}<i
+                        Currency: {{ request()->currency ?? 'Nigerian Naira (NGN)' }}<i
                             class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
                     </button>
                     <ul class="dropdown-menu scrollable-dropdown" role="menu">

@@ -31,7 +31,7 @@ class PromotionPricingSettingController extends Controller
     public function index(Request $request)
     {
         $search =  $request->get('search');
-        $promotion_pricings = PromotionPricing::with(['country', 'currency'])->search($search)->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $promotion_pricings = PromotionPricing::with('country')->search($search)->latest()->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         $post_performance = PostPerformance::whereNull("post_id")
             ->whereNull("group_id")
             ->first();
@@ -73,7 +73,7 @@ class PromotionPricingSettingController extends Controller
         }catch (InvalidRequestException $e) {
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, $e->getMessage());
         }catch (Throwable $e) {
-            // throw $e;
+            throw $e;
             return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request.");
         }
     }

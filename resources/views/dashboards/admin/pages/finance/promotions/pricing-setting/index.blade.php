@@ -41,16 +41,11 @@
                         <div class="p-2">
                             <p class="mb-0">
                                 <span class="fw-bold fs-6 text-dark">Note:</span>
-                                <span class="fw-bold text-dark">Current daily amount of impressions per post:
-                                    <b>{{ number_format($post_performance->avg_impressions_per_day ?? 0) }}</b></span>
+                                <span class="fw-bold text-dark"></b>The daily generated impressions per post (<b>{{ number_format($post_performance->avg_impressions_per_day ?? 0) }}</b>) will be used as default for countries without specific settings.
+                                </span>
                             </p>
                         </div>
-                        <div class="p-2">
-                            <p class="mt-2 mb-0 fw-bold text-dark">
-                                The default will be used for all promotions for countries that do not have specific
-                                impressions set for them.
-                            </p>
-                        </div>
+                     
                     </div>
 
                     <div class="table-responsive">
@@ -59,10 +54,11 @@
                                 <tr>
                                     <th scope="col">S/N</th>
                                     <th scope="col">Country</th>
-                                    <th scope="col">Currency</th>
+                                    {{-- <th scope="col">Currency</th> --}}
                                     <th scope="col">Amount</th>
-                                    <th scope="col">Max Daily Amount</th>
+                                    {{-- <th scope="col">Max Daily Amount</th> --}}
                                     <th scope="col">Impressions</th>
+                                    <th scope="col">Default</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Action</th>
                                 </tr>
@@ -72,10 +68,11 @@
                                     <tr>
                                         <td>{{ $sn++ }}</td>
                                         <td>{{ $promotion_pricing->country->name }}</td>
-                                        <td>{{ $promotion_pricing->currency->name }}</td>
+                                        {{-- <td>{{ $promotion_pricing->currency->name }}</td> --}}
                                         <td>{{ $promotion_pricing->formattedAmount() }}</td>
-                                        <td>{{ $promotion_pricing->formattedAmount('max_daily_amount') }}</td>
+                                        {{-- <td>{{ $promotion_pricing->formattedAmount('max_daily_amount') }}</td> --}}
                                         <td>{{ number_format($promotion_pricing->impressions) }}</td>
+                                        <td>{{ $promotion_pricing->default ? 'Yes' : 'No' }}</td>
                                         <td>
                                             <span
                                                 class="badge bg-{{ pillClasses($promotion_pricing->status) }}-transparent">

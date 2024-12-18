@@ -21,9 +21,11 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-between">
-                    <form action="{{ url()->current() }}" method="get" class="d-flex justify-content-between gap-3">
+                    <form action="{{ url()->current() }}" method="get" id="filter-form"
+                        class="d-flex justify-content-between gap-3">
                         <div class="form-group me-2">
-                            <input class="form-control" type="text" placeholder="Search...." name="search" value="{{ request()->search }}">
+                            <input class="form-control" type="text" placeholder="Search...." name="search"
+                                value="{{ request()->search }}">
                         </div>
                         <div class="form-group me-2">
                             <select name="type" class="form-control">
@@ -35,37 +37,34 @@
                         <div class="form-group me-2">
                             <select name="status" class="form-control">
                                 <option value="">Select Status</option>
-                                <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Ongoing</option>
-                                <option value="Active" {{ request()->status == 'Active' ? 'selected' : '' }}>Completed</option>
-                                <option value="Inactive" {{ request()->status == 'Inactive' ? 'selected' : '' }}>Pending</option>
+                                <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Ongoing
+                                </option>
+                                <option value="Active" {{ request()->status == 'Active' ? 'selected' : '' }}>Completed
+                                </option>
+                                <option value="Inactive" {{ request()->status == 'Inactive' ? 'selected' : '' }}>Pending
+                                </option>
                             </select>
                         </div>
-                        
-                        <div class="dropdown d-inline ms-2"> <!-- or use ms-3/ms-4 -->
-                            <!-- Dropdown Button -->
-                            <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light p-2"
-                                id="dropdown-currency" data-bs-toggle="dropdown" aria-expanded="false">
-                                Select Currency: {{ request()->currency ?? 'Nigerian Naira (NGN)' }}
-                                <i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
-                            </button>
-                            <ul class="dropdown-menu scrollable-dropdown" id="currency-dropdown" role="menu">
+                        <div class="ms-2">
+                            <!-- Currency Select -->
+                            <select class="form-control currency-select" id="currency-select" name="currency">
+                                @if (!in_array('Nigerian Naira (NGN)', \App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_OPTIONS))
+                                    <option value="" {{ !request()->currency ? 'selected' : '' }}>Nigerian Naira (NGN)
+                                    </option>
+                                @endif
                                 @foreach (\App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_OPTIONS as $currency)
-                                    <li>
-                                        <a class="dropdown-item" href="javascript:void(0);" data-currency="{{ $currency }}">
-                                            {{ $currency }}
-                                        </a>
-                                    </li>
+                                    <option value="{{ $currency }}"
+                                        {{ request()->currency == $currency ? 'selected' : '' }}>
+                                        {{ $currency }}
+                                    </option>
                                 @endforeach
-                            </ul>
+                            </select>
                         </div>
-                        
-                        <input type="hidden" name="currency" id="currency-input" value="{{ request()->currency ?? 'Nigerian Naira (NGN)' }}">
-                        
                         <div class="form-group">
-                            <button class="btn btn-sm btn-success p-2">Filter</button>
+                            <button type="submit" class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
                     </form>
-                    
+
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -145,24 +144,17 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Update hidden currency input on dropdown item click
-            document.querySelectorAll('.dropdown-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const currency = this.getAttribute('data-currency');
-                    document.getElementById('currency-input').value = currency;
-                    document.getElementById('dropdown-currency').innerHTML =
-                        `Select Currency: ${currency} <i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>`;
-                });
-            });
-
-            // Prevent form submission unless Filter button is clicked
+            const currencySelect = document.getElementById('currency-select');
             const form = document.getElementById('filter-form');
+            currencySelect.addEventListener('change', () => {
+                form.submit();
+            });
             form.addEventListener('submit', (event) => {
-                if (event.submitter && event.submitter.classList.contains('btn-success')) {
-                    // Allow submission only for the Filter button
-                    return true;
+                const submitter = event.submitter;
+                if (!submitter || !submitter.classList.contains('btn-success')) {
+                    event.preventDefault();
+                    console.log("Submission prevented: Not the filter button.");
                 }
-                event.preventDefault();
             });
         });
     </script>
