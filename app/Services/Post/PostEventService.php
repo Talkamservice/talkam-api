@@ -39,13 +39,14 @@ class PostEventService
             ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
                 foreach ($posts as $post) {
 
-                    if (!is_array($post->tags)) {
+                    $post_tags = json_decode($post->tags);
+                    if (!is_array($post_tags) || count($post_tags) == 0) {
                         continue;
                     }
                 
-                    $content = implode(" ", filterUniqueWords($post->tags));
+                    $content = implode(" ", filterUniqueWords($post_tags));
 
-                    // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
+                    // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post_tags);
 
                     // Tokenize the content into words
                     $words = preg_split('/[\s,]+/', $content);
@@ -87,13 +88,22 @@ class PostEventService
         // Get the top trending words (e.g., top 10)
         $top_trending_words = array_slice($word_frequency, 0, 10, true);
 
-        $filtered_array = array_filter($top_trending_words, function ($key) {
+        // $filtered_array = array_filter($top_trending_words, function ($key) {
+        //     $trimmedKey = trim($key);
+        //     return !empty($trimmedKey) && strlen($trimmedKey) > 3;
+        // }, ARRAY_FILTER_USE_KEY);
+
+        $trimmed_array = [];
+        foreach ($top_trending_words as $key => $value) {
             $trimmedKey = trim($key);
-            return !empty($trimmedKey) && strlen($trimmedKey) > 3;
-        }, ARRAY_FILTER_USE_KEY);
+            if (!empty($trimmedKey) && strlen($trimmedKey) > 3) {
+                $trimmed_array[$trimmedKey] = $value;
+            }
+        }
 
         TrendingTag::whereNull("category_id")->delete();
-        foreach (ensureUniqueKeys($filtered_array) as $word => $count) {
+
+        foreach (ensureUniqueKeys($trimmed_array) as $word => $count) {
             TrendingTag::create([
                 'tag' => trim(ucwords($word)),
                 'count' => $count,
@@ -112,12 +122,13 @@ class PostEventService
                 ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
                     foreach ($posts as $post) {
 
-                        if (!is_array($post->tags)) {
+                        $post_tags = json_decode($post->tags);
+                        if (!is_array($post_tags) || count($post_tags) == 0) {
                             continue;
                         }
                         
-                        $content = implode(" ", filterUniqueWords($post->tags));
-                        // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post->tags);
+                        $content = implode(" ", filterUniqueWords($post_tags));
+                        // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post_tags);
 
                         // Tokenize the content into words
                         $words = preg_split('/[\s,]+/', $content);
