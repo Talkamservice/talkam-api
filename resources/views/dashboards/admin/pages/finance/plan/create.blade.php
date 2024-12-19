@@ -79,27 +79,51 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="row col-xl-10 col-sm-12 mb-3">
-                                                <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
-                                                    (USD)
-                                                </label>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                    <input type="number" class="form-control" name="price[]" value="{{ $plan_duration->price }}" id="input-placeholder" placeholder="Enter price">
+                                            @if (empty($plan_duration->discount))
+                                                <div class="row col-xl-10 col-sm-12 mb-3">
+                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
+                                                        (USD)
+                                                    </label>
+                                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                        <input type="number" class="form-control" name="price[]" value="{{ $plan_duration->price }}" id="input-placeholder" placeholder="Enter price">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="row col-xl-10 col-sm-12 mb-3">
-                                                <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount
-                                                    (%)</label>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                    <input type="number" class="form-control" name="discount[]" value="{{ $plan_duration->discount }}" id="contact-input" placeholder="Enter plan discount" oninput="validateDiscount(this)">
+                                                <div class="row col-xl-10 col-sm-12 mb-3">
+                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount
+                                                        (%)</label>
+                                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                        <input type="number" class="form-control" name="discount[]" value="{{ $plan_duration->discount }}" id="contact-input" placeholder="Enter plan discount" oninput="validateDiscount(this)">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
-                                                <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                    <input type="number" readonly class="form-control discount_plan_price" name="discount_price[]" placeholder="Discounted plan price">
+                                                <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
+                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
+                                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                        <input type="number" readonly class="form-control discount_plan_price" name="discount_price[]" placeholder="Discounted plan price">
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            @else
+                                                <div class="row col-xl-10 col-sm-12 mb-3">
+                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
+                                                        (USD)
+                                                    </label>
+                                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                        <input type="number" class="form-control" name="price[]" value="{{ $plan_duration->originalPrice() }}" id="input-placeholder" placeholder="Enter price">
+                                                    </div>
+                                                </div>
+                                                <div class="row col-xl-10 col-sm-12 mb-3">
+                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount
+                                                        (%)</label>
+                                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                        <input type="number" class="form-control" name="discount[]" value="{{ $plan_duration->discount }}" id="contact-input" placeholder="Enter plan discount" oninput="validateDiscount(this)">
+                                                    </div>
+                                                </div>
+                                                <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
+                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
+                                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                        <input type="number" readonly class="form-control discount_plan_price" value="{{ $plan_duration->price }}" name="discount_price[]" placeholder="Discounted plan price">
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
