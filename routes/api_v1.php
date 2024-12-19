@@ -55,7 +55,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::match('/webhook/verifications', [WehbookHandlingController::class, 'handleWebhook'])->name('handle-webhook');
+Route::any('/webhook/verifications', [WehbookHandlingController::class, 'handleWebhook'])->name('handle-webhook');
 
 Route::prefix("auth")->as("auth.")->group(function () {
     Route::post("/register", [RegisterController::class, "register"])->name("register");
