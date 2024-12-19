@@ -146,8 +146,9 @@ class Promotion extends Model
         $cacheKey = $this->id . '_' . implode('_', $columns);
 
         if (!isset($cache[$cacheKey])) {
+            $end_at = carbon()->parse($this->created_at)->addDays($this->duration);
             $query = PostStatLog::query()
-                ->where("created_at", ">=", $this->created_at);
+                ->whereBetween("created_at", [$this->created_at, $end_at]);
 
             if ($this->type() == "Group") {
                 $query->where("group_id", $this->group_id);
