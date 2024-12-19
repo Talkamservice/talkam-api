@@ -153,11 +153,13 @@ class PostController extends Controller
     public function trending(Request $request)
     {
         try {
-            $trends = $this->post_service->trends($request->all())->whereNotNull("category_id")
-                ->where("count", ">", 1)->status()
+            $trends = $this->post_service->trends($request->all())
+                ->whereNull("category_id")
+                ->where("count", ">=", "1")
+                ->status()
+                ->whereBetween("created_at", [now()->startOfWeek(), now()->endOfWeek()])
                 ->groupBy("tag")
                 ->selectRaw("tag, SUM(count) as count, MAX(created_at) as created_at")
-                ->where("created_at", [now()->startOfWeek(), now()->endOfWeek()])
                 ->orderByDesc("count")
                 ->get();
             $data = TrendingResource::collection($trends);
