@@ -12,7 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostStatsResource extends JsonResource
 {
-    public function __construct(public $resource, public $countries = null, public $show_countries_stats = true) {}
+    public function __construct(public $resource = null, public $countries = null, public $show_countries_stats = true) {}
     /**
      * Transform the resource into an array.
      *
@@ -32,7 +32,7 @@ class PostStatsResource extends JsonResource
             "shares" => $this->shares,
             "impressions" => $this->impressions,
             "engagements" => divideNumber($this->impressions, $reaction_stats["likes"]),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares),
             "followers" => $this->followers,
             "profile_visits" => $this->profile_visits,
             "clicks" => $this->clicks,
@@ -54,7 +54,7 @@ class PostStatsResource extends JsonResource
             "shares" => $model->shares,
             "impressions" => $model->impressions,
             "engagements" => divideNumber($model->impressions, $reaction_stats["likes"]),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares),
             "followers" => $model->followers,
             "profile_visits" => $model->profile_visits,
             "clicks" => $model->clicks,
@@ -64,22 +64,58 @@ class PostStatsResource extends JsonResource
         ];
     }
 
-    public function calcEngagementRates($reaction_stats, $model)
+    public function custom($model, $countries, $show_countries_stats = true)
     {
-        $engagement_rates = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $model->shares) / 100;
+        $start_at = $model->created_at;
+        $end_at = carbon()->parse($start_at)->addDays($model->duration);
+
+        $stats = $model->statLogs([
+            "impressions",
+            "shares",
+            "followers",
+            "profile_visits",
+            "clicks"
+        ]);
+
+        $reaction_stats = $model->stat()->reactionStats($start_at, $end_at);
+
+        return [
+            "id" => $model->id,
+            "comments" => $reaction_stats["comments"],
+            "likes" => $reaction_stats["likes"],
+            "dislikes" => $reaction_stats["dislikes"],
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0),
+            "shares" => $stats["shares"] ?? 0,
+            "impressions" => $stats["impressions"] ?? 0,
+            "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"]),
+            "followers" => $stats["followers"] ?? 0,
+            "profile_visits" => $stats["profile_visits"] ?? 0,
+            "clicks" => $stats["clicks"] ?? 0,
+            "min_time_spent" => $model->stat()?->min_time_spent,
+            "max_time_spent" => $model->stat()?->max_time_spent,
+            "countries" => $show_countries_stats ? $this->countriesStats($countries, $model) : null,
+            "created_at" => formatDate($model->created_at),
+        ];
+    }
+
+    public function calcEngagementRates($reaction_stats, $shares)
+    {
+        $engagement_rates = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares) / 100;
         $data = int_format($engagement_rates, 2);
         return $data;
     }
 
-    public function countriesStats()
+    public function countriesStats($countries = null, $promotion = null)
     {
         $country_stats = [];
+        $countries = $countries ?? $this->countries;
 
-        $selected_country_id = !empty($this->countries) ? $this->countries->pluck("id")->toArray() : [];
+        $selected_country_id = !empty($countries) ? $countries->pluck("id")->toArray() : [];
 
-        if ($post_id = $this->post_id) {
+        $promotion = $promotion ?? $this;
+        if ($post_id = $promotion->post_id) {
             $country_stats = $this->getCountryStats($post_id, Post::class, $selected_country_id);
-        } elseif ($group_id = $this->group_id) {
+        } elseif ($group_id = $promotion->group_id) {
             $country_stats = $this->getCountryStats($group_id, Group::class, $selected_country_id);
         }
 
