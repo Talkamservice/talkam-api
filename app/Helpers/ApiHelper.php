@@ -125,7 +125,7 @@ class ApiHelper
                 'title' => "Operation failed",
                 'message' => $message,
                 'code' => $code,
-                'errors' => empty($trace) ?  null  : $trace->errors(),
+                'errors' => empty($trace) ?  null  : $trace?->errors(),
             ]
         ];
 
