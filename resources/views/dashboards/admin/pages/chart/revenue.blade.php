@@ -2,7 +2,8 @@
     // Retrieve monthly revenue data from backend
     let monthlyRevenue = @json($revenue_data['revenue']);
     let currencySymbol = @json($revenue_data['currency_symbol']);
-    let currencyShortName  = @json(request()->currency_short_name);
+    let currencyShortName = @json($currency_short_name);
+
 
     function formatNumber(number) {
         return number.toLocaleString();
@@ -55,13 +56,13 @@
                 },
             },
             title: {
-                text: "Revenue (USD)",
+                text: "Revenue" + " " + (currencyShortName),
             },
         },
         tooltip: {
             y: {
                 formatter: function(value) {
-                    return "USD" + formatNumber(value);
+                    return currencyShortName + formatNumber(value);
                 }
             }
         },

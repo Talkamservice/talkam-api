@@ -106,7 +106,7 @@ class PromotionStatsService
                         "title" => "Completed Promotions",
                         "value" => array_sum($promotion_data['totalSuccessfulPromotions']),
                         "class" => "primary",
-                        "status" => StatusConstants::ACTIVE,
+                        "status" => StatusConstants::COMPLETED,
                     ],
                     [
                         "title" => "Ongoing Promotions",
@@ -124,7 +124,6 @@ class PromotionStatsService
             ],
             "dashboard_data" => $promotion_data,
         ];
-
         return $data;
     }
 
