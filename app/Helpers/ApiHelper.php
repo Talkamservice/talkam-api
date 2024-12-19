@@ -23,7 +23,7 @@ class ApiHelper
         }
 
         $body = [
-            "message" => app()->environment(['local', 'staging']) ? $trace_msg : $message,
+            "message" => app()->environment(['local', 'staging']) ? $trace?->getMessage() : $message,
             "code" => $code,
             "success" => false,
             "error_code" => $error_code,
