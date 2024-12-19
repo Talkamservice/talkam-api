@@ -18,20 +18,20 @@ class ApiHelper
         $error_code = null;
 
         if (!empty($trace)) {
-            $trace_msg = $trace->getMessage();
-            $error_code = $trace->getCode();
+            $trace_msg = $trace?->getMessage();
+            $error_code = $trace?->getCode();
         }
 
         $body = [
-            "message" => app()->environment(['local', 'staging']) ? $trace->getMessage() : $message,
+            "message" => app()->environment(['local', 'staging']) ? $trace?->getMessage() : $message,
             "code" => $code,
             "success" => false,
             "error_code" => $error_code,
-            "error_debug" => app()->environment(['local', 'staging']) ? $trace->getTrace() : $trace_msg ?? null
+            "error_debug" => app()->environment(['local', 'staging']) ? $trace?->getTrace() : $trace_msg ?? null
 
         ];
 
-        !empty($trace) ? logger($trace->getMessage(), $trace->getTrace()) : null;
+        !empty($trace) ? logger($trace?->getMessage(), $trace?->getTrace()) : null;
         return response()->json($body)->setStatusCode($code);
     }
 
@@ -125,7 +125,7 @@ class ApiHelper
                 'title' => "Operation failed",
                 'message' => $message,
                 'code' => $code,
-                'errors' => empty($trace) ?  null  : $trace->errors(),
+                'errors' => empty($trace) ?  null  : $trace?->errors(),
             ]
         ];
 
