@@ -94,6 +94,12 @@
                                                     <input type="number" class="form-control" name="discount[]" value="{{ $plan_duration->discount }}" id="contact-input" placeholder="Enter plan discount" oninput="validateDiscount(this)">
                                                 </div>
                                             </div>
+                                            <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
+                                                <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
+                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                    <input type="number" readonly class="form-control discount_plan_price" name="discount_price[]" placeholder="Discounted plan price">
+                                                </div>
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>
@@ -123,7 +129,12 @@
                                                 <input type="number" class="form-control" name="discount[]" oninput="validateDiscount(this)" id="contact-input" placeholder="Enter plan discount" min="1" max="100">
                                             </div>
                                         </div>
-
+                                        <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
+                                            <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
+                                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                                                <input type="number" readonly class="form-control discount_plan_price" name="discount_price[]" placeholder="Discounted plan price">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -138,7 +149,8 @@
                                         <div class="row col-xl-10 col-sm-12 mb-3">
                                             <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">{{ $scope['label'] }}</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                <input type="{{ $scope['type'] }}" class="form-control" min="0" name="scopes[{{ $scope['name'] }}]" id="input-placeholder" value="{{ isset($plan_scopes) ? $plan_scopes->where("title", $scope["name"])->first()?->value : null }}" placeholder="{{ $scope['placeholder'] }}">
+                                                <input type="{{ $scope['type'] }}" class="form-control" min="0" name="scopes[{{ $scope['name'] }}]" id="input-placeholder" value="{{ isset($plan_scopes) ? $plan_scopes->where('title', $scope['name'])->first()?->value : null }}"
+                                                    placeholder="{{ $scope['placeholder'] }}">
                                             </div>
                                         </div>
                                     @elseif ($scope['type'] == 'checkbox')
@@ -148,7 +160,7 @@
                                                 <select name="scopes[{{ $scope['name'] }}]" id="" class="form-control">
                                                     <option value="" disabled selected>Select Option</option>
                                                     @foreach ($scope['data'] ?? null as $scope_key => $scope_data)
-                                                        <option value="{{ $scope_key }}" {{ (isset($plan_scopes) && in_array(($plan_scopes->where("title", $scope["name"])->first()?->value), [$scope_key])) ? "selected" : "" }}>{{ $scope_data }}</option>
+                                                        <option value="{{ $scope_key }}" {{ isset($plan_scopes) && in_array($plan_scopes->where('title', $scope['name'])->first()?->value, [$scope_key]) ? 'selected' : '' }}>{{ $scope_data }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -204,6 +216,58 @@
         // Function to remove a logistics section
         $("#planDuration").on("click", ".remove-section", function() {
             $(this).closest(".plan-duration-section").remove();
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Function to calculate and update the new price
+            function calculateNewPrice(section) {
+                // Get the price and discount values
+                const price = parseFloat(section.find('input[name="price[]"]').val()) || 0;
+                const discount = parseFloat(section.find('input[name="discount[]"]').val()) || 0;
+
+                // Validate discount percentage
+                if (discount < 0 || discount > 100) {
+                    alert('Discount must be between 0 and 100.');
+                    section.find('input[name="discount[]"]').val('');
+                    section.find('.discount_plan_price').val('');
+                    section.find('.newAmountDiv').hide(); // Hide New Price Div if invalid
+                    return;
+                }
+
+                // Check if discount has a valid value
+                if (!isNaN(discount) && discount > 0) {
+                    section.find('.newAmountDiv').show(); // Show New Price Div
+                } else {
+                    section.find('.newAmountDiv').hide(); // Hide New Price Div
+                    return;
+                }
+
+                // Calculate the new price
+                const newPrice = price - (price * discount / 100);
+
+                // Update the "New Price" field
+                section.find('.discount_plan_price').val(newPrice.toFixed(2));
+            }
+
+            // Handle input events
+            $('#planDuration').on('input', 'input[name="discount[]"], input[name="price[]"]', function() {
+                const section = $(this).closest('.plan-duration-section');
+                calculateNewPrice(section);
+            });
+
+            // Run on page load to handle pre-filled fields
+            $('.plan-duration-section').each(function() {
+                calculateNewPrice($(this));
+            });
+
+            // Initially hide all "New Price" divs where discount is empty
+            $('.plan-duration-section').each(function() {
+                const discount = $(this).find('input[name="discount[]"]').val();
+                if (!discount || discount <= 0) {
+                    $(this).find('.newAmountDiv').hide();
+                }
+            });
         });
     </script>
     <script>

@@ -36,6 +36,8 @@ class PlanService
             "price.*" => 'nullable|numeric|gt:-1',
             "discount" => "nullable|array",
             "discount.*" => 'nullable|numeric|gte:0',
+            "discount_price" => "nullable|array",
+            "discount_price.*" => 'nullable|numeric|gte:0',
             "frequency" => 'nullable|array',
             "frequency.*" => [
                 'string',
