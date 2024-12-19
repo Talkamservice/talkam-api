@@ -40,9 +40,8 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Name</th>
-                                    <th scope="col">Amount</th>
-                                    <th scope="col">Frequency</th>
-                                    <th scope="col">Duration (Days)</th>
+                                    <th scope="col">Amount - Monthly (30 Days)</th>
+                                    <th scope="col">Amount - Yearly (365 Days)</th>
                                     <th scope="col">Description</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
@@ -51,11 +50,14 @@
                             </thead>
                             <tbody>
                                 @forelse($plans as $plan)
+                                    @php
+                                        $monthly = $plan->durations?->where('frequency', 'Monthly')->first()?->originalPrice();
+                                        $yearly = $plan->durations?->where('frequency', 'Yearly')->first()?->originalPrice();
+                                    @endphp
                                     <tr>
                                         <td>{{ $plan->name }}</td>
-                                        <td>{{ $plan->defaultDuration()?->formattedAmount() }}</td>
-                                        <td>{{ $plan->defaultDuration()?->frequency }}</td>
-                                        <td>{{ $plan->defaultDuration()?->duration }}</td>
+                                        <td>{{ !empty($monthly) ? format_money($monthly, 2, "$") : null }}</td>
+                                        <td>{{ !empty($yearly) ? format_money($yearly, 2, "$") : null }}</td>
                                         <td><span class="fw-normal">{{ str_limit($plan->description) ?? 'N/A' }}</span></td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($plan->status) }}-transparent">
@@ -71,28 +73,9 @@
                                                     @method('delete')
                                                     <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"><i class="ri-delete-bin-line"></i></button>
                                                 </form>
-                                                {{-- <a type="button"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
-                                                    data-bs-toggle="modal" data-bs-target="#cancelPlanModal{{ $plan->id }}"
-                                                    data-plan-id="{{ $plan->id }}" data-bs-toggle="tooltip"
-                                                    title="Cancel Plan">
-                                                    <i class="ri-close-circle-line"></i>
-                                                </a>
-
-                                                <!-- Subscription Icon - Opens Modal -->
-                                                <a type="button"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"
-                                                    data-bs-toggle="modal" data-bs-target="#subscriptionModal{{ $plan->id }}"
-                                                    data-bs-toggle="tooltip" title="Manage Subscription">
-                                                    <i class="ri-wallet-line"></i>
-                                                </a> --}}
                                             </div>
                                         </td>
                                     </tr>
-                                    {{-- @include(
-                                        'dashboards.admin.pages.finance.subscription.subscribe-modal',
-                                        ['users', $users, 'plan' => $plan]
-                                    ) --}}
                                     @include('dashboards.admin.pages.finance.plan.cancel-plan-modal', ['plan', $plan])
                                 @empty
                                     <div class="alert alert-info text-center">

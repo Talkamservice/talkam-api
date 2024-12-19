@@ -193,9 +193,10 @@ class PlanService
         $price = $duration->price;
 
         if ($duration->discount > 0) {
-            $discount = ($duration->discount / 100) * $price;
-            $final_price = $price - $discount;
+            // $discount = ($duration->discount / 100) * $price;
+            // $final_price = $price - $discount;
         }
+
         return $final_price ?? $price;
     }
 
