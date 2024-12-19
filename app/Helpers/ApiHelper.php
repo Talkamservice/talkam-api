@@ -18,8 +18,8 @@ class ApiHelper
         $error_code = null;
 
         if (!empty($trace)) {
-            $trace_msg = $trace->getMessage();
-            $error_code = $trace->getCode();
+            $trace_msg = $trace?->getMessage();
+            $error_code = $trace?->getCode();
         }
 
         $body = [
