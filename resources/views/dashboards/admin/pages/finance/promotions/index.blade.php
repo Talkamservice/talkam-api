@@ -235,7 +235,7 @@
 
 
 @section('script')
-    @include('dashboards.admin.pages.chart.revenue', ['revenue_data' => $revenue_data])
+    @include('dashboards.admin.pages.chart.revenue', ['revenue_data' => $revenue_data, 'currency_short_name' => request()->currency_short_name ?? 'NGN'])
     <script>
         // Inject PHP dashboard data into JavaScript
         const dashboardData = @json($dashboardData);

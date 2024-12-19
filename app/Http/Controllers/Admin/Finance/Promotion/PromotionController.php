@@ -99,7 +99,7 @@ class PromotionController extends Controller
         })->with('currency')->search($request->search)
             ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
         $promotion_status = [];
-        if ($request->status === StatusConstants::ACTIVE) {
+        if ($request->status === StatusConstants::COMPLETED) {
             $promotion_status = "Completed";
         } elseif ($request->status === StatusConstants::PENDING) {
             $promotion_status = "Ongoing";
