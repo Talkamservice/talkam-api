@@ -35,7 +35,7 @@ class PostEventService
         $stop_words = PostConstants::STOP_WORDS;
         $word_frequency = [];
 
-        Post::status()->whereBetween('created_at', [now()->subDays(20)->toDateTimeString(), now()->toDateTimeString()])
+        Post::status()->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
             ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
                 foreach ($posts as $post) {
 
@@ -108,7 +108,7 @@ class PostEventService
         $word_frequency = [];
 
         foreach ($categories as $key => $category) {
-            $category->posts()->status()->whereBetween("created_at", [now()->subDays(20)->toDateTimeString(), now()->toDateTimeString()])
+            $category->posts()->status()->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
                 ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
                     foreach ($posts as $post) {
 

@@ -78,7 +78,7 @@ class PostStatsResource extends JsonResource
         ]);
 
         $reaction_stats = $model->stat()->reactionStats($start_at, $end_at);
-
+ 
         return [
             "id" => $model->id,
             "comments" => $reaction_stats["comments"],

@@ -25,8 +25,13 @@ class PostStat extends Model
     {
         if (!empty($this?->post_id)) {
             $reactions = UserPostReaction::where('post_id', $this->post_id)
-                ->selectRaw('SUM(action = ?) as likes, SUM(action = ?) as dislikes', [PostConstants::LIKE, PostConstants::DISLIKE])
-                ->first();
+                ->selectRaw('SUM(action = ?) as likes, SUM(action = ?) as dislikes', [PostConstants::LIKE, PostConstants::DISLIKE]);
+                
+            if (!empty($start_at) && !empty($end_at)) {
+                $reactions =  $reactions->whereBetween("created_at", [$start_at, $end_at]);
+            }
+            
+            $reactions->first();
 
             if (!empty($start_at) && !empty($end_at)) {
                 $comments = $this->post->comments()
