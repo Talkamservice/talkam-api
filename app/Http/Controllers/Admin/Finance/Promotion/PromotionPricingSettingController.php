@@ -91,6 +91,9 @@ class PromotionPricingSettingController extends Controller
      */
     public function edit(string $id)
     {
+        $post_performance = PostPerformance::whereNull("post_id")
+            ->whereNull("group_id")
+            ->first();
         $promotion_pricing = $this->promotion_pricing_service->getById($id);
         return view('dashboards.admin.pages.finance.promotions.pricing-setting.create', [
             'promotion_pricing' => $promotion_pricing,
@@ -98,6 +101,7 @@ class PromotionPricingSettingController extends Controller
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS,
             'countries' => Country::all(),
             'currencies' => Currency::all(),
+            "post_performance" => $post_performance
         ]);
     }
 
