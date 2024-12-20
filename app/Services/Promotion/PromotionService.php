@@ -114,9 +114,9 @@ class PromotionService
         DB::beginTransaction();
         try {
             $currency_code_ = MethodsHelper::validateCurrencyCode(app("position_country_code")) ?? CurrencyConstants::DOLLAR_CURRENCY_SHORT_NAME;
-            
+
             $data["currency_id"] = Currency::where("short_name", $currency_code_)->first()?->id;
-            
+
             $promotion = $this->create($data);
 
             if (($data["payload"]["type"] ?? null) == "Post") {
@@ -397,6 +397,40 @@ class PromotionService
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
+        }
+    }
+
+    public function promotionStats($promotion, $field = null)
+    {
+        $start_at = $promotion->created_at;
+        $end_at = carbon()->parse($start_at)->addDays($promotion->duration);
+
+        $stats = $promotion->statLogs([
+            "impressions",
+            "shares",
+            "followers",
+            "profile_visits",
+            "clicks"
+        ]);
+
+        $reaction_stats = $promotion->stat()->reactionStats($start_at, $end_at);
+
+        $data = [
+            "comments" => $reaction_stats["comments"],
+            "likes" => $reaction_stats["likes"],
+            "dislikes" => $reaction_stats["dislikes"],
+            "shares" => $stats["shares"] ?? 0,
+            "impressions" => $stats["impressions"] ?? 0,
+            "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"]),
+            "followers" => $stats["followers"] ?? 0,
+            "profile_visits" => $stats["profile_visits"] ?? 0,
+            "clicks" => $stats["clicks"] ?? 0,
+        ];
+
+        if (isset($field)) {
+            return $data[$field];
+        } else {
+            return $data;
         }
     }
 }

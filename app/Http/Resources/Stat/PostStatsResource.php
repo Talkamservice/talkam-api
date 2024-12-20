@@ -64,7 +64,7 @@ class PostStatsResource extends JsonResource
         ];
     }
 
-    public function custom($model, $countries, $show_countries_stats = true)
+    public function custom($model, $countries = null, $show_countries_stats = true)
     {
         $start_at = $model->created_at;
         $end_at = carbon()->parse($start_at)->addDays($model->duration);
