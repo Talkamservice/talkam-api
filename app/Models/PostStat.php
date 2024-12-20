@@ -30,8 +30,8 @@ class PostStat extends Model
             if (!empty($start_at) && !empty($end_at)) {
                 $reactions =  $reactions->whereBetween("created_at", [$start_at, $end_at]);
             }
-            
-            $reactions->first();
+
+           $reactions =  $reactions->first();
 
             if (!empty($start_at) && !empty($end_at)) {
                 $comments = $this->post->comments()
