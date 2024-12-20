@@ -77,17 +77,17 @@ class PostStatsResource extends JsonResource
             "clicks"
         ]);
 
-        $reaction_stats = $model->stat()->reactionStats($start_at, $end_at);
- 
+        $reaction_stats = $model->stat()?->reactionStats($start_at, $end_at) ?? null;
+
         return [
             "id" => $model->id,
-            "comments" => $reaction_stats["comments"],
-            "likes" => $reaction_stats["likes"],
-            "dislikes" => $reaction_stats["dislikes"],
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0),
+            "comments" => $reaction_stats["comments"] ?? 0,
+            "likes" => $reaction_stats["likes"] ?? 0,
+            "dislikes" => $reaction_stats["dislikes"] ?? 0,
+            "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0) : 0,
             "shares" => $stats["shares"] ?? 0,
             "impressions" => $stats["impressions"] ?? 0,
-            "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"]),
+            "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"] ?? 0),
             "followers" => $stats["followers"] ?? 0,
             "profile_visits" => $stats["profile_visits"] ?? 0,
             "clicks" => $stats["clicks"] ?? 0,
