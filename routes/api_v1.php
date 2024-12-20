@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\V1\User\Promotion\PromotionController;
 use App\Http\Controllers\Api\V1\User\Promotion\PromotionPricingSettingController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\Web\FaqController;
+use App\Http\Controllers\Api\V1\User\Web\PaymentTermsController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
 use App\Http\Controllers\Api\V1\User\Web\TermAndConditionController;
 use App\Http\Controllers\Api\V1\Waitlist\WaitlistController;
@@ -246,6 +247,7 @@ Route::post("user/feedback", [FeedbackController::class, "save"])->name("feedbac
 Route::get("user/feedback-options", [FeedbackController::class, "feedbackOptions"])->name("feedback-options");
 Route::get("user/faqs", [FaqController::class, "index"])->name("faqs.index");
 Route::post("user/waitlist/save", [WaitlistController::class, "save"])->name("waitlist.save");
+Route::get("user/finance/payment-terms", [PaymentTermsController::class, "index"])->name("finance.payment-terms.list");
 
 //Guest mode
 Route::prefix('user')->as('user.')->group(function () {

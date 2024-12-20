@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\Report\PostReportController;
 use App\Http\Controllers\Admin\User\AccountStatusController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\Waitlist\WaitlistController;
+use App\Http\Controllers\Admin\Web\PaymentTermsController;
 use App\Http\Controllers\Admin\Web\PrivacyPolicyController;
 use App\Http\Controllers\Admin\Web\TermAndConditionController;
 use App\Http\Controllers\Web\InviteController;
@@ -57,6 +58,7 @@ Route::middleware(["auth"])->group(
             'country-plan-pricings' => PlanCountryPricingController::class,
             'promotions' => PromotionController::class,
             'promotion-pricings' => PromotionPricingSettingController::class,
+            "payment-terms" => PaymentTermsController::class,
         ]);
 
 
