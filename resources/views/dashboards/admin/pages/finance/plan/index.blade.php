@@ -59,7 +59,7 @@
                                     <tr>
                                         <td>{{ $plan->name }}</td>
                                         <td>{{ !empty($original_monthly_price = $monthly?->originalPrice()) ? format_money($original_monthly_price, 2, "$") : null }}</td>
-                                        <td>{{ !empty($monthly?->discount) ? "%{$monthly?->discount}" : "" }}</td>
+                                        <td>{{ !empty($monthly?->discount) ? "{$monthly?->discount}%" : "" }}</td>
                                         <td>{{ !empty($original_yearly_price = $yearly?->originalPrice()) ? format_money($original_yearly_price, 2, "$") : null }}</td>
                                         <td>{{ !empty($yearly?->discount) ? "{$yearly?->discount}%" : "" }}</td>
                                         <td><span class="fw-normal">{{ str_limit($plan->description) ?? 'N/A' }}</span></td>
