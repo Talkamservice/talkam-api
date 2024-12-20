@@ -73,7 +73,7 @@ class PromotionExpiryReminder extends Notification implements ShouldQueue
                 'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
                 'extra' => [
-                    "type" => $this->promotion->type,
+                    "type" => $this->promotion->type(),
                 ],
             ])
             ->initiate();
