@@ -68,30 +68,31 @@ class PostStatsService
 
             $post_stat = PostStat::firstOrCreate($query);
 
-            $logData = array_fill_keys($fields_to_update, 0);
+            $log_data = array_fill_keys($fields_to_update, 0);
 
             foreach ($fields_to_update as $field) {
                 if (isset($data[$field]) && $data[$field] == true) {
                     $data[$field] = $post_stat->$field + 1;
-                    $logData[$field] = 1;
+                    $log_data[$field] = 1;
                 }
             }
 
             if (isset($data["time_spent"]) && $data["time_spent"] > $post_stat->max_time_spent) {
                 $data["max_time_spent"] = $data["time_spent"];
-                $logData["time_spent"] = $data["time_spent"];
+                $log_data["time_spent"] = $data["time_spent"];
             }
 
             if (isset($data["time_spent"]) && $data["time_spent"] < $post_stat->min_time_spent) {
                 $data["min_time_spent"] = $data["time_spent"];
-                $logData["time_spent"] = $data["time_spent"];
+                $log_data["time_spent"] = $data["time_spent"];
             }
 
             unset($data["time_spent"]);
             $post_stat->update($data);
 
-            PostStatLog::create(array_merge($logData, [
+            PostStatLog::create(array_merge($log_data, [
                 'post_id' => $post_stat->post_id,
+                'group_id' => $post_stat->group_id,
                 'user_id' => auth("sanctum")->id() ?? null, // Optional user association
                 'logged_at' => now(),
             ]));

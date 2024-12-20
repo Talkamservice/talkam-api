@@ -41,6 +41,15 @@ class PlanDuration extends Model
         return format_money($this->price - $this->discount, 2, $this->plan->currency->symbol);
     }
 
+    public function originalPrice()
+    {
+        if ($this->discount <= 0 || $this->discount >= 100) {
+            return $this->price; // No discount or invalid discount
+        }
+
+        return $this->price / (1 - ($this->discount / 100));
+    }
+
     public function displayPrice()
     {
         $user = auth("sanctum")->user();

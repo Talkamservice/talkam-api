@@ -21,22 +21,33 @@ class PostStat extends Model
         return $this->belongsTo(Post::class, "post_id");
     }
 
-    public function reactionStats()
+    public function reactionStats($start_at = null, $end_at = null)
     {
         if (!empty($this?->post_id)) {
             $reactions = UserPostReaction::where('post_id', $this->post_id)
-                ->selectRaw('SUM(action = ?) as likes, SUM(action = ?) as dislikes', [PostConstants::LIKE, PostConstants::DISLIKE])
-                ->first();
-    
-            $comments = $this->post->comments()->topLevel()->count();
-    
+                ->selectRaw('SUM(action = ?) as likes, SUM(action = ?) as dislikes', [PostConstants::LIKE, PostConstants::DISLIKE]);
+                
+            if (!empty($start_at) && !empty($end_at)) {
+                $reactions =  $reactions->whereBetween("created_at", [$start_at, $end_at]);
+            }
+
+           $reactions =  $reactions->first();
+
+            if (!empty($start_at) && !empty($end_at)) {
+                $comments = $this->post->comments()
+                    ->whereBetween("created_at", [$start_at, $end_at])
+                    ->topLevel()->count();
+            } else {
+                $comments = $this->post->comments()->topLevel()->count();
+            }
+
             return [
                 "likes" => intval($reactions->likes),
                 "comments" => intval($comments),
                 "dislikes" => intval($reactions->dislikes),
             ];
         }
-    
+
         return [
             "likes" => 0,
             "comments" => 0,

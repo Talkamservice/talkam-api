@@ -36,6 +36,8 @@ class PlanService
             "price.*" => 'nullable|numeric|gt:-1',
             "discount" => "nullable|array",
             "discount.*" => 'nullable|numeric|gte:0',
+            "discount_price" => "nullable|array",
+            "discount_price.*" => 'nullable|numeric|gte:0',
             "frequency" => 'nullable|array',
             "frequency.*" => [
                 'string',
@@ -191,9 +193,10 @@ class PlanService
         $price = $duration->price;
 
         if ($duration->discount > 0) {
-            $discount = ($duration->discount / 100) * $price;
-            $final_price = $price - $discount;
+            // $discount = ($duration->discount / 100) * $price;
+            // $final_price = $price - $discount;
         }
+
         return $final_price ?? $price;
     }
 

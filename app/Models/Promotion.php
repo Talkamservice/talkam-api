@@ -122,6 +122,54 @@ class Promotion extends Model
         }
     }
 
+    // public function statLog($column = "impressions")
+    // {
+    //     if ($this->type() == "Group") {
+    //         $total = PostStatLog::where("group_id", $this->group_id)
+    //             ->where("created_at", ">=", $this->created_at)
+    //             ->sum($column);
+    //     }
+
+    //     if ($this->type() == "Post") {
+    //         $total = PostStatLog::where("post_id", $this->post_id)
+    //             ->where("created_at", ">=", $this->created_at)
+    //             ->sum($column);
+    //     }
+
+    //     return $total ?? 0;
+    // }
+
+    public function statLogs($columns = ["impressions", "shares", "followers", "profile_visits", "clicks"])
+    {
+        static $cache = [];
+        // Cache key for this instance
+        $cacheKey = $this->id . '_' . implode('_', $columns);
+
+        if (!isset($cache[$cacheKey])) {
+            $end_at = carbon()->parse($this->created_at)->addDays($this->duration);
+            $query = PostStatLog::query()
+                ->whereBetween("created_at", [$this->created_at, $end_at]);
+
+            if ($this->type() == "Group") {
+                $query->where("group_id", $this->group_id);
+            } elseif ($this->type() == "Post") {
+                $query->where("post_id", $this->post_id);
+            }
+
+            // Fetch the sum of each column
+            $result = [];
+            foreach ($columns as $column) {
+                $result[$column] = (float) $query->sum($column);
+            }
+
+            // Cache the summed results
+            $cache[$cacheKey] = $result;
+        }
+
+        return $cache[$cacheKey];
+    }
+
+
     public function statAttribute($attribute)
     {
         if ($this->post?->postStat) {

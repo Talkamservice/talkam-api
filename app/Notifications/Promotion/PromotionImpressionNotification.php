@@ -7,9 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Helpers\MethodsHelper;
+use App\Services\Promotion\PromotionService;
 use Illuminate\Notifications\Notification;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class PromotionImpressionNotification extends Notification implements ShouldQueue
 {
@@ -72,7 +71,7 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
                 'id' => $this->promotion->getModelTypeAttribute->id,
                 'type' => $data['type'],
                 'extra' => [
-                    "type" => isset($this->promotion?->type) ? $this->promotion?->type : null,
+                    "type" => $this->promotion?->type(),
                 ],
             ])
             ->initiate();
@@ -83,13 +82,14 @@ class PromotionImpressionNotification extends Notification implements ShouldQueu
      */
     protected function buildData($notifiable): array
     {
-        $expiresAt = Carbon::parse($this->promotion->created_at)->addDays($this->promotion->duration);
+        $impressions = (new PromotionService)
+                    ->promotionStats($this->promotion, "impressions");
 
         $data = [
             'data' => [
                 'id' => $this->promotion->id,
             ],
-            'title' => $this->title ?? "Your promotion has reached {$this->promotion->statAttribute('impressions')} impressions",
+            'title' => $this->title ?? "Your promotion has reached {$impressions} impressions",
             'message' => $this->message,
             'type' => 'promotion',
             'link' => null,

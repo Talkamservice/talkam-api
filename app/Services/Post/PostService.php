@@ -400,7 +400,7 @@ class PostService
 
     public static function trends(array $data = [])
     {
-        $builder = TrendingTag::latest();
+        $builder = TrendingTag::query();
         return $builder;
     }
 
