@@ -46,15 +46,15 @@
                             </select>
                         </div>
                         <div class="ms-2">
-                            <!-- Currency Select -->
                             <select class="form-control currency-select" id="currency-select" name="currency">
+                                <option value="All" {{ !request()->currency || request()->currency == 'All' ? 'selected' : '' }}>All</option>
                                 @if (!in_array('Nigerian Naira (NGN)', \App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_OPTIONS))
-                                    <option value="" {{ !request()->currency ? 'selected' : '' }}>Nigerian Naira (NGN)
+                                    <option value="Nigerian Naira (NGN)" {{ request()->currency == 'Nigerian Naira (NGN)' ? 'selected' : '' }}>
+                                        Nigerian Naira (NGN)
                                     </option>
                                 @endif
                                 @foreach (\App\Constants\Finance\Currency\CurrencyConstants::CURRENCY_OPTIONS as $currency)
-                                    <option value="{{ $currency }}"
-                                        {{ request()->currency == $currency ? 'selected' : '' }}>
+                                    <option value="{{ $currency }}" {{ request()->currency == $currency ? 'selected' : '' }}>
                                         {{ $currency }}
                                     </option>
                                 @endforeach
