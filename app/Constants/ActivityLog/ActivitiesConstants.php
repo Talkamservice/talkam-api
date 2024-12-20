@@ -104,4 +104,6 @@ class ActivitiesConstants
 
     const LOG_DELETED  = "LOG_DELETED";
  
+    const CREATED_PAYMENT_TERM  = "CREATED_PAYMENT_TERM ";
+    const UPDATED_PAYMENT_TERM  = "UPDATED_PAYMENT_TERM ";
 }

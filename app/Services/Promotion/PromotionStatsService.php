@@ -25,7 +25,7 @@ class PromotionStatsService
     public function stats(array $data = [])
     {
         $period = $data["period"] ?? 'month';
-        $currency = $data['currency'] ?? 'Nigerian Naira (NGN)';
+        $currency = $data['currency'] ?? 'All';
         // dd($currency);
         if (!in_array($period, ['day', 'week', 'month', 'year'])) {
             $period = 'month';

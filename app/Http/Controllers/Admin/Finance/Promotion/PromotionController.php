@@ -52,16 +52,24 @@ class PromotionController extends Controller
 
     public function items(Request $request)
     {
-        $currency_symbol = $this->promotion_stat_service->getCurrencySymbol();
-        $promotions = Promotion::latest()->whereHas('currency', function ($query) use ($currency_symbol) {
-            $query->where('symbol',  $currency_symbol);
-        })->with('currency')
-            ->search($request->search)
-            ->filterByType($request->type)
-            ->filterByStatus($request->status)
-            ->with('user')
-            ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
-
+        $currency = $request->input('currency', 'All');
+        if ($currency === 'All') {
+            $promotions = Promotion::latest()->with('currency')->search($request->search)
+                ->filterByType($request->type)
+                ->filterByStatus($request->status)
+                ->with('user')
+                ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        } else {
+            $currency_symbol = $this->promotion_stat_service->getCurrencySymbol();
+            $promotions = Promotion::latest()->whereHas('currency', function ($query) use ($currency_symbol) {
+                $query->where('symbol',  $currency_symbol);
+            })->with('currency')
+                ->search($request->search)
+                ->filterByType($request->type)
+                ->filterByStatus($request->status)
+                ->with('user')
+                ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        }
         return view('dashboards.admin.pages.finance.promotions.list', [
             'promotions' => $promotions,
             "sn" => $promotions->firstItem(),
@@ -93,11 +101,20 @@ class PromotionController extends Controller
 
     public function getByStatus(Request $request)
     {
-        $currency_symbol = $this->promotion_stat_service->getCurrencySymbol();
-        $promotions = Promotion::where('status', $request->status)->latest()->whereHas('currency', function ($query) use ($currency_symbol) {
-            $query->where('symbol',  $currency_symbol);
-        })->with('currency')->search($request->search)
-            ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        $currency = $request->input('currency', 'All');
+        if ($currency === 'All') {
+            $promotions = Promotion::latest()->with('currency')->search($request->search)
+                ->filterByType($request->type)
+                ->filterByStatus($request->status)
+                ->with('user')
+                ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        } else {
+            $currency_symbol = $this->promotion_stat_service->getCurrencySymbol();
+            $promotions = Promotion::where('status', $request->status)->latest()->whereHas('currency', function ($query) use ($currency_symbol) {
+                $query->where('symbol',  $currency_symbol);
+            })->with('currency')->search($request->search)
+                ->paginate(AppConstants::ADMIN_PAGINATION_SIZE);
+        }
         $promotion_status = [];
         if ($request->status === StatusConstants::COMPLETED) {
             $promotion_status = "Completed";

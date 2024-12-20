@@ -178,6 +178,12 @@
                         </a>
                     </li>
                     <li class="slide">
+                        <a href="{{ route('admin.payment-terms.create') }}" class="side-menu__item list-item {{ Route::currentRouteName() == 'admin.finance.payment-terms.create' ? 'active' : '' }}">
+                            <i class="bx bx-list-ul side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Payment Terms</span>
+                        </a>
+                    </li>
+                    <li class="slide">
                         <a href="{{ route('admin.waitlists.index') }}" class="side-menu__item list-item {{ Route::currentRouteName() == 'admin.waitlists.index' ? 'active' : '' }}">
                             <i class="bx bx-list-check side-menu__icon list-item-icon"></i> <!-- Icon for waitlists -->
                             <span class="side-menu__label list-item-label">Waitlist</span>
