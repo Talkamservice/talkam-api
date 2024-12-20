@@ -34,156 +34,97 @@ class PostEventService
     {
         $stop_words = PostConstants::STOP_WORDS;
         $word_frequency = [];
-
+    
+        // Fetch posts for the current year and process in chunks
         Post::status()->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
             ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
                 foreach ($posts as $post) {
-
-                    $post_tags = json_decode($post->tags);
-                    if (!is_array($post_tags) || count($post_tags) == 0) {
+                    // Decode the tags into an array
+                    $post_tags = is_string($post->tags) ? json_decode($post->tags, true) : $post->tags;
+    
+                    if (!is_array($post_tags) || empty($post_tags)) {
                         continue;
                     }
-                
-                    $content = implode(" ", filterUniqueWords($post_tags));
-
-                    // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post_tags);
-
-                    // Tokenize the content into words
-                    $words = preg_split('/[\s,]+/', $content);
-
-                    // Remove stop words and punctuation, and convert to lowercase
-                    $filtered_words = array_filter($words, function ($word) use ($stop_words) {
-                        $word = strtolower($word);
-                        $word = preg_replace('/[^\w\s]/', '', $word);
-                        return !in_array($word, $stop_words) && !empty($word);
+    
+                    // Normalize tags and remove stop words
+                    $filtered_tags = array_filter($post_tags, function ($tag) use ($stop_words) {
+                        $tag = strtolower(trim($tag)); // Convert to lowercase and trim
+                        return !empty($tag) && !in_array($tag, $stop_words);
                     });
-
-                    // Generate unigrams, bigrams, and trigrams
-                    $phrases = [];
-                    $count = count($filtered_words);
-                    for ($i = 0; $i < $count; $i++) {
-                        $phrases[] = $filtered_words[$i] ?? null; // unigram
-                        if ($i + 1 < $count) {
-                            $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null); // bigram
-                        }
-                        if ($i + 2 < $count) {
-                            $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null) . ' ' . ($filtered_words[$i + 2] ?? null); // trigram
-                        }
-                    }
-
-                    // Count the frequency of each phrase
-                    foreach ($phrases as $phrase) {
-                        if (isset($word_frequency[$phrase])) {
-                            $word_frequency[$phrase]++;
-                        } else {
-                            $word_frequency[$phrase] = 1;
-                        }
+    
+                    // Count each tag's frequency
+                    foreach ($filtered_tags as $tag) {
+                        $word_frequency[$tag] = ($word_frequency[$tag] ?? 0) + 1;
                     }
                 }
             });
-
-        // Sort the array by frequency
+    
+        // Sort tags by frequency in descending order
         arsort($word_frequency);
-
-        // Get the top trending words (e.g., top 10)
-        $top_trending_words = array_slice($word_frequency, 0, 10, true);
-
-        // $filtered_array = array_filter($top_trending_words, function ($key) {
-        //     $trimmedKey = trim($key);
-        //     return !empty($trimmedKey) && strlen($trimmedKey) > 3;
-        // }, ARRAY_FILTER_USE_KEY);
-
-        $trimmed_array = [];
-        foreach ($top_trending_words as $key => $value) {
-            $trimmedKey = trim($key);
-            if (!empty($trimmedKey) && strlen($trimmedKey) > 3) {
-                $trimmed_array[$trimmedKey] = $value;
-            }
-        }
-
-        TrendingTag::whereNull("category_id")->delete();
-
-        foreach (ensureUniqueKeys($trimmed_array) as $word => $count) {
+    
+        // Filter and limit to top trending tags
+        $top_trending_tags = array_slice($word_frequency, 0, 10, true);
+    
+        // Save top trending tags into the database
+        TrendingTag::whereNull("category_id")->delete(); // Clear previous entries
+    
+        foreach ($top_trending_tags as $tag => $count) {
             TrendingTag::create([
-                'tag' => trim(ucwords($word)),
+                'tag' => ucfirst(trim($tag)), // Capitalize the tag
                 'count' => $count,
             ]);
         }
-    }
+    }    
 
     public static function categoryTrendingTags()
     {
         $categories = PostCategory::status()->get();
         $stop_words = PostConstants::STOP_WORDS;
-        $word_frequency = [];
-
-        foreach ($categories as $key => $category) {
+    
+        foreach ($categories as $category) {
+            $word_frequency = [];
+    
+            // Process posts for the current week within the category
             $category->posts()->status()->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
-                ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words, $category) {
+                ->chunk(1000, function ($posts) use (&$word_frequency, $stop_words) {
                     foreach ($posts as $post) {
-
-                        $post_tags = json_decode($post->tags);
-                        if (!is_array($post_tags) || count($post_tags) == 0) {
+                        // Decode tags into an array
+                        $post_tags = is_string($post->tags) ? json_decode($post->tags, true) : $post->tags;
+    
+                        if (!is_array($post_tags) || empty($post_tags)) {
                             continue;
                         }
-                        
-                        $content = implode(" ", filterUniqueWords($post_tags));
-                        // $content = $post->title . ' ' . $post->body . " " . implode(" ", $post_tags);
-
-                        // Tokenize the content into words
-                        $words = preg_split('/[\s,]+/', $content);
-
-                        // Remove stop words and punctuation, and convert to lowercase
-                        $filtered_words = array_filter($words, function ($word) use ($stop_words) {
-                            $word = strtolower($word);
-                            $word = preg_replace('/[^\w\s]/', '', $word);
-                            return !in_array($word, $stop_words) && !empty($word);
+    
+                        // Normalize tags and remove stop words
+                        $filtered_tags = array_filter($post_tags, function ($tag) use ($stop_words) {
+                            $tag = strtolower(trim($tag)); // Convert to lowercase and trim
+                            return !empty($tag) && !in_array($tag, $stop_words);
                         });
-
-                        // Generate unigrams, bigrams, and trigrams
-                        $phrases = [];
-                        $count = count($filtered_words);
-                        for ($i = 0; $i < $count; $i++) {
-                            $phrases[] = $filtered_words[$i] ?? null; // unigram
-                            if ($i + 1 < $count) {
-                                $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null); // bigram
-                            }
-                            if ($i + 2 < $count) {
-                                $phrases[] = ($filtered_words[$i] ?? null) . ' ' . ($filtered_words[$i + 1] ?? null) . ' ' . ($filtered_words[$i + 2] ?? null); // trigram
-                            }
+    
+                        // Count each tag's frequency
+                        foreach ($filtered_tags as $tag) {
+                            $word_frequency[$tag] = ($word_frequency[$tag] ?? 0) + 1;
                         }
-
-                        // Count the frequency of each phrase
-                        foreach ($phrases as $phrase) {
-                            if (isset($word_frequency[$phrase])) {
-                                $word_frequency[$phrase]++;
-                            } else {
-                                $word_frequency[$phrase] = 1;
-                            }
-                        }
-                    }
-
-                    // Sort the array by frequency
-                    arsort($word_frequency);
-
-                    // Get the top trending words (e.g., top 10)
-                    $top_trending_words = array_slice($word_frequency, 0, 10, true);
-
-
-                    $filtered_array = array_filter($top_trending_words, function ($key) {
-                        $trimmedKey = trim($key);
-                        return !empty($trimmedKey) && strlen($trimmedKey) > 3;
-                    }, ARRAY_FILTER_USE_KEY);
-
-                    $category->trendingTags()->delete();
-                    foreach (ensureUniqueKeys($filtered_array) as $word => $count) {
-                        TrendingTag::create([
-                            "category_id" => $category->id,
-                            'tag' => trim(ucwords($word)),
-                            "count" => $count,
-                        ]);
                     }
                 });
+    
+            // Sort tags by frequency in descending order
+            arsort($word_frequency);
+    
+            // Filter and limit to top trending tags
+            $top_trending_tags = array_slice($word_frequency, 0, 10, true);
+    
+            // Save trending tags for the category
+            $category->trendingTags()->delete(); // Clear previous trending tags
+    
+            foreach ($top_trending_tags as $tag => $count) {
+                TrendingTag::create([
+                    "category_id" => $category->id,
+                    'tag' => ucfirst(trim($tag)), // Capitalize the tag
+                    "count" => $count,
+                ]);
+            }
         }
     }
+    
 }
