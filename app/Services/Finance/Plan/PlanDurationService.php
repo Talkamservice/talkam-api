@@ -71,7 +71,7 @@ class PlanDurationService
             if (!empty($discount_price = $data_["discount_price"] ?? null)) {
                 $data_["price"] = $discount_price;
             }
-            
+
             // Check if the duration exists (i.e., if it's an update) and apply the flutterwave_plan_id
             if (isset($existingDurations[$key]) && !empty($existingDurations[$key])) {
                 $data_['flutterwave_plan_id'] = $existingDurations[$key];
@@ -90,6 +90,10 @@ class PlanDurationService
             "discount" => $data["discount"],
             "discount_price" => $data["discount_price"],
         ];
+
+        if (isset($data["plan_duration_id"])) {
+            $originalArray["plan_duration_id"] = $data["plan_duration_id"];
+        }
 
         $newArray = [];
 

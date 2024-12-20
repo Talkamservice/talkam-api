@@ -467,17 +467,37 @@ class MethodsHelper
         if (is_object($position) && property_exists($position, 'countryName')) {
             return $position->countryName;
         }
-        
+
         return null;
     }
 
-   static function validateCurrencyCode($currencyCode) {
+    static function validateCurrencyCode($currencyCode)
+    {
         $validCurrencies = [
-            'GBP', 'CAD', 'XAF', 'CLP', 'COP', 'EGP', 'EUR', 'GHS', 'GNF', 
-            'KES', 'MWK', 'MAD', 'NGN', 'RWF', 'SLL', 'STD', 'ZAR', 'TZS', 
-            'UGX', 'USD', 'XOF', 'ZMW'
+            'GBP',
+            'CAD',
+            'XAF',
+            'CLP',
+            'COP',
+            'EGP',
+            'EUR',
+            'GHS',
+            'GNF',
+            'KES',
+            'MWK',
+            'MAD',
+            'NGN',
+            'RWF',
+            'SLL',
+            'STD',
+            'ZAR',
+            'TZS',
+            'UGX',
+            'USD',
+            'XOF',
+            'ZMW'
         ];
-    
+
         if (!empty($currencyCode)) {
             if (in_array(strtoupper($currencyCode), $validCurrencies, true)) {
                 return strtoupper($currencyCode);
@@ -485,5 +505,17 @@ class MethodsHelper
         }
 
         return null;
+    }
+
+    static function wereFieldsChanged($model, array $fields): bool
+    {
+        $changes = array_keys($model->getChanges());
+        
+        foreach ($fields as $field) {
+            if (in_array($field, $changes)) {
+                return true;
+            }
+        }    
+        return false;
     }
 }

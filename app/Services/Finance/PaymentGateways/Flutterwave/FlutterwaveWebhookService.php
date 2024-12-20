@@ -30,11 +30,17 @@ class FlutterwaveWebhookService
         try {
             $payload = $this->payload;
 
-            if (!in_array($payload["event"] ?? null, ["charge.completed"])) {
+            if (!in_array($payload["event"] ?? null, ["charge.completed", "subscription.cancelled"])) {
                 throw new InvalidRequestException("The event is unregistered");
             }
 
-            $this->determineWebhookDestination($payload);
+            if (in_array($payload["event"], ["charge.completed"])) {
+                $this->determineWebhookDestination($payload);
+            }
+
+            if (in_array($payload["event"], ["subscription.cancelled"])) {
+                $this->handleSubscriptionPayments($payload);
+            }
 
             DB::commit();
         } catch (Exception $th) {
@@ -64,7 +70,7 @@ class FlutterwaveWebhookService
             if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
                 return $this->handleOneOffPayments($payload, $transaction);
             } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
-                return $this->handleSubscriptionPayments($payload, $transaction);
+                return $this->handleSubscriptionPayments($payload);
             }
 
             throw new InvalidRequestException("Hook purpose not found");
@@ -81,11 +87,10 @@ class FlutterwaveWebhookService
             ->handle();
     }
 
-    public function handleSubscriptionPayments($payload, $flutterwave_transaction)
+    public function handleSubscriptionPayments($payload)
     {
         return (new FlutterwaveSubscriptionPaymentWebhookService)
             ->setPayload($payload)
-            ->setTransactionData($flutterwave_transaction)
             ->handle();
     }
 }

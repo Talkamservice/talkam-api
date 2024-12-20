@@ -428,7 +428,7 @@ class PromotionService
         ];
 
         if (isset($field)) {
-            return $data[$field];
+            return $data[$field] ?? 0;
         } else {
             return $data;
         }

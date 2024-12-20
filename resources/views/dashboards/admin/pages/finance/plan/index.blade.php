@@ -41,7 +41,9 @@
                                 <tr>
                                     <th scope="col">Name</th>
                                     <th scope="col">Amount - Monthly (30 Days)</th>
+                                    <th scope="col">Discount - Monthly (30 Days)</th>
                                     <th scope="col">Amount - Yearly (365 Days)</th>
+                                    <th scope="col">Discount - Yearly (365 Days)</th>
                                     <th scope="col">Description</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Date</th>
@@ -51,13 +53,15 @@
                             <tbody>
                                 @forelse($plans as $plan)
                                     @php
-                                        $monthly = $plan->durations?->where('frequency', 'Monthly')->first()?->originalPrice();
-                                        $yearly = $plan->durations?->where('frequency', 'Yearly')->first()?->originalPrice();
+                                        $monthly = $plan->durations?->where('frequency', 'Monthly')->first();
+                                        $yearly = $plan->durations?->where('frequency', 'Yearly')->first();
                                     @endphp
                                     <tr>
                                         <td>{{ $plan->name }}</td>
-                                        <td>{{ !empty($monthly) ? format_money($monthly, 2, "$") : null }}</td>
-                                        <td>{{ !empty($yearly) ? format_money($yearly, 2, "$") : null }}</td>
+                                        <td>{{ !empty($original_monthly_price = $monthly?->originalPrice()) ? format_money($original_monthly_price, 2, "$") : null }}</td>
+                                        <td>{{ !empty($monthly?->discount) ? "%{$monthly?->discount}" : "" }}</td>
+                                        <td>{{ !empty($original_yearly_price = $yearly?->originalPrice()) ? format_money($original_yearly_price, 2, "$") : null }}</td>
+                                        <td>{{ !empty($yearly?->discount) ? "{$yearly?->discount}%" : "" }}</td>
                                         <td><span class="fw-normal">{{ str_limit($plan->description) ?? 'N/A' }}</span></td>
                                         <td>
                                             <span class="badge bg-{{ pillClasses($plan->status) }}-transparent">

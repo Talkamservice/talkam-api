@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\Users\TrendingSearchResource;
+use App\Http\Resources\Users\UserResource;
 use App\Services\Post\SearchService;
 use Exception;
 use Illuminate\Http\Request;
@@ -37,6 +38,7 @@ class SearchController extends Controller
                 "post" => PostResource::collection($data["data"]),
                 "group" => GroupResource::collection($data["data"]),
                 "media" => PostResource::collection($data["data"]),
+                "user" => UserResource::collection($data["data"]),
             };
 
             return ApiHelper::validResponse("Search returned successfully", $data);

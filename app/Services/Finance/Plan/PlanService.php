@@ -4,8 +4,10 @@ namespace App\Services\Finance\Plan;
 
 use App\Constants\General\StatusConstants;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Helpers\MethodsHelper;
 use App\Models\Currency;
 use App\Models\Plan;
+use App\Models\PlanDuration;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -38,6 +40,8 @@ class PlanService
             "discount.*" => 'nullable|numeric|gte:0',
             "discount_price" => "nullable|array",
             "discount_price.*" => 'nullable|numeric|gte:0',
+            "plan_duration_id" => "nullable|array",
+            "plan_duration_id.*" => 'nullable|numeric|exists:plan_durations,id',
             "frequency" => 'nullable|array',
             "frequency.*" => [
                 'string',
@@ -112,6 +116,7 @@ class PlanService
             $data = self::validate($data, $id);
             $plan = self::getById($id);
             $currency = Currency::where('symbol', '$')->first();
+
             $plan->update([
                 "name" => $data["name"],
                 "description" => $data["description"],
@@ -129,29 +134,39 @@ class PlanService
                 ]);
             }
 
-            // $plan->benefits()->delete();
-            // $plan_scopes = $plan->scopes;
-
-            // foreach ($plan_scopes ?? [] as $key => $scope) {
-            //     $title = self::parseTitle($scope);
-            //     if (!empty($title)) {
-            //         (new PlanBenefitService)->save([
-            //             "plan_id" => $plan->id,
-            //             "title" => $title,
-            //             "key" => $scope->slug,
-            //             "value" => "Yes",
-            //             "status" => StatusConstants::ACTIVE
-            //         ]);
-            //     }
-            // }
-
-            // Fetch the existing durations before deletion
             if (!empty($data["price"] ?? null) && !empty($data["frequency"] ?? null)) {
-                $existingDurations = $plan->durations()->pluck('flutterwave_plan_id', 'id')->toArray();
-                $plan->durations()->delete();
-                (new PlanDurationService)->saveMultiple($data, $plan, $existingDurations);
-                self::updateFlutterwavePlan($plan, $existingDurations);
+                $new_data = (new PlanDurationService)->parseData($data);
+
+                foreach ($new_data as $key => $new_data_) {
+                    $new_data_["plan_id"] = $plan->id;
+
+                    if (!empty($discount_price = $new_data_["discount_price"] ?? null)) {
+                        $new_data_["price"] = $discount_price;
+                    }
+
+                    $plan_duration = (new PlanDurationService)->save($new_data_, $new_data_["plan_duration_id"]);
+
+                    if (
+                        MethodsHelper::wereFieldsChanged($plan_duration, ["price", "discount", "frequency"])
+                        && $plan->status == StatusConstants::ACTIVE
+                    ) {
+                        self::cancelFlutterwavePlanDuration($plan_duration);
+                        self::createFlutterwavePlanDuration($plan_duration);
+                    }
+
+                    if (
+                        MethodsHelper::wereFieldsChanged($plan, ["status"])
+                        && !empty($plan_duration->flutterwave_plan_id)
+                    ) {
+                        (new FlutterwaveService)
+                            ->setPlanData([
+                                "status" => strtolower($plan->status),
+                            ])
+                            ->updatePlan($plan_duration->flutterwave_plan_id);
+                    }
+                }
             }
+
             DB::commit();
             return $plan;
         } catch (\Throwable $th) {
@@ -241,41 +256,28 @@ class PlanService
         }
     }
 
-    public static function updateFlutterwavePlan($plan, $existingDurations)
+    public static function createFlutterwavePlanDuration($duration)
     {
-        foreach ($existingDurations as $duration) {
-            // Check if the duration has a flutterwave_plan_id
-            if (!empty($duration->flutterwave_plan_id)) {
-                // Fetch plan details from Flutterwave using flutterwave_plan_id
-                $existingPlan = (new FlutterwaveService)->getPlan($duration->flutterwave_plan_id);
+        $plan = $duration->plan;
 
-                if ($existingPlan && $existingPlan['data']['id'] == $duration->flutterwave_plan_id) {
-                    // If the plan exists and fields like amount or interval have changed
-                    if ($plan->isDirty(['amount', 'interval', 'duration'])) {
-                        // Create a new Flutterwave plan and cancel the old one
-                        self::createFlutterwavePlan($plan);
-                        self::cancelFlutterwavePlan($duration);
-                    } else {
-                        // Otherwise, update allowed fields
-                        $transaction_data = [
-                            "name" => $plan->name,
-                            "status" => $plan->status,
-                        ];
-                        $response = (new FlutterwaveService)->setPlanData($transaction_data)
-                            ->updatePlan($duration->flutterwave_plan_id);
-                        if (!empty($response)) {
-                            // Update flutterwave_plan_id if necessary
-                            $duration->update([
-                                'flutterwave_plan_id' => $response["data"]['id']
-                            ]);
-                        }
-                        return $response;
-                    }
-                }
-            } else {
-                // Handle cases where flutterwave_plan_id is missing
-                self::createFlutterwavePlan($plan);
-            }
+        $amount = floatval((new PlanService)->parsePlanPrice($duration));
+        $currency = Currency::where('short_name', 'USD')->first();
+
+        $transaction_data = [
+            "amount" => $amount,
+            "name" => $plan->name,
+            "interval" => strtolower($duration->frequency),
+            "duration" => $duration->duration,
+            "currency" => $currency ? $currency->short_name : 'USD',
+        ];
+
+        $response = (new FlutterwaveService)->setPlanData($transaction_data)
+            ->createPlan();
+
+        if (!empty($response)) {
+            $duration->update([
+                'flutterwave_plan_id' => $response["data"]['id']
+            ]);
         }
     }
 
@@ -333,6 +335,12 @@ class PlanService
             $response = (new FlutterwaveService)->cancelPlan($duration->flutterwave_plan_id);
             return $response;
         }
+    }
+
+    public static function cancelFlutterwavePlanDuration($duration)
+    {
+        $response = (new FlutterwaveService)->cancelPlan($duration->flutterwave_plan_id);
+        return $response;
     }
 
     public static function calcLocalPrice($currency_code, $amount)

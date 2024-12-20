@@ -9,25 +9,20 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\Finance\Subscription\NewSubscriptionNotification;
 use App\Notifications\Finance\Subscription\SubscriptionDisabledNotification;
+use App\Notifications\Finance\Subscription\SubscriptionRenewalNotification;
 use App\Services\Finance\Subscription\SubscriptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class FlutterwaveSubscriptionPaymentWebhookService
 {
-    public array $payload, $transaction_data;
+    public array $payload;
     public User $user;
     public Subscription $subscription;
 
     public function setPayload(array $value)
     {
         $this->payload = $value;
-        return $this;
-    }
-
-    public function setTransactionData(array $transaction_data)
-    {
-        $this->transaction_data = $transaction_data;
         return $this;
     }
 
@@ -68,16 +63,29 @@ class FlutterwaveSubscriptionPaymentWebhookService
         return $user;
     }
 
-    
+
     private function actionHandler()
     {
-        $subscription = Subscription::where("plan_duration_id", $this->payload["meta_data"]["plan_duration_id"])
-            ->where("user_id", $this->user->id)->first();
+        if ($this->payload["event"] == "subscription.cancelled") {
+            $subscription = Subscription::where("plan_duration_id", $this->payload["data"]["plan"]["id"])
+                ->where("user_id", $this->user->id)->first();
 
-        if (empty($subscription)) {
-            $this->initiateUserSubscription();
+            if (!empty($subscription)) {
+                $this->disableUserSubscription($subscription);
+            }
         } else {
-            $this->handleRecurringSubscription($subscription);
+            if (isset($this->payload["meta_data"]["plan_duration_id"])) {
+                $subscription = Subscription::where("plan_duration_id", $this->payload["meta_data"]["plan_duration_id"])
+                    ->where("user_id", $this->user->id)->first();
+            } else {
+                $subscription = $this->user->subscriptions;
+            }
+
+            if (empty($subscription)) {
+                $this->initiateUserSubscription();
+            } else {
+                $this->handleRecurringSubscription($subscription);
+            }
         }
     }
 
@@ -99,7 +107,7 @@ class FlutterwaveSubscriptionPaymentWebhookService
         }
 
         $subscription = SubscriptionService::subscribeToPlan($this->user, $plan_duration);
-      
+
         if ($this->user?->should_display_ads != 1) {
             $this->user?->update([
                 "should_display_ads" => 0
@@ -110,12 +118,30 @@ class FlutterwaveSubscriptionPaymentWebhookService
         // Notification::send(sudo(), new AdminNewSubscriptionNotification($subscription));
     }
 
-    public function handleRecurringSubscription($subscription) {
+    public function handleRecurringSubscription($subscription)
+    {
+        if ($this->user?->should_display_ads != 1) {
+            $this->user?->update([
+                "should_display_ads" => 0
+            ]);
+        }
+
+        Subscription::where("user_id", $subscription->user_id)
+            ->update([
+                "status" => StatusConstants::INACTIVE
+            ]);
+
+        $subscription->update([
+            "status" => StatusConstants::ACTIVE,
+            "paid_on" => now(),
+            "expires_at" => carbon()->parse($subscription->expires_at)->addDays($subscription->duration),
+        ]);
+
+        Notification::send($this->user, new SubscriptionRenewalNotification($subscription));
     }
 
-    public function disableUserSubscription()
+    public function disableUserSubscription($subscription)
     {
-        $subscription = $this->subscription;
         $subscription->update([
             "status" => StatusConstants::INACTIVE
         ]);

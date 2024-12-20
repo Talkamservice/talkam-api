@@ -7,6 +7,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Group;
 use App\Models\Post;
 use App\Models\TrendingSearch;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -108,7 +109,7 @@ class SearchService
     public static function search(array $data = [])
     {
         $validator = Validator::make($data, [
-            "sort" => "required|string|in:post,group,media",
+            "sort" => "required|string|in:post,group,media,user",
             "search" => "nullable|string",
         ]);
 
@@ -132,6 +133,7 @@ class SearchService
             'post' => Post::status()->search($data["search"])->unblocked()->anonymous(),
             'group' => Group::status()->search($data["search"]),
             'media' => Post::status()->search($data["search"])->whereIn("type", [PostConstants::FILE, PostConstants::IMAGE, PostConstants::VIDEO]),
+            "user" => User::status()->search($data["search"])->unblocked(),
             default => collect([]),
         };
 
@@ -157,6 +159,7 @@ class SearchService
             'post' => Post::status()->unblocked()->inRandomOrder(),
             'group' => Group::status()->unblocked()->inRandomOrder(),
             'media' => Post::status()->unblocked()->inRandomOrder()->whereIn("type", [PostConstants::FILE, PostConstants::IMAGE, PostConstants::VIDEO]),
+            "user" => User::status()->unblocked()->inRandomOrder(),
             default => collect([]),
         };
 
