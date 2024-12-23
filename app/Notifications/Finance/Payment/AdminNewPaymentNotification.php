@@ -87,7 +87,7 @@ class AdminNewPaymentNotification extends Notification
     {
         return [
             'data' => [
-                'id' => $this->payment->id,
+                'id' => $this->payment?->promotion?->id,
             ],
             'title' => 'New Payment!',
             'message' => $this->buildMessage(),
