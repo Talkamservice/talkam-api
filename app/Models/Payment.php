@@ -21,6 +21,11 @@ class Payment extends Model
         return $this->belongsTo(User::class, "user_id");
     }
 
+    public function promotion()
+    {
+        return $this->hasOne(Promotion::class, "payment_id");
+    }
+
     public function currencyModel()
     {
         return $this->belongsTo(Currency::class, "currency", "short_name");
