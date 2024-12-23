@@ -37,7 +37,7 @@ class PromotionResource extends JsonResource
             "daily_budget" => $this->daily_budget,
             "frequency" => $this->frequency,
             "duration" => $this->duration,
-            "estimated_reach" => $this->estimated_reach,
+            "estimated_reach" => (string) $this->estimated_reach,
             "total_reach" => $this->total_reach,
             "status" => $this->status,
             "expires_at" => formatDate($this->expires_at),
@@ -58,7 +58,7 @@ class PromotionResource extends JsonResource
             "daily_budget" => $model->daily_budget,
             "frequency" => $model->frequency,
             "duration" => $model->duration,
-            "estimated_reach" => $model->estimated_reach,
+            "estimated_reach" => (string) $model->estimated_reach,
             "total_reach" => $model->total_reach,
             "created_at" => formatDate($model->created_at),
             "updated_at" => formatDate($model->updated_at)
