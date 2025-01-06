@@ -106,7 +106,7 @@ class PostStatsResource extends JsonResource
     public function calcEngagementRates($reaction_stats, $shares, $shares_users_count = 0)
     {
         $total_engagements = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares);
-        $total_users = $shares_users_count + $reaction_stats["users"];
+        $total_users = $shares_users_count + $reaction_stats["users"];        
         $engagement_rates = divideNumber($total_engagements, $total_users) * 100;
         $data = int_format($engagement_rates, 2);
         return $data;
@@ -116,11 +116,11 @@ class PostStatsResource extends JsonResource
     {
         $end_at = carbon()->parse($model->created_at)->addDays($model->duration);
 
-        $shares_users_count = PostStatLog::whereBetween("created_at", [$this->created_at, $end_at])
+        $shares_users_count = PostStatLog::whereBetween("created_at", [$model->created_at, $end_at])
             ->where("shares", 1)
             ->distinct("user_id")
             ->pluck("user_id")
-            ->toArray();
+            ->count("user_id");
 
         return $shares_users_count;
     }
