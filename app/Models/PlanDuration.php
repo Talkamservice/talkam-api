@@ -73,4 +73,13 @@ class PlanDuration extends Model
 
         return $response;
     }
+
+    public function getFirstPlanDiscountForFrequency($frequency)
+    {
+        $plan = $this->plan()->first();
+        if ($plan) {
+            return $plan->getFirstPlanDiscountForFrequency($frequency);
+        }
+        return null;
+    }
 }
