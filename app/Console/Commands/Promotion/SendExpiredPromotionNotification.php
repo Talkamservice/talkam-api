@@ -5,9 +5,11 @@ namespace App\Console\Commands\Promotion;
 use App\Constants\General\StatusConstants;
 use Illuminate\Console\Command;
 use App\Models\Promotion;
+use App\Notifications\Promotion\ExpiredPromotionNotification;
 use App\Notifications\Promotion\PromotionImpressionNotification;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SendExpiredPromotionNotification extends Command
 {
@@ -16,21 +18,20 @@ class SendExpiredPromotionNotification extends Command
 
     public function handle()
     {
-        $promotions = Promotion::where('status', StatusConstants::ACTIVE)->get();
+        $promotions = Promotion::where('status', StatusConstants::ACTIVE)->whereNull('notified_at')->get();
 
         foreach ($promotions as $promotion) {
             $expiresAt = Carbon::parse($promotion->created_at)->addDays($promotion->duration);
-
             if (Carbon::now()->gte($expiresAt)) {
                 $type = $promotion->type();
                 
                 $message = "Your {$type} ad has expired. Click to view the final analytics of this ad.";
                 $title = "Your {$type} ad has expired";
                 
-                Notification::send($promotion->user, new PromotionImpressionNotification($promotion, $message, $title));
-
+                Notification::send($promotion->user, new ExpiredPromotionNotification($promotion, $message, $title));    
                 $promotion->update([
-                    "status" => StatusConstants::COMPLETED
+                    "status" => StatusConstants::COMPLETED,
+                    'notified_at' => Carbon::now(),
                 ]);
             }
         }
