@@ -105,7 +105,7 @@ class PromotionStatsService
                     [
                         "title" => "Completed Promotions",
                         "value" => array_sum($promotion_data['totalSuccessfulPromotions']),
-                        "class" => "primary",
+                        "class" => "success",
                         "status" => StatusConstants::COMPLETED,
                     ],
                     [
@@ -115,10 +115,16 @@ class PromotionStatsService
                         "status" => StatusConstants::PENDING,
                     ],
                     [
-                        "title" => "Pending Promotions",
+                        "title" => "Inactive Promotions",
                         "value" => array_sum($promotion_data['totalInactivePromotions']),
                         "class" => "warning",
                         "status" => StatusConstants::INACTIVE,
+                    ],
+                    [
+                        "title" => "Active Promotions",
+                        "value" => array_sum($promotion_data['totalActivePromotions']),
+                        "class" => "primary",
+                        "status" => StatusConstants::ACTIVE,
                     ]
                 ],
             ],
@@ -187,6 +193,7 @@ class PromotionStatsService
             'totalSuccessfulPromotions' => $currentData['total_successful_promotions'],
             'totalPendingPromotions' => $currentData['total_pending_promotions'],
             'totalInactivePromotions' => $currentData['total_inactive_promotions'],
+            'totalActivePromotions' => $currentData['total_active_promotions'],
             'totalPromotionPercentage' => $totalPromotionPercentage,
             'postAdsChangePercentage' => $postAdsChangePercentage,
             'groupAdsChangePercentage' => $groupAdsChangePercentage,
@@ -241,9 +248,12 @@ class PromotionStatsService
 
             $total_successful_promotions[$i] = $promotions->clone()
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
-                ->status()
+                ->status(StatusConstants::COMPLETED)
                 ->count();
-
+                $total_active_promotions[$i] = $promotions->clone()
+                ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
+                ->status(StatusConstants::ACTIVE)
+                ->count();
             $total_pending_promotions[$i] = $promotions->clone()
                 ->whereBetween('created_at', [$startOfInterval, $endOfInterval])
                 ->status(StatusConstants::PENDING)
@@ -287,6 +297,7 @@ class PromotionStatsService
         return [
             'total_successful_promotions' => $total_successful_promotions,
             'total_pending_promotions' => $total_pending_promotions,
+            'total_active_promotions' => $total_active_promotions,
             'total_inactive_promotions' => $total_inactive_promotions,
             'total_promotions' => $total_promotions,
             'total_post_ads' => $total_post_ads,

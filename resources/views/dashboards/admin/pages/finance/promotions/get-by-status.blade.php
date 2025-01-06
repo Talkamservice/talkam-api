@@ -37,9 +37,11 @@
                         <div class="form-group me-2">
                             <select name="status" class="form-control">
                                 <option value="">Select Status</option>
-                                <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Ongoing
+                                <option value="Completed" {{ request()->status == 'Completed' ? 'selected' : '' }}>Completed
                                 </option>
-                                <option value="Active" {{ request()->status == 'Active' ? 'selected' : '' }}>Completed
+                                <option value="Active" {{ request()->status == 'Active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Ongoing
                                 </option>
                                 <option value="Inactive" {{ request()->status == 'Inactive' ? 'selected' : '' }}>Pending
                                 </option>
