@@ -58,7 +58,7 @@ class PostStat extends Model
                                 $query->whereBetween('created_at', [$start_at, $end_at]);
                             })
                     );
-            })->distinct()->pluck("user_id");
+            })->distinct()->count("user_id");
 
             return [
                 "likes" => intval($reactions->likes),

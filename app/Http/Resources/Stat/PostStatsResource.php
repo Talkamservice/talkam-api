@@ -6,6 +6,7 @@ use App\Models\ContentEngagementUser;
 use App\Models\Country;
 use App\Models\Group;
 use App\Models\Post;
+use App\Models\PostStatLog;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,6 +24,7 @@ class PostStatsResource extends JsonResource
     public function toArray($request)
     {
         $reaction_stats = $this->reactionStats();
+        $shares_users_count = $this->shareUserCount($this);
 
         return [
             "id" => $this->id,
@@ -32,7 +34,7 @@ class PostStatsResource extends JsonResource
             "shares" => $this->shares,
             "impressions" => $this->impressions,
             "engagements" => divideNumber($this->impressions, $reaction_stats["likes"]),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares, $shares_users_count),
             "followers" => $this->followers,
             "profile_visits" => $this->profile_visits,
             "clicks" => $this->clicks,
@@ -46,6 +48,8 @@ class PostStatsResource extends JsonResource
     public function model(Model $model)
     {
         $reaction_stats = $this->reactionStats();
+        $shares_users_count = $this->shareUserCount($model);
+
         return [
             "id" => $model->id,
             "comments" => $reaction_stats["comments"],
@@ -54,7 +58,7 @@ class PostStatsResource extends JsonResource
             "shares" => $model->shares,
             "impressions" => $model->impressions,
             "engagements" => divideNumber($model->impressions, $reaction_stats["likes"]),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares, $shares_users_count),
             "followers" => $model->followers,
             "profile_visits" => $model->profile_visits,
             "clicks" => $model->clicks,
@@ -79,12 +83,13 @@ class PostStatsResource extends JsonResource
 
         $reaction_stats = $model->stat()?->reactionStats($start_at, $end_at) ?? null;
 
+        $shares_users_count = $this->shareUserCount($model);
         return [
             "id" => $model->id,
             "comments" => $reaction_stats["comments"] ?? 0,
             "likes" => $reaction_stats["likes"] ?? 0,
             "dislikes" => $reaction_stats["dislikes"] ?? 0,
-            "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0) : 0,
+            "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0, $shares_users_count) : 0,
             "shares" => $stats["shares"] ?? 0,
             "impressions" => $stats["impressions"] ?? 0,
             "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"] ?? 0),
@@ -98,11 +103,26 @@ class PostStatsResource extends JsonResource
         ];
     }
 
-    public function calcEngagementRates($reaction_stats, $shares)
+    public function calcEngagementRates($reaction_stats, $shares, $shares_users_count = 0)
     {
-        $engagement_rates = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares) / 100;
+        $total_engagements = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares);
+        $total_users = $shares_users_count + $reaction_stats["users"];
+        $engagement_rates = divideNumber($total_engagements, $total_users) * 100;
         $data = int_format($engagement_rates, 2);
         return $data;
+    }
+
+    public function shareUserCount($model)
+    {
+        $end_at = carbon()->parse($model->created_at)->addDays($model->duration);
+
+        $shares_users_count = PostStatLog::whereBetween("created_at", [$this->created_at, $end_at])
+            ->where("shares", 1)
+            ->distinct("user_id")
+            ->pluck("user_id")
+            ->toArray();
+
+        return $shares_users_count;
     }
 
     public function countriesStats($countries = null, $promotion = null)
