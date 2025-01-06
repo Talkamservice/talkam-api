@@ -84,14 +84,13 @@ class Plan extends Model
 
     public function defaultDiscount()
     {
-        $default_duration = $this->durations()->orderBy("id", "asc")
-            ->where('frequency', PlanConstants::YEARLY)
-            ->first();
+        $plan = Plan::with(['durations' => function ($query) {
+            $query->orderBy('frequency', 'desc');
+        }])->orderBy('id', 'asc')->first();
 
-        if (empty($default_duration)) {
-            $default_duration = $this->durations()->orderBy("id", "asc")
-                ->first();
-        }
+        $default_duration = $plan?->durations->firstWhere('frequency', PlanConstants::YEARLY)
+            ?? $plan?->durations->first();
+
         return $default_duration?->discount;
     }
 
