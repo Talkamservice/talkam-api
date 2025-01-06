@@ -92,7 +92,7 @@ class Plan extends Model
             $default_duration = $this->durations()->orderBy("id", "asc")
                 ->first();
         }
-        return $default_duration->discount;
+        return $default_duration?->discount;
     }
 
     public function getFirstPlanDiscountForFrequency($frequency)
