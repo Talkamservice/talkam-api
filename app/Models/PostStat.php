@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Constants\Post\PostConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class PostStat extends Model
 {
@@ -26,12 +27,12 @@ class PostStat extends Model
         if (!empty($this?->post_id)) {
             $reactions = UserPostReaction::where('post_id', $this->post_id)
                 ->selectRaw('SUM(action = ?) as likes, SUM(action = ?) as dislikes', [PostConstants::LIKE, PostConstants::DISLIKE]);
-                
+
             if (!empty($start_at) && !empty($end_at)) {
                 $reactions =  $reactions->whereBetween("created_at", [$start_at, $end_at]);
             }
 
-           $reactions =  $reactions->first();
+            $reactions =  $reactions->first();
 
             if (!empty($start_at) && !empty($end_at)) {
                 $comments = $this->post->comments()
@@ -41,10 +42,29 @@ class PostStat extends Model
                 $comments = $this->post->comments()->topLevel()->count();
             }
 
+            $distinct_users = DB::table(function ($query) use ($start_at, $end_at) {
+                $query->select('user_id')
+                    ->from('user_post_reactions')
+                    ->where('post_id', $this->post_id)
+                    ->when(!empty($start_at) && !empty($end_at), function ($query) use ($start_at, $end_at) {
+                        $query->whereBetween('created_at', [$start_at, $end_at]);
+                    })
+                    ->union(
+                        DB::table('post_comments')
+                            ->select('user_id')
+                            ->where('post_id', $this->post_id)
+                            ->whereNull('parent_id')
+                            ->when(!empty($start_at) && !empty($end_at), function ($query) use ($start_at, $end_at) {
+                                $query->whereBetween('created_at', [$start_at, $end_at]);
+                            })
+                    );
+            })->distinct()->pluck("user_id");
+
             return [
                 "likes" => intval($reactions->likes),
                 "comments" => intval($comments),
                 "dislikes" => intval($reactions->dislikes),
+                "users" => intval($distinct_users),
             ];
         }
 
@@ -52,6 +72,7 @@ class PostStat extends Model
             "likes" => 0,
             "comments" => 0,
             "dislikes" => 0,
+            "users" => 0
         ];
     }
 }
