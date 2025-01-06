@@ -54,10 +54,10 @@ class Plan extends Model
 
         if (!empty($plan_pricing_provider)) {
             $price = $this->plan_pricing_provider?->price;
-        }else {
+        } else {
             $price = $default_duration?->price;
         }
-        
+
         return $price;
     }
 
@@ -79,5 +79,27 @@ class Plan extends Model
     public function formattedAmount()
     {
         return format_money($this->durations->price, 2, $this->plan->currency->symbol);
+    }
+
+    public static function defaultDiscount()
+    {
+        $default_duration = self::defaultDuration();
+        if ($default_duration) {
+            return $default_duration->getFirstPlanDiscountForFrequency($default_duration->frequency);
+        }
+        return null;
+    }
+
+    public function getFirstPlanDiscountForFrequency($frequency)
+    {
+        $default_duration = $this->defaultDuration();
+        if ($default_duration) {
+            $first_plan_duration = $this->durations()->where('frequency', $frequency)->first();
+
+            if ($first_plan_duration) {
+                return $first_plan_duration->discount;
+            }
+        }
+        return null;
     }
 }
