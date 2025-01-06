@@ -84,7 +84,7 @@ class Plan extends Model
 
     public function defaultDiscount()
     {
-        $plan = Plan::with(['durations' => function ($query) {
+        $plan = Plan::whereHas("durations")->with(['durations' => function ($query) {
             $query->orderBy('frequency', 'desc');
         }])->orderBy('id', 'asc')->first();
 
