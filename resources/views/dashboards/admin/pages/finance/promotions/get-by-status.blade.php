@@ -43,7 +43,7 @@
                                 </option>
                                 <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Ongoing
                                 </option>
-                                <option value="Inactive" {{ request()->status == 'Inactive' ? 'selected' : '' }}>Pending
+                                <option value="Inactive" {{ request()->status == 'Inactive' ? 'selected' : '' }}>Inactive
                                 </option>
                             </select>
                         </div>
