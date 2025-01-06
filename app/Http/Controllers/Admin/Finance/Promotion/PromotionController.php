@@ -118,6 +118,8 @@ class PromotionController extends Controller
         $promotion_status = [];
         if ($request->status === StatusConstants::COMPLETED) {
             $promotion_status = "Completed";
+        } elseif ($request->status === StatusConstants::ACTIVE) {
+            $promotion_status = "Active";
         } elseif ($request->status === StatusConstants::PENDING) {
             $promotion_status = "Ongoing";
         } else {
