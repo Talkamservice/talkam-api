@@ -7,6 +7,7 @@ use App\Constants\General\NotificationConstants;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\PlanBenefit;
+use App\Models\PlanDuration;
 use App\Services\Finance\Plan\PlanBenefitService;
 use App\Services\Finance\Plan\PlanService;
 use Illuminate\Http\Request;
@@ -26,10 +27,12 @@ class PlanBenefitsController extends Controller
     {
         $plan = PlanService::getById($plan_id);
         $plan_benefits = PlanBenefit::where('plan_id', $plan->id)->get();
+        $plan_durations = PlanDuration::where('plan_id', $plan->id)->get();
 
         return view('dashboards.admin.pages.finance.plan.benefits.index', [
             'plan' => $plan,
             'plan_benefits' => $plan_benefits,
+            'plan_durations' => $plan_durations,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS
         ]);
     }

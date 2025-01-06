@@ -42,6 +42,7 @@ class PostController extends Controller
         try {
             $posts = $this->post_service->list($request->all())
                 ->with(["comments", "threadNotifications"])
+                ->whereDoesntHave('promotions')
                 ->status()
                 ->unblocked()
                 ->hideGroupPosts()

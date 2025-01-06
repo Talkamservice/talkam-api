@@ -43,9 +43,6 @@
                             </p>
                         </div>
                     </div>
-
-
-
                     <div class="table-responsive">
                         <table class="table text-nowrap table-hover border table-bordered">
                             <thead>
@@ -84,12 +81,6 @@
                                                     title="Delete this plan">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </a>
-                                                {{-- <a aria-label="anchor" data-bs-toggle="tooltip"
-                                                    title="View Flutterwave Plans. For developers testing only. would be remove before it goes live"
-                                                    target="_blank" href="{{ route('admin.view-flutterwave-plans') }}"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
-                                                        class="ri-external-link-line"></i></a> 
-                                                        --}}
                                             </div>
                                         </td>
                                     </tr>

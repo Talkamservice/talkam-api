@@ -176,7 +176,6 @@ class GroupService
         // Apply status filter here, before pagination
 
         if (!empty($key = $data["status"] ?? null)) {
-            $builder = $builder->where("status", $key); // Apply the status filter on the query
             $builder = $builder->where("status", $key);
         }
 
