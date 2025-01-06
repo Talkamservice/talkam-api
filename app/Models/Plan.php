@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\Finance\Plan\PlanConstants;
 use App\Constants\General\StatusConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -81,13 +82,17 @@ class Plan extends Model
         return format_money($this->durations->price, 2, $this->plan->currency->symbol);
     }
 
-    public static function defaultDiscount()
+    public function defaultDiscount()
     {
-        $default_duration = self::defaultDuration();
-        if ($default_duration) {
-            return $default_duration->getFirstPlanDiscountForFrequency($default_duration->frequency);
+        $default_duration = $this->whereHas("durations")->orderBy("id", "asc")
+            ->where('frequency', PlanConstants::YEARLY)
+            ->first();
+
+        if (empty($default_duration)) {
+            $default_duration = $this->whereHas("durations")->orderBy("id", "asc")
+                ->first();
         }
-        return null;
+        return $default_duration->discount;
     }
 
     public function getFirstPlanDiscountForFrequency($frequency)

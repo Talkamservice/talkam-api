@@ -31,7 +31,7 @@ class PlanResource extends JsonResource
             'description' => $this->description,
             "frequency" => $this->defaultDuration()?->frequency,
             'price' => $local_rate ?? $this->displayPrice(),
-            "discount" => $this->getFirstPlanDiscountForFrequency($this->defaultDuration()?->frequency),
+            "discount" => $this->defaultDiscount(),
             "status" => $this->status,
             "country" => $user?->country?->name,
             "is_active_subscription" => false,
