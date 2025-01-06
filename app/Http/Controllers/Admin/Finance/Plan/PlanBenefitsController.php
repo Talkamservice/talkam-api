@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Finance\Plan;
 
+use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Constants\General\NotificationConstants;
 use App\Http\Controllers\Controller;
@@ -27,12 +28,12 @@ class PlanBenefitsController extends Controller
     {
         $plan = PlanService::getById($plan_id);
         $plan_benefits = PlanBenefit::where('plan_id', $plan->id)->get();
-        $plan_durations = PlanDuration::where('plan_id', $plan->id)->get();
+        $plans = Plan::with('durations')->get();
 
         return view('dashboards.admin.pages.finance.plan.benefits.index', [
             'plan' => $plan,
             'plan_benefits' => $plan_benefits,
-            'plan_durations' => $plan_durations,
+            'plans' => $plans,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS
         ]);
     }

@@ -232,6 +232,8 @@ class PostService
         if (!empty($key = $data["user_id"] ?? null)) {
             $field = is_numeric($key) ? "id" : "username";
             $builder = $builder->whereRelation("user", $field, $key);
+        }else{
+            $builder =  $builder->whereDoesntHave('promotions');
         }
 
         if (!empty($key = $data["tab"] ?? null)) {
