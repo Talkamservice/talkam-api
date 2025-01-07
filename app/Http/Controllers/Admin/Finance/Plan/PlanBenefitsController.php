@@ -28,7 +28,7 @@ class PlanBenefitsController extends Controller
     {
         $plan = PlanService::getById($plan_id);
         $plan_benefits = PlanBenefit::where('plan_id', $plan->id)->get();
-        $plans = Plan::with('durations')->get();
+        $plans = Plan::with('durations')->where('id', $plan->id)->get();
 
         return view('dashboards.admin.pages.finance.plan.benefits.index', [
             'plan' => $plan,
