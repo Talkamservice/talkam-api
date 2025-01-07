@@ -109,4 +109,20 @@ class PlanController extends Controller
             return back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
         }
     }
+
+    public function getDefaultDiscount(Request $request)
+    {
+        $frequency = $request->input('frequency');
+        $enteredDiscount = $request->input('discount');
+        $plan = Plan::whereHas('durations', function($query) use ($frequency) {
+            $query->where('frequency', $frequency);
+        })->with('durations')->first();
+        if ($plan) {
+            $currentDiscount = $plan->durations->firstWhere('frequency', $frequency)->discount;
+            if ($enteredDiscount != $currentDiscount) {
+            return back()->withInput($request->all())->with(NotificationConstants::ERROR_MSG, "The discount must be exactly the same as the current discount for the selected frequency.");
+            }
+        }
+        return response()->json(['currentDiscount' => $currentDiscount]);
+    }
 }
