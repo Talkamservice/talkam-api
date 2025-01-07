@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\PlanBenefit;
 use App\Models\PlanDuration;
+use App\Models\PlanScope;
 use App\Services\Finance\Plan\PlanBenefitService;
 use App\Services\Finance\Plan\PlanService;
 use Illuminate\Http\Request;
@@ -29,11 +30,12 @@ class PlanBenefitsController extends Controller
         $plan = PlanService::getById($plan_id);
         $plan_benefits = PlanBenefit::where('plan_id', $plan->id)->get();
         $plans = Plan::with('durations')->where('id', $plan->id)->get();
-
+        $scopes = PlanScope::where('plan_id', $plan->id)->get();
         return view('dashboards.admin.pages.finance.plan.benefits.index', [
             'plan' => $plan,
             'plan_benefits' => $plan_benefits,
             'plans' => $plans,
+            'scopes' => $scopes,
             "statusOptions" => StatusConstants::ACTIVE_OPTIONS
         ]);
     }
