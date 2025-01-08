@@ -183,7 +183,7 @@ class PostStatsResource extends JsonResource
         // Get country IDs for these users
         $country_ids = User::whereIn("id", $engagement_user_ids)
             ->whereNotNull("country_id")
-            ->pluck("country_id")
+            ->pluck("pricing_country_id")
             ->toArray();
 
         // If no countries were selected, dynamically get all unique country IDs from engagement data
