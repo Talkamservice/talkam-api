@@ -246,7 +246,8 @@ class PostService
             }
 
             if ($key == "featured") {
-                $builder = $builder->withCount('comments') // Counts the comments
+                $builder = $builder->whereBetween('created_at', [now()->subMonths(2), now()])
+                    ->withCount('comments') // Counts the comments
                     ->withCount(['reactions as likes_count' => function ($query) {
                         $query->where('action', PostConstants::LIKE); // Counts likes in the user_post_reactions table
                     }])
