@@ -21,30 +21,39 @@
             <div class="col-xl-12">
                 <div class="card custom-card">
                     <div class="card-body">
-                        <form action="{{ isset($plan) ? route('admin.plans.update', $plan->id) : route('admin.plans.store') }}" method="POST" enctype="multipart/form-data"> @csrf
+                        <form
+                            action="{{ isset($plan) ? route('admin.plans.update', $plan->id) : route('admin.plans.store') }}"
+                            method="POST" enctype="multipart/form-data"> @csrf
                             @isset($plan)
                                 @method('put')
                             @endisset
                             <div class="gy-4 mb-4">
                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Name</label>
+                                    <label for="input-placeholder"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Name</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="text" class="form-control" name="name" id="input-placeholder" value="{{ old('name') ?? ($plan->name ?? '') }}" placeholder="Enter plan name">
+                                        <input type="text" class="form-control" name="name" id="input-placeholder"
+                                            value="{{ old('name') ?? ($plan->name ?? '') }}" placeholder="Enter plan name">
                                     </div>
                                 </div>
                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Description</label>
+                                    <label for="input-placeholder"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Description</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                        <input type="text" class="form-control" name="description" id="input-placeholder" value="{{ old('description') ?? ($plan->description ?? '') }}" placeholder="Enter plan description">
+                                        <input type="text" class="form-control" name="description" id="input-placeholder"
+                                            value="{{ old('description') ?? ($plan->description ?? '') }}"
+                                            placeholder="Enter plan description">
                                     </div>
                                 </div>
                                 <div class="row col-xl-10 col-sm-12">
-                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
+                                    <label for="input-placeholder"
+                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Status</label>
                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                         <select name="status" id="" class="form-control">
                                             <option value="" disabled selected>Select Option</option>
                                             @foreach ($statusOptions as $key => $value)
-                                                <option value="{{ $key }}" {{ (old('status') ?? ($plan->status ?? '')) == $key ? 'selected' : '' }}>
+                                                <option value="{{ $key }}"
+                                                    {{ (old('status') ?? ($plan->status ?? '')) == $key ? 'selected' : '' }}>
                                                     {{ $value }}</option>
                                             @endforeach
                                         </select>
@@ -69,12 +78,14 @@
                                         <input type="hidden" name="plan_duration_id[]" value="{{ $plan_duration->id }}">
                                         <div class="plan-duration-section mt-4">
                                             <div class="row col-xl-10 col-sm-12 mb-3">
-                                                <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Frequency</label>
+                                                <label for="input-placeholder"
+                                                    class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Frequency</label>
                                                 <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                                     <select name="frequency[]" id="" class="form-control">
                                                         <option value="" disabled selected>Select Option</option>
                                                         @foreach ($frequencyOptions as $key => $value)
-                                                            <option value="{{ $key }}" {{ $plan_duration->frequency == $key ? 'selected' : '' }}>
+                                                            <option value="{{ $key }}"
+                                                                {{ $plan_duration->frequency == $key ? 'selected' : '' }}>
                                                                 {{ $value }}</option>
                                                         @endforeach
                                                     </select>
@@ -82,46 +93,71 @@
                                             </div>
                                             @if (empty($plan_duration->discount))
                                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
+                                                    <label for="input-placeholder"
+                                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
                                                         (USD)
                                                     </label>
                                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                        <input type="number" step="any" class="form-control" name="price[]" value="{{ $plan_duration->price }}" id="input-placeholder" placeholder="Enter price">
+                                                        <input type="number" step="any" class="form-control"
+                                                            name="price[]" value="{{ $plan_duration->price }}"
+                                                            id="input-placeholder" placeholder="Enter price">
                                                     </div>
                                                 </div>
                                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount
+                                                    <label for="input-placeholder"
+                                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount
                                                         (%)</label>
                                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                        <input type="number" step="any" class="form-control" name="discount[]" value="{{ $plan_duration->discount }}" id="contact-input" placeholder="Enter plan discount" oninput="validateDiscount(this)">
+                                                        <input type="number" step="any" class="form-control"
+                                                            name="discount[]" value="{{ $plan_duration->discount }}"
+                                                            id="contact-input" placeholder="Enter plan discount"
+                                                            oninput="validateDiscount(this)">
                                                     </div>
+                                                    <div id="discount-error" class="text-danger mt-1"
+                                                        style="display: none;"></div>
                                                 </div>
                                                 <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
-                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
+                                                    <label for="input-placeholder"
+                                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price
+                                                        (USD)</label>
                                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                        <input type="number" readonly class="form-control discount_plan_price" name="discount_price[]" placeholder="Discounted plan price">
+                                                        <input type="number" readonly
+                                                            class="form-control discount_plan_price"
+                                                            name="discount_price[]" placeholder="Discounted plan price">
                                                     </div>
                                                 </div>
                                             @else
                                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
+                                                    <label for="input-placeholder"
+                                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price
                                                         (USD)
                                                     </label>
                                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                        <input step="any" type="number" class="form-control" name="price[]" value="{{ $plan_duration->originalPrice() }}" id="input-placeholder" placeholder="Enter price">
+                                                        <input step="any" type="number" class="form-control"
+                                                            name="price[]" value="{{ $plan_duration->originalPrice() }}"
+                                                            id="input-placeholder" placeholder="Enter price">
                                                     </div>
                                                 </div>
                                                 <div class="row col-xl-10 col-sm-12 mb-3">
-                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount
+                                                    <label for="input-placeholder"
+                                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount
                                                         (%)</label>
                                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                        <input step="any" type="number" class="form-control" name="discount[]" value="{{ $plan_duration->discount }}" id="contact-input" placeholder="Enter plan discount" oninput="validateDiscount(this)">
+                                                        <input step="any" type="number" class="form-control"
+                                                            name="discount[]" value="{{ $plan_duration->discount }}"
+                                                            id="contact-input" placeholder="Enter plan discount"
+                                                            oninput="validateDiscount(this)">
                                                     </div>
                                                 </div>
                                                 <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
-                                                    <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
+                                                    <label for="input-placeholder"
+                                                        class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price
+                                                        (USD)</label>
                                                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                        <input type="number" readonly class="form-control discount_plan_price" value="{{ $plan_duration->price }}" name="discount_price[]" placeholder="Discounted plan price">
+                                                        <input type="number" readonly
+                                                            class="form-control discount_plan_price"
+                                                            value="{{ $plan_duration->price }}" name="discount_price[]"
+                                                            placeholder="Discounted plan price">
                                                     </div>
                                                 </div>
                                             @endif
@@ -132,7 +168,8 @@
                                 <div class="" id="planDuration">
                                     <div class="plan-duration-section">
                                         <div class="row col-xl-10 col-sm-12 mb-3 frequencyDiv">
-                                            <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Frequency</label>
+                                            <label for="input-placeholder"
+                                                class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Frequency</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
                                                 <select name="frequency[]" id="" class="form-control">
                                                     <option value="" disabled selected>Select Option</option>
@@ -143,21 +180,29 @@
                                             </div>
                                         </div>
                                         <div class="row col-xl-10 col-sm-12 mb-3">
-                                            <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price (USD)</label>
+                                            <label for="input-placeholder"
+                                                class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Price (USD)</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                <input step="any" type="number" class="form-control" name="price[]" id="input-placeholder" placeholder="Enter price">
+                                                <input step="any" type="number" class="form-control" name="price[]"
+                                                    id="input-placeholder" placeholder="Enter price">
                                             </div>
                                         </div>
                                         <div class="row col-xl-10 col-sm-12 mb-3">
-                                            <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount (%)</label>
+                                            <label for="input-placeholder"
+                                                class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">Discount (%)</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                <input step="any" type="number" class="form-control" name="discount[]" oninput="validateDiscount(this)" id="contact-input" placeholder="Enter plan discount" min="1" max="100">
+                                                <input step="any" type="number" class="form-control"
+                                                    name="discount[]" oninput="validateDiscount(this)" id="contact-input"
+                                                    placeholder="Enter plan discount" min="1" max="100">
                                             </div>
                                         </div>
                                         <div class="row col-xl-10 col-sm-12 mb-3 newAmountDiv">
-                                            <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price (USD)</label>
+                                            <label for="input-placeholder"
+                                                class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">New Price
+                                                (USD)</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                <input type="number" readonly class="form-control discount_plan_price" name="discount_price[]" placeholder="Discounted plan price">
+                                                <input type="number" readonly class="form-control discount_plan_price"
+                                                    name="discount_price[]" placeholder="Discounted plan price">
                                             </div>
                                         </div>
                                     </div>
@@ -172,20 +217,27 @@
                                 @foreach ($scopeOptions ?? [] as $key => $scope)
                                     @if ($scope['type'] == 'number')
                                         <div class="row col-xl-10 col-sm-12 mb-3">
-                                            <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">{{ $scope['label'] }}</label>
+                                            <label for="input-placeholder"
+                                                class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">{{ $scope['label'] }}</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                <input type="{{ $scope['type'] }}" class="form-control" min="0" name="scopes[{{ $scope['name'] }}]" id="input-placeholder" value="{{ isset($plan_scopes) ? $plan_scopes->where('title', $scope['name'])->first()?->value : null }}"
+                                                <input type="{{ $scope['type'] }}" class="form-control" min="0"
+                                                    name="scopes[{{ $scope['name'] }}]" id="input-placeholder"
+                                                    value="{{ isset($plan_scopes) ? $plan_scopes->where('title', $scope['name'])->first()?->value : null }}"
                                                     placeholder="{{ $scope['placeholder'] }}">
                                             </div>
                                         </div>
                                     @elseif ($scope['type'] == 'checkbox')
                                         <div class="row col-xl-10 col-sm-12 mb-3">
-                                            <label for="input-placeholder" class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">{{ $scope['label'] }}</label>
+                                            <label for="input-placeholder"
+                                                class="form-label col-xl-2 col-lg-2 col-md-2 col-sm-2">{{ $scope['label'] }}</label>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                                                <select name="scopes[{{ $scope['name'] }}]" id="" class="form-control">
+                                                <select name="scopes[{{ $scope['name'] }}]" id=""
+                                                    class="form-control">
                                                     <option value="" disabled selected>Select Option</option>
                                                     @foreach ($scope['data'] ?? null as $scope_key => $scope_data)
-                                                        <option value="{{ $scope_key }}" {{ isset($plan_scopes) && in_array($plan_scopes->where('title', $scope['name'])->first()?->value, [$scope_key]) ? 'selected' : '' }}>{{ $scope_data }}</option>
+                                                        <option value="{{ $scope_key }}"
+                                                            {{ isset($plan_scopes) && in_array($plan_scopes->where('title', $scope['name'])->first()?->value, [$scope_key]) ? 'selected' : '' }}>
+                                                            {{ $scope_data }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -301,5 +353,42 @@
                 input.value = 100;
             }
         }
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('select[name="frequency[]"], input[name="discount[]"]').on('change input', function() {
+                validateDiscount();
+            });
+            function validateDiscount() {
+                const frequency = $('select[name="frequency[]"]').val();
+                const discount = parseFloat($('input[name="discount[]"]').val());
+                if (frequency && !isNaN(discount)) {
+                    $.ajax({
+                        url: '{{ route('admin.check-plan-discount') }}',
+                        type: 'GET',
+                        data: {
+                            frequency: frequency,
+                            discount: discount
+                        },
+                        success: function(response) {
+                            if (response.valid) {
+                                $('#discount-error').text('');
+                                $('#discount-error').hide();
+                                $('input[name="discount[]"]').removeClass('is-invalid');
+                            } else {
+                                $('#discount-error').text('The discount must be exactly ' + response
+                                    .currentDiscount + '% for the selected frequency.');
+                                $('#discount-error').show();
+                                $('input[name="discount[]"]').addClass('is-invalid');
+                            }
+                        },
+                        error: function() {
+                            $('#discount-error').text('Error validating the discount.');
+                            $('#discount-error').show();
+                        }
+                    });
+                }
+            }
+        });
     </script>
 @endsection

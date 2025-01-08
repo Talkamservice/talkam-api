@@ -61,7 +61,6 @@ Route::middleware(["auth"])->group(
             "payment-terms" => PaymentTermsController::class,
         ]);
 
-
         Route::prefix("users")->as("users.")->group(function () {
             Route::post('{id}/suspend', [UserController::class, "suspend"])->name("suspend");
             Route::post('{id}/strike', [UserController::class, "strike"])->name("strike");
@@ -106,6 +105,7 @@ Route::middleware(["auth"])->group(
         Route::prefix("plans/{plan}")->as("plans.")->group(function () {
             Route::resource('/plan-benefits', PlanBenefitsController::class);
         });
+        Route::get('check-plan-discount', [PlanController::class, 'getDefaultDiscount'])->name('check-plan-discount');
 
         Route::put('plan/cancel/{id}', [PlanController::class, 'cancelPlan'])->name('plan.cancel');
 
