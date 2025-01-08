@@ -45,8 +45,9 @@ class PostStatsService
     {
         try {
             $data = $this->validate($data);
-            dispatch(new PostStatsJob($data, $remove))
-                ->onQueue(AppConstants::STATS_QUEUE);
+            dispatch_sync(new PostStatsJob($data, $remove));
+            // dispatch(new PostStatsJob($data, $remove))
+            // ->onQueue(AppConstants::STATS_QUEUE);
         } catch (\Throwable $th) {
             logger("Post stats job not running", [
                 "error" => $th->getMessage(),

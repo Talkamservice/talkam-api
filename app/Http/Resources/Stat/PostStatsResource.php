@@ -6,7 +6,9 @@ use App\Models\ContentEngagementUser;
 use App\Models\Country;
 use App\Models\Group;
 use App\Models\Post;
+use App\Models\Promotion;
 use App\Models\PostStatLog;
+use App\Models\PostStat;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -40,7 +42,7 @@ class PostStatsResource extends JsonResource
             "clicks" => $this->clicks,
             "min_time_spent" => $this->min_time_spent,
             "max_time_spent" => $this->max_time_spent,
-            "countries" => $this->show_countries_stats ? $this->countriesStats() : null,
+            "countries" => $this->show_countries_stats ? $this->countriesStats(null, $this->resource) : null,
             "created_at" => formatDate($this->created_at),
         ];
     }
@@ -125,22 +127,45 @@ class PostStatsResource extends JsonResource
         return $shares_users_count;
     }
 
-    public function countriesStats($countries = null, $promotion = null)
+    public function countriesStats($countries = null, $model = null)
     {
-        $country_stats = [];
+        // Default to instance countries if not provided
         $countries = $countries ?? $this->countries;
-
-        $selected_country_id = !empty($countries) ? $countries->pluck("id")->toArray() : [];
-
-        $promotion = $promotion ?? $this;
-        if ($post_id = $promotion->post_id) {
-            $country_stats = $this->getCountryStats($post_id, Post::class, $selected_country_id);
-        } elseif ($group_id = $promotion->group_id) {
-            $country_stats = $this->getCountryStats($group_id, Group::class, $selected_country_id);
+    
+        // Extract country IDs or use an empty array if countries are null or empty
+        $selected_country_ids = $countries ? $countries->pluck('id')->toArray() : [];
+    
+        // Ensure the model is valid before proceeding
+        if (!$model) {
+            return [];
         }
+    
+        // Handle different model types
+        if ($model instanceof Promotion) {
+            $promotion = $model ?? $this;
+    
+            if ($promotion->post_id) {
+                return $this->getCountryStats($promotion->post_id, Post::class, $selected_country_ids);
+            }
+    
+            if ($promotion->group_id) {
+                return $this->getCountryStats($promotion->group_id, Group::class, $selected_country_ids);
+            }
+        }
+    
+        if ($model instanceof PostStat) {
+            if ($post_id = $model->post_id) {
+                $country_stats = $this->getCountryStats($post_id, Post::class);
+            } elseif ($group_id = $model->group_id) {
+                $country_stats = $this->getCountryStats($group_id, Group::class);
+            }
 
-        return $country_stats;
-    }
+            return $country_stats;
+        }
+    
+        // Return empty if no valid model type matches
+        return [];
+    }    
 
     /**
      * Helper function to calculate engagement statistics based on a model type and ID.

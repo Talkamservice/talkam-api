@@ -211,7 +211,7 @@ class PostController extends Controller
     {
         try {
             $post = $this->post_stats_service->fetchStats($request->all());
-            $data = !empty($post) ? PostStatsResource::make($post) : null;
+            $data = !empty($post) ? (new PostStatsResource)->make($post) : null;
             return ApiHelper::validResponse("Post stats returned successfully", $data);
         } catch (ValidationException $th) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $th);
