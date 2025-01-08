@@ -16,7 +16,7 @@ class PostStatsJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public array $data, public $remove)
+    public function __construct(public array $data, public $remove, public $user = null)
     {
         //
     }
@@ -27,9 +27,9 @@ class PostStatsJob implements ShouldQueue
     public function handle(): void
     {
         if ($this->remove) {
-            (new PostStatsService)->remove($this->data);
+            (new PostStatsService)->remove($this->data, $this->user);
         } else {
-            (new PostStatsService)->create($this->data);
+            (new PostStatsService)->create($this->data, $this->user);
         }
     }
 }

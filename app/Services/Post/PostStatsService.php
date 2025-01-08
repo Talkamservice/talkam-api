@@ -45,9 +45,10 @@ class PostStatsService
     {
         try {
             $data = $this->validate($data);
-            dispatch_sync(new PostStatsJob($data, $remove));
-            // dispatch(new PostStatsJob($data, $remove))
-            // ->onQueue(AppConstants::STATS_QUEUE);
+            $user = auth("sanctum")->check() ? auth("sanctum")->user() : null;
+            // dispatch_sync(new PostStatsJob($data, $remove, $user));
+            dispatch(new PostStatsJob($data, $remove, $user))
+            ->onQueue(AppConstants::STATS_QUEUE);
         } catch (\Throwable $th) {
             logger("Post stats job not running", [
                 "error" => $th->getMessage(),
@@ -57,7 +58,7 @@ class PostStatsService
         }
     }
 
-    public function create(array $data)
+    public function create(array $data, $user = null)
     {
         try {
             $data = $this->validate($data);
@@ -98,8 +99,6 @@ class PostStatsService
                 'logged_at' => now(),
             ]));
 
-            $user = auth("sanctum")->check() ? auth("sanctum")->user() : null;
-
             if ($user) {
                 $this->createContentEngagementUser($post_stat, $user->id, User::class);
             } elseif (!empty($data["web_user_id"] ?? null)) {
@@ -112,7 +111,7 @@ class PostStatsService
         }
     }
 
-    public function remove(array $data)
+    public function remove(array $data, $user = null)
     {
         try {
             $data = $this->validate($data);
