@@ -243,7 +243,7 @@ class PostService
                 $builder = $builder->latest();
             }
 
-            if ($key == "trending") {
+            if ($key == "featured") {
                 $builder = $builder->withCount('comments') // Counts the comments
                     ->withCount(['reactions as likes_count' => function ($query) {
                         $query->where('action', PostConstants::LIKE); // Counts likes in the user_post_reactions table
@@ -253,7 +253,7 @@ class PostService
             }
 
 
-            if ($key == "featured") {
+            if ($key == "trending") {
                 $builder = $builder->where(function ($query) use ($tags) {
                     foreach ($tags as $tag) {
                         $query->orWhere('title', 'like', "%{$tag}%")
