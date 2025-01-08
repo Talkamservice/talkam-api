@@ -14,17 +14,17 @@
                     </div>
                     <div class="col-md-4">
                         <div class="list-group-item">
-                            <i class="bx bx-comment"></i> <strong>Comments:</strong> {{ $promotion->statAttribute('comments') ?? 'No data' }}
+                            <i class="bx bx-comment"></i> <strong>Comments:</strong> {{ $promotion_stats["comments"] ?? 'No data' }}
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="list-group-item">
-                            <i class="bx bx-like"></i> <strong>Likes:</strong> {{ $promotion->statAttribute('likes') ?? 'No data' }}
+                            <i class="bx bx-like"></i> <strong>Likes:</strong> {{ $promotion_stats["likes"] ?? 'No data' }}
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="list-group-item">
-                            <i class="bx bx-dislike"></i> <strong>Dislikes:</strong> {{ $promotion->statAttribute('dislikes') ?? 'No data' }}
+                            <i class="bx bx-dislike"></i> <strong>Dislikes:</strong> {{ $promotion_stats["dislikes"] ?? 'No data' }}
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -39,7 +39,12 @@
                     </div>
                     <div class="col-md-4">
                         <div class="list-group-item">
-                            <i class="bx bx-group"></i> <strong>Engagements:</strong> {{ $promotion->statAttribute('engagements') ?? 'No data' }}
+                            <i class="bx bx-group"></i> <strong>Engagements:</strong> {{ $promotion_stats["engagements"] ?? 'No data' }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="list-group-item">
+                            <i class="bx bx-group"></i> <strong>Engagements Rate:</strong> {{ $promotion_stats["engagement_rates"] ?? 'No data' }}
                         </div>
                     </div>
                     <div class="col-md-4">

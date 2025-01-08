@@ -22,11 +22,9 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-between">
-                    <form action="{{ url()->current() }}" method="get" id="filter-form"
-                        class="d-flex justify-content-between gap-3">
+                    <form action="{{ url()->current() }}" method="get" id="filter-form" class="d-flex justify-content-between gap-3">
                         <div class="form-group me-2">
-                            <input class="form-control" type="text" placeholder="Search...." name="search"
-                                value="{{ request()->search }}">
+                            <input class="form-control" type="text" placeholder="Search...." name="search" value="{{ request()->search }}">
                         </div>
                         <div class="form-group me-2">
                             <select name="type" class="form-control">
@@ -63,7 +61,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <button type="submit" class="btn btn-sm btn-success p-2">Filter</button>
                         </div>
@@ -89,6 +87,9 @@
                             </thead>
                             <tbody>
                                 @forelse($promotions as $promotion)
+                                    @php
+                                        $promotion_stats = (new \App\Http\Resources\Stat\PostStatsResource)->custom($promotion);
+                                    @endphp
                                     <tr>
                                         <td>{{ $sn++ }}</td>
                                         <td>{{ optional($promotion->user)->getName() ?? 'N/A' }}</td>
@@ -96,8 +97,7 @@
                                         <td>{{ format_money($promotion->cost, 2, $promotion->currency?->symbol ?? ($promotion->currency?->short_name ?? ($promotion->payment?->currencyModel?->symbol ?? "$"))) }}
                                         </td>
                                         <td>{{ $promotion->type() }}</td>
-                                        <td><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                data-bs-target="#promotionStatContent_{{ $promotion->id }}">
+                                        <td><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#promotionStatContent_{{ $promotion->id }}">
                                                 View
                                             </button>
                                         <td>
@@ -107,9 +107,7 @@
                                         </td>
                                         <td>{{ $promotion->created_at->format('Y-m-d h:i A') }}</td>
                                         @php
-                                            $isExpired = \Carbon\Carbon::now()->greaterThan(
-                                                $promotion->getExpiresAtAttribute() ?? now(),
-                                            );
+                                            $isExpired = \Carbon\Carbon::now()->greaterThan($promotion->getExpiresAtAttribute() ?? now());
                                         @endphp
 
                                         <td class="{{ $isExpired ? 'text-danger' : '' }}">
@@ -124,26 +122,19 @@
                                         </td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
-                                                <a aria-label="anchor" data-bs-toggle="tooltip"
-                                                    title="View Promoted Content" target="_blank"
-                                                    href="{{ $promotion->contentWebUrl() }}"
-                                                    class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
+                                                <a aria-label="anchor" data-bs-toggle="tooltip" title="View Promoted Content" target="_blank" href="{{ $promotion->contentWebUrl() }}" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light"><i
                                                         class="ri-external-link-line"></i></a>
-                                                <form action="{{ route('admin.promotions.cancel', $promotion->id) }}"
-                                                    method="post" id="cancelPromotion_{{ $promotion->id }}"
-                                                    onsubmit="return confirm('Are you sure of this action?')">
+                                                <form action="{{ route('admin.promotions.cancel', $promotion->id) }}" method="post" id="cancelPromotion_{{ $promotion->id }}" onsubmit="return confirm('Are you sure of this action?')">
                                                     @csrf
                                                     <input type="hidden" name="status" value="Cancelled">
-                                                    <button type="submit"
-                                                        class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light"
-                                                        data-bs-toggle="tooltip" title="Cancel Promoted Content"><i
-                                                            class="ri-close-line"></i></button>
+                                                    <button type="submit" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-danger-light" data-bs-toggle="tooltip" title="Cancel Promoted Content"><i class="ri-close-line"></i></button>
                                                 </form>
                                             </div>
                                         </td>
                                         @include('dashboards.admin.pages.finance.promotions.modal.stat', [
                                             'modalKey' => "promotionStatContent_$promotion->id",
                                             'modalContent' => $promotion->body,
+                                            "promotion_stats" => $promotion_stats
                                         ])
                                     </tr>
                                 @empty
