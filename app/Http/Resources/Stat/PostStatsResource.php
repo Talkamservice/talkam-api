@@ -36,7 +36,7 @@ class PostStatsResource extends JsonResource
             "shares" => $this->shares,
             "impressions" => $this->impressions,
             "engagements" => divideNumber($this->impressions, $reaction_stats["likes"]),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares, $shares_users_count),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares, $shares_users_count, $this->impressions),
             "followers" => $this->followers,
             "profile_visits" => $this->profile_visits,
             "clicks" => $this->clicks,
@@ -60,7 +60,7 @@ class PostStatsResource extends JsonResource
             "shares" => $model->shares,
             "impressions" => $model->impressions,
             "engagements" => divideNumber($model->impressions, $reaction_stats["likes"]),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares, $shares_users_count),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares, $shares_users_count, $model->impressions),
             "followers" => $model->followers,
             "profile_visits" => $model->profile_visits,
             "clicks" => $model->clicks,
@@ -91,7 +91,7 @@ class PostStatsResource extends JsonResource
             "comments" => $reaction_stats["comments"] ?? 0,
             "likes" => $reaction_stats["likes"] ?? 0,
             "dislikes" => $reaction_stats["dislikes"] ?? 0,
-            "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0, $shares_users_count) : 0,
+            "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0, $shares_users_count, $stats["impressions"]) : 0,
             "shares" => $stats["shares"] ?? 0,
             "impressions" => $stats["impressions"] ?? 0,
             "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"] ?? 0),
@@ -105,11 +105,10 @@ class PostStatsResource extends JsonResource
         ];
     }
 
-    public function calcEngagementRates($reaction_stats, $shares, $shares_users_count = 0)
+    public function calcEngagementRates($reaction_stats, $shares, $shares_users_count = 0, $impressions)
     {
         $total_engagements = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares);
-        $total_users = $shares_users_count + $reaction_stats["users"];        
-        $engagement_rates = divideNumber($total_engagements, $total_users) * 100;
+        $engagement_rates = divideNumber($total_engagements, $impressions) * 100;
         $data = int_format($engagement_rates, 2);
         return $data;
     }

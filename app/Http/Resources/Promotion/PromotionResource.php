@@ -24,7 +24,6 @@ class PromotionResource extends JsonResource
     public function toArray($request)
     {
         $countries = Country::whereRelation("promotionLocations", "promotion_id", $this->id)->get();
-        $promotion = Promotion::where("id", $this->id)->first();
         return [
             "id" => $this->id,
             "user" => !empty($this->user) ? UserResource::custom($this->user) : null,
@@ -41,7 +40,7 @@ class PromotionResource extends JsonResource
             "total_reach" => $this->total_reach,
             "status" => $this->status,
             "expires_at" => formatDate($this->expires_at),
-            "stats" => (new PostStatsResource)->custom($promotion, $countries, $this->show_countries_stats),
+            "stats" => (new PostStatsResource)->custom($this->resource, $countries, $this->show_countries_stats),
             // "stats" => PostStatsResource::make($this->stat(), $countries, $this->show_countries_stats),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)
