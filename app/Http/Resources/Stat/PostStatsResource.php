@@ -119,7 +119,7 @@ class PostStatsResource extends JsonResource
 
     public function calcEngagement($reaction_stats, $shares)
     {
-        $total_engagements = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares);
+        $total_engagements = ($reaction_stats["comments"] ?? 0 + $reaction_stats["likes"] ?? 0 + $reaction_stats["dislikes"] ?? 0 + $shares);
         return $total_engagements;
     }
 
