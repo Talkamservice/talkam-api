@@ -232,8 +232,10 @@ class PostService
         if (!empty($key = $data["user_id"] ?? null)) {
             $field = is_numeric($key) ? "id" : "username";
             $builder = $builder->whereRelation("user", $field, $key);
-        }else{
-            $builder =  $builder->whereDoesntHave('promotions');
+        } else {
+            $builder =  $builder->whereDoesntHave('promotions', function ($promo) {
+                $promo->where("status", StatusConstants::ACTIVE);
+            });
         }
 
         if (!empty($key = $data["tab"] ?? null)) {
@@ -244,39 +246,43 @@ class PostService
             }
 
             if ($key == "featured") {
-                $builder = $builder->latest()->withCount('comments') // Counts the comments
+                $builder = $builder->withCount('comments') // Counts the comments
                     ->withCount(['reactions as likes_count' => function ($query) {
                         $query->where('action', PostConstants::LIKE); // Counts likes in the user_post_reactions table
                     }])
-                    ->orderByRaw('(comments_count + likes_count) DESC'); // Sort by total engagement
+                    ->orderByRaw('(comments_count + likes_count) DESC');
             }
+
 
             if ($key == "trending") {
                 $builder = $builder->where(function ($query) use ($tags) {
-                    foreach ($tags as $tag) {
-                        $query->orWhere('title', 'like', "%{$tag}%")
-                            ->orWhere('body', 'like', "%{$tag}%");
+                    if (!empty($tags)) {
+                        $query = $query->whereNotNull("tags");
+                        $query = $query->where('tags', 'like', "%{$tags[0]}%");
+                        foreach ($tags as $tag) {
+                            $query = $query->orWhere('tags', 'like', "%{$tag}%");
+                        }
                     }
 
-                    $query->orWhereHas('promotions', function ($promotion_query) {
-                        if (auth("sanctum")->check()) {
-                            $user = auth("sanctum")->user();
-                            $promotion_query->whereIn("country_id", [$user->country_id])->inRandomOrder();
-                        } else {
-                            $promotion_query->inRandomOrder();
-                        }
-                    });
-                });
+                    // $query->orWhereHas('promotions', function ($promotion_query) {
+                    //     $promotion_query = $promotion_query->where("status", StatusConstants::ACTIVE);
+                    //     if (auth("sanctum")->check()) {
+                    //         $user = auth("sanctum")->user();
+                    //         $promotion_query->whereIn("country_id", [$user->country_id])->inRandomOrder();
+                    //     } else {
+                    //         $promotion_query->inRandomOrder();
+                    //     }
+                    // });
 
-                // Include posts liked by the authenticated user
-                if (auth("sanctum")->check()) {
-                    $user = auth("sanctum")->user();
-                    $builder = $builder->orWhereHas('reactions', function ($reactionQuery) use ($user) {
-                        // Make sure to filter only "LIKE" reactions
-                        $reactionQuery->where('user_id', $user->id)
-                            ->where('action', PostConstants::LIKE);
-                    });
-                }
+                    // Include posts liked by the authenticated user
+                    // if (auth("sanctum")->check()) {
+                    //     $user = auth("sanctum")->user();
+                    //     $query = $query->orWhereHas('reactions', function ($reactionQuery) use ($user) {
+                    //         $reactionQuery->where('user_id', $user->id)
+                    //             ->where('action', PostConstants::LIKE);
+                    //     });
+                    // }
+                });
 
                 $builder = $builder->latest();
             }
@@ -307,10 +313,24 @@ class PostService
                     $query->where('gender', $gender);
                 }
 
+                // Filter by gender, considering special statuses
+                if (!empty($gender = $user?->gender)) {
+                    $query->where(function ($q) use ($gender) {
+                        if (in_array($gender, [AppConstants::MALE, AppConstants::FEMALE])) {
+                            $q->whereIn('gender', [$gender, 'All', null]);
+                        } elseif ($gender == AppConstants::RATHER_NOT_SAY) {
+                            $q->whereIn('gender', [AppConstants::RATHER_NOT_SAY, 'All', null]);
+                        } elseif ($gender == AppConstants::OTHERS) {
+                            $q->whereIn('gender', [AppConstants::OTHERS, 'All', null]);
+                        }
+                    });
+                }
+
                 $query->where(function ($q) {
                     $q->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
                 })->where('status', StatusConstants::ACTIVE);
             });
+
 
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);

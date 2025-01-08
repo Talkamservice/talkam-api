@@ -12,7 +12,7 @@ class AppConstants
 
     const MALE = 'Male';
     const FEMALE = 'Female';
-    const RATHER_NOT_SAY = "Rather not say";
+    const RATHER_NOT_SAY = "Choose not to specify";
     const OTHERS = "Others";
 
     const GENDERS = [
