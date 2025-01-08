@@ -268,7 +268,7 @@ class PostService
                             $promotion_query->inRandomOrder();
                         }
                     });
-                })->latest();
+                });
 
                 // Include posts liked by the authenticated user
                 if (auth("sanctum")->check()) {
@@ -280,8 +280,7 @@ class PostService
                     });
                 }
 
-                // // Optionally, add ordering or limits as needed
-                // $builder = $builder->latest()->limit(10);
+                $builder = $builder->latest();
             }
         }
 
