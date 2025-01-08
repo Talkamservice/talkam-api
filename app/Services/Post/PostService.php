@@ -244,14 +244,12 @@ class PostService
             }
 
             if ($key == "featured") {
-                $builder = $builder->withCount('comments') // Counts the comments
+                $builder = $builder->latest()->withCount('comments') // Counts the comments
                     ->withCount(['reactions as likes_count' => function ($query) {
                         $query->where('action', PostConstants::LIKE); // Counts likes in the user_post_reactions table
                     }])
-                    ->orderByRaw('(comments_count + likes_count) DESC') // Sort by total engagement
-                    ->orderByDesc('created_at'); // Ensure posts are sorted by recency after engagement
+                    ->orderByRaw('(comments_count + likes_count) DESC'); // Sort by total engagement
             }
-
 
             if ($key == "trending") {
                 $builder = $builder->where(function ($query) use ($tags) {
