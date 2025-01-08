@@ -55,14 +55,14 @@ class PromotionPricingService
                 throw new InvalidRequestException("The entered impressions can not be greater that the Average performance per day. Currently you have " . $avg_impressions_per_day);
             }
 
-            $max_daily_amount = $data['amount'] * 5;
+            $data["max_daily_amount"] = $this->calcMaxAmount($data["amount"]);
 
             $promotion_pricing = PromotionPricing::create([
                 "country_id" => $data['country_id'],
                 // "currency_id" => $data['currency_id'],
                 "amount" => $data['amount'],
                 "impressions" => $data['impressions'],
-                "max_daily_amount" => $max_daily_amount,
+                "max_daily_amount" => $data["max_daily_amount"],
                 "default" => $data['default'] ?? 0,
                 "status" => StatusConstants::ACTIVE,
             ]);
@@ -82,22 +82,21 @@ class PromotionPricingService
         }
     }
 
-
     public function update(array $data, $id)
     {
         DB::beginTransaction();
         try {
             $data = self::validate($data, $id);
             $avg_impressions_per_day = PostPerformance::whereNull('post_id')
-            ->whereNull('group_id')
-            ->pluck('avg_impressions_per_day')
-            ->first() ?? 0;
+                ->whereNull('group_id')
+                ->pluck('avg_impressions_per_day')
+                ->first() ?? 0;
 
             if ($data['impressions'] > $avg_impressions_per_day) {
                 throw new InvalidRequestException("The entered impressions can not be greater that the Average performance per day. Currently you have " . $avg_impressions_per_day);
             }
 
-            $data["max_daily_amount"] = $data['amount'] * 10;
+            $data["max_daily_amount"] = $this->calcMaxAmount($data["amount"]);
 
             $promotion_pricing = $this->getById($id);
             $promotion_pricing->update($data);
@@ -155,5 +154,13 @@ class PromotionPricingService
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function calcMaxAmount($amount)
+    {
+        $post_performance = PostPerformance::whereNull("post_id")->whereNull("group_id")->first();
+        $total_days = (divideNumber(1, $amount)) * $post_performance->avg_impressions_per_day ?? 0;
+        $max_daily_amount = $amount * $total_days;
+        return $max_daily_amount;
     }
 }
