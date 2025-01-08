@@ -35,7 +35,8 @@ class PostStatsResource extends JsonResource
             "dislikes" => $reaction_stats["dislikes"],
             "shares" => $this->shares,
             "impressions" => $this->impressions,
-            "engagements" => divideNumber($this->impressions, $reaction_stats["likes"]),
+            // "engagements" => divideNumber($this->impressions, $reaction_stats["likes"]),
+            "engagements" => $this->calcEngagement($reaction_stats, $this->shares),
             "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares, $shares_users_count, $this->impressions),
             "followers" => $this->followers,
             "profile_visits" => $this->profile_visits,
@@ -59,7 +60,8 @@ class PostStatsResource extends JsonResource
             "dislikes" => $reaction_stats["dislikes"],
             "shares" => $model->shares,
             "impressions" => $model->impressions,
-            "engagements" => divideNumber($model->impressions, $reaction_stats["likes"]),
+            "engagements" => $this->calcEngagement($reaction_stats, $model->shares),
+            // "engagements" => divideNumber($model->impressions, $reaction_stats["likes"]),
             "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares, $shares_users_count, $model->impressions),
             "followers" => $model->followers,
             "profile_visits" => $model->profile_visits,
@@ -94,7 +96,8 @@ class PostStatsResource extends JsonResource
             "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0, $shares_users_count, $stats["impressions"]) : 0,
             "shares" => $stats["shares"] ?? 0,
             "impressions" => $stats["impressions"] ?? 0,
-            "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"] ?? 0),
+            "engagements" => $this->calcEngagement($reaction_stats, $stats["shares"] ?? 0),
+            // "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"] ?? 0),
             "followers" => $stats["followers"] ?? 0,
             "profile_visits" => $stats["profile_visits"] ?? 0,
             "clicks" => $stats["clicks"] ?? 0,
@@ -112,6 +115,12 @@ class PostStatsResource extends JsonResource
         $engagement_rates = divideNumber($total_engagements, $impressions) * 100;
         $data = int_format($engagement_rates, 2);
         return $data;
+    }
+
+    public function calcEngagement($reaction_stats, $shares)
+    {
+        $total_engagements = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares);
+        return $total_engagements;
     }
 
     public function shareUserCount($model)
