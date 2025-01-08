@@ -108,6 +108,7 @@ class PostStatsResource extends JsonResource
     public function calcEngagementRates($reaction_stats, $shares, $shares_users_count = 0, $impressions)
     {
         $total_engagements = ($reaction_stats["comments"] + $reaction_stats["likes"] + $reaction_stats["dislikes"] + $shares);
+        // $total_users = $shares_users_count + $reaction_stats["users"];        
         $engagement_rates = divideNumber($total_engagements, $impressions) * 100;
         $data = int_format($engagement_rates, 2);
         return $data;
