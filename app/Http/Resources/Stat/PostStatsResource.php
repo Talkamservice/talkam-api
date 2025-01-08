@@ -110,13 +110,7 @@ class PostStatsResource extends JsonResource
 
     public function calcEngagementRates($reaction_stats, $shares, $shares_users_count = 0, $impressions)
     {
-        $reaction_stats = is_array($reaction_stats) ? $reaction_stats : [];
-        $total_engagements =
-            ($reaction_stats["comments"] ?? 0) +
-            ($reaction_stats["likes"] ?? 0) +
-            ($reaction_stats["dislikes"] ?? 0) +
-            ($shares ?? 0);
-
+        $total_engagements = $this->calcEngagement($reaction_stats, $shares);
         // $total_users = $shares_users_count + $reaction_stats["users"];        
         $engagement_rates = divideNumber($total_engagements, $impressions) * 100;
         $data = int_format($engagement_rates, 2);
@@ -125,12 +119,7 @@ class PostStatsResource extends JsonResource
 
     public function calcEngagement($reaction_stats, $shares)
     {
-        $reaction_stats = is_array($reaction_stats) ? $reaction_stats : [];
-        $total_engagements =
-            ($reaction_stats["comments"] ?? 0) +
-            ($reaction_stats["likes"] ?? 0) +
-            ($reaction_stats["dislikes"] ?? 0) +
-            ($shares ?? 0);
+        $total_engagements = ($reaction_stats["comments"] ?? 0 + $reaction_stats["likes"] ?? 0 + $reaction_stats["dislikes"] ?? 0 + $shares);
         return $total_engagements;
     }
 
@@ -151,28 +140,28 @@ class PostStatsResource extends JsonResource
     {
         // Default to instance countries if not provided
         $countries = $countries ?? $this->countries;
-
+    
         // Extract country IDs or use an empty array if countries are null or empty
         $selected_country_ids = $countries ? $countries->pluck('id')->toArray() : [];
-
+    
         // Ensure the model is valid before proceeding
         if (!$model) {
             return [];
         }
-
+    
         // Handle different model types
         if ($model instanceof Promotion) {
             $promotion = $model ?? $this;
-
+    
             if ($promotion->post_id) {
                 return $this->getCountryStats($promotion->post_id, Post::class, $selected_country_ids);
             }
-
+    
             if ($promotion->group_id) {
                 return $this->getCountryStats($promotion->group_id, Group::class, $selected_country_ids);
             }
         }
-
+    
         if ($model instanceof PostStat) {
             if ($post_id = $model->post_id) {
                 $country_stats = $this->getCountryStats($post_id, Post::class);
@@ -182,10 +171,10 @@ class PostStatsResource extends JsonResource
 
             return $country_stats;
         }
-
+    
         // Return empty if no valid model type matches
         return [];
-    }
+    }    
 
     /**
      * Helper function to calculate engagement statistics based on a model type and ID.
