@@ -52,7 +52,7 @@ class PostStatsService
             logger("Post stats job not running", [
                 "error" => $th->getMessage(),
                 "trace" => $th->getTrace()
-            ]);
+            ]); 
             // throw $th;
         }
     }
