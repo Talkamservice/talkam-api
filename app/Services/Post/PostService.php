@@ -309,10 +309,6 @@ class PostService
                     });
                 }
 
-                if (!empty($gender = $user?->gender)) {
-                    $query->where('gender', $gender);
-                }
-
                 // Filter by gender, considering special statuses
                 if (!empty($gender = $user?->gender)) {
                     $query->where(function ($q) use ($gender) {
