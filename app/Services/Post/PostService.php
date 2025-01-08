@@ -268,7 +268,7 @@ class PostService
                             $promotion_query->inRandomOrder();
                         }
                     });
-                });
+                })->latest();
 
                 // Include posts liked by the authenticated user
                 if (auth("sanctum")->check()) {
