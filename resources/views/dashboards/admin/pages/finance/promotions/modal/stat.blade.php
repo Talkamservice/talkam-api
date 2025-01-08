@@ -44,7 +44,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="list-group-item">
-                            <i class="bx bx-group"></i> <strong>Engagements Rate:</strong> {{ $promotion_stats["engagement_rates"] ?? 'No data' }}
+                            <i class="bx bx-group"></i> <strong>Engagements Rate:</strong> {{ ($promotion_stats["engagement_rates"] . "%") ?? 'No data' }}
                         </div>
                     </div>
                     <div class="col-md-4">
