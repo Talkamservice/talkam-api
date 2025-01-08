@@ -67,7 +67,7 @@ class PromotionPricingSettingController extends Controller
     {
         try {
             $this->promotion_pricing_service->save($request->all());
-            return redirect()->route("admin.promotion-pricings.index")->with(NotificationConstants::SUCCESS_MSG, 'Promotion pricing created successfully.');
+            return redirect()->route("admin.promotion-pricings.index")->with(NotificationConstants::SUCCESS_MSG, 'Advertising cost created successfully.');
         } catch (ValidationException $e) {
             throw $e;
         }catch (InvalidRequestException $e) {
@@ -113,7 +113,7 @@ class PromotionPricingSettingController extends Controller
         try {
             $this->promotion_pricing_service->save($request->all(), $id);
             return redirect()->route("admin.promotion-pricings.index")
-                ->with(NotificationConstants::SUCCESS_MSG, 'Promotion pricing updated successfully');
+                ->with(NotificationConstants::SUCCESS_MSG, 'Advertising cost updated successfully');
         } catch (ValidationException $e) {
             throw $e;
         } catch (InvalidRequestException $e) {
@@ -133,7 +133,7 @@ class PromotionPricingSettingController extends Controller
         try {
             $country_plan_pricing = $this->promotion_pricing_service->getById($id);
             $country_plan_pricing->delete();
-            return back()->with(NotificationConstants::SUCCESS_MSG, 'Promotion pricing deleted successfully');
+            return back()->with(NotificationConstants::SUCCESS_MSG, 'Advertising cost deleted successfully');
         } catch (Throwable $th) {
             return back()->with(NotificationConstants::ERROR_MSG, "Something went wrong while trying to process your request");
         }
