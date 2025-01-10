@@ -33,7 +33,7 @@
                                     </a>
                                 </td>
                                 <td align="center" style="padding-left: 0px;">  <!-- Optional: Added padding to the left of the second image -->
-                                    <a href="#" style="text-decoration: none;">
+                                    <a href="https://play.google.com/store/apps/details?id=com.talkamtech.app" style="text-decoration: none;">
                                         <img class="playstoreIcon" src="{{ asset('email/assets/png/Google_Play-removebg-preview.png') }}" alt="Get it on Google Play" style="display: block;" />
                                     </a>
                                 </td>
