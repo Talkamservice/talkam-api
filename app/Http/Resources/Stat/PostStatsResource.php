@@ -26,8 +26,6 @@ class PostStatsResource extends JsonResource
     public function toArray($request)
     {
         $reaction_stats = $this->reactionStats();
-        $shares_users_count = $this->shareUserCount($this);
-
         return [
             "id" => $this->id,
             "comments" => $reaction_stats["comments"],
@@ -35,9 +33,8 @@ class PostStatsResource extends JsonResource
             "dislikes" => $reaction_stats["dislikes"],
             "shares" => $this->shares,
             "impressions" => $this->impressions,
-            // "engagements" => divideNumber($this->impressions, $reaction_stats["likes"]),
-            "engagements" => $this->calcEngagement($reaction_stats, $this->shares),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares, $shares_users_count, $this->impressions),
+            "engagements" => $this->calcEngagement($reaction_stats, $this->shares, $this->clicks),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $this->shares, $this->clicks, $this->impressions),
             "followers" => $this->followers,
             "profile_visits" => $this->profile_visits,
             "clicks" => $this->clicks,
@@ -51,7 +48,6 @@ class PostStatsResource extends JsonResource
     public function model(Model $model)
     {
         $reaction_stats = $this->reactionStats();
-        $shares_users_count = $this->shareUserCount($model);
 
         return [
             "id" => $model->id,
@@ -60,9 +56,8 @@ class PostStatsResource extends JsonResource
             "dislikes" => $reaction_stats["dislikes"],
             "shares" => $model->shares,
             "impressions" => $model->impressions,
-            "engagements" => $this->calcEngagement($reaction_stats, $model->shares),
-            // "engagements" => divideNumber($model->impressions, $reaction_stats["likes"]),
-            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares, $shares_users_count, $model->impressions),
+            "engagements" => $this->calcEngagement($reaction_stats, $model->shares, $model->clicks),
+            "engagement_rates" => $this->calcEngagementRates($reaction_stats, $model->shares, $model->clicks, $model->impressions),
             "followers" => $model->followers,
             "profile_visits" => $model->profile_visits,
             "clicks" => $model->clicks,
@@ -87,17 +82,15 @@ class PostStatsResource extends JsonResource
 
         $reaction_stats = $model->stat()?->reactionStats($start_at, $end_at) ?? null;
 
-        $shares_users_count = $this->shareUserCount($model);
         return [
             "id" => $model->id,
             "comments" => $reaction_stats["comments"] ?? 0,
             "likes" => $reaction_stats["likes"] ?? 0,
             "dislikes" => $reaction_stats["dislikes"] ?? 0,
-            "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0, $shares_users_count, $stats["impressions"]) : 0,
+            "engagements" => $this->calcEngagement($reaction_stats, $stats["shares"] ?? 0, $stats["clicks"] ?? 0),
+            "engagement_rates" => !empty($reaction_stats) ? $this->calcEngagementRates($reaction_stats, $stats["shares"] ?? 0, $stats["clicks"] ?? 0, $stats["impressions"]) : 0,
             "shares" => $stats["shares"] ?? 0,
             "impressions" => $stats["impressions"] ?? 0,
-            "engagements" => $this->calcEngagement($reaction_stats, $stats["shares"] ?? 0),
-            // "engagements" => divideNumber($stats["impressions"] ?? 0, $reaction_stats["likes"] ?? 0),
             "followers" => $stats["followers"] ?? 0,
             "profile_visits" => $stats["profile_visits"] ?? 0,
             "clicks" => $stats["clicks"] ?? 0,
@@ -108,38 +101,25 @@ class PostStatsResource extends JsonResource
         ];
     }
 
-    public function calcEngagementRates($reaction_stats, $shares, $shares_users_count = 0, $impressions)
+    public function calcEngagementRates($reaction_stats, $shares, $clicks = 0, $impressions)
     {
-        $total_engagements = $this->calcEngagement($reaction_stats, $shares);
-        // $total_users = $shares_users_count + $reaction_stats["users"];        
+        $total_engagements = $this->calcEngagement($reaction_stats, $shares, $clicks);
         $engagement_rates = divideNumber($total_engagements, $impressions) * 100;
         $data = int_format($engagement_rates, 2);
         return $data;
     }
 
-    public function calcEngagement($reaction_stats, $shares)
+    public function calcEngagement($reaction_stats, $shares, $clicks)
     {
         $reaction_stats = is_array($reaction_stats) ? $reaction_stats : [];
         $total_engagements =
             ($reaction_stats["comments"] ?? 0) +
             ($reaction_stats["likes"] ?? 0) +
             ($reaction_stats["dislikes"] ?? 0) +
+            ($clicks ?? 0) +
             ($shares ?? 0);
             
         return $total_engagements;
-    }
-
-    public function shareUserCount($model)
-    {
-        $end_at = carbon()->parse($model->created_at)->addDays($model->duration);
-
-        $shares_users_count = PostStatLog::whereBetween("created_at", [$model->created_at, $end_at])
-            ->where("shares", 1)
-            ->distinct("user_id")
-            ->pluck("user_id")
-            ->count("user_id");
-
-        return $shares_users_count;
     }
 
     public function countriesStats($countries = null, $model = null)
