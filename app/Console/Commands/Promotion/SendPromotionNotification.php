@@ -30,7 +30,7 @@ class SendPromotionNotification extends Command
                 $impressions = (new PromotionService)
                     ->promotionStats($promotion, "impressions");
 
-                $message = "Your {$type} ad has {$impressions} impressions. Click the link below to view analytics.";
+                $message = "Your {$type} ad has {$impressions} impressions. Click to view the analytics of this ad.";
 
                 Notification::send($promotion->user, new PromotionImpressionNotification($promotion, $message));
             }
