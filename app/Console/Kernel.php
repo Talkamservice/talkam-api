@@ -8,6 +8,7 @@ use App\Console\Commands\Notification\SendPendingNotificationCommand;
 use App\Console\Commands\Post\PostCommand;
 use App\Console\Commands\Post\PostStatsCommand;
 use App\Console\Commands\Post\TrendingPostCommand;
+use App\Console\Commands\Promotion\SendPromotionNotification;
 use App\Console\Commands\TestCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -28,7 +29,8 @@ class Kernel extends ConsoleKernel
         SendPendingNotificationCommand::class,
         UpdateCurrencyRatesCommand::class,
         \App\Console\Commands\TestGroupMemberRemoval::class,
-        PostStatsCommand::class
+        PostStatsCommand::class,
+        SendPromotionNotification::class
     ];
 
     /**
