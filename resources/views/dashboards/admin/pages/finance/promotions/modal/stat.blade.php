@@ -47,11 +47,11 @@
                             <i class="bx bx-group"></i> <strong>Engagements Rate:</strong> {{ ($promotion_stats["engagement_rates"] . "%") ?? 'No data' }}
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    {{-- <div class="col-md-4">
                         <div class="list-group-item">
                             <i class="bx bx-user"></i> <strong>Followers:</strong> {{ $promotion->statAttribute('followers') ?? 'No data' }}
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="col-md-4">
                         <div class="list-group-item">
                             <i class="bx bx-user-circle"></i> <strong>Profile Visits:</strong> {{ $promotion->statAttribute('profile_visits') ?? 'No data' }}
