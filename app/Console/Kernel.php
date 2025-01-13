@@ -10,6 +10,7 @@ use App\Console\Commands\Post\PostStatsCommand;
 use App\Console\Commands\Post\TrendingPostCommand;
 use App\Console\Commands\Promotion\SendPromotionNotification;
 use App\Console\Commands\TestCommand;
+use App\Console\Commands\TestGroupMemberRemoval;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -28,7 +29,7 @@ class Kernel extends ConsoleKernel
         UpdateSuspendedMembersStatus::class,
         SendPendingNotificationCommand::class,
         UpdateCurrencyRatesCommand::class,
-        \App\Console\Commands\TestGroupMemberRemoval::class,
+        TestGroupMemberRemoval::class,
         PostStatsCommand::class,
         SendPromotionNotification::class
     ];
