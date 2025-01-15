@@ -325,14 +325,17 @@ class GroupService
     {
         DB::beginTransaction();
         try {
+            $field = is_numeric($id) ? "id" : "uuid";
+            $group = $this->getById($id, $field);
+
             $member = GroupMember::where([
-                "group_id" => $id,
+                "group_id" => $group->id,
                 "user_id" => auth()->id(),
             ])->first();
 
             if (empty($member)) {
                 $member = (new GroupMemberService)->create([
-                    "group_id" => $id,
+                    "group_id" => $group->id,
                     "user_id" => auth()->id(),
                     "role" => UserConstants::MEMBER,
                     "status" => StatusConstants::PENDING
@@ -344,7 +347,7 @@ class GroupService
             ]);
 
             $admins = GroupMember::where([
-                "group_id" => $id,
+                "group_id" => $group->id,
             ])->whereIn("role", [UserConstants::ADMIN, UserConstants::OWNER])
                 ->pluck("user_id")->toArray();
 
