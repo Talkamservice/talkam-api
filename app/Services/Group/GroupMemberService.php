@@ -170,7 +170,8 @@ class GroupMemberService
 
     public static function list($group_id, array $data = [])
     {
-        $builder = GroupMember::where("group_id", $group_id);
+        $field = is_numeric($group_id) ? "id" : "uuid";
+        $builder = GroupMember::whereRelation("group", $field, $group_id);
 
         if (!empty($key = $data["search"] ?? null)) {
             $builder = $builder->search($key);
@@ -189,7 +190,8 @@ class GroupMemberService
 
     public static function listByGroup($group_id, array $data = [])
     {
-        $builder = GroupMember::where("group_id", $group_id);
+        $field = is_numeric($group_id) ? "id" : "uuid";
+        $builder = GroupMember::whereRelation("group", $field, $group_id);
 
         $data = array_map(function ($role) use ($builder) {
             $group_members = $builder->clone()->where("role", $role)->with("user")->whereIn("status", [StatusConstants::ACTIVE, StatusConstants::SUSPENDED])->get()->sortByDesc("name");

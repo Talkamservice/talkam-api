@@ -3,6 +3,7 @@
 namespace App\Services\Group;
 
 use App\Constants\Account\User\UserConstants;
+use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
@@ -220,14 +221,22 @@ class GroupService
                     });
                 }
 
+                // Filter by gender, considering special statuses
                 if (!empty($gender = $user?->gender)) {
-                    $query->where('gender', $gender);
+                    $query->where(function ($q) use ($gender) {
+                        if (in_array($gender, [AppConstants::MALE, AppConstants::FEMALE])) {
+                            $q->whereIn('gender', [$gender, 'All', null]);
+                        } elseif ($gender == AppConstants::RATHER_NOT_SAY) {
+                            $q->whereIn('gender', [AppConstants::RATHER_NOT_SAY, 'All', null]);
+                        } elseif ($gender == AppConstants::OTHERS) {
+                            $q->whereIn('gender', [AppConstants::OTHERS, 'All', null]);
+                        }
+                    });
                 }
 
-                $query->where(function ($query) {
-                    $query->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
-                })
-                    ->where('status', StatusConstants::ACTIVE);
+                $query->where(function ($q) {
+                    $q->whereRaw('DATE_ADD(created_at, INTERVAL duration DAY) >= ?', [now()]);
+                })->where('status', StatusConstants::ACTIVE);
             });
 
         if (!empty($key = $data["search"] ?? null)) {
