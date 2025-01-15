@@ -90,13 +90,16 @@ class PostStatsService
             // }
 
             if (($post_stat->min_time_spent == 0 || $data["time_spent"] < $post_stat->min_time_spent) 
-                && $data["time_spent"] > 0
+                && ($data["time_spent"] ?? 0) > 0
             ) {
                 $data["min_time_spent"] = $data["time_spent"];
                 $log_data["time_spent"] = $data["time_spent"];
             }
 
-            unset($data["time_spent"]);
+            if (isset($data["time_spent"])) {
+                unset($data["time_spent"]);
+            }
+            
             $post_stat->update($data);
 
             PostStatLog::create(array_merge($log_data, [
