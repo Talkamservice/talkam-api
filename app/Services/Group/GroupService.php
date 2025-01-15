@@ -225,11 +225,14 @@ class GroupService
                 if (!empty($gender = $user?->gender)) {
                     $query->where(function ($q) use ($gender) {
                         if (in_array($gender, [AppConstants::MALE, AppConstants::FEMALE])) {
-                            $q->whereIn('gender', [$gender, 'All', null]);
+                            $q->whereIn('gender', [$gender, 'All'])
+                                ->orWhereNull('gender');
                         } elseif ($gender == AppConstants::RATHER_NOT_SAY) {
-                            $q->whereIn('gender', [AppConstants::RATHER_NOT_SAY, 'All', null]);
+                            $q->whereIn('gender', [AppConstants::RATHER_NOT_SAY, 'All'])
+                                ->orWhereNull('gender');
                         } elseif ($gender == AppConstants::OTHERS) {
-                            $q->whereIn('gender', [AppConstants::OTHERS, 'All', null]);
+                            $q->whereIn('gender', [AppConstants::OTHERS, 'All'])
+                                ->orWhereNull('gender');
                         }
                     });
                 }
