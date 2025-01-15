@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Notifications\Group\JoinGroupRequestNotification;
 use App\Notifications\Group\JoinGroupRequestStatusNotification;
 use App\Services\Guideline\GuidelineService;
+use App\Services\Post\PostStatsService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -358,6 +359,7 @@ class GroupService
             }
 
             Notification::send($users, new JoinGroupRequestNotification($member));
+
             foreach ($users as $key => $user) {
                 broadcast(new RefreshNotification($user->id));
             }
@@ -390,6 +392,8 @@ class GroupService
                 $member->update([
                     "status" => StatusConstants::ACTIVE
                 ]);
+                
+                (new PostStatsService)->saveGroupImpressions([$member->group_id], ["followers" => true]);
             }
 
             if ($data["action"] == StatusConstants::DECLINED) {
