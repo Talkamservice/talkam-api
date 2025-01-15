@@ -177,7 +177,8 @@ class GroupMemberController extends Controller
     public function list(Request $request)
     {
         try {
-            $group = $this->group_service->getById($request->group_id);
+            $field = is_numeric($request->group_id) ? "id" : "uuid";
+            $group = $this->group_service->getById($request->group_id, $field);
             $group_members = $this->group_member_service->list($group->id, $request->all())->paginate(AppConstants::API_PAGINATION_SIZE);
             $data = collectPagination($group_members);
             $data["data"] = GroupMemberResource::collection($data["data"]);
