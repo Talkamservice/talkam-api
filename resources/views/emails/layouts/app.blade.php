@@ -28,12 +28,12 @@
                         <table cellpadding="0" cellspacing="0" border="0">
                             <tr>
                                 <td align="center" style="padding-right: 0px;">  <!-- Reduced padding from 10px to 5px -->
-                                    <a href="#" style="text-decoration: none;">
+                                    <a href="https://apps.apple.com/us/app/talkam-tech/id6740508182" target="_blank" style="text-decoration: none;">
                                         <img class="appleIcon" src="{{ asset('email/assets/png/Download_on_App_Store-removebg-preview.png') }}" alt="Download on the App Store" style="display: block;" />
                                     </a>
                                 </td>
                                 <td align="center" style="padding-left: 0px;">  <!-- Optional: Added padding to the left of the second image -->
-                                    <a href="https://play.google.com/store/apps/details?id=com.talkamtech.app" style="text-decoration: none;">
+                                    <a href="https://play.google.com/store/apps/details?id=com.talkamtech.app" target="_blank" style="text-decoration: none;">
                                         <img class="playstoreIcon" src="{{ asset('email/assets/png/Google_Play-removebg-preview.png') }}" alt="Get it on Google Play" style="display: block;" />
                                     </a>
                                 </td>
