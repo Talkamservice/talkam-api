@@ -79,7 +79,7 @@ class PostStatsService
                 }
             }
 
-            if (isset($data["time_spent"]) && $data["time_spent"] > $post_stat->max_time_spent) {
+            if (isset($data["time_spent"]) && ($data["time_spent"] ?? 0) > $post_stat->max_time_spent) {
                 $data["max_time_spent"] = $data["time_spent"];
                 $log_data["time_spent"] = $data["time_spent"];
             }
@@ -89,7 +89,7 @@ class PostStatsService
             //     $log_data["time_spent"] = $data["time_spent"];
             // }
 
-            if (($post_stat->min_time_spent == 0 || $data["time_spent"] < $post_stat->min_time_spent) 
+            if (($post_stat->min_time_spent == 0 || ($data["time_spent"] ?? 0) < $post_stat->min_time_spent) 
                 && ($data["time_spent"] ?? 0) > 0
             ) {
                 $data["min_time_spent"] = $data["time_spent"];
