@@ -354,6 +354,12 @@ class MethodsHelper
         }
     }
 
+    public static function dispatchJobSync(ShouldQueue $job)
+    {
+        return dispatch_sync($job);
+    }
+
+
     function parsePhoneNumber($value)
     {
         $prefix = "234";
