@@ -67,11 +67,18 @@ class FlutterwaveSubscriptionPaymentWebhookService
     private function actionHandler()
     {
         if ($this->payload["event"] == "subscription.cancelled") {
-            $subscription = Subscription::where("plan_duration_id", $this->payload["data"]["plan"]["id"])
-                ->where("user_id", $this->user->id)->first();
+            $plan_duration = PlanDuration::where("flutterwave_plan_id", $this->payload["data"]["plan"]["id"])
+                ->where("status", StatusConstants::ACTIVE)
+                ->first();
 
-            if (!empty($subscription)) {
-                $this->disableUserSubscription($subscription);
+            if ($plan_duration) {
+                $subscription = Subscription::where("plan_duration_id", $plan_duration->id)
+                    ->where("user_id", $this->user->id)
+                    ->first();
+
+                if (!empty($subscription)) {
+                    $this->disableUserSubscription($subscription);
+                }
             }
         } else {
             if (isset($this->payload["meta_data"]["plan_duration_id"])) {
