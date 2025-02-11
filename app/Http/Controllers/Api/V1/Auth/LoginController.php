@@ -79,24 +79,25 @@ class LoginController extends Controller
                 throw new AuthException("Unable to login via oauth");
             }
 
-            $email = $payload["email"];
-            $full_name = explode(" ", $payload["name"]);
-            $user = User::where('email', $email)->first();
-
-            $data["new_user"] = false;
-            if (empty($user)) {
+            $email = $payload['email'];
+            $full_name = explode(' ', $payload['name']);
+            $user = User::firstWhere('email', $email);
+            
+            $data['new_user'] = false;
+            
+            if (!$user) {
                 $user = $this->user_service->create([
                     'first_name' => $full_name[0],
                     'last_name' => $full_name[1] ?? $full_name[0],
-                    "email" => $email,
-                    "role" => UserConstants::USER,
+                    'email' => $email,
+                    'role' => UserConstants::USER,
                     'password' => Hash::make(Str::random(64)),
-                    'registration_platform' => $request->provider,
-                    'fcm_token' => $request->fcm_token,
-                    "social_id" => isset($payload['social_id']) ? $payload['social_id'] :  null
+                    'registration_platform' => $data['provider'],
+                    'fcm_token' => $data['fcm_token'] ?? null,
+                    'social_id' => $payload['social_id'] ?? null,
                 ]);
-                $data["new_user"] = true;
-            }
+                $data['new_user'] = true;
+            }    
 
             if (empty($user->email_verified_at)) {
                 $user->update([
