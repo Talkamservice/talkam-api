@@ -150,9 +150,7 @@ class FileService
 
     public function saveFromFileIntoStorage($file, $type, $file_id = null, $user_id = null)
     {
-        if (app()->environment(["local","staging"])) {
-           return $this->saveFromFileIntoLocalStorage($file, $type, $file_id = null, $user_id = null);
-        }
+        return $this->saveFromFileIntoLocalStorage($file, $type, $file_id = null, $user_id = null);
     }
 
     public function saveFromFileIntoLocalStorage($file, $type, $file_id = null, $user_id = null)
