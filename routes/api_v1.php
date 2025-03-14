@@ -300,10 +300,10 @@ Route::prefix('user')->as('user.')->group(function () {
     });
 
     Route::prefix("posts")->as("posts.")->group(function () {
-        Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions/list");
+        Route::get("promotions/list", [PostController::class, "getPrmotedPosts"])->name("promotions.posts.list");
     });
     Route::prefix("groups")->as("groups.")->group(function () {
-        Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions/list");
+        Route::get("promotions/list", [GroupController::class, "getPromoteGroups"])->name("promotions.groups.list");
     });
 
 });
