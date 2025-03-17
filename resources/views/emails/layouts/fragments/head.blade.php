@@ -53,6 +53,7 @@
             color: #333333;
             background-color: white;
             padding: 5%;
+            border: 2px solid white;
         }
 
         .detailCont-p {
@@ -83,6 +84,7 @@
             margin-bottom: 5%;
             text-align: center;
             color: black;
+            padding: 0 28%;
         }
 
         .getTalkam-d {
@@ -101,8 +103,8 @@
         .horzontal {
             border: 1px solid lightgray !important;
             width: 50% !important;
-            /* margin: 7% 0 5% 25%;
-            left: 35% !important; */
+            margin: 7% 0 5% 25%;
+            left: 35% !important;
             position: relative !important;
         }
 

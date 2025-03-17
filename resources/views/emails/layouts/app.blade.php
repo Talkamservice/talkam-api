@@ -17,19 +17,19 @@
         </tr>
 
         <tr>
-            <td class="btnCont" align="center">
+            <td class="detailCont" style="padding-bottom:0%; padding-top:0%" align="center">
                 <hr style="border: 1px solid #000;" class="horzontal" />
             </td>
         </tr>
 
         <tr>
-            <td class="btnCont" align="center">
+            <td class="detailCont" style="padding-bottom:0%; padding-top:0%" align="center">
                 <p class="getTalkam-h">Get the TalkAM app!</p>
             </td>
         </tr>
 
         <tr>
-            <td class="btnCont" align="center">
+            <td class="detailCont" style="padding-bottom:3%; padding-top:0%" align="center">
                 <p class="getTalkam-d">
                     Get the most of TalkAM by installing the mobile app. You can log in
                     by using your existing emails address and password.
@@ -38,7 +38,7 @@
         </tr>
 
         <tr>
-            <td class="btnCont" align="center">
+            <td class="detailCont" style="padding-bottom:3%; padding-top:0%" align="center">
                 <table cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td align="center" style="padding-right: 0px;"> <!-- Reduced padding from 10px to 5px -->
