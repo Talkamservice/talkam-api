@@ -18,10 +18,14 @@
 
                 <p class="getTalkam-h">Get the TalkAM app!</p>
 
-                <p class="getTalkam-d">
-                    Get the most of TalkAM by installing the mobile app. You can log in
-                    by using your existing emails address and password.
-                </p>
+                <tr>
+                    <td align="center">
+                        <p class="getTalkam-d">
+                            Get the most of TalkAM by installing the mobile app. You can log in
+                            by using your existing emails address and password.
+                        </p>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="btnCont" align="center">
