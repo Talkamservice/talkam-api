@@ -16,10 +16,9 @@
 
                 <hr style="width: 80%; border: 1px solid #000;" class="horzontal" />
 
-                <p class="getTalkam-h">Get the TalkAM app!</p>
-
                 <tr>
                     <td align="center">
+                        <p class="getTalkam-h">Get the TalkAM app!</p>
                         <p class="getTalkam-d">
                             Get the most of TalkAM by installing the mobile app. You can log in
                             by using your existing emails address and password.
