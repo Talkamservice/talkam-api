@@ -24,6 +24,9 @@
                     <td class="btnCont" align="center">
                         <p class="getTalkam-h">Get the TalkAM app!</p>
                     </td>
+                </tr>
+                
+                <tr>
                     <td class="btnCont" align="center">
                         <p class="getTalkam-d">
                             Get the most of TalkAM by installing the mobile app. You can log in
