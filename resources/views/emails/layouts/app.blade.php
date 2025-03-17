@@ -14,18 +14,24 @@
             <td class="detailCont">
                 @yield('content')
 
-                <hr style="width: 80%; border: 1px solid #000;" class="horzontal" />
+                <tr>
+                    <td class="btnCont" align="center">
+                        <hr style="border: 1px solid #000;" class="horzontal" />
+                    </td>
+                </tr>
 
                 <tr>
-                    <td align="center">
+                    <td class="btnCont" align="center">
                         <p class="getTalkam-h">Get the TalkAM app!</p>
+                    </td>
+                    <td class="btnCont" align="center">
                         <p class="getTalkam-d">
                             Get the most of TalkAM by installing the mobile app. You can log in
                             by using your existing emails address and password.
                         </p>
                     </td>
                 </tr>
-
+                
                 <tr>
                     <td class="btnCont" align="center">
                         <table cellpadding="0" cellspacing="0" border="0">

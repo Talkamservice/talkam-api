@@ -101,8 +101,8 @@
         .horzontal {
             border: 1px solid lightgray !important;
             width: 50% !important;
-            margin: 7% 0 5% 25%;
-            left: 35% !important;
+            /* margin: 7% 0 5% 25%;
+            left: 35% !important; */
             position: relative !important;
         }
 

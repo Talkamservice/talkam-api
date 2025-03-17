@@ -2,12 +2,12 @@
 
 @section('content')
     <div class="">
-        <p>Hello {{ $user->getName() }},</p>
+        <p>Hello {{ $user?->getName() ?? "" }},</p>
         <p class="detailCont-p">
             You requested for a password reset on your account.
         </p>
 
-        <a href="{{ $action_url }}" class="clickBtn">{{ $action_text }}</a>
+        <a href="{{ $action_url ?? "" }}" class="clickBtn">{{ $action_text ?? "" }}</a>
 
         <p class="detailCont-p">
             This password reset link will expire in 60 minutes.
