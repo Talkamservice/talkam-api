@@ -18,12 +18,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect()->route("login");
-    // return view('welcome');
+    // return redirect()->route("login");
 });
 
-Route::as('web.')->namespace('Web')->group(function () {
+Route:: as('web.')->namespace('Web')->group(function () {
     Route::get('/', function () {
+        return view("emails.auth.pin.admin_password_reset");
         return redirect()->route("login");
     })->name("index");
 
