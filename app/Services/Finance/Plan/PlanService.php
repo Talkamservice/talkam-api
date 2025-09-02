@@ -144,7 +144,7 @@ class PlanService
                         $new_data_["price"] = $discount_price;
                     }
 
-                    $plan_duration = (new PlanDurationService)->save($new_data_, $new_data_["plan_duration_id"]);
+                    $plan_duration = (new PlanDurationService)->save($new_data_, $new_data_["plan_duration_id"] ?? null);
 
                     if (
                         MethodsHelper::wereFieldsChanged($plan_duration, ["price", "discount", "frequency"])
