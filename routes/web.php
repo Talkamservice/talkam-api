@@ -23,7 +23,7 @@ Route::get('/', function () {
 
 Route:: as('web.')->namespace('Web')->group(function () {
     Route::get('/', function () {
-        return view("emails.auth.pin.admin_password_reset");
+        // return view("emails.auth.pin.admin_password_reset");
         return redirect()->route("login");
     })->name("index");
 

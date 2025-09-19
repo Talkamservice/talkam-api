@@ -6,7 +6,7 @@ use App\Constants\ActivityLog\ActivitiesConstants;
 use App\Constants\ActivityLog\ActivityLogConstants;
 use App\Models\PostCategory;
 use App\Models\User;
-use App\Services\Notifications\AppMailerService;
+use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Console\Command;
 
 class TestCommand extends Command
@@ -30,8 +30,11 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        $user = User::first();
-        $user = User::latest()->first();
+       $plans = (new FlutterwaveService)->getPlans();
+       dd($plans);
+       
+        // $user = User::first();
+        // $user = User::latest()->first();
 
         // (new FirebaseNotificationService)
         //     ->setTitle("Test notification")
@@ -43,14 +46,14 @@ class TestCommand extends Command
         //     ])
         //     ->initiate();
 
-        AppMailerService::send([
-            "data" => [
-                'email' => $user->email,
-            ],
-            "to" => "joelomojefe@gmail.com",
-            "template" => "emails.waitlist.admin",
-            "subject" => "New Waitlist Member",
-        ]);
+        // AppMailerService::send([
+        //     "data" => [
+        //         'email' => $user->email,
+        //     ],
+        //     "to" => "joelomojefe@gmail.com",
+        //     "template" => "emails.waitlist.admin",
+        //     "subject" => "New Waitlist Member",
+        // ]);
 
         // (new FirebaseNotificationService)
         //     ->setTitle("Test notification")
