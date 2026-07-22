@@ -1,0 +1,206 @@
+{
+  "info": {
+    "name": "TalkAM API v2",
+    "description": "TalkAM v2 API collection. v2 is a parallel lane mounted at api/v2 — v1 stays untouched. Grown section by section as endpoint shapes freeze.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "01 Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "full_name", "value": "Ada Chioma Obi", "type": "text" },
+                { "key": "email", "value": "ada.obi@example.com", "type": "text" },
+                { "key": "phone_number", "value": "+2348012345678", "type": "text" },
+                { "key": "username", "value": "ada_obi", "type": "text" },
+                { "key": "country_id", "value": "1", "type": "text", "description": "Optional. Must exist in countries table." },
+                { "key": "gender", "value": "Female", "type": "text", "description": "Optional" },
+                { "key": "date_of_birth", "value": "1995-04-12", "type": "text", "description": "Optional, Y-m-d" },
+                { "key": "password", "value": "StrongP@ss1", "type": "text", "description": "8-32 chars, upper+lower+digit+special" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "register"]
+            },
+            "description": "Registers a user. full_name is split into first/middle/last server-side. Sends a 6-digit email verification OTP. Returns {token, user}."
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "input", "value": "ada.obi@example.com", "type": "text", "description": "Email or username" },
+                { "key": "password", "value": "StrongP@ss1", "type": "text" },
+                { "key": "fcm_token", "value": "", "type": "text", "description": "Optional" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "login"]
+            },
+            "description": "Reused v1 behavior. Returns {token, user}. Re-sends a verify PIN if email is unverified."
+          }
+        },
+        {
+          "name": "OAuth Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "token", "value": "<provider-token>", "type": "text" },
+                { "key": "provider", "value": "google", "type": "text", "description": "google | apple | facebook | tiktok" },
+                { "key": "fcm_token", "value": "", "type": "text", "description": "Optional" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/oauth-login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "oauth-login"]
+            },
+            "description": "Reused v1 behavior. Auto-creates the user on first provider sign-in."
+          }
+        },
+        {
+          "name": "Username Available",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/username/available?username=ada_obi",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "username", "available"],
+              "query": [{ "key": "username", "value": "ada_obi" }]
+            },
+            "description": "Public, throttled (30/min). data: {username, available}. Serves the Create Account and anonymous-mode screens."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email", "value": "ada.obi@example.com", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/password/forgot",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "password", "forgot"]
+            },
+            "description": "Sends a 6-digit reset code to the email. Throttled (5/min)."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "code", "value": "123456", "type": "text" },
+                { "key": "password", "value": "NewStr0ng@Pass", "type": "text" },
+                { "key": "password_confirmation", "value": "NewStr0ng@Pass", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/password/reset",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "password", "reset"]
+            },
+            "description": "Requires confirmation + strength regex; the new password must differ from the current one. The code is single-use."
+          }
+        },
+        {
+          "name": "OTP Request",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email", "value": "ada.obi@example.com", "type": "text" },
+                { "key": "type", "value": "verify_email", "type": "text", "description": "verify_email | password_reset" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/otp/request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "otp", "request"]
+            },
+            "description": "Issues a 6-digit email code. Throttled (5/min); the 60s client resend countdown is covered server-side."
+          }
+        },
+        {
+          "name": "OTP Verify",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "code", "value": "123456", "type": "text" },
+                { "key": "email", "value": "ada.obi@example.com", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/otp/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "otp", "verify"]
+            },
+            "description": "Verifies the 6-digit code and sets email_verified_at."
+          }
+        }
+      ]
+    }
+  ]
+}
