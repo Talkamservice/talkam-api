@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('telescope:prune')->everySixHours();
         $schedule->command('bookings:release-expired-holds')->everyMinute();
         $schedule->command('bookings:send-session-reminders')->everyMinute();
+        $schedule->command('bookings:sweep-session-completions')->everyMinute();
     }
 
     /**

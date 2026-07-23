@@ -1361,6 +1361,112 @@
           }
         }
       ]
+    },
+    {
+      "name": "08 Sessions",
+      "item": [
+        {
+          "name": "Receipt",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings/1/receipt",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings", "1", "receipt"]
+            },
+            "description": "Payment reference/amount/fees + session date/format/therapist. Paid bookings only."
+          }
+        },
+        {
+          "name": "Cancel Session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "reason", "value": "Personal emergency", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings/1/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings", "1", "cancel"]
+            },
+            "description": "Policy: client >=24h before start -> full refund; inside 24h -> no refund; therapist-initiated -> always refunds. Slot freed."
+          }
+        },
+        {
+          "name": "Request Reschedule",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "new_starts_at", "value": "2026-07-28 11:00:00", "type": "text", "description": "Must be a bookable slot" },
+                { "key": "reason", "value": "personal_emergency", "type": "text", "description": "personal_emergency | technical_issues | client_request" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings/1/reschedule",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings", "1", "reschedule"]
+            },
+            "description": "Max 2 requests per session, 6h cutoff (config). Counterpart accepts or declines."
+          }
+        },
+        {
+          "name": "Respond to Reschedule",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "action", "value": "accept", "type": "text", "description": "accept | decline" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/reschedules/1/respond",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "reschedules", "1", "respond"]
+            },
+            "description": "Accept moves the slot at the same price — never a payment delta."
+          }
+        },
+        {
+          "name": "Join Session",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings/1/join",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings", "1", "join"]
+            },
+            "description": "Short-lived AV token + channel_ref (Agora). Time/status gated; first join stamps in_progress."
+          }
+        },
+        {
+          "name": "AV Provider Webhook",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-av-signature", "value": "<hmac-sha256-of-body>", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"room_closed\",\n  \"channel_ref\": \"TKSESS-XXXXXXXXXX\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/webhooks/av-provider",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "webhooks", "av-provider"]
+            },
+            "description": "HMAC-verified call-state events; room_closed stamps ended_at and auto-completes."
+          }
+        }
+      ]
     }
   ]
 }

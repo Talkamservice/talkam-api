@@ -43,4 +43,12 @@ return [
         'hold_minutes' => env('THERAPIST_BOOKING_HOLD_MINUTES', 15),
         'reminder_lead_minutes' => env('THERAPIST_REMINDER_LEAD_MINUTES', 30),
     ],
+
+    // Sessions (planning doc 08) — all thresholds config-driven.
+    'sessions' => [
+        'free_cancellation_hours' => env('SESSION_FREE_CANCELLATION_HOURS', 24),
+        'reschedule_max_requests' => env('SESSION_RESCHEDULE_MAX', 2),
+        'reschedule_cutoff_hours' => env('SESSION_RESCHEDULE_CUTOFF_HOURS', 6),
+        'join_early_minutes' => env('SESSION_JOIN_EARLY_MINUTES', 0),
+    ],
 ];

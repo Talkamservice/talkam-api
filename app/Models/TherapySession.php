@@ -17,6 +17,8 @@ class TherapySession extends Model
         'hold_expires_at' => 'datetime',
         'reminded_at' => 'datetime',
         'started_at' => 'datetime',
+        'client_joined_at' => 'datetime',
+        'therapist_joined_at' => 'datetime',
         'ended_at' => 'datetime',
     ];
 

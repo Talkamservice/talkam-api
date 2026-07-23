@@ -161,7 +161,7 @@ class SessionBookingService
 
     public static function listFor(User $user): array
     {
-        $sessions = TherapySession::with(['therapist.user', 'payment'])
+        $sessions = TherapySession::with(['therapist.user', 'payment', 'review'])
             ->where('user_id', $user->id)
             ->orderBy('starts_at')
             ->get();
@@ -189,6 +189,10 @@ class SessionBookingService
             'currency' => $session->currency,
             'notes' => $session->notes,
             'payment_reference' => $session->payment?->reference,
+            'rating' => $session->review?->rating,
+            'receipt_url' => !empty($session->payment_id)
+                ? url("/api/v2/user/bookings/{$session->id}/receipt")
+                : null,
         ];
     }
 }

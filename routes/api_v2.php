@@ -26,7 +26,9 @@ use App\Http\Controllers\Api\V2\Post\PostController;
 use App\Http\Controllers\Api\V2\Post\SearchController;
 use App\Http\Controllers\Api\V2\Finance\PaymentCallbackController;
 use App\Http\Controllers\Api\V2\Therapist\BookingController;
+use App\Http\Controllers\Api\V2\Therapist\SessionController;
 use App\Http\Controllers\Api\V2\Therapist\SessionReviewController;
+use App\Http\Controllers\Api\V2\Webhook\AvProviderWebhookController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistApplicationController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistDirectoryController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistPayoutController;
@@ -195,8 +197,15 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("/", [BookingController::class, "store"])->name("store");
             Route::post("{booking}/initiate-payment", [BookingController::class, "initiatePayment"])->name("initiate-payment");
             Route::post("{booking}/review", [SessionReviewController::class, "store"])->name("review");
+            Route::get("{booking}/receipt", [SessionController::class, "receipt"])->name("receipt");
+            Route::post("{booking}/cancel", [SessionController::class, "cancel"])->name("cancel");
+            Route::post("{booking}/reschedule", [SessionController::class, "reschedule"])->name("reschedule");
+            Route::get("{booking}/join", [SessionController::class, "join"])->name("join");
             Route::get("{booking}", [BookingController::class, "show"])->name("show");
         });
+
+        Route::post("reschedules/{id}/respond", [SessionController::class, "respondToReschedule"])
+            ->name("reschedules.respond");
     });
 
     Route::post("finance/payments/callback", [PaymentCallbackController::class, "callback"])
@@ -219,3 +228,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::post("payout-account/verify", [TherapistPayoutController::class, "verify"])->name("payout-account.verify");
     });
 });
+
+// AV provider call-state webhook (HMAC-verified, no session auth).
+Route::post("webhooks/av-provider", [AvProviderWebhookController::class, "handle"])
+    ->name("webhooks.av-provider");

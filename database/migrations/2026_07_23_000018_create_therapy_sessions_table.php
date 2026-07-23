@@ -30,6 +30,8 @@ return new class extends Migration
             $table->timestamp('hold_expires_at')->nullable();
             $table->timestamp('reminded_at')->nullable();
             $table->timestamp('started_at')->nullable();
+            $table->timestamp('client_joined_at')->nullable();
+            $table->timestamp('therapist_joined_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->string('cancelled_by')->nullable();
             $table->text('cancellation_reason')->nullable();
