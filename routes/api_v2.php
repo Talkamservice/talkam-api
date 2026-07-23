@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\User\Group\GroupController as V1GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
 use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
+use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
 use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
 use App\Http\Controllers\Api\V1\User\Post\SearchController as V1SearchController;
 use App\Http\Controllers\Api\V1\User\Post\PostCommentController as V1PostCommentController;
@@ -29,6 +30,7 @@ use App\Http\Controllers\Api\V2\Post\SearchController;
 use App\Http\Controllers\Api\V2\Finance\PaymentCallbackController;
 use App\Http\Controllers\Api\V2\Therapist\BookingController;
 use App\Http\Controllers\Api\V2\Therapist\SessionController;
+use App\Http\Controllers\Api\V2\Therapist\SessionRequestController;
 use App\Http\Controllers\Api\V2\Therapist\SessionReviewController;
 use App\Http\Controllers\Api\V2\Webhook\AvProviderWebhookController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistApplicationController;
@@ -46,6 +48,7 @@ use App\Http\Controllers\Api\V2\User\PaymentMethodController;
 use App\Http\Controllers\Api\V2\User\PrivacySettingController;
 use App\Http\Controllers\Api\V2\User\ProfileController;
 use App\Http\Controllers\Api\V2\User\UserController;
+use App\Http\Controllers\Api\V2\User\UserReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -114,6 +117,15 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::post("data-export", [DataExportController::class, "store"])->name("data-export.store");
         Route::get("data-export/latest", [DataExportController::class, "latest"])->name("data-export.latest");
+
+        Route::prefix("notifications")->as("notifications.")->group(function () {
+            Route::get("list", [NotificationController::class, "index"])->name("index");
+            Route::post("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
+            Route::post("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
+            Route::get("get-notification-status", [NotificationController::class, "notificationStatus"])->name("get-notification-status");
+        });
+
+        Route::post("user-reports", [UserReportController::class, "store"])->name("user-reports.store");
 
         Route::prefix("onboarding")->as("onboarding.")->group(function () {
             Route::post("user-type", [OnboardingController::class, "userType"])->name("user-type");
@@ -249,6 +261,11 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::get("banks", [TherapistPayoutController::class, "banks"])->name("banks");
         Route::post("payout-account/verify", [TherapistPayoutController::class, "verify"])->name("payout-account.verify");
+
+        Route::prefix("sessions")->as("sessions.")->group(function () {
+            Route::get("{session}/request", [SessionRequestController::class, "request"])->name("request");
+            Route::post("{session}/acknowledge", [SessionRequestController::class, "acknowledge"])->name("acknowledge");
+        });
     });
 });
 

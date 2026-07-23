@@ -29,6 +29,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamp('hold_expires_at')->nullable();
             $table->timestamp('reminded_at')->nullable();
+            $table->timestamp('acknowledged_at')->nullable();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('client_joined_at')->nullable();
             $table->timestamp('therapist_joined_at')->nullable();

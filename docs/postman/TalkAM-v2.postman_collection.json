@@ -1669,6 +1669,107 @@
           }
         }
       ]
+    },
+    {
+      "name": "10 Schedule & Notifications",
+      "item": [
+        {
+          "name": "Notification Feed",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/notifications/list",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "notifications", "list"]
+            },
+            "description": "Reused v1 feed. Booking-request items carry extra.action metadata (request_sheet/acknowledge/decline endpoint refs)."
+          }
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/notifications/mark-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "notifications", "mark-all"]
+            }
+          }
+        },
+        {
+          "name": "Clear All",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/notifications/clear-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "notifications", "clear-all"]
+            }
+          }
+        },
+        {
+          "name": "Notification Status (badge)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/notifications/get-notification-status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "notifications", "get-notification-status"]
+            }
+          }
+        },
+        {
+          "name": "Session Request Sheet",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/sessions/1/request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "sessions", "1", "request"]
+            },
+            "description": "Assigned therapist only: client name, new_client flag, topics, note, gross amount + net you_receive (share config)."
+          }
+        },
+        {
+          "name": "Accept Session (acknowledge)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/sessions/1/acknowledge",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "sessions", "1", "acknowledge"]
+            },
+            "description": "Stamps acknowledged_at, notifies the client. Booking status unchanged (bookings auto-confirm on payment). Decline = POST /api/v2/user/bookings/{id}/cancel."
+          }
+        },
+        {
+          "name": "Report a User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "reported_user_id", "value": "2", "type": "text" },
+                { "key": "reason", "value": "Abusive behaviour", "type": "text" },
+                { "key": "context", "value": "", "type": "text", "description": "Optional (e.g. session ref)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/user-reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "user-reports"]
+            },
+            "description": "One open report per (reporter, target). 'Block and Report' = call this + blocked-users/add."
+          }
+        }
+      ]
     }
   ]
 }

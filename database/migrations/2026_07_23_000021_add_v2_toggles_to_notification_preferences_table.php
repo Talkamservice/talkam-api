@@ -20,6 +20,7 @@ return new class extends Migration
             $table->tinyInteger('payment_confirmations')->nullable()->default(1);
             $table->tinyInteger('replies_to_posts')->nullable()->default(1);
             $table->tinyInteger('promotions_updates')->nullable()->default(1);
+            $table->tinyInteger('wellness_nudges')->nullable()->default(1);
         });
     }
 
@@ -36,6 +37,7 @@ return new class extends Migration
                 'payment_confirmations',
                 'replies_to_posts',
                 'promotions_updates',
+                'wellness_nudges',
             ]);
         });
     }

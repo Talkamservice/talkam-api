@@ -24,6 +24,7 @@ class NotificationPreferenceController extends Controller
         'payment_confirmations',
         'replies_to_posts',
         'promotions_updates',
+        'wellness_nudges',
         'can_receive_push',
         'can_receive_mail',
     ];

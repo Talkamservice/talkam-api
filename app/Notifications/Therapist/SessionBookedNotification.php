@@ -51,13 +51,31 @@ class SessionBookedNotification extends Notification
             ? "You have a new confirmed session on $when."
             : "Your therapy session is confirmed for $when.";
 
-        return [
+        $data = [
             'data' => ['id' => $this->session->id],
-            'title' => "Session Confirmed",
+            'title' => $this->audience == "therapist" ? "New Booking Request" : "Session Confirmed",
             'message' => $message,
             'link' => config("app.web_url"),
             'type' => 'therapy_session',
             'batch_no' => null,
         ];
+
+        // Actionable feed item (§10): rides in `extra` (the feed resource
+        // passes extra through) so the app renders Open Session / Decline.
+        if ($this->audience == "therapist") {
+            $data['extra'] = [
+                'action' => [
+                    'type' => 'booking_request',
+                    'session_id' => $this->session->id,
+                    'endpoints' => [
+                        'request_sheet' => "/api/v2/therapist/sessions/{$this->session->id}/request",
+                        'acknowledge' => "/api/v2/therapist/sessions/{$this->session->id}/acknowledge",
+                        'decline' => "/api/v2/user/bookings/{$this->session->id}/cancel",
+                    ],
+                ],
+            ];
+        }
+
+        return $data;
     }
 }

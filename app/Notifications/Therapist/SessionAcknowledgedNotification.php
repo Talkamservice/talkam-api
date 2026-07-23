@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Notifications\Therapist;
+
+use App\Helpers\MethodsHelper;
+use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class SessionAcknowledgedNotification extends Notification
+{
+    use Queueable;
+
+    public function __construct(public $session)
+    {
+        //
+    }
+
+    public function via(object $notifiable): array
+    {
+        return MethodsHelper::userNotificationPreference($notifiable);
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $data = $this->buildData($notifiable);
+        return (new MailMessage)
+            ->subject($data["title"])
+            ->markdown('emails.general.index', [
+                "title" => $data["title"],
+                "message" => $data["message"],
+                "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
+            ]);
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [];
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return $this->buildData($notifiable);
+    }
+
+    public function buildData($notifiable)
+    {
+        return [
+            'data' => ['id' => $this->session->id],
+            'title' => "Session Acknowledged",
+            'message' => "Your therapist has seen your session booking for "
+                . $this->session->starts_at->format('D, M j \a\t g:ia') . ".",
+            'link' => config("app.web_url"),
+            'type' => 'therapy_session',
+            'batch_no' => null,
+        ];
+    }
+}

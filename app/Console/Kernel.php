@@ -54,6 +54,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('bookings:release-expired-holds')->everyMinute();
         $schedule->command('bookings:send-session-reminders')->everyMinute();
         $schedule->command('bookings:sweep-session-completions')->everyMinute();
+        $schedule->command('wellness:send-checkin-nudges')->hourly();
     }
 
     /**
