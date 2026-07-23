@@ -773,6 +773,254 @@
           }
         }
       ]
+    },
+    {
+      "name": "05 Groups & Search",
+      "item": [
+        {
+          "name": "Groups (listing / discovery)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups?category_id=&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups"],
+              "query": [
+                { "key": "category_id", "value": "", "description": "Topic chip filter" },
+                { "key": "search", "value": "" }
+              ]
+            },
+            "description": "Public: guests only see open-access groups. Authenticated: v1 behavior."
+          }
+        },
+        {
+          "name": "Group Detail (About tab)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "1"]
+            },
+            "description": "Reused v1 show: description, about, can_post, group_access, owner, total_members."
+          }
+        },
+        {
+          "name": "Join Group (Subscribe)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "group_id", "value": "1", "type": "text" },
+                { "key": "user_id", "value": "1", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/group-members",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "group-members"]
+            },
+            "description": "Subscribe = Join (membership, role Member). Idempotent."
+          }
+        },
+        {
+          "name": "Leave Group",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "group_id", "value": "1", "type": "text" },
+                { "key": "user_id", "value": "1", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/unfollow-group",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "unfollow-group"]
+            }
+          }
+        },
+        {
+          "name": "Follow Group (overflow, toggle)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "group_id", "value": "1", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/follow",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "follow"]
+            },
+            "description": "Lighter follow — updates without membership (Follow != Join)."
+          }
+        },
+        {
+          "name": "Followed Groups",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/members/following",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "members", "following"]
+            }
+          }
+        },
+        {
+          "name": "Suggested Groups",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/suggested",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "suggested"]
+            },
+            "description": "Organic: interest match first, then member count; excludes joined + closed groups."
+          }
+        },
+        {
+          "name": "Invite to Group",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "email", "value": "friend@example.com", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/1/invite",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "1", "invite"]
+            },
+            "description": "Creates an invitations row with group_id. Returns the invite uuid."
+          }
+        },
+        {
+          "name": "Accept Group Invite",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "uuid", "value": "IV_xxxxxxxx", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/invites/accept",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "invites", "accept"]
+            },
+            "description": "Join semantics — creates membership for the invitee (email must match)."
+          }
+        },
+        {
+          "name": "Request Access (private group)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/1/request-access",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "1", "request-access"]
+            }
+          }
+        },
+        {
+          "name": "Report Group",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "group_id", "value": "1", "type": "text" },
+                { "key": "reason", "value": "Inappropriate content", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/groups/reports/create",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "groups", "reports", "create"]
+            }
+          }
+        },
+        {
+          "name": "Search (post | people | groups)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/search?sort=post&search=anxiety",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "search"],
+              "query": [
+                { "key": "sort", "value": "post", "description": "post | people | groups (v1 values also accepted)" },
+                { "key": "search", "value": "anxiety" }
+              ]
+            },
+            "description": "People results carry is_following; group results carry is_member; post tab includes related_topics (interest-topic name matches). Queries are logged to recent searches."
+          }
+        },
+        {
+          "name": "Recent Searches",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/search/recent",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "search", "recent"]
+            }
+          }
+        },
+        {
+          "name": "Trending Searches",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/search/trending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "search", "trending"]
+            }
+          }
+        },
+        {
+          "name": "Delete Recent Search",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/search/1/delete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "search", "1", "delete"]
+            }
+          }
+        },
+        {
+          "name": "Recents (discovery Recent tab)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/recents/fetch",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "recents", "fetch"]
+            },
+            "description": "Reused v1 recent views (supports group_id)."
+          }
+        }
+      ]
     }
   ]
 }
