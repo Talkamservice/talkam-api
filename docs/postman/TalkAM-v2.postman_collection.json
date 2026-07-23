@@ -201,6 +201,169 @@
           }
         }
       ]
+    },
+    {
+      "name": "02 Onboarding",
+      "item": [
+        {
+          "name": "Me (with onboarding state)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "me"]
+            },
+            "description": "v1 me payload plus a computed data.onboarding object: {user_type, interests, avatar, consents, completed_at}. The app resumes onboarding at the first false step."
+          }
+        },
+        {
+          "name": "Interest Topics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/interest-topics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "interest-topics"]
+            },
+            "description": "The onboarding interest chips (post_categories rows marked type=interest_topic). No parameters."
+          }
+        },
+        {
+          "name": "Sync Interests (min 3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"interests\": [12, 13, 14]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/profile/interests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "profile", "interests"]
+            },
+            "description": "Batch interest selection from onboarding. Minimum 3 IDs; deduped server-side."
+          }
+        },
+        {
+          "name": "Avatars (preset grid)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/profile/avatars",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "profile", "avatars"]
+            },
+            "description": "Reused v1 preset avatar list. Public."
+          }
+        },
+        {
+          "name": "Profile Update (set avatar)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "avatar", "value": "3", "type": "text", "description": "Preset avatar id. Skippable — just don't call." }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/profile/update",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "profile", "update"]
+            },
+            "description": "Reused v1 profile update (also accepts name, username, gender, date_of_birth, ...)."
+          }
+        },
+        {
+          "name": "Set User Type",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "user_type", "value": "support_seeker", "type": "text", "description": "support_seeker | mental_health_pro" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/onboarding/user-type",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "onboarding", "user-type"]
+            },
+            "description": "Records onboarding intent only — role stays User."
+          }
+        },
+        {
+          "name": "Get Consents",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/consents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "consents"]
+            },
+            "description": "State of all four consent keys: account_operation, session_delivery (required), anonymous_community, anonymised_research (optional)."
+          }
+        },
+        {
+          "name": "Update Consents",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consents\": {\n    \"account_operation\": true,\n    \"session_delivery\": true,\n    \"anonymous_community\": true,\n    \"anonymised_research\": false\n  },\n  \"policy_version\": \"2026-07\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/consents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "consents"]
+            },
+            "description": "First confirm requires both required keys true. Required keys can never be toggled off (400 — that path is account deletion). Optional keys toggle freely; revocation is go-forward (revoked_at set, granted_at preserved)."
+          }
+        },
+        {
+          "name": "Complete Onboarding",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/onboarding/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "onboarding", "complete"]
+            },
+            "description": "Stamps users.onboarding_completed_at and returns the derived onboarding object."
+          }
+        },
+        {
+          "name": "Privacy Policies",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/privacy-policies",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "privacy-policies"]
+            },
+            "description": "Reused v1 privacy policy content. Public."
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,10 +1,16 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\User\UserController as V1UserController;
+use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
 use App\Http\Controllers\Api\V2\Auth\PasswordController;
 use App\Http\Controllers\Api\V2\Auth\RegisterController;
 use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
+use App\Http\Controllers\Api\V2\User\ConsentController;
+use App\Http\Controllers\Api\V2\User\InterestController;
+use App\Http\Controllers\Api\V2\User\OnboardingController;
+use App\Http\Controllers\Api\V2\User\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,5 +44,30 @@ Route::prefix("auth")->as("auth.")->group(function () {
             ->middleware("throttle:5,1")
             ->name("request");
         Route::post("/verify", [VerificationController::class, "verify"])->name("verify");
+    });
+});
+
+// Public, matching v1's placement of these endpoints.
+Route::get("profile/avatars", [V1UserController::class, "listAvatars"])->name("avatars.list");
+Route::get("user/privacy-policies", [PrivacyPolicyController::class, "index"])->name("privacy-policies.list");
+
+Route::middleware(["auth:sanctum"])->group(function () {
+    Route::prefix("user")->as("user.")->middleware(["pricingCountry"])->group(function () {
+        Route::get("/me", [UserController::class, "me"])->name("me");
+
+        Route::get("interest-topics", [InterestController::class, "topics"])->name("interest-topics");
+
+        Route::prefix("profile")->as("profile.")->group(function () {
+            Route::post("/update", [V1UserController::class, "update"])->name("update");
+            Route::post("interests", [InterestController::class, "sync"])->name("interests.sync");
+        });
+
+        Route::prefix("onboarding")->as("onboarding.")->group(function () {
+            Route::post("user-type", [OnboardingController::class, "userType"])->name("user-type");
+            Route::post("complete", [OnboardingController::class, "complete"])->name("complete");
+        });
+
+        Route::get("consents", [ConsentController::class, "index"])->name("consents.index");
+        Route::post("consents", [ConsentController::class, "store"])->name("consents.store");
     });
 });

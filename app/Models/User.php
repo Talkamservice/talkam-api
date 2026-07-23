@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->hasMany(Pin::class, "user_id");
     }
 
+    public function consents()
+    {
+        return $this->hasMany(UserConsent::class, "user_id");
+    }
+
 
     public function blockedUsers()
     {
