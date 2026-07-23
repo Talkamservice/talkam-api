@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\User\Group\GroupController as V1GroupController;
 use App\Http\Controllers\Api\V1\User\Group\GroupMemberController;
 use App\Http\Controllers\Api\V1\User\Group\GroupReportController;
 use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
+use App\Http\Controllers\Api\V1\User\Messaging\ConversationController as V1ConversationController;
+use App\Http\Controllers\Api\V1\User\Messaging\MessagingController;
 use App\Http\Controllers\Api\V1\User\Notification\NotificationController;
 use App\Http\Controllers\Api\V1\User\Post\RecentViewController;
 use App\Http\Controllers\Api\V1\User\Post\SearchController as V1SearchController;
@@ -24,6 +26,7 @@ use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
 use App\Http\Controllers\Api\V2\Group\GroupController;
 use App\Http\Controllers\Api\V2\Group\GroupInviteController;
+use App\Http\Controllers\Api\V2\Messaging\ConversationController as V2ConversationController;
 use App\Http\Controllers\Api\V2\Post\PostCommentController;
 use App\Http\Controllers\Api\V2\Post\PostController;
 use App\Http\Controllers\Api\V2\Post\SearchController;
@@ -126,6 +129,24 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
 
         Route::post("user-reports", [UserReportController::class, "store"])->name("user-reports.store");
+
+        Route::prefix("messaging")->as("messaging.")->group(function () {
+            Route::get("conversations", [V1ConversationController::class, "index"])->name("conversations.index");
+            Route::post("conversations", [V2ConversationController::class, "store"])->name("conversations.store");
+
+            Route::prefix("conversations")->as("conversations.")->group(function () {
+                Route::post("update-status", [V1ConversationController::class, "updateStatus"])->name("update-status");
+                Route::post("report", [V1ConversationController::class, "report"])->name("report");
+                Route::get("/current/fetch", [V1ConversationController::class, "currentConversation"])->name("current-conversation");
+                Route::get("/pending-requests", [V1ConversationController::class, "pendingRequests"])->name("pending-requests");
+                Route::get("{conversation}", [V1ConversationController::class, "show"])->name("show");
+            });
+
+            Route::prefix("messages")->as("messages.")->group(function () {
+                Route::get("list", [MessagingController::class, "list"])->name("list");
+                Route::post("/send", [MessagingController::class, "sendMessage"])->name("send");
+            });
+        });
 
         Route::prefix("onboarding")->as("onboarding.")->group(function () {
             Route::post("user-type", [OnboardingController::class, "userType"])->name("user-type");
@@ -265,6 +286,14 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("sessions")->as("sessions.")->group(function () {
             Route::get("{session}/request", [SessionRequestController::class, "request"])->name("request");
             Route::post("{session}/acknowledge", [SessionRequestController::class, "acknowledge"])->name("acknowledge");
+            Route::get("{session}/notes", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "show"])->name("notes.show");
+            Route::post("{session}/notes", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "store"])->name("notes.store");
+        });
+
+        Route::prefix("clients")->as("clients.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\Therapist\ClientController::class, "index"])->name("index");
+            Route::post("{user}/treatment-plan", [\App\Http\Controllers\Api\V2\Therapist\ClientController::class, "setTreatmentPlan"])->name("treatment-plan");
+            Route::get("{user}", [\App\Http\Controllers\Api\V2\Therapist\ClientController::class, "show"])->name("show");
         });
     });
 });

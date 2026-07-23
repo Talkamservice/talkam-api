@@ -44,6 +44,14 @@ return [
         'reminder_lead_minutes' => env('THERAPIST_REMINDER_LEAD_MINUTES', 30),
     ],
 
+    // Treatment-plan progress vocabulary (planning doc 11) — placeholder
+    // pending product's final wording.
+    'progress_statuses' => [
+        'good_progress',
+        'steady',
+        'needs_attention',
+    ],
+
     // Sessions (planning doc 08) — all thresholds config-driven.
     'sessions' => [
         'free_cancellation_hours' => env('SESSION_FREE_CANCELLATION_HOURS', 24),

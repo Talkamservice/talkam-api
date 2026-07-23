@@ -240,6 +240,8 @@ class SessionBookingService
             'receipt_url' => !empty($session->payment_id)
                 ? url("/api/v2/user/bookings/{$session->id}/receipt")
                 : null,
+            // Only notes the therapist explicitly shared (§11 privacy).
+            'shared_note' => SessionNoteService::sharedNoteFor($session),
         ];
     }
 }

@@ -1770,6 +1770,138 @@
           }
         }
       ]
+    },
+    {
+      "name": "11 Clients & Messaging",
+      "item": [
+        {
+          "name": "Clients Roster",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/clients",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "clients"]
+            },
+            "description": "Derived roster: users with >=1 confirmed/completed session with the therapist. Topics + session counts."
+          }
+        },
+        {
+          "name": "Client Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/clients/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "clients", "2"]
+            },
+            "description": "Client since, stats, treatment plan + progress (completed/total), session history with note summaries, needs_note prompt flag."
+          }
+        },
+        {
+          "name": "Set Treatment Plan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "total_sessions", "value": "8", "type": "text" },
+                { "key": "progress_status", "value": "good_progress", "type": "text", "description": "Config-driven vocabulary" },
+                { "key": "notes", "value": "", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/clients/2/treatment-plan",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "clients", "2", "treatment-plan"]
+            },
+            "description": "One plan per pair — repeat POST updates."
+          }
+        },
+        {
+          "name": "Session Note (read)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/sessions/1/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "sessions", "1", "notes"]
+            },
+            "description": "Session's therapist only."
+          }
+        },
+        {
+          "name": "Session Note (write)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sleep improvement - CBT journaling assigned\",\n  \"content\": \"...\",\n  \"shared_with_client\": false,\n  \"status\": \"final\",\n  \"tags\": [12]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/sessions/1/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "sessions", "1", "notes"]
+            },
+            "description": "Private by default; shared_with_client=true exposes it on the client's booking detail as shared_note."
+          }
+        },
+        {
+          "name": "Conversations (list)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/conversations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "conversations"]
+            },
+            "description": "Reused v1 listing. (Deep messaging rework lands with section 16.)"
+          }
+        },
+        {
+          "name": "Start Conversation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "receiver_id", "value": "2", "type": "text" },
+                { "key": "message", "value": "Hello", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/conversations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "conversations"]
+            },
+            "description": "Therapist<->client pairs with a confirmed booking open Active immediately; community DMs keep the v1 request model."
+          }
+        },
+        {
+          "name": "Messages (list / send)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/list?conversation_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "list"],
+              "query": [{ "key": "conversation_id", "value": "1" }]
+            },
+            "description": "Reused v1. POST /api/v2/user/messaging/messages/send to send."
+          }
+        }
+      ]
     }
   ]
 }
