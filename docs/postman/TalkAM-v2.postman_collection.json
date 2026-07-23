@@ -512,6 +512,267 @@
           }
         }
       ]
+    },
+    {
+      "name": "04 Posts",
+      "item": [
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 12,\n  \"type\": \"Text\",\n  \"title\": \"Managing anxiety day to day\",\n  \"body\": \"Max 500 chars.\",\n  \"tags\": [\"anxiety\"],\n  \"is_anonymous\": 0,\n  \"status\": \"Active\",\n  \"publish_at\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts"]
+            },
+            "description": "v2 rules: title required, tags min 1, body <= 500 chars, category_id must be an interest topic. status=Scheduled + publish_at schedules; followers are notified of non-anonymous published posts."
+          }
+        },
+        {
+          "name": "Create Reply",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "post_id", "value": "1", "type": "text" },
+                { "key": "comment", "value": "Replying (max 500 chars). Mention with $@username$.", "type": "text" },
+                { "key": "parent_id", "value": "", "type": "text", "description": "Optional thread parent comment id" },
+                { "key": "reply_comment_id", "value": "", "type": "text", "description": "Optional replied-to comment id" },
+                { "key": "is_anonymous", "value": "0", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/post-comments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "post-comments"]
+            },
+            "description": "500-char server max; threading/mentions/anonymous reuse v1 logic."
+          }
+        },
+        {
+          "name": "List Comments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/post-comments?post_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "post-comments"],
+              "query": [{ "key": "post_id", "value": "1" }]
+            },
+            "description": "v1 listing plus muted users excluded."
+          }
+        },
+        {
+          "name": "Comment Reaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "comment_id", "value": "1", "type": "text" },
+                { "key": "action", "value": "Like", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/post-comments/reaction",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "post-comments", "reaction"]
+            },
+            "description": "Reused v1 toggle."
+          }
+        },
+        {
+          "name": "Report Post",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "post_id", "value": "1", "type": "text" },
+                { "key": "reason", "value": "Spam", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts/report",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts", "report"]
+            }
+          }
+        },
+        {
+          "name": "Report Comment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "comment_id", "value": "1", "type": "text" },
+                { "key": "post_id", "value": "1", "type": "text" },
+                { "key": "reason", "value": "Harassment", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts/report-comment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts", "report-comment"]
+            },
+            "description": "Requires comment_id AND post_id (v1 contract)."
+          }
+        },
+        {
+          "name": "Not Interested (toggle)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "post_id", "value": "1", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts/not-interested",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts", "not-interested"]
+            },
+            "description": "Hides the post from the caller's v2 feeds. data.not_interested reflects the new state."
+          }
+        },
+        {
+          "name": "Subscribe / Follow (toggle)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "user_id", "value": "2", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/follows/toggle",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "follows", "toggle"]
+            },
+            "description": "Subscribe to an author — notified of their new non-anonymous posts. data.following reflects the new state."
+          }
+        },
+        {
+          "name": "Following",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/follows/following",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "follows", "following"]
+            }
+          }
+        },
+        {
+          "name": "Followers",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/follows/followers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "follows", "followers"]
+            }
+          }
+        },
+        {
+          "name": "Mute (toggle)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "user_id", "value": "2", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/mutes/toggle",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "mutes", "toggle"]
+            },
+            "description": "Feeds-only: hides their posts/comments from your v2 feeds. DMs unaffected (that's Block)."
+          }
+        },
+        {
+          "name": "Muted Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/mutes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "mutes"]
+            }
+          }
+        },
+        {
+          "name": "Block User (toggle)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "blocked_user_id", "value": "2", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/blocked-users/add",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "blocked-users", "add"]
+            },
+            "description": "Reused v1 block toggle."
+          }
+        },
+        {
+          "name": "Save as Draft",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "category_id", "value": "12", "type": "text" },
+                { "key": "type", "value": "Text", "type": "text" },
+                { "key": "title", "value": "Draft title", "type": "text" },
+                { "key": "body", "value": "Draft body", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/post-drafts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "post-drafts"]
+            },
+            "description": "Reused v1 drafts (status=Drafted). Full apiResource registered (index/show/update/destroy)."
+          }
+        },
+        {
+          "name": "Guidelines (Rules modal)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/guidelines",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "guidelines"]
+            },
+            "description": "Reused v1 guidelines list."
+          }
+        }
+      ]
     }
   ]
 }

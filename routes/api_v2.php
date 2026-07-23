@@ -2,18 +2,25 @@
 
 use App\Http\Controllers\Api\V1\Announcement\AnnouncementController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\User\Guideline\GuidelineController;
+use App\Http\Controllers\Api\V1\User\Post\PostCommentController as V1PostCommentController;
 use App\Http\Controllers\Api\V1\User\Post\PostController as V1PostController;
+use App\Http\Controllers\Api\V1\User\Post\PostDraftController;
 use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
+use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\UserController as V1UserController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
 use App\Http\Controllers\Api\V2\Auth\PasswordController;
 use App\Http\Controllers\Api\V2\Auth\RegisterController;
 use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
+use App\Http\Controllers\Api\V2\Post\PostCommentController;
 use App\Http\Controllers\Api\V2\Post\PostController;
 use App\Http\Controllers\Api\V2\User\ConsentController;
+use App\Http\Controllers\Api\V2\User\FollowController;
 use App\Http\Controllers\Api\V2\User\InterestController;
 use App\Http\Controllers\Api\V2\User\MoodCheckinController;
+use App\Http\Controllers\Api\V2\User\MuteController;
 use App\Http\Controllers\Api\V2\User\OnboardingController;
 use App\Http\Controllers\Api\V2\User\UserController;
 use Illuminate\Support\Facades\Route;
@@ -77,10 +84,46 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("posts")->as("posts.")->group(function () {
             Route::get("/", [PostController::class, "index"])->name("index");
+            Route::post("/", [PostController::class, "store"])->name("store");
             Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
+            Route::post("report", [PostReactionController::class, "report"])->name("report");
+            Route::post("report-comment", [PostReactionController::class, "reportComment"])->name("report-comment");
+            Route::post("not-interested", [PostController::class, "notInterested"])->name("not-interested");
             Route::get("stats/fetch", [V1PostController::class, "fetchStats"])->name("fetch-stats");
             Route::post("stats/save", [V1PostController::class, "saveStats"])->name("save-stats");
             Route::get("{post}", [V1PostController::class, "show"])->name("show");
+        });
+
+        Route::prefix("post-comments")->as("post-comments.")->group(function () {
+            Route::get("/", [PostCommentController::class, "index"])->name("index");
+            Route::post("/", [PostCommentController::class, "store"])->name("store");
+            Route::post("reaction", [V1PostCommentController::class, "reaction"])->name("reaction");
+        });
+
+        Route::apiResources([
+            "post-drafts" => PostDraftController::class,
+            "post-schedules" => PostScheduleController::class,
+        ]);
+
+        Route::prefix("follows")->as("follows.")->group(function () {
+            Route::post("toggle", [FollowController::class, "toggle"])->name("toggle");
+            Route::get("following", [FollowController::class, "following"])->name("following");
+            Route::get("followers", [FollowController::class, "followers"])->name("followers");
+        });
+
+        Route::prefix("mutes")->as("mutes.")->group(function () {
+            Route::post("toggle", [MuteController::class, "toggle"])->name("toggle");
+            Route::get("/", [MuteController::class, "index"])->name("index");
+        });
+
+        Route::prefix("blocked-users")->as("blocked-users.")->group(function () {
+            Route::get("/", [V1UserController::class, "blockUserLists"])->name("index");
+            Route::post("/add", [V1UserController::class, "blockUser"])->name("add");
+        });
+
+        Route::prefix("guidelines")->as("guidelines.")->group(function () {
+            Route::get("/", [GuidelineController::class, "index"])->name("index");
+            Route::get("/{guideline}", [GuidelineController::class, "show"])->name("show");
         });
 
         Route::prefix("mood-checkins")->as("mood-checkins.")->group(function () {
