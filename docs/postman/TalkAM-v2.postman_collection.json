@@ -364,6 +364,154 @@
           }
         }
       ]
+    },
+    {
+      "name": "03 Home Feed",
+      "item": [
+        {
+          "name": "Feed (For You)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts?tab=for_you&category_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts"],
+              "query": [
+                { "key": "tab", "value": "for_you", "description": "for_you | trending" },
+                { "key": "category_id", "value": "", "description": "Optional topic chip filter (id from interest-topics)" }
+              ]
+            },
+            "description": "Interest-category posts first (recency-ordered), backfilled with popular recent posts. Paginated; impressions logged."
+          }
+        },
+        {
+          "name": "Feed (Trending)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts?tab=trending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts"],
+              "query": [{ "key": "tab", "value": "trending" }]
+            },
+            "description": "Engagement-ranked (comments + likes) over the recent 2-month window."
+          }
+        },
+        {
+          "name": "Post Detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts", "1"]
+            },
+            "description": "Reused v1 post detail (Read More). Logs click + recent view."
+          }
+        },
+        {
+          "name": "React (Like)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "post_id", "value": "1", "type": "text" },
+                { "key": "action", "value": "Like", "type": "text", "description": "Like | Dislike — toggles" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts/reaction",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts", "reaction"]
+            },
+            "description": "Reused v1 reaction toggle."
+          }
+        },
+        {
+          "name": "Save Post Stats (share)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "post_id", "value": "1", "type": "text" },
+                { "key": "shares", "value": "true", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts/stats/save",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts", "stats", "save"]
+            },
+            "description": "Reused v1 stats tracking (shares, engagements, clicks...)."
+          }
+        },
+        {
+          "name": "Fetch Post Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/posts/stats/fetch?post_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "posts", "stats", "fetch"],
+              "query": [{ "key": "post_id", "value": "1" }]
+            },
+            "description": "Reused v1 stats fetch."
+          }
+        },
+        {
+          "name": "Mood Check-in (today)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/mood-checkins/today",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "mood-checkins", "today"]
+            },
+            "description": "Gates the check-in modal: data = {checked_in, mood, checked_in_on}."
+          }
+        },
+        {
+          "name": "Mood Check-in (record)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "mood", "value": "4", "type": "text", "description": "1-5" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/mood-checkins",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "mood-checkins"]
+            },
+            "description": "One check-in per calendar day; a same-day repeat updates the row."
+          }
+        },
+        {
+          "name": "Announcements (therapist banner)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/announcements",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "announcements"]
+            },
+            "description": "Reused v1 announcements — serves the server-controlled therapist prompt banner."
+          }
+        }
+      ]
     }
   ]
 }

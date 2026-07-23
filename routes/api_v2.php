@@ -1,14 +1,19 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Announcement\AnnouncementController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\User\Post\PostController as V1PostController;
+use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\UserController as V1UserController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
 use App\Http\Controllers\Api\V2\Auth\PasswordController;
 use App\Http\Controllers\Api\V2\Auth\RegisterController;
 use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
+use App\Http\Controllers\Api\V2\Post\PostController;
 use App\Http\Controllers\Api\V2\User\ConsentController;
 use App\Http\Controllers\Api\V2\User\InterestController;
+use App\Http\Controllers\Api\V2\User\MoodCheckinController;
 use App\Http\Controllers\Api\V2\User\OnboardingController;
 use App\Http\Controllers\Api\V2\User\UserController;
 use Illuminate\Support\Facades\Route;
@@ -69,5 +74,23 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::get("consents", [ConsentController::class, "index"])->name("consents.index");
         Route::post("consents", [ConsentController::class, "store"])->name("consents.store");
+
+        Route::prefix("posts")->as("posts.")->group(function () {
+            Route::get("/", [PostController::class, "index"])->name("index");
+            Route::post("reaction", [PostReactionController::class, "reaction"])->name("reaction");
+            Route::get("stats/fetch", [V1PostController::class, "fetchStats"])->name("fetch-stats");
+            Route::post("stats/save", [V1PostController::class, "saveStats"])->name("save-stats");
+            Route::get("{post}", [V1PostController::class, "show"])->name("show");
+        });
+
+        Route::prefix("mood-checkins")->as("mood-checkins.")->group(function () {
+            Route::get("today", [MoodCheckinController::class, "today"])->name("today");
+            Route::post("/", [MoodCheckinController::class, "store"])->name("store");
+        });
+
+        Route::prefix("announcements")->as("announcements.")->group(function () {
+            Route::get("/", [AnnouncementController::class, "index"])->name("index");
+            Route::get("{id}/show", [AnnouncementController::class, "show"])->name("show");
+        });
     });
 });
