@@ -2083,6 +2083,214 @@
           }
         }
       ]
+    },
+    {
+      "name": "16 Robust Messaging",
+      "item": [
+        {
+          "name": "Conversations (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/conversations?archived=&starred=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "conversations"],
+              "query": [
+                { "key": "archived", "value": "", "description": "1 = archived only" },
+                { "key": "starred", "value": "", "description": "1 = starred only" }
+              ]
+            },
+            "description": "Paginated; correct last_message; unread counts; per-member filters."
+          }
+        },
+        {
+          "name": "Pending Requests",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/conversations/pending-requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "conversations", "pending-requests"]
+            },
+            "description": "Conversations awaiting YOUR response (v1's route was dead)."
+          }
+        },
+        {
+          "name": "Conversation State (mute/archive/star/seen)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "conversation_id", "value": "1", "type": "text" },
+                { "key": "muted_until", "value": "", "type": "text", "description": "mute only, optional" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/conversations/mute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "conversations", "mute"]
+            },
+            "description": "Endpoints: mute | unmute | archive | unarchive | star | unstar | seen. All per-member; mute is enforced on the notification path."
+          }
+        },
+        {
+          "name": "Messages (list)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/list?conversation_id=1&pinned=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "list"],
+              "query": [
+                { "key": "conversation_id", "value": "1" },
+                { "key": "pinned", "value": "", "description": "1 = pinned only" }
+              ]
+            },
+            "description": "Marks inbound read (read_at); hides for_me-deleted; read-state suppressed toward you when the reader turned receipts off."
+          }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "conversation_id", "value": "1", "type": "text" },
+                { "key": "message", "value": "Max length is config-driven (default 1000)", "type": "text" },
+                { "key": "file", "type": "file", "src": [], "description": "Optional, max 10MB (config)" },
+                { "key": "message_type", "value": "text", "type": "text", "description": "text | file | voice" },
+                { "key": "voice_duration", "value": "", "type": "text", "description": "Seconds, voice notes" },
+                { "key": "replied_to_message_id", "value": "", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/send",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "send"]
+            },
+            "description": "Membership + block enforcement (403 when blocked); delivered_at stamped; mute-aware notifications."
+          }
+        },
+        {
+          "name": "Edit Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "message_id", "value": "1", "type": "text" },
+                { "key": "message", "value": "Edited text", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/edit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "edit"]
+            },
+            "description": "Own messages, within the config window (default 15 min; 0 = unlimited). History kept in message_edits."
+          }
+        },
+        {
+          "name": "Delete Message",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/1?type=for_everyone",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "1"],
+              "query": [{ "key": "type", "value": "for_everyone", "description": "for_me | for_everyone" }]
+            },
+            "description": "for_everyone: sender-only, config window, soft delete + content blanked. for_me: hidden for you only."
+          }
+        },
+        {
+          "name": "Reactions / Pin / Reply / Forward",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "message_id", "value": "1", "type": "text" },
+                { "key": "reaction", "value": "❤️", "type": "text", "description": "add/remove-reaction only, max 16 chars" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/add-reaction",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "add-reaction"]
+            },
+            "description": "Endpoints: add-reaction | remove-reaction | pin | unpin | reply | forward | bulk-mark-as-read. Duplicate reactions get a friendly error."
+          }
+        },
+        {
+          "name": "Search Messages",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/search?q=hello&conversation_id=&message_type=&sender_id=&from=&to=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "search"],
+              "query": [
+                { "key": "q", "value": "hello", "description": "min 2 chars" },
+                { "key": "conversation_id", "value": "" },
+                { "key": "message_type", "value": "" },
+                { "key": "sender_id", "value": "" },
+                { "key": "from", "value": "" },
+                { "key": "to", "value": "" }
+              ]
+            },
+            "description": "Strictly scoped to your own conversations."
+          }
+        },
+        {
+          "name": "Typing / Presence",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "conversation_id", "value": "1", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/messages/typing",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "messages", "typing"]
+            },
+            "description": "Typing broadcast (conversation channel). Presence: POST /messaging/presence {status: online|away|offline}. Both suppressed when activity_status is off."
+          }
+        },
+        {
+          "name": "Drafts (save/get/delete)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "conversation_id", "value": "1", "type": "text" },
+                { "key": "content", "value": "Draft text", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/messaging/drafts/save",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "messaging", "drafts", "save"]
+            },
+            "description": "One draft per (user, conversation) — save upserts. GET /drafts/get?conversation_id=, DELETE /drafts/delete?conversation_id=."
+          }
+        }
+      ]
     }
   ]
 }

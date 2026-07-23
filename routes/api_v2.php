@@ -133,21 +133,46 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::get("drawer", [\App\Http\Controllers\Api\V2\User\DrawerController::class, "index"])->name("drawer");
 
         Route::prefix("messaging")->as("messaging.")->group(function () {
-            Route::get("conversations", [V1ConversationController::class, "index"])->name("conversations.index");
+            Route::get("conversations", [V2ConversationController::class, "index"])->name("conversations.index");
             Route::post("conversations", [V2ConversationController::class, "store"])->name("conversations.store");
 
             Route::prefix("conversations")->as("conversations.")->group(function () {
                 Route::post("update-status", [V1ConversationController::class, "updateStatus"])->name("update-status");
-                Route::post("report", [V1ConversationController::class, "report"])->name("report");
+                Route::post("report", [V2ConversationController::class, "report"])->name("report");
                 Route::get("/current/fetch", [V1ConversationController::class, "currentConversation"])->name("current-conversation");
-                Route::get("/pending-requests", [V1ConversationController::class, "pendingRequests"])->name("pending-requests");
+                Route::get("/pending-requests", [V2ConversationController::class, "pendingRequests"])->name("pending-requests");
+
+                foreach (["mute", "unmute", "archive", "unarchive", "star", "unstar", "seen"] as $action) {
+                    Route::post($action, [V2ConversationController::class, "state"])
+                        ->defaults("action", $action)->name($action);
+                }
+
                 Route::get("{conversation}", [V1ConversationController::class, "show"])->name("show");
             });
 
             Route::prefix("messages")->as("messages.")->group(function () {
-                Route::get("list", [MessagingController::class, "list"])->name("list");
-                Route::post("/send", [MessagingController::class, "sendMessage"])->name("send");
+                Route::get("list", [\App\Http\Controllers\Api\V2\Messaging\MessageController::class, "list"])->name("list");
+                Route::post("/send", [\App\Http\Controllers\Api\V2\Messaging\MessageController::class, "send"])->name("send");
+                Route::post("edit", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "edit"])->name("edit");
+                Route::post("reply", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "reply"])->name("reply");
+                Route::post("forward", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "forward"])->name("forward");
+                Route::post("add-reaction", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "addReaction"])->name("add-reaction");
+                Route::post("remove-reaction", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "removeReaction"])->name("remove-reaction");
+                Route::post("pin", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "pin"])->name("pin");
+                Route::post("unpin", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "unpin"])->name("unpin");
+                Route::post("bulk-mark-as-read", [\App\Http\Controllers\Api\V2\Messaging\MessageController::class, "bulkMarkRead"])->name("bulk-mark-as-read");
+                Route::get("search", [\App\Http\Controllers\Api\V2\Messaging\MessageController::class, "search"])->name("search");
+                Route::post("typing", [\App\Http\Controllers\Api\V2\Messaging\MessageController::class, "typing"])->name("typing");
+                Route::delete("{message}", [\App\Http\Controllers\Api\V2\Messaging\MessageActionController::class, "destroy"])->name("destroy");
             });
+
+            Route::prefix("drafts")->as("drafts.")->group(function () {
+                Route::post("save", [\App\Http\Controllers\Api\V2\Messaging\DraftController::class, "save"])->name("save");
+                Route::get("get", [\App\Http\Controllers\Api\V2\Messaging\DraftController::class, "get"])->name("get");
+                Route::delete("delete", [\App\Http\Controllers\Api\V2\Messaging\DraftController::class, "delete"])->name("delete");
+            });
+
+            Route::post("presence", [\App\Http\Controllers\Api\V2\Messaging\PresenceController::class, "update"])->name("presence");
         });
 
         Route::prefix("onboarding")->as("onboarding.")->group(function () {
