@@ -79,6 +79,16 @@ class User extends Authenticatable
         return $this->hasMany(UserConsent::class, "user_id");
     }
 
+    public function therapist()
+    {
+        return $this->hasOne(Therapist::class, "user_id");
+    }
+
+    public function payoutAccount()
+    {
+        return $this->hasOne(TherapistPayoutAccount::class, "user_id");
+    }
+
 
     public function blockedUsers()
     {

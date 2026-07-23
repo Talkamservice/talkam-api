@@ -24,6 +24,8 @@ use App\Http\Controllers\Api\V2\Group\GroupInviteController;
 use App\Http\Controllers\Api\V2\Post\PostCommentController;
 use App\Http\Controllers\Api\V2\Post\PostController;
 use App\Http\Controllers\Api\V2\Post\SearchController;
+use App\Http\Controllers\Api\V2\Therapist\TherapistApplicationController;
+use App\Http\Controllers\Api\V2\Therapist\TherapistPayoutController;
 use App\Http\Controllers\Api\V2\User\ConsentController;
 use App\Http\Controllers\Api\V2\User\FollowController;
 use App\Http\Controllers\Api\V2\User\InterestController;
@@ -176,5 +178,21 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("/", [AnnouncementController::class, "index"])->name("index");
             Route::get("{id}/show", [AnnouncementController::class, "show"])->name("show");
         });
+    });
+
+    Route::prefix("therapist")->as("therapist.")->group(function () {
+        Route::prefix("application")->as("application.")->group(function () {
+            Route::get("/", [TherapistApplicationController::class, "show"])->name("show");
+            Route::post("personal", [TherapistApplicationController::class, "personal"])->name("personal");
+            Route::post("documents", [TherapistApplicationController::class, "storeDocument"])->name("documents.store");
+            Route::delete("documents/{id}", [TherapistApplicationController::class, "deleteDocument"])->name("documents.delete");
+            Route::post("specialties", [TherapistApplicationController::class, "specialties"])->name("specialties");
+            Route::post("availability", [TherapistApplicationController::class, "availability"])->name("availability");
+            Route::post("payout", [TherapistPayoutController::class, "payout"])->name("payout");
+            Route::post("submit", [TherapistApplicationController::class, "submit"])->name("submit");
+        });
+
+        Route::get("banks", [TherapistPayoutController::class, "banks"])->name("banks");
+        Route::post("payout-account/verify", [TherapistPayoutController::class, "verify"])->name("payout-account.verify");
     });
 });

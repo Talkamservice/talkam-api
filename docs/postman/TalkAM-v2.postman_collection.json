@@ -1021,6 +1021,185 @@
           }
         }
       ]
+    },
+    {
+      "name": "06 Therapist Onboarding",
+      "item": [
+        {
+          "name": "Application State (resume)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application"]
+            },
+            "description": "Status + derived per-step completeness map {personal, documents, specialties, availability, payout}. Resume at the first false."
+          }
+        },
+        {
+          "name": "Step 1 - Personal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "credential_type", "value": "Clinical Psychologist", "type": "text", "description": "Config-driven list (config/therapist.php)" },
+                { "key": "years_experience", "value": "7", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application/personal",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application", "personal"]
+            },
+            "description": "Creates/updates the draft. Session rate here is ignored (Payout-step only)."
+          }
+        },
+        {
+          "name": "Step 2 - Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "type", "value": "degree_certificate", "type": "text", "description": "degree_certificate | licence | government_id | indemnity_insurance | headshot" },
+                { "key": "file", "type": "file", "src": [], "description": "PDF/JPG, max 5MB" },
+                { "key": "expires_at", "value": "", "type": "text", "description": "Licence expiry (Y-m-d), optional" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application/documents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application", "documents"]
+            },
+            "description": "One document per call; re-upload of the same type replaces it."
+          }
+        },
+        {
+          "name": "Step 2 - Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application/documents/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application", "documents", "1"]
+            }
+          }
+        },
+        {
+          "name": "Step 3 - Specialties",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Shown on your profile\",\n  \"specialties\": [12, 13]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application/specialties",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application", "specialties"]
+            },
+            "description": "Specialty ids are interest-topic ids (GET /api/v2/user/interest-topics)."
+          }
+        },
+        {
+          "name": "Step 4 - Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_duration\": 15,\n  \"buffer_minutes\": 10,\n  \"days\": [\n    {\"day_of_week\": \"monday\", \"start_time\": \"09:00\", \"end_time\": \"17:00\", \"active\": true},\n    {\"day_of_week\": \"sunday\", \"start_time\": null, \"end_time\": null, \"active\": false}\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application/availability",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application", "availability"]
+            },
+            "description": "Duration/buffer values are config-driven presets. Per-day toggle = active on/off."
+          }
+        },
+        {
+          "name": "Banks",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/banks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "banks"]
+            },
+            "description": "Flutterwave bank list, cached 6h."
+          }
+        },
+        {
+          "name": "Verify Account Number",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "bank_code", "value": "058", "type": "text" },
+                { "key": "account_number", "value": "0123456789", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/payout-account/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "payout-account", "verify"]
+            },
+            "description": "Live Flutterwave resolution — returns account_name, persists nothing."
+          }
+        },
+        {
+          "name": "Step 5 - Payout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "bank_code", "value": "058", "type": "text" },
+                { "key": "bank_name", "value": "GTBank", "type": "text" },
+                { "key": "account_number", "value": "0123456789", "type": "text" },
+                { "key": "session_rate", "value": "15000", "type": "text", "description": "Config-capped (min/max)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application/payout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application", "payout"]
+            },
+            "description": "Re-verifies the account server-side and saves it with the session rate. No BVN collected or stored."
+          }
+        },
+        {
+          "name": "Submit Application",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/application/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "application", "submit"]
+            },
+            "description": "Validates all steps complete; draft -> submitted; 3-5 business day review."
+          }
+        }
+      ]
     }
   ]
 }

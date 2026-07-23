@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Notifications\Therapist;
+
+use App\Helpers\MethodsHelper;
+use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class TherapistApplicationRejectedNotification extends Notification
+{
+    use Queueable;
+
+    public function __construct(public $application)
+    {
+        //
+    }
+
+    public function via(object $notifiable): array
+    {
+        return MethodsHelper::userNotificationPreference($notifiable);
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $data = $this->buildData($notifiable);
+        return (new MailMessage)
+            ->subject($data["title"])
+            ->markdown('emails.general.index', [
+                "title" => $data["title"],
+                "message" => $data["message"],
+                "recipient_name" => $notifiable->getName(),
+                "action_url" => $data["link"]
+            ]);
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [];
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return $this->buildData($notifiable);
+    }
+
+    public function buildData($notifiable)
+    {
+        return [
+            'data' => ['id' => $this->application->id],
+            'title' => "Application Update",
+            'message' => "Your therapist application was not approved: " . $this->application->rejection_reason . " You may submit a new application.",
+            'link' => config("app.web_url"),
+            'type' => 'therapist_application',
+            'batch_no' => null,
+        ];
+    }
+}

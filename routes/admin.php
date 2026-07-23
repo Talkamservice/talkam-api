@@ -177,3 +177,12 @@ Route::middleware(["auth"])->group(
 
 
 );
+
+// v2 therapist application review (JSON endpoints, admin lane — planning doc 06).
+Route::middleware(["auth"])->prefix("therapist-applications")->as("admin.therapist-applications.")->group(function () {
+    Route::get("/", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "index"])->name("index");
+    Route::get("{id}", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "show"])->name("show");
+    Route::post("{id}/approve", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "approve"])->name("approve");
+    Route::post("{id}/reject", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "reject"])->name("reject");
+    Route::post("documents/{id}/verdict", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "documentVerdict"])->name("documents.verdict");
+});

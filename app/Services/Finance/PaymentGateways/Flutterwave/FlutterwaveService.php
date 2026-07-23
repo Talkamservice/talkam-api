@@ -314,4 +314,44 @@ class FlutterwaveService
             ExceptionService::logAndBroadcast($e);
         }
     }
+
+    // Additive (v2 therapist onboarding): Flutterwave bank list.
+    public function getBanks($country = "NG")
+    {
+        try {
+            $full_url = "{$this->base_url}/banks/{$country}";
+            $response = $this->client->get($full_url);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Unable to retrieve bank list');
+            }
+
+            return $response["data"]["data"] ?? $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Unable to retrieve bank list: ' . $e->getMessage());
+        }
+    }
+
+    // Additive (v2 therapist onboarding): resolves an account number to the
+    // registered account name. No BVN data is requested or stored.
+    public function resolveAccountNumber($bank_code, $account_number)
+    {
+        try {
+            $full_url = "{$this->base_url}/accounts/resolve";
+            $response = $this->client->post($full_url, [
+                "account_number" => $account_number,
+                "account_bank" => $bank_code,
+            ]);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Unable to resolve account');
+            }
+
+            return $response["data"]["data"] ?? $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Account resolution failed: ' . $e->getMessage());
+        }
+    }
 }
