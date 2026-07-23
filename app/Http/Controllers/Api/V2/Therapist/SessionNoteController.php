@@ -19,6 +19,56 @@ class SessionNoteController extends Controller
         $this->session_note_service = new SessionNoteService;
     }
 
+    private function forbiddenUnlessTherapist()
+    {
+        if (empty(auth()->user()->therapist)) {
+            return ApiHelper::problemResponse("Forbidden", ApiConstants::FORBIDDEN_ERR_CODE, null, null);
+        }
+
+        return null;
+    }
+
+    /**
+     * §12 notes library: own notes, client filter + q search.
+     */
+    public function index(Request $request)
+    {
+        if ($forbidden = $this->forbiddenUnlessTherapist()) {
+            return $forbidden;
+        }
+
+        try {
+            $notes = SessionNoteService::library(auth()->user(), $request->all())
+                ->paginate(\App\Constants\General\AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
+
+            $data = collectPagination($notes);
+            $data["data"] = $notes->getCollection()->map(fn ($note) => array_merge($note->toArray(), [
+                "client_id" => $note->session?->user_id,
+            ]));
+
+            return ApiHelper::validResponse("Notes returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function showById($note)
+    {
+        if ($forbidden = $this->forbiddenUnlessTherapist()) {
+            return $forbidden;
+        }
+
+        try {
+            $model = SessionNoteService::getOwnedNote(auth()->user(), $note);
+            return ApiHelper::validResponse("Note returned successfully", $model->toArray());
+        } catch (ModelNotFoundException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::NOT_FOUND_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
     public function show($session)
     {
         try {

@@ -1902,6 +1902,54 @@
           }
         }
       ]
+    },
+    {
+      "name": "12 Therapist Sessions POV",
+      "item": [
+        {
+          "name": "My Sessions (therapist)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "sessions"]
+            },
+            "description": "Mirrored upcoming/past with per-session NET earnings (share config) and client star ratings."
+          }
+        },
+        {
+          "name": "Notes Library",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/notes?client_id=&q=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "notes"],
+              "query": [
+                { "key": "client_id", "value": "", "description": "Filter by client" },
+                { "key": "q", "value": "", "description": "Search over title/body" }
+              ]
+            },
+            "description": "Own notes only, paginated."
+          }
+        },
+        {
+          "name": "Note Detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/notes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "notes", "1"]
+            },
+            "description": "Author-only. Session note write (with status=draft|final + tags) is on /therapist/sessions/{id}/notes."
+          }
+        }
+      ]
     }
   ]
 }

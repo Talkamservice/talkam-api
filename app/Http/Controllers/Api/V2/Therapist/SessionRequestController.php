@@ -46,6 +46,24 @@ class SessionRequestController extends Controller
         return null;
     }
 
+    /**
+     * Therapist my-sessions (§12): mirrored upcoming/past with net earnings
+     * and client ratings.
+     */
+    public function index()
+    {
+        if ($forbidden = $this->forbiddenUnlessTherapist()) {
+            return $forbidden;
+        }
+
+        try {
+            $data = \App\Services\Therapist\SessionBookingService::listForTherapist(auth()->user()->therapist);
+            return ApiHelper::validResponse("Sessions returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
     public function request($session_id)
     {
         if ($forbidden = $this->forbiddenUnlessTherapist()) {

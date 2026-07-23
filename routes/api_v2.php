@@ -290,6 +290,13 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("{session}/notes", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "store"])->name("notes.store");
         });
 
+        Route::get("sessions", [SessionRequestController::class, "index"])->name("sessions.index");
+
+        Route::prefix("notes")->as("notes.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "index"])->name("index");
+            Route::get("{note}", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "showById"])->name("show");
+        });
+
         Route::prefix("clients")->as("clients.")->group(function () {
             Route::get("/", [\App\Http\Controllers\Api\V2\Therapist\ClientController::class, "index"])->name("index");
             Route::post("{user}/treatment-plan", [\App\Http\Controllers\Api\V2\Therapist\ClientController::class, "setTreatmentPlan"])->name("treatment-plan");

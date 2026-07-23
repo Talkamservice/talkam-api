@@ -221,6 +221,32 @@ class SessionBookingService
         ];
     }
 
+    /**
+     * Therapist my-sessions (§12): mirrored list with per-session NET
+     * earnings (share config) and the client's rating.
+     */
+    public static function listForTherapist(\App\Models\Therapist $therapist): array
+    {
+        $share = (float) config('therapist.platform_share_percent');
+
+        $sessions = TherapySession::with(['user', 'payment', 'review'])
+            ->where('therapist_id', $therapist->id)
+            ->orderBy('starts_at')
+            ->get();
+
+        [$upcoming, $past] = $sessions->partition(fn ($s) => $s->starts_at->isFuture());
+
+        $serialize = fn ($s) => array_merge(self::detail($s), [
+            'client_name' => $s->user?->full_name,
+            'earnings' => round((float) $s->amount * (1 - $share / 100), 2),
+        ]);
+
+        return [
+            'upcoming' => $upcoming->map($serialize)->values()->all(),
+            'past' => $past->map($serialize)->values()->all(),
+        ];
+    }
+
     public static function detail(TherapySession $session): array
     {
         return [

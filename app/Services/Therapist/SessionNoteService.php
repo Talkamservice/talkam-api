@@ -72,6 +72,42 @@ class SessionNoteService
     }
 
     /**
+     * Notes library (§12): the authed therapist's notes, filterable by
+     * client and searchable over title/body.
+     */
+    public static function library(User $user, array $filters = [])
+    {
+        $therapist = $user->therapist;
+
+        $builder = SessionNote::with('session')
+            ->where('therapist_id', $therapist->id);
+
+        if (!empty($client_id = $filters['client_id'] ?? null)) {
+            $builder = $builder->whereHas('session', fn ($q) => $q->where('user_id', $client_id));
+        }
+
+        if (!empty($q = $filters['q'] ?? null)) {
+            $builder = $builder->where(function ($query) use ($q) {
+                $query->where('title', 'LIKE', "%$q%")
+                    ->orWhere('content', 'LIKE', "%$q%");
+            });
+        }
+
+        return $builder->latest();
+    }
+
+    public static function getOwnedNote(User $user, $note_id): SessionNote
+    {
+        $note = SessionNote::with('session')->find($note_id);
+
+        if (empty($note) || $note->therapist?->user_id != $user->id) {
+            throw new ModelNotFoundException("Note not found");
+        }
+
+        return $note;
+    }
+
+    /**
      * Client-facing surface: only notes explicitly shared with the client.
      */
     public static function sharedNoteFor(TherapySession $session): ?array
