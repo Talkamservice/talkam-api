@@ -2065,6 +2065,24 @@
           }
         }
       ]
+    },
+    {
+      "name": "15 Community (Therapist POV)",
+      "item": [
+        {
+          "name": "Drawer",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/drawer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "drawer"]
+            },
+            "description": "One aggregate call: profile card (+verified badge), following/followers counts, followed topics, groups + private groups. For You automatically falls back to engagement ranking for zero-interest users (therapists)."
+          }
+        }
+      ]
     }
   ]
 }

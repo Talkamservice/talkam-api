@@ -130,6 +130,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::post("user-reports", [UserReportController::class, "store"])->name("user-reports.store");
 
+        Route::get("drawer", [\App\Http\Controllers\Api\V2\User\DrawerController::class, "index"])->name("drawer");
+
         Route::prefix("messaging")->as("messaging.")->group(function () {
             Route::get("conversations", [V1ConversationController::class, "index"])->name("conversations.index");
             Route::post("conversations", [V2ConversationController::class, "store"])->name("conversations.store");
