@@ -22,6 +22,16 @@ class Therapist extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(TherapistReview::class, 'therapist_id');
+    }
+
+    public function sessions()
+    {
+        return $this->hasMany(TherapySession::class, 'therapist_id');
+    }
+
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
         return $query->where('status', $status);

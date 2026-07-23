@@ -1200,6 +1200,167 @@
           }
         }
       ]
+    },
+    {
+      "name": "07 Therapist Booking",
+      "item": [
+        {
+          "name": "Therapist Directory",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/therapists?search=&specialty_id=&sort=rating",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "therapists"],
+              "query": [
+                { "key": "search", "value": "", "description": "Therapist name" },
+                { "key": "specialty_id", "value": "", "description": "Interest-topic id" },
+                { "key": "sort", "value": "rating", "description": "rating | price" }
+              ]
+            },
+            "description": "Cards: name, verified flag, credential, specialties, rate, rating + review count, next available slot."
+          }
+        },
+        {
+          "name": "Therapist Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/therapists/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "therapists", "1"]
+            },
+            "description": "Bio, specialties, session_formats, fee, completed sessions, ratings histogram, next slot."
+          }
+        },
+        {
+          "name": "Slots",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/therapists/1/slots?date=2026-07-27",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "therapists", "1", "slots"],
+              "query": [{ "key": "date", "value": "2026-07-27", "description": "Y-m-d" }]
+            },
+            "description": "Computed: availability window / (duration + buffer) minus held/confirmed bookings."
+          }
+        },
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "therapist_id", "value": "1", "type": "text" },
+                { "key": "starts_at", "value": "2026-07-27 10:00:00", "type": "text", "description": "A currently bookable slot" },
+                { "key": "format", "value": "video", "type": "text", "description": "video | voice (must be offered)" },
+                { "key": "notes", "value": "Optional note for the therapist", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings"]
+            },
+            "description": "pending_payment with a 15-min slot hold. Amount computed server-side from the therapist's stored rate."
+          }
+        },
+        {
+          "name": "Initiate Payment (also Retry)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings/1/initiate-payment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings", "1", "initiate-payment"]
+            },
+            "description": "Creates a PAYMENT_FOR_SESSION payments row and returns the Flutterwave checkout payload. Retry allowed for failed bookings."
+          }
+        },
+        {
+          "name": "Payment Callback",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "reference", "value": "TK-SESS-XXXXXXXXXX", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/finance/payments/callback",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "finance", "payments", "callback"]
+            },
+            "description": "Verifies via Flutterwave then dispatches by activity. Session success -> booking confirmed + notifications; failure -> booking failed, slot freed."
+          }
+        },
+        {
+          "name": "My Sessions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings"]
+            },
+            "description": "data = {upcoming: [], past: []} for the caller only."
+          }
+        },
+        {
+          "name": "Booking Detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings", "1"]
+            },
+            "description": "Includes format, duration, amount and the payment reference (transaction id)."
+          }
+        },
+        {
+          "name": "Review Session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "rating", "value": "5", "type": "text", "description": "1-5" },
+                { "key": "comment", "value": "Very helpful session.", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/bookings/1/review",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "bookings", "1", "review"]
+            },
+            "description": "Completed sessions only; one review per session; always displayed anonymised."
+          }
+        },
+        {
+          "name": "Therapist Reviews",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/therapists/1/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "therapists", "1", "reviews"]
+            },
+            "description": "Paginated, anonymised authors, plus a 1-5 star histogram."
+          }
+        }
+      ]
     }
   ]
 }

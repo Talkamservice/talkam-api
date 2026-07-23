@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->hasOne(Therapist::class, "user_id");
     }
 
+    public function therapistApplications()
+    {
+        return $this->hasMany(TherapistApplication::class, "user_id");
+    }
+
     public function payoutAccount()
     {
         return $this->hasOne(TherapistPayoutAccount::class, "user_id");

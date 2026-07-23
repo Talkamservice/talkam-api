@@ -51,6 +51,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('finance:currency_rates')->weekly();
         $schedule->command('process:post-stats-command')->everyThreeHours();
         $schedule->command('telescope:prune')->everySixHours();
+        $schedule->command('bookings:release-expired-holds')->everyMinute();
+        $schedule->command('bookings:send-session-reminders')->everyMinute();
     }
 
     /**

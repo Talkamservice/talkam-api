@@ -50,6 +50,8 @@ class TherapistReviewService
                 'credential_type' => $application->credential_type,
                 'session_rate' => $application->session_rate,
                 'session_formats' => $application->session_formats,
+                'session_duration' => $application->session_duration,
+                'buffer_minutes' => $application->buffer_minutes,
                 'years_experience' => $application->years_experience,
                 'verified_at' => now(),
             ]);

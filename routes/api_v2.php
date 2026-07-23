@@ -24,7 +24,11 @@ use App\Http\Controllers\Api\V2\Group\GroupInviteController;
 use App\Http\Controllers\Api\V2\Post\PostCommentController;
 use App\Http\Controllers\Api\V2\Post\PostController;
 use App\Http\Controllers\Api\V2\Post\SearchController;
+use App\Http\Controllers\Api\V2\Finance\PaymentCallbackController;
+use App\Http\Controllers\Api\V2\Therapist\BookingController;
+use App\Http\Controllers\Api\V2\Therapist\SessionReviewController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistApplicationController;
+use App\Http\Controllers\Api\V2\Therapist\TherapistDirectoryController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistPayoutController;
 use App\Http\Controllers\Api\V2\User\ConsentController;
 use App\Http\Controllers\Api\V2\User\FollowController;
@@ -178,7 +182,26 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("/", [AnnouncementController::class, "index"])->name("index");
             Route::get("{id}/show", [AnnouncementController::class, "show"])->name("show");
         });
+
+        Route::prefix("therapists")->as("therapists.")->group(function () {
+            Route::get("/", [TherapistDirectoryController::class, "index"])->name("index");
+            Route::get("{therapist}/slots", [TherapistDirectoryController::class, "slots"])->name("slots");
+            Route::get("{therapist}/reviews", [SessionReviewController::class, "index"])->name("reviews");
+            Route::get("{therapist}", [TherapistDirectoryController::class, "show"])->name("show");
+        });
+
+        Route::prefix("bookings")->as("bookings.")->group(function () {
+            Route::get("/", [BookingController::class, "index"])->name("index");
+            Route::post("/", [BookingController::class, "store"])->name("store");
+            Route::post("{booking}/initiate-payment", [BookingController::class, "initiatePayment"])->name("initiate-payment");
+            Route::post("{booking}/review", [SessionReviewController::class, "store"])->name("review");
+            Route::get("{booking}", [BookingController::class, "show"])->name("show");
+        });
     });
+
+    Route::post("finance/payments/callback", [PaymentCallbackController::class, "callback"])
+        ->middleware("auth:sanctum")
+        ->name("finance.payments.callback");
 
     Route::prefix("therapist")->as("therapist.")->group(function () {
         Route::prefix("application")->as("application.")->group(function () {

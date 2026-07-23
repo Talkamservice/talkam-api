@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('credential_type')->nullable();
             $table->decimal('session_rate', 12, 2)->nullable();
             $table->json('session_formats')->nullable();
+            $table->smallInteger('session_duration')->nullable();
+            $table->smallInteger('buffer_minutes')->nullable();
             $table->smallInteger('years_experience')->nullable();
             $table->timestamp('verified_at')->nullable();
             $table->string('status')->default(StatusConstants::ACTIVE);

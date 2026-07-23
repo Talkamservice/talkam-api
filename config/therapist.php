@@ -37,4 +37,10 @@ return [
     ],
 
     'document_max_kb' => 5120,
+
+    // Booking (planning doc 07)
+    'booking' => [
+        'hold_minutes' => env('THERAPIST_BOOKING_HOLD_MINUTES', 15),
+        'reminder_lead_minutes' => env('THERAPIST_REMINDER_LEAD_MINUTES', 30),
+    ],
 ];
