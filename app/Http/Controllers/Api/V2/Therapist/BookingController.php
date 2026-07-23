@@ -34,10 +34,10 @@ class BookingController extends Controller
         }
     }
 
-    public function initiatePayment($booking)
+    public function initiatePayment(Request $request, $booking)
     {
         try {
-            $payload = $this->booking_service->initiatePayment(auth()->user(), $booking);
+            $payload = $this->booking_service->initiatePayment(auth()->user(), $booking, $request->all());
             return ApiHelper::validResponse("Payment initiated successfully", $payload);
         } catch (ModelNotFoundException $e) {
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::NOT_FOUND_ERR_CODE, null, $e);

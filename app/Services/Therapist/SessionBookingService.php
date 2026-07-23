@@ -107,7 +107,7 @@ class SessionBookingService
      * payments row + the checkout payload. Also serves Retry for failed
      * bookings.
      */
-    public function initiatePayment(User $user, $booking_id): array
+    public function initiatePayment(User $user, $booking_id, array $data = []): array
     {
         $session = self::getOwnedByUser($booking_id, $user);
 
@@ -140,9 +140,18 @@ class SessionBookingService
             'activity' => PaymentConstants::PAYMENT_FOR_SESSION,
             'description' => "Therapy session payment",
             'type' => PaymentConstants::DEBIT,
-            'metadata' => ['booking_id' => $session->id],
+            'metadata' => [
+                'booking_id' => $session->id,
+                // Opt-in tokenization (§09): the callback stores the card.
+                'save_card' => (bool) ($data['save_card'] ?? false),
+            ],
             'status' => StatusConstants::PENDING,
         ]);
+
+        // Saved-card checkout (§09): PIN-authorized tokenized charge.
+        if (!empty($data['payment_method_id'])) {
+            return $this->chargeSavedCard($user, $session, $payment, $data);
+        }
 
         return [
             'reference' => $payment->reference,
@@ -156,6 +165,44 @@ class SessionBookingService
                 'activity' => PaymentConstants::PAYMENT_FOR_SESSION,
                 'booking_id' => $session->id,
             ],
+        ];
+    }
+
+    /**
+     * §09: charge a saved card. The payment PIN is the authorization
+     * factor — a wrong PIN never reaches the provider.
+     */
+    private function chargeSavedCard(User $user, TherapySession $session, Payment $payment, array $data): array
+    {
+        $method = \App\Services\User\PaymentMethodService::getOwned($user, $data['payment_method_id']);
+
+        if (!\App\Services\User\PaymentPinService::verifyPin($user, $data['payment_pin'] ?? null)) {
+            throw new InvalidRequestException("Invalid payment PIN.");
+        }
+
+        $charge = app(\App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService::class)
+            ->chargeWithToken($method->token, [
+                'tx_ref' => $payment->reference,
+                'amount' => $session->amount,
+                'currency' => $session->currency,
+                'email' => $user->email,
+            ]);
+
+        if (($charge['status'] ?? null) == 'successful') {
+            $payment->update(['status' => StatusConstants::COMPLETED]);
+            $session->update([
+                'status' => TherapistConstants::SESSION_CONFIRMED,
+                'payment_id' => $payment->id,
+                'hold_expires_at' => null,
+            ]);
+        }
+
+        return [
+            'reference' => $payment->reference,
+            'amount' => $session->amount,
+            'currency' => $session->currency,
+            'charged' => ($charge['status'] ?? null) == 'successful',
+            'status' => $session->refresh()->status,
         ];
     }
 

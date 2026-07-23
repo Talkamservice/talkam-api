@@ -59,6 +59,11 @@ class SessionPaymentHandlerService
             throw $th;
         }
 
+        // Opt-in tokenization (§09): keep the card for faster repeat checkout.
+        if (!empty($payment->metadata["save_card"]) && !empty($data["card"])) {
+            \App\Services\User\PaymentMethodService::storeFromChargeResponse($session->user, $data["card"]);
+        }
+
         Notification::send($session->user, new SessionBookedNotification($session, "user"));
         if (!empty($session->therapist?->user)) {
             Notification::send($session->therapist->user, new SessionBookedNotification($session, "therapist"));

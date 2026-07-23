@@ -15,8 +15,10 @@ use App\Http\Controllers\Api\V1\User\Post\PostReactionController;
 use App\Http\Controllers\Api\V1\User\Post\PostScheduleController;
 use App\Http\Controllers\Api\V1\User\UserController as V1UserController;
 use App\Http\Controllers\Api\V1\User\Web\PrivacyPolicyController;
+use App\Http\Controllers\Api\V2\Auth\LoginController as V2LoginController;
 use App\Http\Controllers\Api\V2\Auth\PasswordController;
 use App\Http\Controllers\Api\V2\Auth\RegisterController;
+use App\Http\Controllers\Api\V2\Auth\TwoFactorController;
 use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
 use App\Http\Controllers\Api\V2\Group\GroupController;
@@ -33,11 +35,16 @@ use App\Http\Controllers\Api\V2\Therapist\TherapistApplicationController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistDirectoryController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistPayoutController;
 use App\Http\Controllers\Api\V2\User\ConsentController;
+use App\Http\Controllers\Api\V2\User\DataExportController;
 use App\Http\Controllers\Api\V2\User\FollowController;
 use App\Http\Controllers\Api\V2\User\InterestController;
 use App\Http\Controllers\Api\V2\User\MoodCheckinController;
 use App\Http\Controllers\Api\V2\User\MuteController;
+use App\Http\Controllers\Api\V2\User\NotificationPreferenceController;
 use App\Http\Controllers\Api\V2\User\OnboardingController;
+use App\Http\Controllers\Api\V2\User\PaymentMethodController;
+use App\Http\Controllers\Api\V2\User\PrivacySettingController;
+use App\Http\Controllers\Api\V2\User\ProfileController;
 use App\Http\Controllers\Api\V2\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,7 +62,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix("auth")->as("auth.")->group(function () {
     Route::post("/register", [RegisterController::class, "register"])->name("register");
     Route::post("/oauth-login", [LoginController::class, "oauthLogin"])->name("oauth_login");
-    Route::post("/login", [LoginController::class, "login"])->name("login");
+    Route::post("/login", [V2LoginController::class, "login"])->name("login");
+    Route::post("/2fa/verify", [TwoFactorController::class, "verify"])->name("2fa.verify");
 
     Route::get("/username/available", [UsernameController::class, "available"])
         ->middleware("throttle:30,1")
@@ -88,9 +96,24 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::get("interest-topics", [InterestController::class, "topics"])->name("interest-topics");
 
         Route::prefix("profile")->as("profile.")->group(function () {
-            Route::post("/update", [V1UserController::class, "update"])->name("update");
+            Route::post("/update", [ProfileController::class, "update"])->name("update");
+            Route::post("/upload-avatar", [V1UserController::class, "uploadAvatar"])->name("upload.avatar");
             Route::post("interests", [InterestController::class, "sync"])->name("interests.sync");
+            Route::post("delete-account", [V1UserController::class, "deleteAccount"])->name("delete-account");
         });
+
+        Route::get("notification-preferences", [NotificationPreferenceController::class, "index"])->name("notification-preferences.index");
+        Route::post("notification-preferences", [NotificationPreferenceController::class, "store"])->name("notification-preferences.store");
+
+        Route::get("privacy-settings", [PrivacySettingController::class, "index"])->name("privacy-settings.index");
+        Route::post("privacy-settings", [PrivacySettingController::class, "store"])->name("privacy-settings.store");
+
+        Route::get("payment-methods", [PaymentMethodController::class, "index"])->name("payment-methods.index");
+        Route::delete("payment-methods/{id}", [PaymentMethodController::class, "destroy"])->name("payment-methods.destroy");
+        Route::post("security/payment-pin", [PaymentMethodController::class, "setPaymentPin"])->name("security.payment-pin");
+
+        Route::post("data-export", [DataExportController::class, "store"])->name("data-export.store");
+        Route::get("data-export/latest", [DataExportController::class, "latest"])->name("data-export.latest");
 
         Route::prefix("onboarding")->as("onboarding.")->group(function () {
             Route::post("user-type", [OnboardingController::class, "userType"])->name("user-type");

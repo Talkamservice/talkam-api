@@ -52,6 +52,17 @@ class PostController extends Controller
                 ->unblocked()
                 ->hideGroupPosts();
 
+            // Profile Posts tab (§09): anonymous posts are own-view only.
+            if (!empty($key = $filters["user_id"] ?? null)) {
+                $viewer = auth()->user();
+                $is_self = is_numeric($key)
+                    ? $viewer->id == $key
+                    : $viewer->username == $key;
+                if (!$is_self) {
+                    $builder = $builder->anonymous(0);
+                }
+            }
+
             // v2-only exclusions: muted authors and not-interested posts
             // (v1 queries untouched — mute/not-interested are feeds-only).
             $muted_ids = MuteService::mutedIds(auth()->user());

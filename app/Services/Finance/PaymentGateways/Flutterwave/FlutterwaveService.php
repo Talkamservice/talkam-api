@@ -315,6 +315,24 @@ class FlutterwaveService
         }
     }
 
+    // Additive (v2 saved cards): charge a previously tokenized card.
+    public function chargeWithToken($token, array $data)
+    {
+        try {
+            $full_url = "{$this->base_url}/tokenized-charges";
+            $response = $this->client->post($full_url, array_merge(["token" => $token], $data));
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Tokenized charge failed');
+            }
+
+            return $response["data"]["data"] ?? $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Tokenized charge failed: ' . $e->getMessage());
+        }
+    }
+
     // Additive (v2 therapist onboarding): Flutterwave bank list.
     public function getBanks($country = "NG")
     {

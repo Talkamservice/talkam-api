@@ -1467,6 +1467,208 @@
           }
         }
       ]
+    },
+    {
+      "name": "09 Profile & Settings",
+      "item": [
+        {
+          "name": "Edit Profile",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Ada Chioma Obi", "type": "text" },
+                { "key": "bio", "value": "Max 300 chars", "type": "text" },
+                { "key": "phone_number", "value": "+2348012345678", "type": "text" },
+                { "key": "avatar", "value": "3", "type": "text" },
+                { "key": "password", "value": "", "type": "text", "description": "Optional, requires password_confirmation" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/profile/update",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "profile", "update"]
+            },
+            "description": "v2 rules: bio <=300; email is immutable (never accepted)."
+          }
+        },
+        {
+          "name": "Notification Preferences (get)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/notification-preferences",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "notification-preferences"]
+            },
+            "description": "6 session/community toggles + push/email channels. No SMS in v2."
+          }
+        },
+        {
+          "name": "Notification Preferences (set)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_reminders\": false,\n  \"promotions_updates\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/notification-preferences",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "notification-preferences"]
+            },
+            "description": "Unknown keys (including can_receive_sms) are rejected."
+          }
+        },
+        {
+          "name": "Privacy Settings (get)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/privacy-settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "privacy-settings"]
+            }
+          }
+        },
+        {
+          "name": "Privacy Settings (set)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anonymous_mode\": true,\n  \"read_receipts\": false,\n  \"activity_status\": true,\n  \"two_factor_enabled\": true,\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/privacy-settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "privacy-settings"]
+            },
+            "description": "Enabling 2FA requires a fresh TYPE_LOGIN OTP (request via /auth/otp/request with type=login)."
+          }
+        },
+        {
+          "name": "Payment Methods",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/payment-methods",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "payment-methods"]
+            },
+            "description": "Saved cards (brand, last4, expiry). Tokens never serialized. Cards saved by passing save_card=true at booking initiate-payment."
+          }
+        },
+        {
+          "name": "Delete Payment Method",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/payment-methods/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "payment-methods", "1"]
+            }
+          }
+        },
+        {
+          "name": "Set / Change Payment PIN",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "pin", "value": "4321", "type": "text", "description": "4 digits" },
+                { "key": "current_pin", "value": "", "type": "text", "description": "Required to change (or otp)" },
+                { "key": "otp", "value": "", "type": "text", "description": "Fresh TYPE_LOGIN OTP alternative" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/security/payment-pin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "security", "payment-pin"]
+            },
+            "description": "Authorizes saved-card charges (pass payment_method_id + payment_pin to bookings initiate-payment)."
+          }
+        },
+        {
+          "name": "Request Data Export",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/data-export",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "data-export"]
+            },
+            "description": "Queues the export job. Link delivered with 7-day expiry (config)."
+          }
+        },
+        {
+          "name": "Data Export Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/data-export/latest",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "data-export", "latest"]
+            }
+          }
+        },
+        {
+          "name": "2FA Verify (login step 2)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email", "value": "ada.obi@example.com", "type": "text" },
+                { "key": "code", "value": "123456", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/auth/2fa/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "auth", "2fa", "verify"]
+            },
+            "description": "When 2FA is on, /auth/login returns {two_factor_required: true} and emails a code; this endpoint mints the token."
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "reason", "value": "No longer needed", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/profile/delete-account",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "profile", "delete-account"]
+            },
+            "description": "Reused v1 delete-account flow (AccountDeactivation record + data cleanup)."
+          }
+        }
+      ]
     }
   ]
 }
