@@ -105,7 +105,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("/update", [ProfileController::class, "update"])->name("update");
             Route::post("/upload-avatar", [V1UserController::class, "uploadAvatar"])->name("upload.avatar");
             Route::post("interests", [InterestController::class, "sync"])->name("interests.sync");
-            Route::post("delete-account", [V1UserController::class, "deleteAccount"])->name("delete-account");
+            Route::post("delete-account", [\App\Http\Controllers\Api\V2\User\DeleteAccountController::class, "deleteAccount"])->name("delete-account");
         });
 
         Route::get("notification-preferences", [NotificationPreferenceController::class, "index"])->name("notification-preferences.index");
@@ -291,6 +291,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
 
         Route::get("sessions", [SessionRequestController::class, "index"])->name("sessions.index");
+
+        Route::get("profile", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "show"])->name("profile.show");
+        Route::post("profile/update", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "update"])->name("profile.update");
 
         Route::prefix("earnings")->as("earnings.")->group(function () {
             Route::get("dashboard", [\App\Http\Controllers\Api\V2\Therapist\EarningsController::class, "dashboard"])->name("dashboard");

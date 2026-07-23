@@ -17,7 +17,9 @@ return new class extends Migration
     {
         Schema::create('therapists', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
+            // nullOnDelete: user deletion must not cascade away the
+            // therapist row (reviews/session history hang off it — §14).
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->nullOnDelete();
             $table->string('credential_type')->nullable();
             $table->decimal('session_rate', 12, 2)->nullable();
             $table->json('session_formats')->nullable();

@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('therapist_reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('session_id')->unique()->constrained('therapy_sessions')->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            // Reviews outlive their (anonymised) authors — §14 retention.
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('therapist_id')->constrained('therapists')->cascadeOnDelete();
             $table->tinyInteger('rating');
             $table->text('comment')->nullable();

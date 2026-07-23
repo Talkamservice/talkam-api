@@ -2007,6 +2007,64 @@
           }
         }
       ]
+    },
+    {
+      "name": "14 Therapist Profile & Settings",
+      "item": [
+        {
+          "name": "My Profile (self-view)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "profile"]
+            },
+            "description": "Own public profile in the section-07 shape (stats, specialties, formats, histogram)."
+          }
+        },
+        {
+          "name": "Update Therapist Profile",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Dr Adaora Nwosu", "type": "text" },
+                { "key": "bio", "value": "Max 300 chars", "type": "text" },
+                { "key": "years_experience", "value": "9", "type": "text", "description": "Self-reported" },
+                { "key": "session_rate", "value": "15000", "type": "text", "description": "Config-capped" },
+                { "key": "avatar", "value": "", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/profile/update",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "profile", "update"]
+            },
+            "description": "credential_type is read-only post-approval (re-verification path). Settings hub endpoints are the section-09 ones."
+          }
+        },
+        {
+          "name": "Delete Account (therapist-gated)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "reason", "value": "", "type": "text" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/user/profile/delete-account",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "user", "profile", "delete-account"]
+            },
+            "description": "Therapists are blocked until upcoming sessions are cancelled (auto-refunds) and the balance is withdrawn. Reviews are retained anonymised; the directory drops the therapist."
+          }
+        }
+      ]
     }
   ]
 }
