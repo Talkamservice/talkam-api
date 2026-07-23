@@ -23,6 +23,11 @@ return [
 
     'payout_day' => env('THERAPIST_PAYOUT_DAY', 'friday'),
 
+    // Earnings & payouts (planning doc 13)
+    'payout' => [
+        'minimum' => env('THERAPIST_PAYOUT_MINIMUM', 1000),
+    ],
+
     // Minutes. Standard / Express / Extended labels are client-side.
     'session_durations' => [15, 30, 50],
 

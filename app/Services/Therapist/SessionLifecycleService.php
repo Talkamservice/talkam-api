@@ -163,7 +163,9 @@ class SessionLifecycleService
             'status' => TherapistConstants::SESSION_COMPLETED,
         ]);
 
-        return $session->refresh();
+        EarningsLedgerService::creditForSession($session->refresh());
+
+        return $session;
     }
 
     /**
@@ -210,6 +212,8 @@ class SessionLifecycleService
                 'status' => TherapistConstants::SESSION_COMPLETED,
                 'ended_at' => $session->ended_at ?? now(),
             ]);
+
+            EarningsLedgerService::creditForSession($session->refresh());
         }
     }
 

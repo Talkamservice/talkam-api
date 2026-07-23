@@ -1950,6 +1950,63 @@
           }
         }
       ]
+    },
+    {
+      "name": "13 Earnings & Payouts",
+      "item": [
+        {
+          "name": "Earnings Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/earnings/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "earnings", "dashboard"]
+            },
+            "description": "Balance (ledger-derived), week/month/all-time totals, 7-day chart, stat tiles (sessions this week, avg per session, pending payout). No BVN anywhere."
+          }
+        },
+        {
+          "name": "Earnings Transactions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/earnings/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "earnings", "transactions"]
+            },
+            "description": "Paginated ledger: one credit per completed session, one debit per payout."
+          }
+        },
+        {
+          "name": "Withdraw (payout)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/payouts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "payouts"]
+            },
+            "description": "Full available balance (config minimum). Debits the ledger and initiates the Flutterwave transfer; webhook resolves success/failure."
+          }
+        },
+        {
+          "name": "Payout Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v2/therapist/payouts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "therapist", "payouts", "1"]
+            },
+            "description": "pending | successful | failed — drives the result modals. Failure reverses the ledger debit; Retry = withdraw again."
+          }
+        }
+      ]
     }
   ]
 }

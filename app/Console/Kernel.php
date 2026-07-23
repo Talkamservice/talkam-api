@@ -55,6 +55,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('bookings:send-session-reminders')->everyMinute();
         $schedule->command('bookings:sweep-session-completions')->everyMinute();
         $schedule->command('wellness:send-checkin-nudges')->hourly();
+        $schedule->command('payouts:weekly-sweep')->dailyAt('08:00');
     }
 
     /**

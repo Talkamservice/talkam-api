@@ -292,6 +292,16 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::get("sessions", [SessionRequestController::class, "index"])->name("sessions.index");
 
+        Route::prefix("earnings")->as("earnings.")->group(function () {
+            Route::get("dashboard", [\App\Http\Controllers\Api\V2\Therapist\EarningsController::class, "dashboard"])->name("dashboard");
+            Route::get("transactions", [\App\Http\Controllers\Api\V2\Therapist\EarningsController::class, "transactions"])->name("transactions");
+        });
+
+        Route::prefix("payouts")->as("payouts.")->group(function () {
+            Route::post("/", [\App\Http\Controllers\Api\V2\Therapist\PayoutController::class, "store"])->name("store");
+            Route::get("{payout}", [\App\Http\Controllers\Api\V2\Therapist\PayoutController::class, "show"])->name("show");
+        });
+
         Route::prefix("notes")->as("notes.")->group(function () {
             Route::get("/", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "index"])->name("index");
             Route::get("{note}", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "showById"])->name("show");

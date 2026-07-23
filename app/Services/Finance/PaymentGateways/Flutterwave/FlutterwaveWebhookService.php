@@ -30,7 +30,7 @@ class FlutterwaveWebhookService
         try {
             $payload = $this->payload;
 
-            if (!in_array($payload["event"] ?? null, ["charge.completed", "subscription.cancelled"])) {
+            if (!in_array($payload["event"] ?? null, ["charge.completed", "subscription.cancelled", "transfer.completed"])) {
                 throw new InvalidRequestException("The event is unregistered");
             }
 
@@ -40,6 +40,13 @@ class FlutterwaveWebhookService
 
             if (in_array($payload["event"], ["subscription.cancelled"])) {
                 $this->handleSubscriptionPayments($payload);
+            }
+
+            // Additive v2 branch (therapist payouts) — v1 events untouched.
+            if (in_array($payload["event"], ["transfer.completed"])) {
+                (new \App\Services\Therapist\PayoutHandlerService)
+                    ->setPayload($payload)
+                    ->handle();
             }
 
             DB::commit();

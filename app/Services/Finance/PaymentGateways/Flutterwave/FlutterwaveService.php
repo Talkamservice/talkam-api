@@ -315,6 +315,43 @@ class FlutterwaveService
         }
     }
 
+    // Additive (v2 earnings): initiate a bank transfer (payout). No BVN
+    // data is ever included.
+    public function initiateTransfer(array $data)
+    {
+        try {
+            $full_url = "{$this->base_url}/transfers";
+            $response = $this->client->post($full_url, $data);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Transfer initiation failed');
+            }
+
+            return $response["data"]["data"] ?? $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Transfer initiation failed: ' . $e->getMessage());
+        }
+    }
+
+    // Additive (v2 earnings): transfer status lookup.
+    public function verifyTransfer($transfer_id)
+    {
+        try {
+            $full_url = "{$this->base_url}/transfers/{$transfer_id}";
+            $response = $this->client->get($full_url);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Transfer lookup failed');
+            }
+
+            return $response["data"]["data"] ?? $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Transfer lookup failed: ' . $e->getMessage());
+        }
+    }
+
     // Additive (v2 saved cards): charge a previously tokenized card.
     public function chargeWithToken($token, array $data)
     {
