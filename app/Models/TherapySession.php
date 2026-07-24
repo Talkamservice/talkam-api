@@ -43,6 +43,11 @@ class TherapySession extends Model
         return $this->hasOne(TherapistReview::class, 'session_id');
     }
 
+    public function note()
+    {
+        return $this->hasOne(SessionNote::class, 'session_id');
+    }
+
     /**
      * Statuses that hold a slot: an unexpired pending_payment or anything
      * confirmed/underway.

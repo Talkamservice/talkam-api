@@ -55,15 +55,33 @@ class EmployeeFaqSeeder extends Seeder
 
         foreach (self::FAQS as $faq) {
             Faq::firstOrCreate(
-                [
-                    'faq_category_id' => $category->id,
-                    'question' => $faq['question'],
-                ],
-                [
-                    'answer' => $faq['answer'],
-                    'status' => StatusConstants::ACTIVE,
-                ]
+                ['faq_category_id' => $category->id, 'question' => $faq['question']],
+                ['answer' => $faq['answer'], 'status' => StatusConstants::ACTIVE]
+            );
+        }
+
+        // Therapist Help & Support FAQs (web §04), transcribed from
+        // "TalkAM B2B Therapist Dashboard.dc.html".
+        $therapist_category = FaqCategory::firstOrCreate(
+            ['name' => 'Therapist Dashboard'],
+            ['status' => StatusConstants::ACTIVE]
+        );
+
+        foreach (self::THERAPIST_FAQS as $faq) {
+            Faq::firstOrCreate(
+                ['faq_category_id' => $therapist_category->id, 'question' => $faq['question']],
+                ['answer' => $faq['answer'], 'status' => StatusConstants::ACTIVE]
             );
         }
     }
+
+    // Transcribed verbatim from the therapist deck's `therapistFaqs` array.
+    const THERAPIST_FAQS = [
+        ['question' => 'How and when do I get paid?', 'answer' => 'Payouts run weekly, every Friday, straight to the bank account on file in the mobile app. You can review the full breakdown of each payout under Earnings on mobile.'],
+        ['question' => 'How do I update my availability?', 'answer' => 'Go to Availability to set your recurring weekly schedule, or block specific dates when you’re away — clients can only book into open slots.'],
+        ['question' => 'A client cancelled — do I still get paid?', 'answer' => 'If a client cancels ≥24h ahead, no session fee is paid. Under 24h, you’re paid 50%. No-shows are paid in full, same as a completed session.'],
+        ['question' => 'How do I report a concerning client interaction?', 'answer' => 'Use "Report a client" in Profile & Account (Safety section). Our trust & safety team reviews every report and will follow up with you directly.'],
+        ['question' => 'Can I take a break without losing my profile?', 'answer' => 'Yes — use "Deactivate profile temporarily" in the Danger Zone. This hides you from client search but keeps your verification, reviews, and history intact.'],
+        ['question' => 'Who do I contact about my credentials or verification status?', 'answer' => 'Use the live chat below, or email credentials@talkam.net with your therapist ID — our verification team responds within one business day.'],
+    ];
 }

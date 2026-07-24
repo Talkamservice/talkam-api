@@ -342,12 +342,19 @@ class OrganizationService
     {
         $membership = $user?->organizationMember();
 
+        // A network therapist (has a therapist record but no org membership)
+        // still belongs on the therapist dashboard — the web router reads
+        // `dashboard`, so it must reflect the therapist role even without a
+        // company.
+        $is_therapist = !empty($user?->therapist);
+
         if (empty($membership) || empty($membership->organization)) {
             return [
                 "is_member" => false,
                 "role" => null,
+                "is_therapist" => $is_therapist,
                 "organization" => null,
-                "dashboard" => null,
+                "dashboard" => $is_therapist ? OrganizationConstants::ROLE_THERAPIST : null,
             ];
         }
 
@@ -356,6 +363,7 @@ class OrganizationService
         return [
             "is_member" => true,
             "role" => $membership->role,
+            "is_therapist" => $is_therapist,
             "department" => $membership->department,
             "dashboard" => $membership->role,
             "organization" => [

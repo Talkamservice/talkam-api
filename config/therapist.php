@@ -23,6 +23,15 @@ return [
 
     'payout_day' => env('THERAPIST_PAYOUT_DAY', 'friday'),
 
+    // Web §04 dashboard: analytics range windows (days) and the self-care nudge
+    // threshold (sessions in a week before the nudge shows).
+    'analytics_windows' => [
+        '4w' => 28,
+        '12w' => 84,
+        '6m' => 182,
+    ],
+    'self_care_session_threshold' => env('THERAPIST_SELF_CARE_THRESHOLD', 15),
+
     // Earnings & payouts (planning doc 13)
     'payout' => [
         'minimum' => env('THERAPIST_PAYOUT_MINIMUM', 1000),

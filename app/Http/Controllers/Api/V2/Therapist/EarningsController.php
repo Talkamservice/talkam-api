@@ -21,10 +21,36 @@ class EarningsController extends Controller
         return null;
     }
 
+    /**
+     * A business-employed therapist (web §04) is paid by their organisation, not
+     * by TalkAM, so the whole Earnings module is hidden for them. Returning ₦0
+     * would be wrong — they ARE paid, just not here — so this is a 403 with an
+     * explanation the frontend surfaces as the "paid by business" tag.
+     */
+    private function forbiddenIfBusinessEmployed()
+    {
+        $employment = \App\Services\Therapist\TherapistDashboardService::employment(auth()->user());
+
+        if ($employment["is_business_employed"]) {
+            return ApiHelper::problemResponse(
+                "Your sessions are paid directly by {$employment['employer_name']}, so TalkAM earnings do not apply to your account.",
+                ApiConstants::FORBIDDEN_ERR_CODE,
+                null,
+                null
+            );
+        }
+
+        return null;
+    }
+
     public function dashboard()
     {
         if ($forbidden = $this->forbiddenUnlessTherapist()) {
             return $forbidden;
+        }
+
+        if ($blocked = $this->forbiddenIfBusinessEmployed()) {
+            return $blocked;
         }
 
         try {
@@ -39,6 +65,10 @@ class EarningsController extends Controller
     {
         if ($forbidden = $this->forbiddenUnlessTherapist()) {
             return $forbidden;
+        }
+
+        if ($blocked = $this->forbiddenIfBusinessEmployed()) {
+            return $blocked;
         }
 
         try {

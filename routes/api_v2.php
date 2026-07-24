@@ -430,6 +430,13 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
 
         Route::get("sessions", [SessionRequestController::class, "index"])->name("sessions.index");
+        Route::post("sessions/{session}/decline", [\App\Http\Controllers\Api\V2\Therapist\DashboardController::class, "declineRequest"])->name("sessions.decline");
+
+        // Web §04 dashboard aggregates.
+        Route::get("home", [\App\Http\Controllers\Api\V2\Therapist\DashboardController::class, "home"])->name("home");
+        Route::get("analytics", [\App\Http\Controllers\Api\V2\Therapist\DashboardController::class, "analytics"])->name("analytics");
+        Route::get("availability", [\App\Http\Controllers\Api\V2\Therapist\DashboardController::class, "availability"])->name("availability.show");
+        Route::put("availability", [\App\Http\Controllers\Api\V2\Therapist\DashboardController::class, "updateAvailability"])->name("availability.update");
 
         Route::get("profile", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "show"])->name("profile.show");
         Route::post("profile/update", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "update"])->name("profile.update");

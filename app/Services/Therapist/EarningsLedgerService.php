@@ -118,6 +118,18 @@ class EarningsLedgerService
                     : 0,
                 'pending_payout' => self::pendingPayout($therapist),
             ],
+            // The web §04 Earnings screen's "Recent payouts" list.
+            'recent_payouts' => \App\Models\Payout::where('therapist_id', $therapist->id)
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(fn ($payout) => [
+                    'id' => $payout->id,
+                    'date' => $payout->completed_at?->toDateString() ?? $payout->created_at?->toDateString(),
+                    'amount' => round((float) $payout->amount, 2),
+                    'status' => $payout->status,
+                ])
+                ->all(),
         ];
     }
 
