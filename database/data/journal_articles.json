@@ -1,0 +1,446 @@
+[
+  {
+    "slug": "science-of-a-good-nights-sleep",
+    "category": "Self-Care",
+    "tone": "gold",
+    "cover": "linear-gradient(135deg,#DBB66E,#9A6E0A)",
+    "title": "The science of a good night's sleep — and how it heals your mind",
+    "excerpt": "Sleep isn't a luxury; it's the nightly maintenance your brain runs to process emotion, consolidate memory, and reset stress hormones. Here's what the research says — and how to protect it.",
+    "author": "Dr. Ngozi Eze",
+    "author_initials": "NE",
+    "author_role": "Clinical Psychologist",
+    "author_bio": "Clinical psychologist specialising in sleep, mood, and anxiety. Writes for the TalkAM Journal on the science of everyday wellbeing.",
+    "read_time": "7 min read",
+    "display_date": "Jul 12",
+    "sort_order": 0,
+    "body": [
+      {
+        "type": "p",
+        "text": "Most of us treat sleep as the first thing to sacrifice — the buffer we trade for one more episode, one more hour of work, one more scroll. But sleep is where a huge amount of mental-health repair actually happens. When you shortchange it, you're not just tired; you're skipping the maintenance window your brain relies on."
+      },
+      {
+        "type": "h2",
+        "text": "What your brain does while you sleep"
+      },
+      {
+        "type": "p",
+        "text": "During deep sleep, the brain clears metabolic waste, stabilises mood-regulating neurotransmitters, and moves the day's experiences from short-term into long-term memory. REM sleep, in particular, helps take the emotional charge out of difficult memories — which is why a hard day genuinely can feel more manageable after real rest."
+      },
+      {
+        "type": "quote",
+        "text": "A single bad night makes us more reactive. A pattern of them reshapes how we handle stress entirely."
+      },
+      {
+        "type": "h2",
+        "text": "The anxiety–insomnia loop"
+      },
+      {
+        "type": "p",
+        "text": "Poor sleep and anxiety feed each other. Anxiety makes it harder to fall asleep, and sleep deprivation makes the brain's threat-detection system more sensitive the next day — so small worries feel larger. Breaking the loop usually means addressing both ends at once, gently and consistently, rather than forcing it."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Keep a consistent wake time — even on weekends. It anchors your body clock more powerfully than bedtime does.",
+          "Get daylight within an hour of waking to set your circadian rhythm.",
+          "Give screens a 30–60 minute buffer before bed; the issue is as much the stimulation as the light.",
+          "If you can't sleep after 20 minutes, get up and do something calm — don't lie there negotiating with your brain."
+        ]
+      },
+      {
+        "type": "callout",
+        "text": "Tonight, pick one anchor: set a fixed wake-up time and hold it for a week. Consistency at the start of the day quietly fixes the end of it."
+      },
+      {
+        "type": "h2",
+        "text": "When to reach for support"
+      },
+      {
+        "type": "p",
+        "text": "If sleeplessness has lasted more than a few weeks, or it's tangled up with low mood or persistent worry, it's worth talking to someone. Sleep problems are highly treatable, and a therapist can help you untangle which came first — the worry or the wakefulness."
+      }
+    ]
+  },
+  {
+    "slug": "managing-anxiety-at-work",
+    "category": "Workplace Wellbeing",
+    "tone": "green",
+    "cover": "linear-gradient(135deg,#3BA88F,#124034)",
+    "title": "Managing anxiety at work without burning out",
+    "excerpt": "You can't always change your workload — but you can change how your nervous system carries it. Small, repeatable practices that fit inside a real workday.",
+    "author": "Tunde Bakare",
+    "author_initials": "TB",
+    "author_role": "Wellbeing Coach",
+    "author_bio": "Workplace wellbeing coach helping teams build sustainable habits. Former HR lead turned mental-health advocate.",
+    "read_time": "6 min read",
+    "display_date": "Jul 9",
+    "sort_order": 1,
+    "body": [
+      {
+        "type": "p",
+        "text": "Workplace anxiety rarely arrives as a single dramatic moment. It's the background hum — the inbox that never empties, the meeting you're bracing for, the sense that stopping means falling behind. Left unmanaged, that hum becomes burnout."
+      },
+      {
+        "type": "h2",
+        "text": "Name it to tame it"
+      },
+      {
+        "type": "p",
+        "text": "The first step is noticing. Anxiety loses some of its grip the moment you label it accurately: 'I'm anxious about this deadline' is more workable than a vague dread. Try a two-word check-in with yourself a few times a day."
+      },
+      {
+        "type": "callout",
+        "text": "Between tasks, take three slow breaths and name what you're feeling in two words. That tiny pause interrupts the autopilot spiral."
+      },
+      {
+        "type": "h2",
+        "text": "Protect your recovery windows"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Take your lunch away from your desk — even ten minutes of genuine disconnection counts.",
+          "Batch notifications instead of reacting to each ping.",
+          "End the day by writing tomorrow's top three, so your brain can stop rehearsing them overnight."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Rest isn't the reward for finishing your work. It's part of the work — the part that lets you keep going."
+      },
+      {
+        "type": "p",
+        "text": "If your anxiety is spilling into your evenings and weekends, that's a signal, not a weakness. A few sessions with a therapist can give you tools tailored to your specific triggers."
+      }
+    ]
+  },
+  {
+    "slug": "grounding-techniques-for-panic",
+    "category": "Anxiety & Stress",
+    "tone": "blue",
+    "cover": "linear-gradient(135deg,#017FC8,#0D2240)",
+    "title": "5 grounding techniques for when panic hits",
+    "excerpt": "When your body floods with panic, you can't think your way calm — but you can guide your senses back to the present. Five techniques you can use anywhere.",
+    "author": "Dr. Adewale Okafor",
+    "author_initials": "AO",
+    "author_role": "Clinical Psychologist",
+    "author_bio": "Clinical psychologist focused on anxiety and panic disorders. Believes the best coping tools are the ones you can use on a crowded bus.",
+    "read_time": "5 min read",
+    "display_date": "Jul 5",
+    "sort_order": 2,
+    "body": [
+      {
+        "type": "p",
+        "text": "A panic attack convinces your body that you're in danger when you're not. Grounding techniques work by giving your senses a job — pulling attention out of the spiral of catastrophic thoughts and back into the physical present, where you're actually safe."
+      },
+      {
+        "type": "h2",
+        "text": "The 5-4-3-2-1 method"
+      },
+      {
+        "type": "p",
+        "text": "Slowly name five things you can see, four you can hear, three you can touch, two you can smell, and one you can taste. It sounds almost too simple — but it forces your attention outward, one sense at a time."
+      },
+      {
+        "type": "callout",
+        "text": "Keep one grounding technique 'pre-loaded' so you don't have to think of it mid-panic. 5-4-3-2-1 is a great default."
+      },
+      {
+        "type": "h2",
+        "text": "Four more to keep in your pocket"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Cold water or an ice cube against your wrists — the temperature shift interrupts the panic response.",
+          "Box breathing: inhale 4, hold 4, exhale 4, hold 4.",
+          "Name the objects in the room by category — every blue thing, every rectangle.",
+          "Press your feet firmly into the floor and describe the sensation to yourself."
+        ]
+      },
+      {
+        "type": "quote",
+        "text": "Panic always peaks and passes. Your only job in the moment is to ride it, not to fix it."
+      }
+    ]
+  },
+  {
+    "slug": "what-happens-in-your-first-therapy-session",
+    "category": "Therapy 101",
+    "tone": "green",
+    "cover": "linear-gradient(135deg,#7ECFC0,#1F6B59)",
+    "title": "What actually happens in your first therapy session",
+    "excerpt": "Nervous about booking? Knowing what to expect takes most of the fear out of it. A plain-language walkthrough of session one.",
+    "author": "Chidinma Nwosu",
+    "author_initials": "CN",
+    "author_role": "Therapist, CBT",
+    "author_bio": "CBT therapist who believes therapy should feel less mysterious and more human. Writes to demystify the process.",
+    "read_time": "6 min read",
+    "display_date": "Jun 30",
+    "sort_order": 3,
+    "body": [
+      {
+        "type": "p",
+        "text": "The unknown is a big part of what keeps people from booking that first session. So let's remove it. Your first appointment is mostly a conversation — an unhurried one, on your terms."
+      },
+      {
+        "type": "h2",
+        "text": "It starts with your story"
+      },
+      {
+        "type": "p",
+        "text": "Your therapist will ask what brought you here and a bit about your life and history. You're not being tested, and you don't need a polished narrative. 'I'm not sure, I just haven't felt like myself' is a completely valid place to start."
+      },
+      {
+        "type": "quote",
+        "text": "You don't have to arrive with the answers. Arriving is the answer."
+      },
+      {
+        "type": "h2",
+        "text": "What you can expect"
+      },
+      {
+        "type": "list",
+        "items": [
+          "A relaxed conversation, not an interrogation — you set the pace.",
+          "Full confidentiality, with the limits explained up front.",
+          "A sense of whether this therapist feels like a fit; it's okay if they're not.",
+          "Maybe a small takeaway or reflection to try before next time."
+        ]
+      },
+      {
+        "type": "callout",
+        "text": "Before your session, jot down one or two things you'd like to feel different about. It gives you an anchor if nerves make your mind go blank."
+      },
+      {
+        "type": "p",
+        "text": "Fit matters more than anything else in therapy. If the first person isn't right, trying another isn't failing — it's how you find the one who helps."
+      }
+    ]
+  },
+  {
+    "slug": "how-to-set-boundaries-with-people-you-love",
+    "category": "Relationships",
+    "tone": "blue",
+    "cover": "linear-gradient(135deg,#68B4E1,#015C94)",
+    "title": "How to set boundaries with people you love",
+    "excerpt": "Boundaries aren't walls — they're the terms that let a relationship stay close without wearing you down. How to set them with warmth.",
+    "author": "Dr. Ngozi Eze",
+    "author_initials": "NE",
+    "author_role": "Clinical Psychologist",
+    "author_bio": "Clinical psychologist specialising in relationships and emotional regulation. Writes for the TalkAM Journal.",
+    "read_time": "5 min read",
+    "display_date": "Jun 25",
+    "sort_order": 4,
+    "body": [
+      {
+        "type": "p",
+        "text": "Setting a boundary with a stranger is easy. Setting one with someone you love — a parent, a partner, a close friend — is where it gets hard, because you care about the relationship and fear the boundary might damage it. It usually does the opposite."
+      },
+      {
+        "type": "h2",
+        "text": "A boundary is about you, not them"
+      },
+      {
+        "type": "p",
+        "text": "A good boundary describes what you will do, not what the other person must do. 'I'll step away if the conversation gets heated' is a boundary. 'You need to stop shouting' is a demand. The first one you can actually keep."
+      },
+      {
+        "type": "callout",
+        "text": "Draft your next boundary as a sentence that starts with 'I will…' rather than 'You should…'. Notice how much calmer it feels to say."
+      },
+      {
+        "type": "quote",
+        "text": "Clear is kind. The people who love you would rather know where the line is than guess at it."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Be specific and small — one boundary at a time lands better than a list.",
+          "Expect some pushback; it's a sign the boundary was needed, not that it's wrong.",
+          "Follow through calmly. A boundary you don't uphold teaches people to ignore it."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "the-quiet-power-of-a-daily-mood-check-in",
+    "category": "Self-Care",
+    "tone": "gold",
+    "cover": "linear-gradient(135deg,#EDD9A5,#C79A3B)",
+    "title": "The quiet power of a daily mood check-in",
+    "excerpt": "Thirty seconds a day is enough to spot patterns you'd otherwise miss — and to catch a downward slide before it gathers speed.",
+    "author": "Tunde Bakare",
+    "author_initials": "TB",
+    "author_role": "Wellbeing Coach",
+    "author_bio": "Wellbeing coach and habit-design nerd. Convinced the smallest consistent practices beat the grandest occasional ones.",
+    "read_time": "4 min read",
+    "display_date": "Jun 20",
+    "sort_order": 5,
+    "body": [
+      {
+        "type": "p",
+        "text": "We track our steps, our spending, our screen time — but rarely the one metric that colours all the others: how we actually feel. A daily mood check-in is the smallest possible mental-health habit, and one of the most revealing."
+      },
+      {
+        "type": "h2",
+        "text": "Why it works"
+      },
+      {
+        "type": "p",
+        "text": "Naming an emotion reduces its intensity — psychologists call it 'affect labelling'. Doing it daily also builds a record, so you can see that a rough patch is a dip, not your new normal, and notice what tends to precede your good days."
+      },
+      {
+        "type": "quote",
+        "text": "You can't manage what you never measure. Feelings are no exception."
+      },
+      {
+        "type": "callout",
+        "text": "Tonight, rate your day from 1 to 5 and add three words for why. That's the whole practice. Do it for a week before you judge it."
+      },
+      {
+        "type": "p",
+        "text": "Over a few weeks, patterns surface — the poor sleep before the low mood, the social plans that reliably lift you. That's data you can act on."
+      }
+    ]
+  },
+  {
+    "slug": "talking-to-your-manager-about-your-mental-health",
+    "category": "Workplace Wellbeing",
+    "tone": "green",
+    "cover": "linear-gradient(135deg,#3BA88F,#0D2240)",
+    "title": "Talking to your manager about your mental health",
+    "excerpt": "You don't owe anyone your diagnosis. But if you choose to speak up, a little preparation makes the conversation far less daunting.",
+    "author": "Chidinma Nwosu",
+    "author_initials": "CN",
+    "author_role": "Therapist, CBT",
+    "author_bio": "CBT therapist who coaches clients through difficult workplace conversations.",
+    "read_time": "6 min read",
+    "display_date": "Jun 14",
+    "sort_order": 6,
+    "body": [
+      {
+        "type": "p",
+        "text": "Deciding whether to tell your manager you're struggling is deeply personal. There's no universal right answer — but if you do decide to, going in with a plan turns a scary conversation into a manageable one."
+      },
+      {
+        "type": "h2",
+        "text": "Decide what you actually want"
+      },
+      {
+        "type": "p",
+        "text": "Are you asking for a specific adjustment — flexible hours, a lighter week, fewer late meetings — or simply letting them know so they understand? Clarity here shapes everything. You can share as much or as little as you're comfortable with."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Lead with the impact and the ask, not the diagnosis: 'I need to protect my mornings for the next month.'",
+          "Pick a private, unhurried time — not the end of a stressful meeting.",
+          "Know your rights: many workplaces have confidential support and reasonable-adjustment policies."
+        ]
+      },
+      {
+        "type": "callout",
+        "text": "Write down the one sentence you most want to say before the meeting. Having it ready keeps you steady if the moment gets emotional."
+      },
+      {
+        "type": "quote",
+        "text": "Asking for what you need at work isn't a liability. It's how good people stay in good jobs."
+      }
+    ]
+  },
+  {
+    "slug": "from-lurker-to-found-a-member-story",
+    "category": "Community Stories",
+    "tone": "gold",
+    "cover": "linear-gradient(135deg,#C79A3B,#141B34)",
+    "title": "From lurker to found: one member's TalkAM story",
+    "excerpt": "“I joined to read, not to talk.” How one quiet member found their people — and eventually, the courage to book their first session.",
+    "author": "TalkAM Community",
+    "author_initials": "TA",
+    "author_role": "Member Story",
+    "author_bio": "Real stories from the TalkAM community, shared with permission. Names and details changed for privacy.",
+    "read_time": "5 min read",
+    "display_date": "Jun 8",
+    "sort_order": 7,
+    "body": [
+      {
+        "type": "p",
+        "text": "“I didn't post for almost three months,” says M., who joined TalkAM during a hard winter. “I just read. Other people's threads about anxiety, about feeling behind in life. It was the first time I didn't feel like the only one.”"
+      },
+      {
+        "type": "quote",
+        "text": "“Reading other people be honest gave me permission to be honest too.”"
+      },
+      {
+        "type": "h2",
+        "text": "The first post"
+      },
+      {
+        "type": "p",
+        "text": "“My first post was two lines. I almost deleted it. Within an hour there were replies — not advice, just people saying they'd been there. That's when it stopped being an app and started being a community.”"
+      },
+      {
+        "type": "h2",
+        "text": "From community to care"
+      },
+      {
+        "type": "p",
+        "text": "“Someone mentioned they'd booked a therapist through the app and it wasn't as scary as they'd built it up to be. That nudged me. I booked one. I don't think I'd have done it without the people here first.”"
+      },
+      {
+        "type": "callout",
+        "text": "If you've been reading and not posting, that's okay. Start where you are — even a two-line post is a door opening."
+      }
+    ]
+  },
+  {
+    "slug": "stress-vs-burnout",
+    "category": "Anxiety & Stress",
+    "tone": "blue",
+    "cover": "linear-gradient(135deg,#0D2240,#017FC8)",
+    "title": "Stress vs. burnout: how to tell the difference",
+    "excerpt": "Stress and burnout feel similar but need opposite responses. Learn to spot which one you're in — and why it matters.",
+    "author": "Dr. Adewale Okafor",
+    "author_initials": "AO",
+    "author_role": "Clinical Psychologist",
+    "author_bio": "Clinical psychologist writing on stress, burnout, and recovery.",
+    "read_time": "6 min read",
+    "display_date": "Jun 2",
+    "sort_order": 8,
+    "body": [
+      {
+        "type": "p",
+        "text": "We use 'stressed' and 'burned out' interchangeably, but they're not the same state — and confusing them leads people to push through when they should be pulling back."
+      },
+      {
+        "type": "h2",
+        "text": "Stress is too much. Burnout is empty."
+      },
+      {
+        "type": "p",
+        "text": "Stress is a state of over-engagement: too many demands, urgency, a racing mind. Burnout is the opposite — disengagement, exhaustion, a flatness where motivation used to be. Stress makes you feel like you're drowning; burnout makes you feel like you've washed ashore and can't get up."
+      },
+      {
+        "type": "quote",
+        "text": "Rest cures stress. Burnout needs more than rest — it needs change."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Stress: anxious, wired, emotions run hot. Burnout: numb, detached, emotions run flat.",
+          "Stress eases with a break. Burnout persists even after the weekend.",
+          "Stress is often about the volume of work. Burnout is often about its meaning."
+        ]
+      },
+      {
+        "type": "callout",
+        "text": "Ask yourself: after a full day off, do I feel restored or still empty? The answer tells you which one you're dealing with."
+      },
+      {
+        "type": "p",
+        "text": "If rest isn't touching it, that's your cue to talk to someone. Burnout recovery is real, but it usually needs support and often some structural change, not just willpower."
+      }
+    ]
+  }
+]

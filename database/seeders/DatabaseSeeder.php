@@ -27,6 +27,10 @@ class DatabaseSeeder extends Seeder
             // CountryTableSeeder::class,
             // StateTableSeeder::class
             // AvatarTableSeeder::class
+
+            // Web content seeders (idempotent, keyed on natural keys).
+            EmployeeFaqSeeder::class,
+            JournalSeeder::class,
         ]);
     }
 }

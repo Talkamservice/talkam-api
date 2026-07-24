@@ -6115,6 +6115,101 @@
      }
     }
    ]
+  },
+  {
+   "name": "W05 The TalkAM Journal (web)",
+   "description": "Public blog (§05): read-only editorial articles + newsletter capture. No auth. The index list omits `body`; the article view returns the article with `body` plus up to 3 related (same-category first). Subscribe is idempotent and throttled (5/min).",
+   "item": [
+    {
+     "name": "Articles (index)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/journal/articles",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "journal",
+        "articles"
+       ]
+      },
+      "description": "The ordered, published article list — card fields only (no `body`). The web index derives editor's-pick (first) + grid (rest) and runs search / category filtering client-side over this list."
+     }
+    },
+    {
+     "name": "Article (by slug)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/journal/articles/science-of-a-good-nights-sleep",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "journal",
+        "articles",
+        "science-of-a-good-nights-sleep"
+       ]
+      },
+      "description": "One published article with its full `body` block array, plus a `related` array (same category first, then fill, max 3). Unknown or unpublished slug → 404."
+     }
+    },
+    {
+     "name": "Subscribe to the newsletter",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/journal/subscribe",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "journal",
+        "subscribe"
+       ]
+      },
+      "description": "Capture an email for the Journal newsletter band. Validates the email, throttled 5/min, idempotent (a repeat email is a plain success). Nothing is returned.",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"reader@example.com\",\n  \"source\": \"journal\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    }
+   ]
   }
  ]
 }

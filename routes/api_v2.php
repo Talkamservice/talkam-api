@@ -97,6 +97,28 @@ Route::prefix("auth")->as("auth.")->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| The TalkAM Journal (web §05)
+|--------------------------------------------------------------------------
+|
+| Public, read-only editorial content plus newsletter capture. No auth — a
+| marketing surface. Reads are lightly throttled; the subscribe form is
+| throttled like the other public write forms.
+|
+*/
+Route::prefix("journal")->as("journal.")->group(function () {
+    Route::get("articles", [\App\Http\Controllers\Api\V2\Journal\ArticleController::class, "index"])
+        ->middleware("throttle:60,1")
+        ->name("articles.index");
+    Route::get("articles/{slug}", [\App\Http\Controllers\Api\V2\Journal\ArticleController::class, "show"])
+        ->middleware("throttle:60,1")
+        ->name("articles.show");
+    Route::post("subscribe", [\App\Http\Controllers\Api\V2\Journal\NewsletterController::class, "subscribe"])
+        ->middleware("throttle:5,1")
+        ->name("subscribe");
+});
+
+/*
+|--------------------------------------------------------------------------
 | TalkAM for Business (web §01)
 |--------------------------------------------------------------------------
 |
