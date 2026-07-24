@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             // Web content seeders (idempotent, keyed on natural keys).
             EmployeeFaqSeeder::class,
             JournalSeeder::class,
+            LegalSeeder::class,
         ]);
     }
 }

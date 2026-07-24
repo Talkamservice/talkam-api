@@ -119,6 +119,23 @@ Route::prefix("journal")->as("journal.")->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Legal documents (web §06)
+|--------------------------------------------------------------------------
+|
+| Public, read-only structured Privacy Policy / Terms of Use for the browser
+| legal pages. Reuses the existing legal tables (mobile still reads their `body`
+| blob via user/privacy-policies); this returns the structured `document`.
+|
+*/
+Route::prefix("legal")->as("legal.")->group(function () {
+    Route::get("documents/{slug}", [\App\Http\Controllers\Api\V2\Legal\LegalController::class, "show"])
+        ->middleware("throttle:60,1")
+        ->name("documents.show");
+});
+
+
+/*
+|--------------------------------------------------------------------------
 | TalkAM for Business (web §01)
 |--------------------------------------------------------------------------
 |

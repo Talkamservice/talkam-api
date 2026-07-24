@@ -6210,6 +6210,64 @@
      }
     }
    ]
+  },
+  {
+   "name": "W06 Legal documents (web)",
+   "description": "Public structured Privacy Policy / Terms of Use for the browser legal pages (§06). Reuses the existing legal tables — mobile still reads the `body` blob via user/privacy-policies; this returns the structured `document` (title, lastUpdated, callout, contact, sections). No auth, 60/min. Marketing pages (landing / for-business / for-therapists) are static editorial content with no API — see planning-docs/web-api/06-marketing-legal.md.",
+   "item": [
+    {
+     "name": "Privacy Policy",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/legal/documents/privacy",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "legal",
+        "documents",
+        "privacy"
+       ]
+      },
+      "description": "The structured Privacy Policy: title, last-updated, the NDPA employer-wall callout, DPO contact, and the ordered sections. Unknown slug → 404."
+     }
+    },
+    {
+     "name": "Terms of Use",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/legal/documents/terms",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "legal",
+        "documents",
+        "terms"
+       ]
+      },
+      "description": "The structured Terms of Use: title, last-updated, (no callout), legal contact, and the ordered sections."
+     }
+    }
+   ]
   }
  ]
 }
