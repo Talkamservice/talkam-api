@@ -164,4 +164,17 @@ return [
     | than this many employees (PRD §12 "minimum cohort threshold").
     */
     'aggregate_minimum_cohort' => env('BUSINESS_AGGREGATE_MIN_COHORT', 5),
+
+    /*
+    | ROI calculator coefficients (admin Overview).
+    |
+    | PLACEHOLDER — these are the deck's illustrative figures. They are
+    | assumptions about absenteeism and productivity, not measurements, and the
+    | dashboard presents the result as an estimate. Product/finance should
+    | confirm them (or supply a source) before this is shown to a customer.
+    */
+    'roi' => [
+        'absenteeism_days_per_session' => env('BUSINESS_ROI_DAYS_PER_SESSION', 0.35),
+        'avg_daily_productivity_value' => env('BUSINESS_ROI_DAILY_VALUE', 21000),
+    ],
 ];

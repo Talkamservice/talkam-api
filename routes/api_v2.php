@@ -24,6 +24,8 @@ use App\Http\Controllers\Api\V2\Auth\RegisterController;
 use App\Http\Controllers\Api\V2\Auth\TwoFactorController;
 use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
+use App\Http\Controllers\Api\V2\Business\AdminInsightsController;
+use App\Http\Controllers\Api\V2\Business\AdminWorkspaceController;
 use App\Http\Controllers\Api\V2\Business\InvitationController as BusinessInvitationController;
 use App\Http\Controllers\Api\V2\Business\OnboardingController as BusinessOnboardingController;
 use App\Http\Controllers\Api\V2\Business\OrganizationController as BusinessOrganizationController;
@@ -129,6 +131,30 @@ Route::prefix("business")->as("business.")->group(function () {
             ->name("domain.verify");
 
         Route::middleware(["org.role:admin"])->group(function () {
+            /*
+            | Admin dashboard (web §03).
+            |
+            | Every insight endpoint returns anonymised, company-wide figures
+            | only, suppressed below config('business.aggregate_minimum_cohort').
+            | The roster is contract data (who holds a seat) and deliberately
+            | carries no session count or last-active timestamp — see
+            | planning-docs/web-api/03-admin-dashboard.md §0.
+            */
+            Route::get("insights/overview", [AdminInsightsController::class, "overview"])->name("insights.overview");
+            Route::get("insights/team-needs", [AdminInsightsController::class, "teamNeeds"])->name("insights.team-needs");
+            Route::get("reports", [AdminInsightsController::class, "reports"])->name("reports.index");
+            Route::get("reports/{key}/download", [AdminInsightsController::class, "download"])->name("reports.download");
+
+            Route::get("employees", [AdminWorkspaceController::class, "employees"])->name("employees.index");
+            Route::get("employees/export", [AdminWorkspaceController::class, "exportEmployees"])->name("employees.export");
+            Route::post("employees/{member}/deactivate", [AdminWorkspaceController::class, "deactivateEmployee"])->name("employees.deactivate");
+            Route::post("employees/{member}/reactivate", [AdminWorkspaceController::class, "reactivateEmployee"])->name("employees.reactivate");
+
+            Route::get("therapists", [AdminWorkspaceController::class, "therapists"])->name("therapists.index");
+            Route::get("safety-reports", [AdminWorkspaceController::class, "safetyReports"])->name("safety-reports.index");
+            Route::get("activity", [AdminWorkspaceController::class, "activity"])->name("activity.index");
+            Route::post("organization/profile", [AdminWorkspaceController::class, "updateProfile"])->name("organization.profile");
+
             Route::get("organization", [BusinessOrganizationController::class, "show"])->name("organization.show");
             Route::post("organization/bench", [BusinessOrganizationController::class, "bench"])->name("organization.bench");
             Route::get("invitations", [BusinessInvitationController::class, "index"])->name("invitations.index");

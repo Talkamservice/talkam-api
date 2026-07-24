@@ -5616,6 +5616,359 @@
           }
         }
       ]
+    },
+    {
+      "name": "W03 Admin Dashboard (web)",
+      "description": "HR / Company Admin dashboard. Admin-only (org.role:admin), tenant-scoped.\n\nPlan: planning-docs/web-api/03-admin-dashboard.md\nUI: talkam-web /business/admin/* (10 screens)\n\nTHE HARD RULE: an employer sees anonymised, company-wide figures only. Every insight is wrapped as {value, cohort, suppressed} and blanked (value=null, suppressed=true) when fewer than config('business.aggregate_minimum_cohort') = 5 employees contributed. A department rollup is suppressed PER DEPARTMENT.\n\nThree deck panels asked for individual data (a per-session table, a per-person session count, a last-active timestamp) and are NOT served \u2014 see \u00a70 of the plan. The roster carries contract data only (seat, department, status), never behaviour.\n\nBilling (current plan, invoices, plan catalogue) is web \u00a707 and is not here.",
+      "item": [
+        {
+          "name": "Overview insights",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/insights/overview",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "insights",
+                "overview"
+              ]
+            },
+            "description": "KPIs (employees / active this month / sessions this month with deltas), the daily session-activity bars, top topics, the department rollup, and ROI. Every behavioural figure is suppressed below the cohort floor; seat counts are administrative and always shown."
+          }
+        },
+        {
+          "name": "Team needs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/insights/team-needs",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "insights",
+                "team-needs"
+              ]
+            },
+            "description": "The onboarding self-check aggregate \u2014 the pattern employees were promised HR would see 'once at least 5 people respond'. Cohort here is RESPONDENTS, not members."
+          }
+        },
+        {
+          "name": "Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/reports",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "reports"
+              ]
+            },
+            "description": "The three report cards, the six-month company session trend (suppressed), and the department rollup."
+          }
+        },
+        {
+          "name": "Download report (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/reports/usage/download",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "reports",
+                "usage",
+                "download"
+              ]
+            },
+            "description": "Aggregate CSV \u2014 rows are months or departments, never people. A suppressed report downloads the withheld-explanation text, not the figures. Keys: usage, wellness, roi."
+          }
+        },
+        {
+          "name": "Employees roster",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/employees?department=Technology&status=active&search=",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "employees"
+              ],
+              "query": [
+                {
+                  "key": "department",
+                  "value": "Technology"
+                },
+                {
+                  "key": "status",
+                  "value": "active"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Active/inactive members plus pending invitations, with a stable EMP-#### id. CONTRACT DATA ONLY: id, email, department, role, status, activated_at. No session count, no last-active \u2014 those are individual behaviour."
+          }
+        },
+        {
+          "name": "Export employees (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/employees/export",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "employees",
+                "export"
+              ]
+            },
+            "description": "The roster columns only (ID, Email, Department, Role, Status, Activated). No usage column."
+          }
+        },
+        {
+          "name": "Deactivate a seat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/employees/1/deactivate",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "employees",
+                "1",
+                "deactivate"
+              ]
+            },
+            "description": "Frees a seat. Admin seats cannot be deactivated from here. A member id from another org 404s."
+          }
+        },
+        {
+          "name": "Reactivate a seat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/employees/1/reactivate",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "employees",
+                "1",
+                "reactivate"
+              ]
+            },
+            "description": "Restores a seat; fails if that would exceed the licence."
+          }
+        },
+        {
+          "name": "Therapist network",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/therapists?specialty=&bench_only=",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "therapists"
+              ],
+              "query": [
+                {
+                  "key": "specialty",
+                  "value": ""
+                },
+                {
+                  "key": "bench_only",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Therapists available to the org, with a per-therapist company-wide month session count (withheld below the floor), plus network stats (seats/bundle used, next reset). in_network reflects the org's bench_topics."
+          }
+        },
+        {
+          "name": "Trust & safety queue",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/safety-reports",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "safety-reports"
+              ]
+            },
+            "description": "Reports involving the org's people, ANONYMISED: category, which side of the relationship (employee/therapist), status and date \u2014 never who filed it, who it names, or the free-text description."
+          }
+        },
+        {
+          "name": "Activity log",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/activity",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "activity"
+              ]
+            },
+            "description": "Administrative actions by the org's OWN admins. Employee-generated activity is excluded; one company never sees another's log."
+          }
+        },
+        {
+          "name": "Update company profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/business/organization/profile",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "business",
+                "organization",
+                "profile"
+              ]
+            },
+            "description": "Company name, industry, HR contact email, logo. The domain is NOT editable \u2014 it is the tenancy key.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Meridian Health\",\n  \"industry\": \"Banking & Finance\",\n  \"hr_contact_email\": \"hr@meridianhealth.ng\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
