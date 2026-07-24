@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Users\UserResource;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\PinService;
+use App\Services\Business\OrganizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -47,6 +48,9 @@ class TwoFactorController extends Controller
 
             $data["user"] = UserResource::make($user)->toArray($request);
             $data["token"] = $user->createToken('api')->plainTextToken;
+            // Same business context the non-2FA login returns — the 2FA screen
+            // is the last step before landing on a dashboard.
+            $data["business"] = OrganizationService::context($user);
             LoginService::newLogin($user);
 
             return ApiHelper::validResponse("Logged in successfully", $data);

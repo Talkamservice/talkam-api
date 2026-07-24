@@ -34,6 +34,11 @@ class InterestTopicSeeder extends Seeder
         'Physical Abuse',
         'Job Loss',
         'Social Isolation',
+        // Added for the web B2B onboarding chip set (planning-docs/web-api/01);
+        // the other four web chips already existed above. Additive — the
+        // mobile §1 chip list is unchanged by their presence.
+        'Work Stress',
+        'General Support',
     ];
 
     public function run(): void

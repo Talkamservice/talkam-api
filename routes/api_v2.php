@@ -24,6 +24,10 @@ use App\Http\Controllers\Api\V2\Auth\RegisterController;
 use App\Http\Controllers\Api\V2\Auth\TwoFactorController;
 use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
+use App\Http\Controllers\Api\V2\Business\InvitationController as BusinessInvitationController;
+use App\Http\Controllers\Api\V2\Business\OnboardingController as BusinessOnboardingController;
+use App\Http\Controllers\Api\V2\Business\OrganizationController as BusinessOrganizationController;
+use App\Http\Controllers\Api\V2\Business\RegistrationController as BusinessRegistrationController;
 use App\Http\Controllers\Api\V2\Group\GroupController;
 use App\Http\Controllers\Api\V2\Group\GroupInviteController;
 use App\Http\Controllers\Api\V2\Messaging\ConversationController as V2ConversationController;
@@ -86,6 +90,75 @@ Route::prefix("auth")->as("auth.")->group(function () {
             ->middleware("throttle:5,1")
             ->name("request");
         Route::post("/verify", [VerificationController::class, "verify"])->name("verify");
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| TalkAM for Business (web §01)
+|--------------------------------------------------------------------------
+|
+| Company accounts, seats, invites and invited-member onboarding.
+| Role separation is enforced by the org.role middleware (which also puts the
+| caller's organization on the request, so no endpoint ever takes an
+| organization id from the client) plus object-level policies.
+|
+*/
+Route::prefix("business")->as("business.")->group(function () {
+    // Public — the marketing/auth screens need these before any session exists.
+    Route::get("pricing-config", [BusinessOrganizationController::class, "pricingConfig"])
+        ->middleware("throttle:60,1")
+        ->name("pricing-config");
+
+    Route::post("register", [BusinessRegistrationController::class, "register"])
+        ->middleware("throttle:5,1")
+        ->name("register");
+
+    Route::get("invitations/token/{uuid}", [BusinessInvitationController::class, "landing"])
+        ->middleware("throttle:20,1")
+        ->name("invitations.landing");
+
+    Route::post("invitations/token/{uuid}/accept", [BusinessInvitationController::class, "accept"])
+        ->middleware("throttle:5,1")
+        ->name("invitations.accept");
+
+    Route::middleware(["auth:sanctum"])->group(function () {
+        // Any active member: confirms the code that was emailed at signup.
+        Route::post("domain/verify", [BusinessRegistrationController::class, "verifyDomain"])
+            ->middleware("org.role:admin")
+            ->name("domain.verify");
+
+        Route::middleware(["org.role:admin"])->group(function () {
+            Route::get("organization", [BusinessOrganizationController::class, "show"])->name("organization.show");
+            Route::post("organization/bench", [BusinessOrganizationController::class, "bench"])->name("organization.bench");
+            Route::get("invitations", [BusinessInvitationController::class, "index"])->name("invitations.index");
+            Route::post("invitations/import", [BusinessInvitationController::class, "import"])->name("invitations.import");
+
+            // Domain confirmation gates everything that spends seats or money.
+            Route::middleware(["org.verified"])->group(function () {
+                Route::post("organization/seats", [BusinessOrganizationController::class, "seats"])->name("organization.seats");
+                Route::post("organization/plan", [BusinessOrganizationController::class, "plan"])->name("organization.plan");
+                Route::post("invitations", [BusinessInvitationController::class, "store"])->name("invitations.store");
+                Route::post("invitations/{id}/resend", [BusinessInvitationController::class, "resend"])->name("invitations.resend");
+                Route::post("invitations/{id}/revoke", [BusinessInvitationController::class, "revoke"])->name("invitations.revoke");
+            });
+        });
+
+        Route::get("onboarding/topics", [BusinessOnboardingController::class, "topicOptions"])
+            ->middleware("org.role")
+            ->name("onboarding.topics.options");
+
+        Route::post("onboarding/topics", [BusinessOnboardingController::class, "topics"])
+            ->middleware("org.role")
+            ->name("onboarding.topics");
+
+        Route::get("self-check", [BusinessOnboardingController::class, "selfCheckState"])
+            ->middleware("org.role:employee")
+            ->name("self-check.show");
+
+        Route::post("self-check", [BusinessOnboardingController::class, "selfCheck"])
+            ->middleware("org.role:employee")
+            ->name("self-check.store");
     });
 });
 

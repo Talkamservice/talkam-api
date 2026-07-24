@@ -65,6 +65,9 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'pricingCountry' => UpdatePricingCountryMiddleware::class
+        'pricingCountry' => UpdatePricingCountryMiddleware::class,
+        // TalkAM for Business (web §01): role gate + domain-confirmation gate.
+        'org.role' => \App\Http\Middleware\EnsureOrganizationRole::class,
+        'org.verified' => \App\Http\Middleware\EnsureOrganizationVerified::class,
     ];
 }
