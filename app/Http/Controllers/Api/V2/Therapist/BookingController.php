@@ -8,6 +8,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Services\Therapist\SessionBookingService;
+use App\Services\User\MemberSessionService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Exception;
@@ -51,8 +52,38 @@ class BookingController extends Controller
     public function index()
     {
         try {
-            $data = SessionBookingService::listFor(auth()->user());
+            $user = auth()->user();
+            // `upcoming` and `past` keep the exact §07 shape; the web
+            // dashboard's summary strip rides alongside them.
+            $data = SessionBookingService::listFor($user);
+            $data["summary"] = MemberSessionService::summary($user);
+
             return ApiHelper::validResponse("Bookings returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /**
+     * Pre/post session mood, from the "before you join" and feedback modals.
+     * Ownership goes through §07's getOwnedByUser, so another member's
+     * session 404s.
+     */
+    public function sessionMood(Request $request, $booking)
+    {
+        try {
+            $session = SessionBookingService::getOwnedByUser($booking, auth()->user());
+            $session = (new MemberSessionService)->saveMood($session, $request->all());
+
+            return ApiHelper::validResponse("Session mood saved successfully", [
+                "id" => $session->id,
+                "client_pre_mood" => $session->client_pre_mood,
+                "client_post_mood" => $session->client_post_mood,
+            ]);
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (ModelNotFoundException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::NOT_FOUND_ERR_CODE, null, $e);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

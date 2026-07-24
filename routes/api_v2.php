@@ -165,6 +165,9 @@ Route::prefix("business")->as("business.")->group(function () {
 // Public, matching v1's placement of these endpoints.
 Route::get("profile/avatars", [V1UserController::class, "listAvatars"])->name("avatars.list");
 Route::get("user/privacy-policies", [PrivacyPolicyController::class, "index"])->name("privacy-policies.list");
+// Help & Support FAQs — v1 controller, v1's public placement (web §02).
+Route::get("user/faqs", [\App\Http\Controllers\Api\V1\User\Web\FaqController::class, "index"])->name("faqs.index");
+Route::get("user/faqs/{id}", [\App\Http\Controllers\Api\V1\User\Web\FaqController::class, "show"])->name("faqs.show");
 // Guest group browsing: guests only see open-access groups.
 Route::get("user/groups", [GroupController::class, "index"])->name("groups.index");
 
@@ -333,8 +336,17 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::prefix("mood-checkins")->as("mood-checkins.")->group(function () {
             Route::get("today", [MoodCheckinController::class, "today"])->name("today");
+            Route::get("summary", [MoodCheckinController::class, "summary"])->name("summary");
+            Route::get("/", [MoodCheckinController::class, "index"])->name("index");
             Route::post("/", [MoodCheckinController::class, "store"])->name("store");
         });
+
+        // Employee dashboard extras (web §02) — personal data, scoped to the
+        // caller; deliberately not org-gated so direct users get them too.
+        Route::get("care-team", [\App\Http\Controllers\Api\V2\User\CareTeamController::class, "show"])
+            ->name("care-team");
+        Route::get("community/trending", [\App\Http\Controllers\Api\V2\User\CommunityController::class, "trending"])
+            ->name("community.trending");
 
         Route::prefix("announcements")->as("announcements.")->group(function () {
             Route::get("/", [AnnouncementController::class, "index"])->name("index");
@@ -353,6 +365,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("/", [BookingController::class, "store"])->name("store");
             Route::post("{booking}/initiate-payment", [BookingController::class, "initiatePayment"])->name("initiate-payment");
             Route::post("{booking}/review", [SessionReviewController::class, "store"])->name("review");
+            Route::post("{booking}/session-mood", [BookingController::class, "sessionMood"])->name("session-mood");
             Route::get("{booking}/receipt", [SessionController::class, "receipt"])->name("receipt");
             Route::post("{booking}/cancel", [SessionController::class, "cancel"])->name("cancel");
             Route::post("{booking}/reschedule", [SessionController::class, "reschedule"])->name("reschedule");

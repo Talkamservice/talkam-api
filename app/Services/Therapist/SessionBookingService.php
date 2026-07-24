@@ -263,6 +263,9 @@ class SessionBookingService
             'notes' => $session->notes,
             'payment_reference' => $session->payment?->reference,
             'rating' => $session->review?->rating,
+            // Client-owned pre/post mood (web §02) — the deck's "😔 → 🙂" pips.
+            'client_pre_mood' => $session->client_pre_mood,
+            'client_post_mood' => $session->client_post_mood,
             'receipt_url' => !empty($session->payment_id)
                 ? url("/api/v2/user/bookings/{$session->id}/receipt")
                 : null,

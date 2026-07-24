@@ -15,6 +15,7 @@ class MoodCheckin extends Model
     // (user_id, checked_in_on) upsert matches exactly.
     protected $casts = [
         'mood' => 'integer',
+        'factors' => 'array',
     ];
 
     public function user()

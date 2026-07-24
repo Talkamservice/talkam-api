@@ -17,6 +17,26 @@ return [
         'hour' => env('V2_WELLNESS_NUDGE_HOUR', 20),
     ],
 
+    /*
+    | Mood check-ins (web §02). The factor vocabulary is the deck's chip row on
+    | the Check-ins screen — data, so the list is a config fix.
+    */
+    'checkins' => [
+        'factors' => [
+            ['key' => 'work', 'label' => 'Work'],
+            ['key' => 'sleep', 'label' => 'Sleep'],
+            ['key' => 'family', 'label' => 'Family'],
+            ['key' => 'health', 'label' => 'Health'],
+            ['key' => 'money', 'label' => 'Finances'],
+            ['key' => 'social', 'label' => 'Relationships'],
+            ['key' => 'exercise', 'label' => 'Exercise'],
+            ['key' => 'rest', 'label' => 'Rest'],
+        ],
+        // Days in the trend window the dashboard charts render.
+        'trend_days' => env('V2_CHECKIN_TREND_DAYS', 14),
+        'note_max_length' => 280,
+    ],
+
     // Robust messaging (planning doc 16) — all data, not code.
     'messaging' => [
         'max_length' => env('V2_MESSAGE_MAX_LENGTH', 1000),

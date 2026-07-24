@@ -5333,6 +5333,289 @@
           }
         }
       ]
+    },
+    {
+      "name": "W02 Employee Dashboard (web)",
+      "description": "The employee (member) dashboard. Overwhelmingly REUSE \u2014 bookings (\u00a707/\u00a708), messaging (\u00a716), consent (\u00a702), privacy/notification settings (\u00a709), reports (\u00a710) and the notification feed are all existing endpoints and are NOT duplicated here.\n\nPlan: planning-docs/web-api/02-employee-dashboard.md\nUI: talkam-web /business/employee/* (7 screens)\n\nEverything below is scoped to auth()->user(). None of it takes a user id, so there is no surface on which one member can read another's data \u2014 and nothing here is readable by an org admin.",
+      "item": [
+        {
+          "name": "Save check-in (extended)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/mood-checkins",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "mood-checkins"
+              ]
+            },
+            "description": "\u00a703's endpoint, now also accepting `factors[]` and `note`.\n\nBoth new keys are OPTIONAL and use `sometimes`, so the mobile payload ({mood} alone) is unchanged AND a later mobile check-in updates the mood without wiping factors the web recorded earlier the same day. Same-day repeats update the row (one check-in per calendar day).\n\nFactor keys are validated against config('v2.checkins.factors'); note is capped at 280 characters.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mood\": 3,\n  \"factors\": [\n    \"work\",\n    \"sleep\"\n  ],\n  \"note\": \"Tired but managed the workload.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Today's check-in state",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/mood-checkins/today",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "mood-checkins",
+                "today"
+              ]
+            },
+            "description": "Whether today is logged, the entry itself, and the factor vocabulary the chip row renders (so the chips are config-driven, not hard-coded in the UI)."
+          }
+        },
+        {
+          "name": "Check-in history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/mood-checkins?per_page=6",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "mood-checkins"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "6"
+                }
+              ]
+            },
+            "description": "Paginated, newest first \u2014 the deck's \"Recent check-ins\" list. Each row carries the mood, the factor keys AND their labels, and the note."
+          }
+        },
+        {
+          "name": "Mood summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/mood-checkins/summary?days=14",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "mood-checkins",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "14"
+                }
+              ]
+            },
+            "description": "One round-trip for both dashboard charts and both stat strips:\n  streak \u2014 consecutive days ending today OR yesterday, so a streak doesn't read as broken before today's check-in is made\n  days_logged / window_days, average_mood\n  month_delta_percent \u2014 this month's mean vs last month's; NULL (not 0) when there is nothing to compare\n  series \u2014 one entry per day with mood: null for missed days, so the chart never has to infer which day a bar belongs to\n  top_factors \u2014 frequency as a percentage of the days that carried any factor\n\n`days` is clamped to 1..366."
+          }
+        },
+        {
+          "name": "Bookings (with summary)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/bookings",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "bookings"
+              ]
+            },
+            "description": "\u00a707's list, unchanged, plus an additive `summary` block for the deck's four tiles: upcoming, completed, sessions_used (this quarter) and sessions_allowed.\n\nsessions_allowed is the COMPANY's pre-purchased bundle (\u00a701), not a per-employee quota \u2014 it is null for a direct, non-B2B member."
+          }
+        },
+        {
+          "name": "Session mood (pre/post)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/bookings/1/session-mood",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "bookings",
+                "1",
+                "session-mood"
+              ]
+            },
+            "description": "The \"before you join\" and feedback modals. Pre and post are stored independently and surface on the booking payload as the deck's \ud83d\ude14\u2192\ud83d\ude42 pips.\n\nOwnership goes through \u00a707's getOwnedByUser, so another member's session 404s rather than leaking its existence.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phase\": \"pre\",\n  \"mood\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Care team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/care-team",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "care-team"
+              ]
+            },
+            "description": "The \"Your care team\" card: the therapist of the most recent active session, sessions_together, rating, and the continuity note.\n\nPRIVACY: the note is the therapist's SHARED session note only (\u00a711 gates sharing behind an explicit toggle). A private clinical note is never surfaced. A member with no sessions gets {\"therapist\": null}, not a 404."
+          }
+        },
+        {
+          "name": "Community trending",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/community/trending?days=7",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "community",
+                "trending"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "7"
+                }
+              ]
+            },
+            "description": "Topic rollup for the Community tab: name, post count, one excerpt and a relative time.\n\nANONYMOUS BY CONSTRUCTION \u2014 no author id, username or avatar is serialized anywhere in this payload, matching the deck's \"\u2014 anonymous \u00b7 2h ago\". Muted (\u00a704) and blocked (v1) authors are excluded, as are non-Active posts and categories outside the interest-topic taxonomy."
+          }
+        },
+        {
+          "name": "Help & Support FAQs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/v2/user/faqs",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "user",
+                "faqs"
+              ]
+            },
+            "description": "v1's FaqController registered on the v2 lane at v1's public placement. Content is seeded by EmployeeFaqSeeder (the deck's six Q&As) so the Help page is served by the API and the copy is a data change, not a deploy.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
     }
   ]
 }
