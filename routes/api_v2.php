@@ -199,6 +199,10 @@ Route::prefix("business")->as("business.")->group(function () {
             Route::get("invitations", [BusinessInvitationController::class, "index"])->name("invitations.index");
             Route::post("invitations/import", [BusinessInvitationController::class, "import"])->name("invitations.import");
 
+            // Billing (web §07) — administrative figures, tenant-scoped.
+            Route::get("billing", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "summary"])->name("billing.summary");
+            Route::get("billing/invoices", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "invoices"])->name("billing.invoices");
+
             // Domain confirmation gates everything that spends seats or money.
             Route::middleware(["org.verified"])->group(function () {
                 Route::post("organization/seats", [BusinessOrganizationController::class, "seats"])->name("organization.seats");

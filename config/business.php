@@ -53,6 +53,80 @@ return [
         ['key' => '50', 'sessions' => 50, 'tag' => null],
     ],
 
+    /* Seat top-up packs offered in the admin "Add seats" modal (web §07). */
+    'seat_pack_options' => [
+        ['key' => '10', 'seats' => 10, 'tag' => null],
+        ['key' => '25', 'seats' => 25, 'tag' => 'Most popular'],
+        ['key' => '50', 'seats' => 50, 'tag' => null],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Plan catalogue (web §07 admin "Change plan" modal)
+    |--------------------------------------------------------------------------
+    |
+    | The three named plans an admin can move between, each with its own
+    | volume tiers, seat range and headline features. Distinct from the public
+    | pricing page's three-LAYER model (seats / access / bundle) — this is the
+    | three-PLAN framing the billing modal uses.
+    |
+    */
+    'plans' => [
+        'lite' => [
+            'key' => 'lite',
+            'name' => 'Wellbeing Lite',
+            'seat_range' => 'Up to 500 seats',
+            'min_seats' => 1,
+            'max_seats' => 500,
+            'default_seats' => 250,
+            'custom' => false,
+            'tiers' => [
+                ['min' => 1,   'max' => 100, 'price' => 7000],
+                ['min' => 101, 'max' => 300, 'price' => 6000],
+                ['min' => 301, 'max' => 500, 'price' => 5500],
+            ],
+            'features' => [
+                'Community + subsidised sessions',
+                'Monthly PDF report',
+                '2 HR admin seats',
+            ],
+        ],
+        'core' => [
+            'key' => 'core',
+            'name' => 'Wellbeing Core',
+            'seat_range' => '501 – 2,000 seats',
+            'min_seats' => 501,
+            'max_seats' => 2000,
+            'default_seats' => 501,
+            'custom' => false,
+            'tiers' => [
+                ['min' => 501,  'max' => 1000, 'price' => 4500],
+                ['min' => 1001, 'max' => 1500, 'price' => 4000],
+                ['min' => 1501, 'max' => 2000, 'price' => 3500],
+            ],
+            'features' => [
+                'Unlimited sessions',
+                'Weekly reporting',
+                '5 HR admin seats',
+            ],
+        ],
+        'plus' => [
+            'key' => 'plus',
+            'name' => 'Wellbeing Plus',
+            'seat_range' => '2,000+ seats',
+            'min_seats' => 2001,
+            'max_seats' => null,
+            'default_seats' => 2001,
+            'custom' => true,
+            'tiers' => [],
+            'features' => [
+                'Dedicated account manager',
+                'Custom EAP reporting',
+                'Unlimited HR seats',
+            ],
+        ],
+    ],
+
     'plan' => [
         'name' => 'Wellbeing Lite',
         'features' => [

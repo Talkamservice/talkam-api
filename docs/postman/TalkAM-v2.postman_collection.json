@@ -6268,6 +6268,88 @@
      }
     }
    ]
+  },
+  {
+   "name": "W07 Pricing & Billing (web)",
+   "description": "§07. The PUBLIC pricing page reuses W01's business/pricing-config for its three rates (no new endpoint). The ADMIN billing screen is new: admin-gated + tenant-scoped via org.role — the org comes from the membership, never the client. All administrative figures (seats, plan totals, invoices); no employee data, so no cohort suppression applies.",
+   "item": [
+    {
+     "name": "Pricing config (reused from W01)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/business/pricing-config",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "business",
+        "pricing-config"
+       ]
+      },
+      "description": "The public pricing page's three headline rates (employee_seat_rate / therapist_access_rate / session_rate) + seat tiers + bundle options. Public, throttled 60/min. The web computes the tier cards and the worked example from these."
+     }
+    },
+    {
+     "name": "Billing summary (admin)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/business/billing",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "business",
+        "billing"
+       ]
+      },
+      "description": "current_plan (label + line items + total + renewal, from the org's live quote), usage (session-bundle drawdown, seats), current_seats, and the plan catalogue (plans lite/core/plus with is_current, top-up options, seat-pack options). Admin-gated; 403 for employees/therapists."
+     }
+    },
+    {
+     "name": "Billing invoices (admin)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/business/billing/invoices",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "business",
+        "billing",
+        "invoices"
+       ]
+      },
+      "description": "The caller's org invoice history, newest first (id, period, seats, amount, status, tone). Tenant-scoped — another org's invoices are never returned."
+     }
+    }
+   ]
   }
  ]
 }
