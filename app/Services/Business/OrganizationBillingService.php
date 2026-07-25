@@ -2,9 +2,15 @@
 
 namespace App\Services\Business;
 
+use App\Constants\Finance\Payment\PaymentConstants;
+use App\Constants\General\StatusConstants;
+use App\Helpers\MethodsHelper;
 use App\Models\Organization;
 use App\Models\OrganizationInvoice;
+use App\Models\Payment;
 use App\Models\TherapySession;
+use App\Models\User;
+use App\Exceptions\General\InvalidRequestException;
 use Illuminate\Support\Carbon;
 
 /**
@@ -130,6 +136,94 @@ class OrganizationBillingService
                 "tone" => $invoice->status === OrganizationInvoice::STATUS_PAID ? "green" : "gold",
             ])
             ->all();
+    }
+
+    /**
+     * Create a pending payment for the up-front session-bundle charge and return
+     * the config the web Flutterwave inline modal needs. Returns amount 0 when
+     * there is nothing to charge now (no bundle) — the caller then just continues
+     * the onboarding without opening a checkout.
+     */
+    public static function bundleCheckout(Organization $organization, User $user): array
+    {
+        $sessions = (int) $organization->session_bundle_sessions;
+        $rate = (int) config("business.session_rate");
+        $amount = $sessions * $rate;
+        $currency = config("business.currency");
+
+        if ($amount <= 0) {
+            return [
+                "reference" => null,
+                "amount" => 0,
+                "currency" => $currency,
+                "customer" => null,
+                "meta" => null,
+            ];
+        }
+
+        $reference = "TK-BUNDLE-" . strtoupper(MethodsHelper::getRandomToken(10));
+        $meta = [
+            "activity" => PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
+            "organization_id" => $organization->id,
+            "bundle_sessions" => $sessions,
+        ];
+
+        Payment::create([
+            "user_id" => $user->id,
+            "currency" => $currency,
+            "amount" => $amount,
+            "reference" => $reference,
+            "activity" => PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
+            "description" => "TalkAM for Business — session bundle ({$sessions} sessions)",
+            "type" => PaymentConstants::DEBIT,
+            "metadata" => $meta,
+            "status" => StatusConstants::PENDING,
+        ]);
+
+        return [
+            "reference" => $reference,
+            "amount" => $amount,
+            "currency" => $currency,
+            "customer" => [
+                "email" => $user->email,
+                "name" => $user->full_name ?? $user->name ?? $user->email,
+            ],
+            "meta" => $meta,
+        ];
+    }
+
+    /**
+     * Fulfil a completed bundle payment — called from the Flutterwave webhook.
+     * Marks the payment complete and records a paid invoice for the charge.
+     * Idempotent: a repeat callback is a no-op.
+     */
+    public static function fulfilBundlePayment(Payment $payment): void
+    {
+        if ($payment->status === StatusConstants::COMPLETED) {
+            return;
+        }
+
+        $organization_id = $payment->metadata["organization_id"] ?? null;
+        $organization = $organization_id ? Organization::find($organization_id) : null;
+
+        if (empty($organization)) {
+            throw new InvalidRequestException("We could not match this payment to a company.");
+        }
+
+        $payment->update(["status" => StatusConstants::COMPLETED]);
+
+        OrganizationInvoice::updateOrCreate(
+            ["reference" => $payment->reference],
+            [
+                "organization_id" => $organization->id,
+                "period_start" => now()->startOfMonth(),
+                "period_end" => now()->endOfMonth(),
+                "seats" => (int) $organization->seats_licensed,
+                "amount" => $payment->amount,
+                "status" => OrganizationInvoice::STATUS_PAID,
+                "issued_at" => now(),
+            ]
+        );
     }
 
     /** Which catalogue plan the org's seat count falls into. */

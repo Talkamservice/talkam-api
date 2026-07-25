@@ -43,4 +43,24 @@ class BillingController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
+    /**
+     * Start the onboarding card checkout: create a pending payment for the
+     * up-front session-bundle charge and hand back the config the web Flutterwave
+     * inline modal needs. `amount` is 0 when there is nothing to charge now.
+     */
+    public function checkout(Request $request)
+    {
+        try {
+            return ApiHelper::validResponse(
+                "Checkout initiated successfully",
+                OrganizationBillingService::bundleCheckout(
+                    $request->attributes->get("organization"),
+                    $request->user()
+                )
+            );
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
 }

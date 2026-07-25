@@ -6373,6 +6373,33 @@
       },
       "description": "The caller's org invoice history, newest first (id, period, seats, amount, status, tone). Tenant-scoped — another org's invoices are never returned."
      }
+    },
+    {
+     "name": "Plan checkout (card / Flutterwave)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/business/organization/plan/checkout",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "business",
+        "organization",
+        "plan",
+        "checkout"
+       ]
+      },
+      "description": "Onboarding card checkout: creates a pending payment for the up-front session-bundle charge (bundle_sessions x session_rate) and returns the Flutterwave inline config {reference, amount, currency, customer, meta}. amount 0 = nothing to charge now. Admin-gated + org.verified. The web opens the Flutterwave inline modal with this; on success the finance/payments/callback (activity PAYMENT_FOR_BUSINESS_BUNDLE) marks the payment complete and records a paid invoice. Needs FLW_* + VITE_FLUTTERWAVE_KEY set."
+     }
     }
    ]
   }

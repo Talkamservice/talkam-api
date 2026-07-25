@@ -106,6 +106,10 @@ class FlutterwaveOneOffPaymentWebhookService
             $this->handlePaymentForPromotion();
         }
 
+        if (in_array($activity, [PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE])) {
+            $this->handlePaymentForBusinessBundle();
+        }
+
         if (isset($this->metadata["payload"])) {
             $this->handlePayloadAction($this->metadata);
         }
@@ -170,5 +174,26 @@ class FlutterwaveOneOffPaymentWebhookService
             DB::rollBack();
             throw $th;
         }
+    }
+
+    /**
+     * B2B onboarding: the up-front session-bundle charge succeeded. Mark it
+     * complete and record the paid invoice (delegated to the billing service so
+     * the fulfilment stays in one place), then notify.
+     */
+    public function handlePaymentForBusinessBundle()
+    {
+        if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+            throw new InvalidRequestException("Payment has already been verified.");
+        }
+
+        \App\Services\Business\OrganizationBillingService::fulfilBundlePayment($this->payment);
+
+        Notification::send($this->user, new NewPaymentNotification($this->payment->refresh()));
+        if (!empty(sudo())) {
+            Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
+        }
+
+        return $this->payment;
     }
 }
