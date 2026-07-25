@@ -70,6 +70,13 @@
                             <span class="side-menu__label list-item-label">Categories</span>
                         </a>
                     </li>
+
+                    <li class="slide">
+                        <a href="{{ route('admin.industries.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.industries.index', 'admin.industries.create', 'admin.industries.edit']) ? 'active' : '' }}">
+                            <i class="bx bx-buildings side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Industries</span>
+                        </a>
+                    </li>
                 @endcan
 
                 @canAny(slugPermission('read plan'), slugPermission('read promotion'))

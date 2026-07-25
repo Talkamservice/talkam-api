@@ -151,6 +151,10 @@ Route::prefix("business")->as("business.")->group(function () {
         ->middleware("throttle:60,1")
         ->name("pricing-config");
 
+    Route::get("industries", [BusinessOrganizationController::class, "industries"])
+        ->middleware("throttle:60,1")
+        ->name("industries");
+
     Route::post("register", [BusinessRegistrationController::class, "register"])
         ->middleware("throttle:5,1")
         ->name("register");

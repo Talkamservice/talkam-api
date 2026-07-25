@@ -53,6 +53,9 @@ return [
         ['key' => '50', 'sessions' => 50, 'tag' => null],
     ],
 
+    /* Headcount bands offered on the B2B signup form (web §01). */
+    'headcount_bands' => ['1 – 50', '50 – 100', '100 – 300', '300 – 500', '500+'],
+
     /* Seat top-up packs offered in the admin "Add seats" modal (web §07). */
     'seat_pack_options' => [
         ['key' => '10', 'seats' => 10, 'tag' => null],

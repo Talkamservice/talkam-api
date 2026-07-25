@@ -4713,6 +4713,31 @@
    "description": "TalkAM for Business: company signup, domain confirmation, seats/plan/bench, team invites and invited-member onboarding.\n\nPlan: planning-docs/web-api/01-b2b-auth.md\nUI: talkam-web /business/* (15 screens)\n\nRole separation is enforced by the org.role middleware plus OrganizationPolicy / InvitationPolicy. The organization is ALWAYS derived from the caller's active membership — no endpoint accepts an organization id from the client.\n\nSign-in, 2FA, forgot/reset password and consent are NOT duplicated here: the web dashboard reuses the shared v2 endpoints in folders 01 and 02.",
    "item": [
     {
+     "name": "Industries (signup list)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/business/industries",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "business",
+        "industries"
+       ]
+      },
+      "description": "Public, admin-managed industry list for the signup form (active only, ordered). Managed in the Laravel admin under Content Management -> Industries. Headcount bands ride business/pricing-config (headcount_bands, now starting at the 1-50 band)."
+     }
+    },
+    {
      "name": "Pricing config (public)",
      "request": {
       "method": "GET",

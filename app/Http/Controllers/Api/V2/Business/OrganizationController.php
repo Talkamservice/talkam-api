@@ -7,6 +7,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Business\OrganizationResource;
+use App\Models\Industry;
 use App\Services\Business\OrganizationPricingService;
 use App\Services\Business\OrganizationService;
 use Illuminate\Http\Request;
@@ -37,6 +38,21 @@ class OrganizationController extends Controller
                 "Pricing configuration returned successfully",
                 OrganizationPricingService::config()
             );
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /** Public: the admin-managed industry list the signup form renders. */
+    public function industries()
+    {
+        try {
+            $industries = Industry::active()
+                ->orderBy("sort_order")
+                ->orderBy("name")
+                ->get(["id", "name", "slug"]);
+
+            return ApiHelper::validResponse("Industries returned successfully", $industries);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

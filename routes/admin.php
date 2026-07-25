@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Authorization\PermissionController;
 use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
 use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
+use App\Http\Controllers\Admin\Business\IndustryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Faq\FaqCategoryController;
 use App\Http\Controllers\Admin\Faq\FaqController;
@@ -59,6 +60,7 @@ Route::middleware(["auth"])->group(
             'promotions' => PromotionController::class,
             'promotion-pricings' => PromotionPricingSettingController::class,
             "payment-terms" => PaymentTermsController::class,
+            "industries" => IndustryController::class,
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {

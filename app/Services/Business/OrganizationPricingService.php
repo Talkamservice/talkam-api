@@ -134,6 +134,7 @@ class OrganizationPricingService
             "standard_therapist_rate" => (float) config("business.standard_therapist_rate"),
             "network_average_rate" => round(self::networkAverageRate(), 2),
             "bundle_options" => config("business.bundle_options"),
+            "headcount_bands" => config("business.headcount_bands"),
             "plan" => config("business.plan"),
             "pay_methods" => config("business.pay_methods"),
             "bank_details" => config("business.bank_details"),
