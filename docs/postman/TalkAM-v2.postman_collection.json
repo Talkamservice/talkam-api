@@ -6375,6 +6375,40 @@
      }
     },
     {
+     "name": "Mark invoice paid (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{BASE_URL}}/api/v2/business/billing/invoices/:reference/mark-paid",
+       "host": [
+        "{{BASE_URL}}"
+       ],
+       "path": [
+        "api",
+        "v2",
+        "business",
+        "billing",
+        "invoices",
+        ":reference",
+        "mark-paid"
+       ],
+       "variable": [
+        {
+         "key": "reference",
+         "value": "INV-202607-1"
+        }
+       ]
+      },
+      "description": "Reconcile a net-terms invoice as settled (offline bank transfer) — the §08 monthly billing run issues invoices; an admin marks them paid here. Admin-gated + tenant-scoped by reference within the caller's org (404 otherwise). Returns the refreshed invoice list."
+     }
+    },
+    {
      "name": "Plan checkout (card / Flutterwave)",
      "request": {
       "method": "POST",

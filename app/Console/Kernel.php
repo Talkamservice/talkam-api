@@ -56,6 +56,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('bookings:sweep-session-completions')->everyMinute();
         $schedule->command('wellness:send-checkin-nudges')->hourly();
         $schedule->command('payouts:weekly-sweep')->dailyAt('08:00');
+        $schedule->command('billing:run-monthly')->monthlyOn(1, '02:00');
+        $schedule->command('billing:invoice-sweep')->dailyAt('07:00');
     }
 
     /**

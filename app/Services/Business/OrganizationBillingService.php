@@ -128,7 +128,9 @@ class OrganizationBillingService
                 "seats" => $invoice->seats,
                 "amount" => self::naira($invoice->amount),
                 "status" => self::statusLabel($invoice),
-                "tone" => $invoice->status === OrganizationInvoice::STATUS_PAID ? "green" : "gold",
+                "tone" => $invoice->status === OrganizationInvoice::STATUS_PAID
+                    ? "green"
+                    : ($invoice->isOverdue() ? "red" : "gold"),
             ])
             ->all();
     }
@@ -243,6 +245,10 @@ class OrganizationBillingService
     {
         if ($invoice->status === OrganizationInvoice::STATUS_PAID) {
             return "Paid";
+        }
+
+        if ($invoice->isOverdue()) {
+            return "Overdue";
         }
 
         return $invoice->due_at ? "Due " . $invoice->due_at->format("M j") : "Due";

@@ -159,6 +159,16 @@ return [
     'payment_timings' => ['prepay', 'postpay'],
 
     /*
+    | Recurring B2B billing (web §08 Phase 2a). Seats are invoiced monthly in
+    | arrears by ACTIVE-EMPLOYEE count (HR-admin seats are included, not billed);
+    | net terms give the payer this many days, with a reminder a few days ahead.
+    */
+    'billing' => [
+        'net_terms_days' => env('BUSINESS_NET_TERMS_DAYS', 14),
+        'reminder_lead_days' => env('BUSINESS_INVOICE_REMINDER_LEAD_DAYS', 3),
+    ],
+
+    /*
     | PLACEHOLDER — deck values. Finance must confirm before release.
     */
     'bank_details' => [

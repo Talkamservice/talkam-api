@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V2\Business;
 use App\Constants\General\ApiConstants;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Models\OrganizationInvoice;
+use App\Services\Business\OrganizationBillingRunService;
 use App\Services\Business\OrganizationBillingService;
 use Illuminate\Http\Request;
 use Exception;
@@ -58,6 +60,35 @@ class BillingController extends Controller
                     $request->attributes->get("organization"),
                     $request->user()
                 )
+            );
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /**
+     * Reconcile a net-terms invoice as settled (offline bank transfer). Tenant-
+     * scoped by reference within the caller's organization; admin-gated by the
+     * route group. Returns the refreshed invoice list.
+     */
+    public function markInvoicePaid(Request $request, string $reference)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+
+            $invoice = OrganizationInvoice::where("organization_id", $organization->id)
+                ->where("reference", $reference)
+                ->first();
+
+            if (empty($invoice)) {
+                return ApiHelper::problemResponse("Invoice not found.", ApiConstants::NOT_FOUND_ERR_CODE, null, null);
+            }
+
+            OrganizationBillingRunService::markPaid($invoice);
+
+            return ApiHelper::validResponse(
+                "Invoice marked as paid",
+                OrganizationBillingService::invoices($organization)
             );
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);

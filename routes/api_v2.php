@@ -206,6 +206,7 @@ Route::prefix("business")->as("business.")->group(function () {
             // Billing (web §07) — administrative figures, tenant-scoped.
             Route::get("billing", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "summary"])->name("billing.summary");
             Route::get("billing/invoices", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "invoices"])->name("billing.invoices");
+            Route::post("billing/invoices/{reference}/mark-paid", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "markInvoicePaid"])->name("billing.invoices.mark-paid");
 
             // Domain confirmation gates everything that spends seats or money.
             Route::middleware(["org.verified"])->group(function () {

@@ -26,6 +26,9 @@ class OrganizationInvoice extends Model
         "status",
         "issued_at",
         "due_at",
+        "paid_at",
+        "reminded_at",
+        "overdue_notified_at",
     ];
 
     protected $casts = [
@@ -33,6 +36,9 @@ class OrganizationInvoice extends Model
         "period_end" => "date",
         "issued_at" => "datetime",
         "due_at" => "datetime",
+        "paid_at" => "datetime",
+        "reminded_at" => "datetime",
+        "overdue_notified_at" => "datetime",
         "amount" => "decimal:2",
         "seats" => "integer",
     ];
@@ -40,5 +46,13 @@ class OrganizationInvoice extends Model
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    /** Unpaid and past its net-terms due date. */
+    public function isOverdue(): bool
+    {
+        return $this->status === self::STATUS_DUE
+            && $this->due_at
+            && $this->due_at->isPast();
     }
 }
