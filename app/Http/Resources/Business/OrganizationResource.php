@@ -27,6 +27,8 @@ class OrganizationResource extends JsonResource
             "seats_used" => $this->seatsUsed(),
             "therapist_access" => (bool) $this->therapist_access,
             "session_bundle_sessions" => (int) $this->session_bundle_sessions,
+            "bundle_custom" => (bool) $this->bundle_custom,
+            "payment_timing" => $this->payment_timing ?? "prepay",
             "pay_method" => $this->pay_method,
             "bench_topics" => $this->bench_topics ?? [],
             "verified_at" => $this->verified_at?->toDateTimeString(),

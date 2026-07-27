@@ -9,14 +9,18 @@ use App\Models\Therapist;
  * Every price the B2B onboarding screens render is computed here, server-side.
  * The browser never decides a figure — it only displays what this returns.
  *
- * Model (deck "TalkAM B2B Auth.dc.html"):
- *   monthly total = seats x employee_seat_rate
- *                 + seats x therapist_access_rate   (when therapist access on)
- *                 + bundle_sessions x session_rate  (when therapist access on)
+ * Model (web §08 billing redesign):
+ *   seats_monthly = seats × seat_rate           (seat_rate = the volume TIER price;
+ *                                                 the facilitation fee, billed monthly)
+ *   sessions — only when the org uses the TalkAM therapist network:
+ *     · prepay   → a bundle bought upfront: bundle_sessions × session rate
+ *                  (block ₦8,000, or the +3% custom rate for a non-block quantity)
+ *     · postpay  → pay-as-you-go: no bundle; sessions metered and invoiced at
+ *                  month-end at the custom (no-commitment) rate.
  *
- * The plan card shows a second, "blended" figure: the seat-count tier rate
- * multiplied by a fairness adjustment (network average therapist rate over the
- * standard rate), so pricing tracks the real bench rather than a fixed number.
+ * The old "Therapist Network Access" per-seat fee and the "blended/fairness"
+ * plan figure were removed here — the plan card is now a faithful summary of the
+ * selection (per_seat = the tier price, full stop).
  */
 class OrganizationPricingService
 {
@@ -41,9 +45,8 @@ class OrganizationPricingService
 
     /**
      * Live mean session rate across the bench, falling back to the configured
-     * value when nobody is on it yet. "On the bench" is the same scope the §07
-     * directory uses (Therapist::status()), so the price tracks exactly the
-     * therapists an employee could actually book.
+     * value when nobody is on it yet. Retained for the public pricing page's
+     * worked example; the onboarding quote no longer blends it into the seat price.
      */
     public static function networkAverageRate(): float
     {
@@ -61,51 +64,62 @@ class OrganizationPricingService
     }
 
     /**
-     * Full quote for a seat count / therapist-access / bundle combination.
-     * Pure — takes no model, so the seats screen can price a choice before it
-     * is persisted.
+     * Full quote for a seat count / network / session combination. Pure — takes
+     * no model, so the seats screen can price a choice before it is persisted.
      */
-    public static function quote(int $seats, bool $therapist_access, int $bundle_sessions): array
-    {
-        $employee_rate = (int) config("business.employee_seat_rate");
-        $therapist_rate = (int) config("business.therapist_access_rate");
-        $session_rate = (int) config("business.session_rate");
-        $standard_rate = (float) config("business.standard_therapist_rate");
+    public static function quote(
+        int $seats,
+        bool $uses_network,
+        int $bundle_sessions,
+        bool $bundle_custom = false,
+        string $timing = "prepay"
+    ): array {
+        $block_rate = (int) config("business.session_rate");
+        $custom_rate = (int) config("business.session_custom_rate");
 
         $seats = max($seats, 0);
-        $bundle_sessions = $therapist_access ? max($bundle_sessions, 0) : 0;
+        $timing = in_array($timing, config("business.payment_timings"), true) ? $timing : "prepay";
+        $prepay = $timing === "prepay";
 
-        $employee_seats_monthly = $seats * $employee_rate;
-        $therapist_access_monthly = $therapist_access ? $seats * $therapist_rate : 0;
-        $session_bundle_monthly = $bundle_sessions * $session_rate;
+        // Sessions only exist when the org uses the TalkAM network. Prepay commits
+        // a bundle now; postpay meters as-you-go, so there is no bundle to price.
+        $has_bundle = $uses_network && $prepay;
+        $bundle_sessions = $has_bundle ? max($bundle_sessions, 0) : 0;
+        $bundle_custom = $has_bundle ? $bundle_custom : false;
+
+        $session_rate = $bundle_custom ? $custom_rate : $block_rate;
+        $metered_active = $uses_network && !$prepay;
 
         $tier = self::tier($seats);
-        $network_average = self::networkAverageRate();
-        $fairness = $standard_rate > 0 ? $network_average / $standard_rate : 1.0;
-        $per_seat = $tier["price"] * $fairness;
+        $seat_rate = (int) $tier["price"];
+
+        $seats_monthly = $seats * $seat_rate;
+        $bundle_total = $bundle_sessions * $session_rate;
 
         return [
             "currency" => config("business.currency"),
             "seats" => $seats,
-            "therapist_access" => $therapist_access,
+            "uses_network" => $uses_network,
+            "payment_timing" => $timing,
+            "bundle_custom" => (bool) $bundle_custom,
             "bundle_sessions" => $bundle_sessions,
+            "metered_sessions" => $metered_active,
             "rates" => [
-                "employee_seat" => $employee_rate,
-                "therapist_access" => $therapist_rate,
-                "session" => $session_rate,
+                "seat" => $seat_rate,
+                "session_block" => $block_rate,
+                "session_custom" => $custom_rate,
+                "session_applied" => $session_rate,   // rate the prepaid bundle used
+                "metered_session" => $custom_rate,     // pay-as-you-go rate
             ],
             "tier" => $tier,
-            "employee_seats_monthly" => $employee_seats_monthly,
-            "therapist_access_monthly" => $therapist_access_monthly,
-            "session_bundle_monthly" => $session_bundle_monthly,
-            "total_monthly" => $employee_seats_monthly + $therapist_access_monthly + $session_bundle_monthly,
-            "blended" => [
-                "standard_rate" => $standard_rate,
-                "network_average_rate" => round($network_average, 2),
-                "fairness_multiplier" => round($fairness, 2),
-                "per_seat" => round($per_seat, 2),
-                "total_monthly" => round($per_seat * $seats, 2),
-            ],
+            "seats_monthly" => $seats_monthly,
+            "bundle_total" => $bundle_total,
+            // What is owed up front (prepay bundle) vs on the recurring invoice.
+            "due_now" => $prepay ? $bundle_total : 0,
+            "billed_monthly" => $seats_monthly,
+            // Recurring monthly total. The bundle is a one-off, so it is NOT here.
+            "total_monthly" => $seats_monthly,
+            "plan" => self::planShape($seat_rate),
         ];
     }
 
@@ -115,13 +129,34 @@ class OrganizationPricingService
         return self::quote(
             (int) $organization->seats_licensed,
             (bool) $organization->therapist_access,
-            (int) $organization->session_bundle_sessions
+            (int) $organization->session_bundle_sessions,
+            (bool) $organization->bundle_custom,
+            $organization->payment_timing ?? "prepay"
         );
+    }
+
+    /**
+     * The single Phase-1 plan the Step-4 card renders. per_seat is simply the
+     * seat tier rate — no fairness multiplier — so the card matches the seats
+     * screen exactly.
+     */
+    private static function planShape(int $seat_rate): array
+    {
+        return [
+            "key" => "lite",
+            "name" => config("business.plan.name"),
+            "per_seat" => $seat_rate,
+            "features" => config("business.plan.features"),
+        ];
     }
 
     /**
      * The static half of the pricing contract — everything the seats and plan
      * screens render as copy rather than as a computed figure.
+     *
+     * Existing rate keys are retained for the public pricing page, which still
+     * renders the older three-layer deck; §08 adds the session-custom rate and
+     * the prepay/postpay timings the onboarding screens now use.
      */
     public static function config(): array
     {
@@ -131,10 +166,12 @@ class OrganizationPricingService
             "employee_seat_rate" => (int) config("business.employee_seat_rate"),
             "therapist_access_rate" => (int) config("business.therapist_access_rate"),
             "session_rate" => (int) config("business.session_rate"),
+            "session_custom_rate" => (int) config("business.session_custom_rate"),
             "standard_therapist_rate" => (float) config("business.standard_therapist_rate"),
             "network_average_rate" => round(self::networkAverageRate(), 2),
             "bundle_options" => config("business.bundle_options"),
             "headcount_bands" => config("business.headcount_bands"),
+            "payment_timings" => config("business.payment_timings"),
             "plan" => config("business.plan"),
             "pay_methods" => config("business.pay_methods"),
             "bank_details" => config("business.bank_details"),

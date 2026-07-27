@@ -71,16 +71,17 @@ class BillingTest extends TestCase
         $response->assertOk();
         $data = $response->json("data");
 
-        // Current plan: employee seats + therapist access + session bundle.
+        // Current plan is the recurring monthly: employee seats at the volume-tier
+        // rate. A prepaid bundle is a one-off (shown under Usage); therapist access
+        // no longer exists as a fee.
         $cp = $data["current_plan"];
         $this->assertStringContainsString("ACTIVE", $cp["label"]);
-        $this->assertCount(3, $cp["lines"]); // seats, access, bundle
-        $this->assertSame("₦100,000", $cp["lines"][0]["value"]); // 50 × 2,000
-        $this->assertSame("₦175,000", $cp["lines"][1]["value"]); // 50 × 3,500
-        $this->assertSame("₦200,000", $cp["lines"][2]["value"]); // 25 × 8,000
-        $this->assertSame("₦475,000", $cp["total"]);
+        $this->assertCount(1, $cp["lines"]);
+        $this->assertStringContainsString("Employee Seats", $cp["lines"][0]["label"]);
+        $this->assertSame("₦350,000", $cp["lines"][0]["value"]); // 50 × 7,000 tier rate
+        $this->assertSame("₦350,000", $cp["total"]);
 
-        // Usage + seats.
+        // Usage + seats: the prepaid bundle surfaces here.
         $this->assertSame(50, $data["usage"]["seatsTotal"]);
         $this->assertSame(25, $data["usage"]["sessionsBundle"]);
         $this->assertSame(50, $data["current_seats"]);

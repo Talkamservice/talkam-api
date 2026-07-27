@@ -73,6 +73,24 @@ class BundleCheckoutTest extends TestCase
         ]);
     }
 
+    public function test_checkout_uses_the_custom_rate_for_a_custom_bundle(): void
+    {
+        [$org, $admin] = $this->orgWithAdmin([
+            "session_bundle_sessions" => 18,
+            "bundle_custom" => true,
+        ]);
+        Sanctum::actingAs($admin);
+
+        $data = $this->postJson("/api/v2/business/organization/plan/checkout")->json("data");
+
+        // 18 sessions × ₦8,240 custom rate = ₦148,320.
+        $this->assertEquals(148320, $data["amount"]);
+        $this->assertDatabaseHas("payments", [
+            "reference" => $data["reference"],
+            "amount" => 148320,
+        ]);
+    }
+
     public function test_checkout_returns_zero_when_there_is_no_bundle(): void
     {
         [$org, $admin] = $this->orgWithAdmin([

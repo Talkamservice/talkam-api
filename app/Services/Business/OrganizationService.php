@@ -246,7 +246,9 @@ class OrganizationService
         $validator = Validator::make($data, [
             "seats_licensed" => "required|integer|min:1|max:1000000",
             "therapist_access" => "required|boolean",
+            "payment_timing" => ["nullable", Rule::in(config("business.payment_timings"))],
             "bundle_sessions" => "nullable|integer|min:0|max:100000",
+            "bundle_custom" => "nullable|boolean",
         ], [
             "seats_licensed.min" => "Choose at least one seat.",
         ]);
@@ -256,7 +258,8 @@ class OrganizationService
         }
 
         $validated = $validator->validated();
-        $therapist_access = (bool) $validated["therapist_access"];
+        $uses_network = (bool) $validated["therapist_access"];
+        $timing = $validated["payment_timing"] ?? "prepay";
 
         // Seats already handed out cannot be undercut by a later reduction.
         $used = $organization->seatsUsed();
@@ -266,10 +269,16 @@ class OrganizationService
             );
         }
 
+        // A prepaid bundle only exists when the org uses the network AND prepays.
+        // Postpay is pay-as-you-go, so nothing is bought up front.
+        $has_bundle = $uses_network && $timing === "prepay";
+
         $organization->update([
             "seats_licensed" => $validated["seats_licensed"],
-            "therapist_access" => $therapist_access,
-            "session_bundle_sessions" => $therapist_access ? ($validated["bundle_sessions"] ?? 0) : 0,
+            "therapist_access" => $uses_network,
+            "payment_timing" => $uses_network ? $timing : "prepay",
+            "session_bundle_sessions" => $has_bundle ? ($validated["bundle_sessions"] ?? 0) : 0,
+            "bundle_custom" => $has_bundle ? (bool) ($validated["bundle_custom"] ?? false) : false,
         ]);
 
         return $organization->refresh();
@@ -279,13 +288,23 @@ class OrganizationService
     {
         $validator = Validator::make($data, [
             "pay_method" => ["required", "string", Rule::in(config("business.pay_methods"))],
+            "payment_timing" => ["nullable", Rule::in(config("business.payment_timings"))],
         ]);
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
 
-        $organization->update(["pay_method" => $validator->validated()["pay_method"]]);
+        $validated = $validator->validated();
+        $update = ["pay_method" => $validated["pay_method"]];
+
+        // The session model (prepay/postpay) is chosen on the seats screen; accept
+        // it here too so the plan screen can confirm or change it in one place.
+        if (!empty($validated["payment_timing"])) {
+            $update["payment_timing"] = $validated["payment_timing"];
+        }
+
+        $organization->update($update);
 
         return $organization->refresh();
     }
@@ -375,6 +394,8 @@ class OrganizationService
                 "verified_at" => $organization->verified_at?->toDateTimeString(),
                 "seats_licensed" => (int) $organization->seats_licensed,
                 "therapist_access" => (bool) $organization->therapist_access,
+                "payment_timing" => $organization->payment_timing ?? "prepay",
+                "bundle_custom" => (bool) $organization->bundle_custom,
                 "pay_method" => $organization->pay_method,
             ],
             "onboarding" => [

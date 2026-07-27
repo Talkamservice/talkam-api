@@ -43,22 +43,17 @@ class OrganizationBillingService
 
         if ($quote["seats"] > 0) {
             $lines[] = [
-                "label" => "Employee Seats · {$quote["seats"]} × " . self::naira($quote["rates"]["employee_seat"]),
-                "value" => self::naira($quote["employee_seats_monthly"]),
+                "label" => "Employee Seats · {$quote["seats"]} × " . self::naira($quote["rates"]["seat"]),
+                "value" => self::naira($quote["seats_monthly"]),
             ];
         }
 
-        if ($quote["therapist_access"]) {
+        // Pay-as-you-go sessions are a recurring line; a prepaid bundle is a
+        // one-off already purchased, so it surfaces under Usage, not here.
+        if ($quote["metered_sessions"]) {
             $lines[] = [
-                "label" => "Therapist Network Access · {$quote["seats"]} × " . self::naira($quote["rates"]["therapist_access"]),
-                "value" => self::naira($quote["therapist_access_monthly"]),
-            ];
-        }
-
-        if ($quote["bundle_sessions"] > 0) {
-            $lines[] = [
-                "label" => "Session Bundle · {$quote["bundle_sessions"]} × " . self::naira($quote["rates"]["session"]),
-                "value" => self::naira($quote["session_bundle_monthly"]),
+                "label" => "Sessions · pay-as-you-go at " . self::naira($quote["rates"]["metered_session"]) . "/session",
+                "value" => "Billed monthly",
             ];
         }
 
@@ -147,7 +142,9 @@ class OrganizationBillingService
     public static function bundleCheckout(Organization $organization, User $user): array
     {
         $sessions = (int) $organization->session_bundle_sessions;
-        $rate = (int) config("business.session_rate");
+        $rate = (bool) $organization->bundle_custom
+            ? (int) config("business.session_custom_rate")
+            : (int) config("business.session_rate");
         $amount = $sessions * $rate;
         $currency = config("business.currency");
 

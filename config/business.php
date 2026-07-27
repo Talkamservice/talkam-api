@@ -36,8 +36,14 @@ return [
     'employee_seat_rate' => env('BUSINESS_EMPLOYEE_SEAT_RATE', 2000),
     'therapist_access_rate' => env('BUSINESS_THERAPIST_ACCESS_RATE', 3500),
 
-    /* Per-session drawdown rate for pre-purchased bundles. */
+    /*
+    | Per-session rates (web §08). `session_rate` is the block (bulk) rate for a
+    | pre-purchased bundle; `session_custom_rate` (+3%) applies to a custom,
+    | non-block quantity AND is the pay-as-you-go (postpay) metered rate — the
+    | gentle nudge to pre-commit. Final pricing is a data fix here, never code.
+    */
     'session_rate' => env('BUSINESS_SESSION_RATE', 8000),
+    'session_custom_rate' => env('BUSINESS_SESSION_CUSTOM_RATE', 8240),
 
     /*
     | Blended-pricing inputs. `network_average_rate` here is only the
@@ -143,6 +149,14 @@ return [
     ],
 
     'pay_methods' => ['invoice', 'card'],
+
+    /*
+    | Billing timing (web §08): prepay a session bundle upfront, or postpay
+    | pay-as-you-go, metered and invoiced at month-end. Orthogonal to
+    | pay_methods (card vs invoice/transfer) — the two axes combine into the
+    | four billing paths.
+    */
+    'payment_timings' => ['prepay', 'postpay'],
 
     /*
     | PLACEHOLDER — deck values. Finance must confirm before release.

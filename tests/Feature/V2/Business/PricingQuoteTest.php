@@ -31,15 +31,13 @@ class PricingQuoteTest extends TestCase
         return [$organization, $user];
     }
 
-    public function test_pricing_config_is_public_and_carries_every_deck_constant(): void
+    public function test_pricing_config_is_public_and_carries_the_rate_contract(): void
     {
         $this->getJson("/api/v2/business/pricing-config")
             ->assertStatus(200)
-            ->assertJsonPath("data.employee_seat_rate", 2000)
-            ->assertJsonPath("data.therapist_access_rate", 3500)
-            ->assertJsonPath("data.session_rate", 8000)
-            ->assertJsonPath("data.standard_therapist_rate", 15000)
-            ->assertJsonPath("data.network_average_rate", 15450)
+            ->assertJsonPath("data.session_rate", 8000)         // block rate
+            ->assertJsonPath("data.session_custom_rate", 8240)  // +3% custom / metered
+            ->assertJsonCount(2, "data.payment_timings")        // prepay, postpay
             ->assertJsonCount(4, "data.seat_tiers")
             ->assertJsonCount(3, "data.bundle_options")
             ->assertJsonCount(6, "data.plan.features");
@@ -65,30 +63,35 @@ class PricingQuoteTest extends TestCase
         ];
     }
 
-    public function test_quote_totals_match_the_deck_arithmetic(): void
+    public function test_quote_totals_use_the_tier_seat_rate_and_bundle(): void
     {
         [$organization] = $this->admin();
 
         $response = $this->postJson("/api/v2/business/organization/seats", [
             "seats_licensed" => 250,
             "therapist_access" => true,
+            "payment_timing" => "prepay",
             "bundle_sessions" => 25,
         ])->assertStatus(200);
 
         $quote = $response->json("data.quote");
 
-        $this->assertSame(500000, $quote["employee_seats_monthly"]);   // 250 x 2000
-        $this->assertSame(875000, $quote["therapist_access_monthly"]); // 250 x 3500
-        $this->assertSame(200000, $quote["session_bundle_monthly"]);   // 25 x 8000
-        $this->assertSame(1575000, $quote["total_monthly"]);
+        // Seats price at the volume tier (250 → ₦6,000), not a flat rate.
         $this->assertSame(6000, $quote["tier"]["price"]);
+        $this->assertSame(1500000, $quote["seats_monthly"]);   // 250 × 6,000
+        // Prepaid bundle at the block rate — a one-off, due now.
+        $this->assertSame(200000, $quote["bundle_total"]);     // 25 × 8,000
+        $this->assertSame(200000, $quote["due_now"]);
+        // Recurring monthly total is seats only (the bundle is one-off).
+        $this->assertSame(1500000, $quote["total_monthly"]);
+        $this->assertSame("prepay", $quote["payment_timing"]);
 
         $organization->refresh();
         $this->assertSame(250, (int) $organization->seats_licensed);
         $this->assertSame(25, (int) $organization->session_bundle_sessions);
     }
 
-    public function test_therapist_access_off_zeroes_the_therapist_and_bundle_lines(): void
+    public function test_network_off_zeroes_sessions_and_keeps_seats(): void
     {
         [$organization] = $this->admin();
 
@@ -98,44 +101,61 @@ class PricingQuoteTest extends TestCase
             "bundle_sessions" => 25,
         ])->assertStatus(200)->json("data.quote");
 
-        $this->assertSame(0, $quote["therapist_access_monthly"]);
-        $this->assertSame(0, $quote["session_bundle_monthly"]);
-        $this->assertSame(500000, $quote["total_monthly"]);
+        $this->assertFalse($quote["uses_network"]);
+        $this->assertSame(0, $quote["bundle_sessions"]);
+        $this->assertSame(0, $quote["bundle_total"]);
+        $this->assertFalse($quote["metered_sessions"]);
+        $this->assertSame(1500000, $quote["total_monthly"]); // 250 × 6,000, seats only
 
-        // The bundle is not silently retained while access is off.
+        // The bundle is not silently retained while the network is off.
         $this->assertSame(0, (int) $organization->refresh()->session_bundle_sessions);
     }
 
-    public function test_blended_per_seat_uses_the_live_network_average(): void
+    public function test_custom_bundle_prices_at_the_higher_rate(): void
     {
         [$organization] = $this->admin();
 
-        // Two therapists at 16,000 and 20,000 → mean 18,000.
-        Therapist::create(["status" => StatusConstants::ACTIVE, "session_rate" => 16000]);
-        Therapist::create(["status" => StatusConstants::ACTIVE, "session_rate" => 20000]);
-
         $quote = $this->postJson("/api/v2/business/organization/seats", [
             "seats_licensed" => 250,
             "therapist_access" => true,
-            "bundle_sessions" => 0,
+            "payment_timing" => "prepay",
+            "bundle_sessions" => 18,
+            "bundle_custom" => true,
         ])->assertStatus(200)->json("data.quote");
 
-        $this->assertSame(18000.0, (float) $quote["blended"]["network_average_rate"]);
-        $this->assertSame(1.2, (float) $quote["blended"]["fairness_multiplier"]); // 18000 / 15000
-        $this->assertSame(7200.0, (float) $quote["blended"]["per_seat"]);         // 6000 x 1.2
+        // A custom (non-block) quantity prices at ₦8,240 (+3%), not ₦8,000.
+        $this->assertTrue($quote["bundle_custom"]);
+        $this->assertSame(8240, $quote["rates"]["session_applied"]);
+        $this->assertSame(148320, $quote["bundle_total"]); // 18 × 8,240
+        $this->assertSame(148320, $quote["due_now"]);
+
+        $this->assertTrue((bool) $organization->refresh()->bundle_custom);
     }
 
-    public function test_blended_falls_back_to_config_when_the_bench_is_empty(): void
+    public function test_postpay_meters_sessions_and_buys_no_bundle(): void
     {
-        $this->admin();
+        [$organization] = $this->admin();
 
         $quote = $this->postJson("/api/v2/business/organization/seats", [
             "seats_licensed" => 250,
             "therapist_access" => true,
-            "bundle_sessions" => 0,
+            "payment_timing" => "postpay",
+            "bundle_sessions" => 25, // ignored under postpay
+            "bundle_custom" => true,
         ])->assertStatus(200)->json("data.quote");
 
-        $this->assertSame(15450.0, (float) $quote["blended"]["network_average_rate"]);
+        $this->assertSame("postpay", $quote["payment_timing"]);
+        $this->assertTrue($quote["metered_sessions"]);
+        $this->assertSame(8240, $quote["rates"]["metered_session"]); // pay-as-you-go rate
+        $this->assertSame(0, $quote["bundle_sessions"]);
+        $this->assertSame(0, $quote["bundle_total"]);
+        $this->assertSame(0, $quote["due_now"]);
+        $this->assertSame(1500000, $quote["total_monthly"]); // seats only
+
+        // Postpay stores no prepaid bundle.
+        $organization->refresh();
+        $this->assertSame(0, (int) $organization->session_bundle_sessions);
+        $this->assertSame("postpay", $organization->payment_timing);
     }
 
     public function test_zero_or_negative_seats_rejected(): void
@@ -215,7 +235,9 @@ class PricingQuoteTest extends TestCase
             ->assertStatus(200)
             ->assertJsonPath("data.quote.seats", 120)
             ->assertJsonPath("data.quote.tier.price", 6000)
-            ->assertJsonPath("data.quote.total_monthly", 120 * 2000 + 120 * 3500 + 10 * 8000)
+            ->assertJsonPath("data.quote.seats_monthly", 120 * 6000)  // tier rate, not flat
+            ->assertJsonPath("data.quote.total_monthly", 120 * 6000)  // bundle is one-off
+            ->assertJsonPath("data.quote.bundle_total", 10 * 8000)
             ->assertJsonCount(6, "data.bench.available");
     }
 }

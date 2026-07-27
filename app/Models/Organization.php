@@ -14,6 +14,7 @@ class Organization extends Model
 
     protected $casts = [
         "therapist_access" => "boolean",
+        "bundle_custom" => "boolean",
         "bench_topics" => "array",
         "verified_at" => "datetime",
     ];

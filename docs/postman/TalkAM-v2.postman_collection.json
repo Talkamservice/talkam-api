@@ -4900,7 +4900,7 @@
       "description": "Persists seat count / therapist access / session bundle and returns the full quote: tier, the three monthly line items, the total, and the blended per-seat price (tier rate x network-average fairness multiplier).\n\nRequires a confirmed domain. Rejects a seat count below seats already in use.",
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"seats_licensed\": 250,\n  \"therapist_access\": true,\n  \"bundle_sessions\": 25\n}",
+       "raw": "{\n  \"seats_licensed\": 250,\n  \"therapist_access\": true,\n  \"payment_timing\": \"prepay\",\n  \"bundle_sessions\": 25,\n  \"bundle_custom\": false\n}",
        "options": {
         "raw": {
          "language": "json"
@@ -4939,7 +4939,7 @@
       "description": "Stores the chosen payment method (invoice | card) and returns the plan summary and bank details. Requires a confirmed domain.\n\nNOTE: card checkout itself is web §07 (Pricing/billing) — this only records intent.",
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"pay_method\": \"invoice\"\n}",
+       "raw": "{\n  \"pay_method\": \"invoice\",\n  \"payment_timing\": \"prepay\"\n}",
        "options": {
         "raw": {
          "language": "json"
@@ -6398,7 +6398,7 @@
         "checkout"
        ]
       },
-      "description": "Onboarding card checkout: creates a pending payment for the up-front session-bundle charge (bundle_sessions x session_rate) and returns the Flutterwave inline config {reference, amount, currency, customer, meta}. amount 0 = nothing to charge now. Admin-gated + org.verified. The web opens the Flutterwave inline modal with this; on success the finance/payments/callback (activity PAYMENT_FOR_BUSINESS_BUNDLE) marks the payment complete and records a paid invoice. Needs FLW_* + VITE_FLUTTERWAVE_KEY set."
+      "description": "Onboarding card checkout: creates a pending payment for the up-front session-bundle charge (bundle_sessions x the ₦8,000 block rate, or the +3% ₦8,240 custom rate when bundle_custom) and returns the Flutterwave inline config {reference, amount, currency, customer, meta}. amount 0 = nothing to charge now (postpay pay-as-you-go, or no bundle). Admin-gated + org.verified. The web opens the Flutterwave inline modal with this; on success the finance/payments/callback (activity PAYMENT_FOR_BUSINESS_BUNDLE) marks the payment complete and records a paid invoice. Needs FLW_* + VITE_FLUTTERWAVE_KEY set."
      }
     }
    ]
