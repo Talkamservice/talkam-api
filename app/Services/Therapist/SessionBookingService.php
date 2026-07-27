@@ -2,15 +2,19 @@
 
 namespace App\Services\Therapist;
 
+use App\Constants\Business\SessionCoverageConstants as Cov;
 use App\Constants\Finance\Payment\PaymentConstants;
 use App\Constants\General\StatusConstants;
 use App\Constants\Therapist\TherapistConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\MethodsHelper;
+use App\Models\Organization;
 use App\Models\Payment;
 use App\Models\TherapySession;
 use App\Models\User;
+use App\Services\Business\BundleLedgerService;
+use App\Services\Business\CoverageResolver;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -51,6 +55,18 @@ class SessionBookingService
             ]);
         }
 
+        // §09 coverage: consumer (unchanged) or one of the org-covered modes.
+        // Feature-flagged — with coverage OFF this always resolves to consumer.
+        $coverage = CoverageResolver::resolve($user, $therapist);
+
+        if ($coverage['coverage'] === Cov::BLOCKED) {
+            throw ValidationException::withMessages([
+                'therapist_id' => [$coverage['blocked_reason']],
+            ]);
+        }
+
+        $org_covered = $coverage['coverage'] !== Cov::CONSUMER;
+
         DB::beginTransaction();
         try {
             // Active-status double-booking guard (service-level; a partial
@@ -71,15 +87,29 @@ class SessionBookingService
                 'uuid' => strtoupper(MethodsHelper::getRandomToken(10)),
                 'user_id' => $user->id,
                 'therapist_id' => $therapist->id,
+                'organization_id' => $coverage['organization_id'],
+                'coverage' => $coverage['coverage'],
+                'billed_amount' => $coverage['billed_amount'],
                 'starts_at' => $validated['starts_at'],
                 'duration_minutes' => $therapist->session_duration ?: 50,
                 'format' => $validated['format'],
-                'status' => TherapistConstants::SESSION_PENDING_PAYMENT,
+                // Org-covered sessions are employer-funded: confirmed immediately,
+                // with no client payment and no payment hold. Consumer unchanged.
+                'status' => $org_covered
+                    ? TherapistConstants::SESSION_CONFIRMED
+                    : TherapistConstants::SESSION_PENDING_PAYMENT,
                 'amount' => $therapist->session_rate,
                 'currency' => config('therapist.session_rate.currency'),
                 'notes' => $validated['notes'] ?? null,
-                'hold_expires_at' => now()->addMinutes(config('therapist.booking.hold_minutes')),
+                'hold_expires_at' => $org_covered
+                    ? null
+                    : now()->addMinutes(config('therapist.booking.hold_minutes')),
             ]);
+
+            // Prepay: reserve a bundle session now; refunded if it is cancelled.
+            if ($coverage['coverage'] === Cov::ORG_BUNDLE) {
+                BundleLedgerService::draw(Organization::find($coverage['organization_id']), $session);
+            }
 
             DB::commit();
             return $session;

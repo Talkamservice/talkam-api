@@ -151,13 +151,25 @@ class EarningsLedgerService
                 TherapistConstants::SESSION_CONFIRMED,
                 TherapistConstants::SESSION_IN_PROGRESS,
             ])
-            ->get();
+            ->get()
+            // The company's own therapist earns nothing through TalkAM.
+            ->reject(fn ($s) => ($s->coverage ?? Cov::CONSUMER) === Cov::ORG_EXTERNAL);
 
         $share = (float) config('therapist.platform_share_percent');
+        $network_rate = (float) config('business.network_session_payout');
+
+        $amount = $sessions->sum(function ($s) use ($share, $network_rate) {
+            $coverage = $s->coverage ?? Cov::CONSUMER;
+
+            // B2B sessions earn the flat network rate; consumer earns net of share.
+            return in_array($coverage, [Cov::ORG_BUNDLE, Cov::ORG_METER])
+                ? $network_rate
+                : (float) $s->amount * (1 - $share / 100);
+        });
 
         return [
             'sessions' => $sessions->count(),
-            'amount' => round((float) $sessions->sum('amount') * (1 - $share / 100), 2),
+            'amount' => round((float) $amount, 2),
         ];
     }
 

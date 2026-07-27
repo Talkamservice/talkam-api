@@ -2,12 +2,15 @@
 
 namespace App\Services\Therapist;
 
+use App\Constants\Business\SessionCoverageConstants as Cov;
 use App\Constants\Therapist\SessionConstants;
 use App\Constants\Therapist\TherapistConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Models\Organization;
 use App\Models\TherapySession;
 use App\Models\User;
+use App\Services\Business\BundleLedgerService;
 use App\Notifications\Therapist\SessionCancelledNotification;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\Notification;
@@ -92,6 +95,9 @@ class SessionLifecycleService
             'cancellation_reason' => $validator->validated()['reason'] ?? null,
             'hold_expires_at' => null,
         ]);
+
+        // §09: return the drawn prepaid-bundle session to the company (inert for consumer).
+        $this->refundBundleIfCovered($session);
 
         $counterpart = $is_therapist ? $session->user : $session->therapist?->user;
         if (!empty($counterpart)) {
@@ -185,11 +191,12 @@ class SessionLifecycleService
 
         foreach ($sessions as $session) {
             if (empty($session->client_joined_at)) {
-                // Client no-show: no refund.
+                // Client no-show: no money refund, but the company's bundle is returned.
                 $session->update([
                     'status' => TherapistConstants::SESSION_NO_SHOW,
                     'ended_at' => now(),
                 ]);
+                $this->refundBundleIfCovered($session);
                 continue;
             }
 
@@ -205,6 +212,7 @@ class SessionLifecycleService
                     'status' => TherapistConstants::SESSION_NO_SHOW,
                     'ended_at' => now(),
                 ]);
+                $this->refundBundleIfCovered($session);
                 continue;
             }
 
@@ -214,6 +222,18 @@ class SessionLifecycleService
             ]);
 
             EarningsLedgerService::creditForSession($session->refresh());
+        }
+    }
+
+    /**
+     * Return a drawn prepaid-bundle session to the company's balance when a
+     * covered session is cancelled or no-shows (web §09). Idempotent, and inert
+     * for consumer sessions (coverage defaults to consumer, so this is a no-op).
+     */
+    private function refundBundleIfCovered(TherapySession $session): void
+    {
+        if ($session->coverage === Cov::ORG_BUNDLE && $session->organization_id) {
+            BundleLedgerService::refund(Organization::find($session->organization_id), $session);
         }
     }
 
