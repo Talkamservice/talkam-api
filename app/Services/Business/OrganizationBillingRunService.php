@@ -142,7 +142,11 @@ class OrganizationBillingRunService
         return ["reminders" => $reminders, "overdue" => $overdue];
     }
 
-    /** Reconcile a net-terms invoice as settled (offline bank transfer). Idempotent. */
+    /**
+     * Reconcile a net-terms invoice as settled (offline bank transfer). Idempotent.
+     * On settlement, releases any held therapist credits for that org's postpay
+     * sessions in the invoice period (web §09) — a no-op until coverage is live.
+     */
     public static function markPaid(OrganizationInvoice $invoice): OrganizationInvoice
     {
         if ($invoice->status !== OrganizationInvoice::STATUS_PAID) {
@@ -150,6 +154,12 @@ class OrganizationBillingRunService
                 "status" => OrganizationInvoice::STATUS_PAID,
                 "paid_at" => now(),
             ]);
+
+            \App\Services\Therapist\EarningsLedgerService::releaseHeldCredits(
+                $invoice->organization_id,
+                $invoice->period_start,
+                $invoice->period_end
+            );
         }
 
         return $invoice->refresh();

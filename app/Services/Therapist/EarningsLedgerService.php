@@ -2,6 +2,8 @@
 
 namespace App\Services\Therapist;
 
+use App\Constants\Business\SessionCoverageConstants as Cov;
+use App\Constants\General\StatusConstants;
 use App\Constants\Therapist\TherapistConstants;
 use App\Models\Therapist;
 use App\Models\TherapistWalletTransaction;
@@ -16,6 +18,9 @@ class EarningsLedgerService
     const TYPE_CREDIT = 'credit';
     const TYPE_DEBIT = 'debit';
     const STATUS_REVERSED = 'Reversed';
+    // A B2B postpay (org_meter) credit that is earned but withheld until the
+    // employer settles that month's invoice. Excluded from balance until released.
+    const STATUS_HELD = 'Held';
 
     public static function netFor(TherapySession $session): float
     {
@@ -26,6 +31,11 @@ class EarningsLedgerService
 
     /**
      * Idempotent: at most one credit per session, ever.
+     *
+     * Coverage-aware (web §09): a consumer/prepay session credits immediately;
+     * a postpay (org_meter) session is credited but HELD until the employer
+     * settles; the company's own therapist (org_external) is never credited here.
+     * Consumer sessions (coverage defaults to CONSUMER) behave exactly as before.
      */
     public static function creditForSession(TherapySession $session): ?TherapistWalletTransaction
     {
@@ -33,20 +43,49 @@ class EarningsLedgerService
             return null;
         }
 
+        $coverage = $session->coverage ?? Cov::CONSUMER;
+
+        // The company's own therapist is settled outside TalkAM — no ledger credit.
+        if ($coverage === Cov::ORG_EXTERNAL) {
+            return null;
+        }
+
+        $attributes = [
+            'amount' => self::earnedFor($session, $coverage),
+            'reference' => "SESSION-{$session->uuid}",
+        ];
+
+        // Postpay: earned now, but withheld until the employer settles. Consumer
+        // and prepay leave status unset so it keeps the default (Completed).
+        if ($coverage === Cov::ORG_METER) {
+            $attributes['status'] = self::STATUS_HELD;
+        }
+
         return TherapistWalletTransaction::firstOrCreate([
             'therapist_id' => $session->therapist_id,
             'session_id' => $session->id,
             'type' => self::TYPE_CREDIT,
-        ], [
-            'amount' => self::netFor($session),
-            'reference' => "SESSION-{$session->uuid}",
-        ]);
+        ], $attributes);
+    }
+
+    /**
+     * What the therapist earns for a session. A network therapist on a B2B
+     * session earns the flat, configurable network rate (funded by the org),
+     * not their consumer rate.
+     */
+    private static function earnedFor(TherapySession $session, string $coverage): float
+    {
+        if (in_array($coverage, [Cov::ORG_BUNDLE, Cov::ORG_METER])) {
+            return (float) config('business.network_session_payout');
+        }
+
+        return self::netFor($session);
     }
 
     public static function balance(Therapist $therapist): float
     {
         $rows = TherapistWalletTransaction::where('therapist_id', $therapist->id)
-            ->where('status', '!=', self::STATUS_REVERSED)
+            ->whereNotIn('status', [self::STATUS_REVERSED, self::STATUS_HELD])
             ->get();
 
         return round(
@@ -54,6 +93,51 @@ class EarningsLedgerService
                 - (float) $rows->where('type', self::TYPE_DEBIT)->sum('amount'),
             2
         );
+    }
+
+    /**
+     * Money a therapist has earned on postpay B2B sessions but can't withdraw
+     * yet — it releases when the employer settles that month's invoice. Powers
+     * the "Pending employer settlement" figure on the Earnings screen.
+     */
+    public static function pendingSettlement(Therapist $therapist): array
+    {
+        $held = TherapistWalletTransaction::where('therapist_id', $therapist->id)
+            ->where('type', self::TYPE_CREDIT)
+            ->where('status', self::STATUS_HELD)
+            ->get();
+
+        return [
+            'sessions' => $held->count(),
+            'amount' => round((float) $held->sum('amount'), 2),
+        ];
+    }
+
+    /**
+     * Release the held credits for an org's postpay sessions in a settled period
+     * (called when the month-end invoice is paid) — flips them to available so
+     * the next weekly (Wednesday) sweep pays them out. Returns the count released.
+     */
+    public static function releaseHeldCredits(int $organization_id, $from, $to): int
+    {
+        // Invoice period columns are date-cast (midnight); widen to whole days so
+        // a session late on the last day isn't missed.
+        $from = \Illuminate\Support\Carbon::parse($from)->startOfDay();
+        $to = \Illuminate\Support\Carbon::parse($to)->endOfDay();
+
+        $session_ids = TherapySession::where('organization_id', $organization_id)
+            ->where('coverage', Cov::ORG_METER)
+            ->whereBetween('starts_at', [$from, $to])
+            ->pluck('id');
+
+        if ($session_ids->isEmpty()) {
+            return 0;
+        }
+
+        return TherapistWalletTransaction::whereIn('session_id', $session_ids)
+            ->where('type', self::TYPE_CREDIT)
+            ->where('status', self::STATUS_HELD)
+            ->update(['status' => StatusConstants::COMPLETED]);
     }
 
     /**
@@ -117,6 +201,7 @@ class EarningsLedgerService
                     ? round((float) $credits->avg('amount'), 2)
                     : 0,
                 'pending_payout' => self::pendingPayout($therapist),
+                'pending_settlement' => self::pendingSettlement($therapist),
             ],
             // The web §04 Earnings screen's "Recent payouts" list.
             'recent_payouts' => \App\Models\Payout::where('therapist_id', $therapist->id)

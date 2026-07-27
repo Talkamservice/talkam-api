@@ -57,6 +57,13 @@ return [
     'bundle_exhausted_policies' => ['force_top_up', 'block', 'auto_meter'],
 
     /*
+    | Master switch for the §09 session-coverage behaviour (the org-covered
+    | booking branch + payout holding). OFF by default — the whole coverage path
+    | stays dark until the mobile app adopts the new employee-booking contract.
+    */
+    'coverage_enabled' => env('BUSINESS_COVERAGE_ENABLED', false),
+
+    /*
     | Blended-pricing inputs. `network_average_rate` here is only the
     | FALLBACK — OrganizationPricingService computes the live mean of
     | approved therapists' session_rate and uses this when the bench is empty.

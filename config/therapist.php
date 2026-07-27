@@ -21,7 +21,7 @@ return [
         'max' => env('THERAPIST_RATE_MAX', 20000),
     ],
 
-    'payout_day' => env('THERAPIST_PAYOUT_DAY', 'friday'),
+    'payout_day' => env('THERAPIST_PAYOUT_DAY', 'wednesday'),
 
     // Web §04 dashboard: analytics range windows (days) and the self-care nudge
     // threshold (sessions in a week before the nudge shows).
