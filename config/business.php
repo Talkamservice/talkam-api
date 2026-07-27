@@ -46,6 +46,17 @@ return [
     'session_custom_rate' => env('BUSINESS_SESSION_CUSTOM_RATE', 8240),
 
     /*
+    | B2B session coverage (web §09). `network_session_payout` is what a NETWORK
+    | therapist receives per org-covered session — decoupled from the rate the
+    | org pays, so TalkAM's margin is explicit. The org's OWN therapists settle
+    | outside TalkAM entirely (no bundle draw, no meter, no TalkAM payout).
+    | `bundle_exhausted_policies` are the org-admin options when a prepaid bundle
+    | runs out (default force_top_up).
+    */
+    'network_session_payout' => env('BUSINESS_NETWORK_SESSION_PAYOUT', 8000),
+    'bundle_exhausted_policies' => ['force_top_up', 'block', 'auto_meter'],
+
+    /*
     | Blended-pricing inputs. `network_average_rate` here is only the
     | FALLBACK — OrganizationPricingService computes the live mean of
     | approved therapists' session_rate and uses this when the bench is empty.
