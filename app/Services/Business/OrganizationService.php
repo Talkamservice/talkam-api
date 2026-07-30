@@ -327,6 +327,33 @@ class OrganizationService
         return $organization->refresh();
     }
 
+    /**
+     * The "max sessions per employee, per billing cycle" cap (web §03
+     * Settings → Session Policy). Disabling it clears the quota back to null
+     * rather than just hiding it, so SessionCapService sees "uncapped".
+     */
+    public function saveSessionPolicy(Organization $organization, array $data): Organization
+    {
+        $validator = Validator::make($data, [
+            "cap_enabled" => "required|boolean",
+            "per_employee_session_quota" => "required_if:cap_enabled,true|nullable|integer|min:1|max:1000",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $validated = $validator->validated();
+
+        $organization->update([
+            "per_employee_session_quota" => $validated["cap_enabled"]
+                ? $validated["per_employee_session_quota"]
+                : null,
+        ]);
+
+        return $organization->refresh();
+    }
+
     /* ── Membership helpers ─────────────────────────────────────────────── */
 
     /** The caller's active membership, or a 403-shaped failure. */

@@ -15,6 +15,7 @@ use App\Models\TherapySession;
 use App\Models\User;
 use App\Services\Business\BundleLedgerService;
 use App\Services\Business\CoverageResolver;
+use App\Services\Business\SessionCapService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -54,6 +55,10 @@ class SessionBookingService
                 'starts_at' => ['This slot is not available.'],
             ]);
         }
+
+        // Admin-set per-employee cap (web §03 Session Policy) — independent of
+        // the coverage flag below; a raw count of the employee's own bookings.
+        SessionCapService::enforceBeforeBooking($user);
 
         // §09 coverage: consumer (unchanged) or one of the org-covered modes.
         // Feature-flagged — with coverage OFF this always resolves to consumer.

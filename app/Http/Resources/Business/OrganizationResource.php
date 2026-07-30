@@ -28,6 +28,9 @@ class OrganizationResource extends JsonResource
             "therapist_access" => (bool) $this->therapist_access,
             "session_bundle_sessions" => (int) $this->session_bundle_sessions,
             "bundle_custom" => (bool) $this->bundle_custom,
+            "per_employee_session_quota" => $this->per_employee_session_quota !== null
+                ? (int) $this->per_employee_session_quota
+                : null,
             "payment_timing" => $this->payment_timing ?? "prepay",
             "pay_method" => $this->pay_method,
             "bench_topics" => $this->bench_topics ?? [],

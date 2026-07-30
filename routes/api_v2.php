@@ -203,6 +203,7 @@ Route::prefix("business")->as("business.")->group(function () {
 
             Route::get("organization", [BusinessOrganizationController::class, "show"])->name("organization.show");
             Route::post("organization/bench", [BusinessOrganizationController::class, "bench"])->name("organization.bench");
+            Route::post("organization/session-policy", [BusinessOrganizationController::class, "sessionPolicy"])->name("organization.session-policy");
             Route::get("invitations", [BusinessInvitationController::class, "index"])->name("invitations.index");
             Route::post("invitations/import", [BusinessInvitationController::class, "import"])->name("invitations.import");
 
@@ -441,6 +442,9 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::prefix("bookings")->as("bookings.")->group(function () {
             Route::get("/", [BookingController::class, "index"])->name("index");
             Route::post("/", [BookingController::class, "store"])->name("store");
+            Route::post("request-top-up", [BookingController::class, "requestTopUp"])
+                ->middleware("throttle:5,1")
+                ->name("request-top-up");
             Route::post("{booking}/initiate-payment", [BookingController::class, "initiatePayment"])->name("initiate-payment");
             Route::post("{booking}/review", [SessionReviewController::class, "store"])->name("review");
             Route::post("{booking}/session-mood", [BookingController::class, "sessionMood"])->name("session-mood");

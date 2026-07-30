@@ -135,6 +135,22 @@ class OrganizationController extends Controller
         }
     }
 
+    public function sessionPolicy(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("update", $organization);
+
+            $organization = $this->organization_service->saveSessionPolicy($organization, $request->all());
+
+            return ApiHelper::validResponse("Session policy saved successfully", [
+                "organization" => OrganizationResource::make($organization)->resolve(),
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
     private function failure(Exception $e)
     {
         if ($e instanceof ValidationException) {

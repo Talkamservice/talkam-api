@@ -7,6 +7,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Services\Business\SessionCapService;
 use App\Services\Therapist\SessionBookingService;
 use App\Services\User\MemberSessionService;
 use Illuminate\Http\Request;
@@ -42,6 +43,19 @@ class BookingController extends Controller
             return ApiHelper::validResponse("Payment initiated successfully", $payload);
         } catch (ModelNotFoundException $e) {
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::NOT_FOUND_ERR_CODE, null, $e);
+        } catch (InvalidRequestException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /** The employee-side "notify my admin to top up" action (cap-reached modal). */
+    public function requestTopUp(Request $request)
+    {
+        try {
+            SessionCapService::requestTopUp(auth()->user());
+            return ApiHelper::validResponse("Your admin has been notified", []);
         } catch (InvalidRequestException $e) {
             return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
         } catch (Exception $e) {

@@ -6,6 +6,7 @@ use App\Constants\Business\OrganizationConstants;
 use App\Constants\Therapist\TherapistConstants;
 use App\Models\TherapySession;
 use App\Models\User;
+use App\Services\Business\SessionCapService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -38,12 +39,18 @@ class MemberSessionService
             ->where('starts_at', '>=', $quarter_start)
             ->count();
 
+        $cap_status = SessionCapService::status($user);
+
         return [
             'upcoming' => $upcoming,
             'completed' => $completed,
             'sessions_used' => $used_this_quarter,
             'sessions_allowed' => self::allowanceFor($user),
             'quarter_start' => $quarter_start->toDateString(),
+            // The admin-set per-employee cap (web §03 Session Policy) — distinct
+            // from the company-wide bundle above: null cap means uncapped.
+            'employee_cap' => $cap_status['cap'] ?? null,
+            'employee_cap_used' => $cap_status['used'] ?? 0,
         ];
     }
 
