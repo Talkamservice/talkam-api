@@ -207,6 +207,11 @@ class OrgRosterService
                 ];
             });
 
+        // Snapshot before the request filters narrow the collection below —
+        // this is the org's actual therapist-network headcount, independent
+        // of whatever specialty/bench_only the caller is currently viewing.
+        $network_seats_used = $therapists->where('in_network', true)->count();
+
         if (!empty($filters['bench_only'] ?? null)) {
             $therapists = $therapists->where('in_network', true);
         }
@@ -219,7 +224,11 @@ class OrgRosterService
             'therapists' => $therapists->values()->all(),
             'specialties' => $therapists->pluck('specialty')->filter()->unique()->sort()->values()->all(),
             'stats' => [
-                'seats_used' => $organization->seatsUsed(),
+                // Therapists actually serving the org — NOT `seatsUsed()`,
+                // which counts employee/member seats and is unrelated. See
+                // the frontend's "My Therapists" page, which independently
+                // derives the same number as `mine.length`.
+                'seats_used' => $network_seats_used,
                 'seats_total' => (int) $organization->seats_licensed,
                 'sessions_bundle' => (int) $organization->session_bundle_sessions,
                 'sessions_used' => $enough

@@ -127,6 +127,36 @@ class OrgAggregateService
         ];
     }
 
+    /**
+     * The monthly usage-digest content (web §03 Settings → "Monthly usage
+     * digest"). Deliberately separate from overview(): that method is
+     * hard-wired to "this month so far" for the live dashboard, while a digest
+     * reports a CLOSED prior period — reusing it would silently change what
+     * the dashboard shows.
+     */
+    public static function monthlySummary(Organization $organization, $period_start, $period_end): array
+    {
+        $member_ids = self::memberIds($organization);
+        $cohort = count($member_ids);
+        $period_end_exclusive = $period_end->copy()->addDay()->startOfDay();
+
+        $sessions_completed = self::sessionCount($member_ids, $period_start, $period_end_exclusive);
+
+        $active_members = empty($member_ids) ? 0 : (int) DB::table('mood_checkins')
+            ->whereIn('user_id', $member_ids)
+            ->whereBetween('checked_in_on', [$period_start->toDateString(), $period_end->toDateString()])
+            ->distinct()
+            ->count('user_id');
+
+        return [
+            'seats_used' => $organization->seatsUsed(),
+            'seats_total' => (int) $organization->seats_licensed,
+            'sessions_completed' => self::suppress($sessions_completed, $cohort),
+            'active_members' => self::suppress($active_members, $cohort),
+            'top_topics' => self::topTopics($organization, $member_ids, $cohort),
+        ];
+    }
+
     private static function sessionCount(array $member_ids, $from, $to): int
     {
         if (empty($member_ids)) {

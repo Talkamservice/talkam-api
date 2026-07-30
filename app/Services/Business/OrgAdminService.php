@@ -3,9 +3,11 @@
 namespace App\Services\Business;
 
 use App\Constants\Business\OrganizationConstants;
+use App\Constants\Media\FileConstants;
 use App\Models\ActivityLog;
 use App\Models\Organization;
 use App\Models\UserReport;
+use App\Services\Media\FileService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -100,6 +102,11 @@ class OrgAdminService
 
     /* ── Company profile ────────────────────────────────────────────────── */
 
+    /**
+     * The domain is NOT editable here: it is the tenancy key that invitations
+     * and signup uniqueness are built on — changing it is a support operation.
+     * logo is set only via uploadLogo() below.
+     */
     public function updateProfile(Organization $organization, array $data): Organization
     {
         $validator = Validator::make($data, [
@@ -107,16 +114,36 @@ class OrgAdminService
             'industry' => 'sometimes|nullable|string|max:100',
             'headcount_band' => 'sometimes|nullable|string|max:50',
             'hr_contact_email' => 'sometimes|nullable|email|max:190',
-            'logo' => 'sometimes|nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
 
-        // The domain is NOT editable: it is the tenancy key that invitations and
-        // signup uniqueness are built on. Changing it is a support operation.
         $organization->update($validator->validated());
+
+        return $organization->refresh();
+    }
+
+    /** Replace the company logo. Admin-gated by the controller/route. */
+    public function uploadLogo(Organization $organization, array $data): Organization
+    {
+        $validator = Validator::make($data, [
+            'logo' => 'required|image|mimes:png,jpg,jpeg|max:5120|dimensions:min_width=256,min_height=256',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $file = (new FileService)->saveFromFile(
+            $validator->validated()['logo'],
+            FileConstants::ORGANIZATION_LOGO_PATH,
+            null,
+            $organization->created_by
+        );
+
+        $organization->update(['logo' => $file->url()]);
 
         return $organization->refresh();
     }

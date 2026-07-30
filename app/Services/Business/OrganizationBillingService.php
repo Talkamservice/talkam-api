@@ -143,12 +143,26 @@ class OrganizationBillingService
      */
     public static function bundleCheckout(Organization $organization, User $user): array
     {
-        $sessions = (int) $organization->session_bundle_sessions;
-        $rate = (bool) $organization->bundle_custom
-            ? (int) config("business.session_custom_rate")
-            : (int) config("business.session_rate");
-        $amount = $sessions * $rate;
         $currency = config("business.currency");
+
+        // Pay-as-you-go (postpay) is settled at month-end, never charged at signup.
+        if ((string) $organization->payment_timing === "postpay") {
+            return [
+                "reference" => null,
+                "amount" => 0,
+                "currency" => $currency,
+                "customer" => null,
+                "meta" => null,
+            ];
+        }
+
+        // The signup charge is the FIRST MONTH (seats) + the prepaid session bundle.
+        // Reuse the same quote the onboarding screen displays so the two agree.
+        $quote = OrganizationPricingService::quoteFor($organization);
+        $seats_charge = (int) $quote["seats_monthly"];
+        $bundle_charge = (int) $quote["bundle_total"];
+        $bundle_sessions = (int) $quote["bundle_sessions"];
+        $amount = $seats_charge + $bundle_charge;
 
         if ($amount <= 0) {
             return [
@@ -161,10 +175,13 @@ class OrganizationBillingService
         }
 
         $reference = "TK-BUNDLE-" . strtoupper(MethodsHelper::getRandomToken(10));
+        
         $meta = [
             "activity" => PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
             "organization_id" => $organization->id,
-            "bundle_sessions" => $sessions,
+            "bundle_sessions" => $bundle_sessions,
+            "seats_charge" => $seats_charge,
+            "bundle_charge" => $bundle_charge,
         ];
 
         Payment::create([
@@ -173,7 +190,7 @@ class OrganizationBillingService
             "amount" => $amount,
             "reference" => $reference,
             "activity" => PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
-            "description" => "TalkAM for Business — session bundle ({$sessions} sessions)",
+            "description" => "TalkAM for Business — first month ({$quote["seats"]} seats) + session bundle ({$bundle_sessions} sessions)",
             "type" => PaymentConstants::DEBIT,
             "metadata" => $meta,
             "status" => StatusConstants::PENDING,
@@ -184,8 +201,10 @@ class OrganizationBillingService
             "amount" => $amount,
             "currency" => $currency,
             "customer" => [
+                // A B2B charge: the paying entity is the company. The admin's email
+                // stays the contact (they complete checkout and get the receipt).
                 "email" => $user->email,
-                "name" => $user->full_name ?? $user->name ?? $user->email,
+                "name" => $organization->name,
             ],
             "meta" => $meta,
         ];

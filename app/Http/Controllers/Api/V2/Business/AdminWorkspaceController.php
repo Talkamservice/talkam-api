@@ -169,6 +169,22 @@ class AdminWorkspaceController extends Controller
         }
     }
 
+    public function uploadLogo(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("update", $organization);
+
+            $organization = $this->admin_service->uploadLogo($organization, $request->all());
+
+            return ApiHelper::validResponse("Company logo updated successfully", [
+                "organization" => OrganizationResource::make($organization)->resolve(),
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
     private function failure(Exception $e)
     {
         if ($e instanceof ValidationException) {

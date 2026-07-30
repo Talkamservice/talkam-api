@@ -58,8 +58,10 @@ class BundleCheckoutTest extends TestCase
         $response->assertOk();
         $data = $response->json("data");
 
-        // 25 sessions × ₦8,000 = ₦200,000.
-        $this->assertEquals(200000, $data["amount"]);
+        // First-month seats (50 × ₦7,000 = ₦350,000) + bundle (25 × ₦8,000 = ₦200,000).
+        $this->assertEquals(550000, $data["amount"]);
+        $this->assertSame(350000, $data["meta"]["seats_charge"]);
+        $this->assertSame(200000, $data["meta"]["bundle_charge"]);
         $this->assertStringStartsWith("TK-BUNDLE-", $data["reference"]);
         $this->assertSame($admin->email, $data["customer"]["email"]);
         $this->assertSame(PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE, $data["meta"]["activity"]);
@@ -69,7 +71,7 @@ class BundleCheckoutTest extends TestCase
             "reference" => $data["reference"],
             "activity" => PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
             "status" => StatusConstants::PENDING,
-            "amount" => 200000,
+            "amount" => 550000,
         ]);
     }
 
@@ -83,18 +85,19 @@ class BundleCheckoutTest extends TestCase
 
         $data = $this->postJson("/api/v2/business/organization/plan/checkout")->json("data");
 
-        // 18 sessions × ₦8,240 custom rate = ₦148,320.
-        $this->assertEquals(148320, $data["amount"]);
+        // First-month seats (₦350,000) + custom bundle (18 × ₦8,240 = ₦148,320) = ₦498,320.
+        $this->assertEquals(498320, $data["amount"]);
+        $this->assertSame(148320, $data["meta"]["bundle_charge"]);
         $this->assertDatabaseHas("payments", [
             "reference" => $data["reference"],
-            "amount" => 148320,
+            "amount" => 498320,
         ]);
     }
 
-    public function test_checkout_returns_zero_when_there_is_no_bundle(): void
+    public function test_checkout_charges_nothing_at_signup_for_postpay(): void
     {
         [$org, $admin] = $this->orgWithAdmin([
-            "therapist_access" => false,
+            "payment_timing" => "postpay",
             "session_bundle_sessions" => 0,
         ]);
         Sanctum::actingAs($admin);

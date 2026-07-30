@@ -9,8 +9,10 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Therapist;
 use App\Models\TherapistApplication;
 use App\Models\TherapistDocument;
+use App\Notifications\Business\NewTherapistAnnouncementNotification;
 use App\Notifications\Therapist\TherapistApplicationApprovedNotification;
 use App\Notifications\Therapist\TherapistApplicationRejectedNotification;
+use App\Services\Business\AdminNotificationGateService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
@@ -44,7 +46,7 @@ class TherapistReviewService
         try {
             $user = $application->user;
 
-            Therapist::updateOrCreate([
+            $therapist = Therapist::updateOrCreate([
                 'user_id' => $user->id,
             ], [
                 'credential_type' => $application->credential_type,
@@ -70,6 +72,20 @@ class TherapistReviewService
         }
 
         Notification::send($application->user, new TherapistApplicationApprovedNotification($application));
+
+        // A genuinely NEW therapist joining the network (not a re-approval of an
+        // existing one, e.g. a rate-change resubmission) — web §03 Settings →
+        // "New therapist announcements". Off by default; platform-wide, cross-org.
+        if ($therapist->wasRecentlyCreated) {
+            $admins = AdminNotificationGateService::subscribedAdminsPlatformWide(
+                'new_therapist_announcements',
+                defaultOn: false
+            );
+
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new NewTherapistAnnouncementNotification($therapist));
+            }
+        }
 
         return $application->refresh();
     }

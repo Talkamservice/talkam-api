@@ -5,7 +5,6 @@ namespace App\Services\Business;
 use App\Constants\Business\OrganizationConstants;
 use App\Models\Organization;
 use App\Models\OrganizationInvoice;
-use App\Models\OrganizationMember;
 use App\Notifications\Business\OrganizationInvoiceNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
@@ -165,21 +164,20 @@ class OrganizationBillingRunService
         return $invoice->refresh();
     }
 
-    /** Notify the org's active admins (HR). No-op when there are none. */
+    /**
+     * Notify the org's active admins (HR) of an invoice event — issued, a
+     * due-soon reminder, or overdue. Each admin's own "Invoice notifications"
+     * toggle (web §03 Settings) is honoured; an admin who never touched the
+     * setting defaults to opted-in. No-op when nobody ends up subscribed.
+     */
     private static function notifyAdmins(Organization $organization, $notification): void
     {
-        $admins = OrganizationMember::where("organization_id", $organization->id)
-            ->where("role", OrganizationConstants::ROLE_ADMIN)
-            ->where("status", OrganizationConstants::MEMBER_ACTIVE)
-            ->with("user")
-            ->get()
-            ->pluck("user")
-            ->filter();
+        $subscribed = AdminNotificationGateService::subscribedAdminsForOrg($organization, "invoice_notifications");
 
-        if ($admins->isEmpty()) {
+        if ($subscribed->isEmpty()) {
             return;
         }
 
-        Notification::send($admins, $notification);
+        Notification::send($subscribed, $notification);
     }
 }

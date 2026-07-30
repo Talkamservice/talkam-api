@@ -58,6 +58,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('payouts:weekly-sweep')->dailyAt('08:00');
         $schedule->command('billing:run-monthly')->monthlyOn(1, '02:00');
         $schedule->command('billing:invoice-sweep')->dailyAt('07:00');
+        $schedule->command('digest:run-monthly')->monthlyOn(1, '06:00');
+        $schedule->command('seats:alert-sweep')->dailyAt('07:30');
     }
 
     /**

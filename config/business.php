@@ -187,6 +187,13 @@ return [
     ],
 
     /*
+    | Seat-limit alerts (web §03 Settings). Fires once when the remaining
+    | licensed-seat headroom drops to or below this percent; resets (so a
+    | future dip can alert again) once headroom recovers above it.
+    */
+    'seat_alert_threshold_percent' => env('BUSINESS_SEAT_ALERT_THRESHOLD_PERCENT', 10),
+
+    /*
     | PLACEHOLDER — deck values. Finance must confirm before release.
     */
     'bank_details' => [

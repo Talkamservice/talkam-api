@@ -197,6 +197,9 @@ Route::prefix("business")->as("business.")->group(function () {
             Route::get("safety-reports", [AdminWorkspaceController::class, "safetyReports"])->name("safety-reports.index");
             Route::get("activity", [AdminWorkspaceController::class, "activity"])->name("activity.index");
             Route::post("organization/profile", [AdminWorkspaceController::class, "updateProfile"])->name("organization.profile");
+            Route::post("organization/logo", [AdminWorkspaceController::class, "uploadLogo"])->name("organization.logo");
+            Route::get("notification-preferences", [\App\Http\Controllers\Api\V2\Business\AdminNotificationPreferenceController::class, "index"])->name("admin.notification-preferences.index");
+            Route::post("notification-preferences", [\App\Http\Controllers\Api\V2\Business\AdminNotificationPreferenceController::class, "store"])->name("admin.notification-preferences.store");
 
             Route::get("organization", [BusinessOrganizationController::class, "show"])->name("organization.show");
             Route::post("organization/bench", [BusinessOrganizationController::class, "bench"])->name("organization.bench");

@@ -3,6 +3,7 @@
 namespace Tests\Feature\V2\Business;
 
 use App\Constants\Business\OrganizationConstants as OC;
+use App\Models\NotificationPreference;
 use App\Models\Organization;
 use App\Models\OrganizationInvoice;
 use App\Models\OrganizationMember;
@@ -122,6 +123,32 @@ class BillingRunTest extends TestCase
         OrganizationBillingRunService::run($start, $end);
 
         $this->assertSame(1, OrganizationInvoice::where("organization_id", $org->id)->count());
+    }
+
+    public function test_notify_admins_honours_each_admins_own_invoice_toggle(): void
+    {
+        Notification::fake();
+        [$org, $optedInAdmin] = $this->org(); // never touched the setting -> defaults on
+        $this->addEmployees($org, 3);
+
+        $optedOutAdmin = User::factory()->create();
+        OrganizationMember::create([
+            "organization_id" => $org->id,
+            "user_id" => $optedOutAdmin->id,
+            "role" => OC::ROLE_ADMIN,
+            "status" => OC::MEMBER_ACTIVE,
+            "activated_at" => now(),
+        ]);
+        NotificationPreference::create([
+            "user_id" => $optedOutAdmin->id,
+            "invoice_notifications" => 0,
+        ]);
+
+        [$start, $end] = $this->lastMonth();
+        OrganizationBillingRunService::run($start, $end);
+
+        Notification::assertSentTo($optedInAdmin, OrganizationInvoiceNotification::class);
+        Notification::assertNotSentTo($optedOutAdmin, OrganizationInvoiceNotification::class);
     }
 
     public function test_sweep_reminds_due_soon_and_flags_overdue_once_each(): void
