@@ -60,6 +60,30 @@ class EnsureOrganizationRole
             );
         }
 
+        if ($membership->organization->status === OrganizationConstants::STATUS_CANCELLED) {
+            return ApiHelper::problemResponse(
+                "This company's TalkAM subscription has ended.",
+                ApiConstants::FORBIDDEN_ERR_CODE,
+                null,
+                null
+            );
+        }
+
+        // The employee-only Danger Zone suspend (web §03 Settings) — admin and
+        // any org-linked therapist are unaffected, and it's self-reversible,
+        // unlike the whole-organization statuses above.
+        if (
+            $membership->role === OrganizationConstants::ROLE_EMPLOYEE
+            && !empty($membership->organization->employees_suspended_at)
+        ) {
+            return ApiHelper::problemResponse(
+                "Your company has temporarily suspended employee access. Contact your HR admin.",
+                ApiConstants::FORBIDDEN_ERR_CODE,
+                null,
+                null
+            );
+        }
+
         $request->attributes->set("organization_member", $membership);
         $request->attributes->set("organization", $membership->organization);
 

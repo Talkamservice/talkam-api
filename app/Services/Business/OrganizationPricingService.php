@@ -175,6 +175,8 @@ class OrganizationPricingService
             "plan" => config("business.plan"),
             "pay_methods" => config("business.pay_methods"),
             "bank_details" => config("business.bank_details"),
+            "dpo_email" => config("business.dpo_email"),
+            "aggregate_minimum_cohort" => (int) config("business.aggregate_minimum_cohort"),
         ];
     }
 }

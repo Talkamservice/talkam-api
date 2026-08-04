@@ -151,6 +151,88 @@ class OrganizationController extends Controller
         }
     }
 
+    /* ── Danger Zone ──────────────────────────────────────────────────── */
+
+    public function employeeAccess(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("update", $organization);
+
+            $organization = $this->organization_service->toggleEmployeeSuspension($organization, $request->all());
+
+            return ApiHelper::validResponse("Employee access updated successfully", [
+                "organization" => OrganizationResource::make($organization)->resolve(),
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    public function cancelSubscription(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("update", $organization);
+
+            $organization = $this->organization_service->cancelSubscription($organization);
+
+            return ApiHelper::validResponse("Subscription cancellation scheduled", [
+                "organization" => OrganizationResource::make($organization)->resolve(),
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    public function resumeSubscription(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("update", $organization);
+
+            $organization = $this->organization_service->resumeSubscription($organization);
+
+            return ApiHelper::validResponse("Subscription cancellation reversed", [
+                "organization" => OrganizationResource::make($organization)->resolve(),
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    public function requestDeletion(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("update", $organization);
+
+            $organization = $this->organization_service->requestDeletion($organization, $request->all());
+
+            return ApiHelper::validResponse("Company account deletion scheduled", [
+                "organization" => OrganizationResource::make($organization)->resolve(),
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    public function cancelDeletion(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("update", $organization);
+
+            $organization = $this->organization_service->cancelDeletion($organization);
+
+            return ApiHelper::validResponse("Company account deletion cancelled", [
+                "organization" => OrganizationResource::make($organization)->resolve(),
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
     private function failure(Exception $e)
     {
         if ($e instanceof ValidationException) {

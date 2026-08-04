@@ -354,6 +354,103 @@ class OrganizationService
         return $organization->refresh();
     }
 
+    /* ── Danger Zone (web §03 Settings) ──────────────────────────────────── */
+
+    /**
+     * Temporarily suspends the EMPLOYEE role only — the admin who sets this
+     * is never locked out, unlike organization status suspension. Enforced by
+     * EnsureOrganizationRole (business dashboard) and EnsureOrgMembershipActive
+     * (the app itself). Instantly reversible.
+     */
+    public function toggleEmployeeSuspension(Organization $organization, array $data): Organization
+    {
+        $validator = Validator::make($data, ["suspended" => "required|boolean"]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $organization->update([
+            "employees_suspended_at" => $validator->validated()["suspended"] ? now() : null,
+        ]);
+
+        return $organization->refresh();
+    }
+
+    /**
+     * Schedules the subscription to end at the close of the current billing
+     * cycle. A daily sweep (OrganizationLifecycleService::processCancellations)
+     * flips status to STATUS_CANCELLED once that date passes — which the
+     * existing STATUS_ACTIVE-only queries (billing run, access checks)
+     * already treat as inactive, so no other code needs to change.
+     */
+    public function cancelSubscription(Organization $organization): Organization
+    {
+        if ($organization->status !== OrganizationConstants::STATUS_ACTIVE) {
+            throw new InvalidRequestException("This company's account isn't active — there's no subscription to cancel.");
+        }
+
+        if (!empty($organization->cancels_at)) {
+            throw new InvalidRequestException("Cancellation is already scheduled.");
+        }
+
+        $organization->update(["cancels_at" => now()->endOfMonth()]);
+
+        return $organization->refresh();
+    }
+
+    /** Reverses a pending cancellation, any time before the cutoff actually lands. */
+    public function resumeSubscription(Organization $organization): Organization
+    {
+        if (empty($organization->cancels_at)) {
+            throw new InvalidRequestException("There's no pending cancellation to resume.");
+        }
+
+        $organization->update(["cancels_at" => null]);
+
+        return $organization->refresh();
+    }
+
+    /**
+     * Schedules the company account for deletion after a 30-day grace period.
+     * The typed company-name confirmation is re-checked here, not trusted to
+     * the frontend alone — this is the most destructive Danger Zone action.
+     */
+    public function requestDeletion(Organization $organization, array $data): Organization
+    {
+        if (!empty($organization->scheduled_deletion_at)) {
+            throw new InvalidRequestException("Deletion is already scheduled.");
+        }
+
+        $validator = Validator::make($data, ["confirm_name" => "required|string"]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        if ($validator->validated()["confirm_name"] !== $organization->name) {
+            throw ValidationException::withMessages([
+                "confirm_name" => ["Type the company name exactly to confirm deletion."],
+            ]);
+        }
+
+        $organization->update(["scheduled_deletion_at" => now()->addDays(30)]);
+
+        return $organization->refresh();
+    }
+
+    /** Reverses a pending deletion, any time before the 30-day grace period elapses. */
+    public function cancelDeletion(Organization $organization): Organization
+    {
+        if (empty($organization->scheduled_deletion_at)) {
+            throw new InvalidRequestException("There's no pending deletion to cancel.");
+        }
+
+        $organization->update(["scheduled_deletion_at" => null]);
+
+        return $organization->refresh();
+    }
+
     /* ── Membership helpers ─────────────────────────────────────────────── */
 
     /** The caller's active membership, or a 403-shaped failure. */

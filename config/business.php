@@ -292,6 +292,12 @@ return [
     'aggregate_minimum_cohort' => env('BUSINESS_AGGREGATE_MIN_COHORT', 5),
 
     /*
+    | NDPA contact — the single source of truth for every screen that shows
+    | it (admin Settings, employee consent, the Privacy Policy document).
+    */
+    'dpo_email' => env('BUSINESS_DPO_EMAIL', 'privacy@talkam.net'),
+
+    /*
     | ROI calculator coefficients (admin Overview).
     |
     | PLACEHOLDER — these are the deck's illustrative figures. They are

@@ -8,11 +8,13 @@ class OrganizationConstants
     const STATUS_PENDING_VERIFICATION = "pending_verification";
     const STATUS_ACTIVE = "active";
     const STATUS_SUSPENDED = "suspended";
+    const STATUS_CANCELLED = "cancelled";
 
     const STATUSES = [
         self::STATUS_PENDING_VERIFICATION,
         self::STATUS_ACTIVE,
         self::STATUS_SUSPENDED,
+        self::STATUS_CANCELLED,
     ];
 
     /* Membership roles — the three dashboards of the web platform (PRD §3) */

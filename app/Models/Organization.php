@@ -5,10 +5,12 @@ namespace App\Models;
 use App\Constants\Business\OrganizationConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Organization extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $guarded = ["id"];
 
@@ -17,6 +19,9 @@ class Organization extends Model
         "bundle_custom" => "boolean",
         "bench_topics" => "array",
         "verified_at" => "datetime",
+        "employees_suspended_at" => "datetime",
+        "cancels_at" => "datetime",
+        "scheduled_deletion_at" => "datetime",
     ];
 
     public function members()

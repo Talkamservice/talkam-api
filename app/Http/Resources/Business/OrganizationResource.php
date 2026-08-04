@@ -37,6 +37,9 @@ class OrganizationResource extends JsonResource
             "verified_at" => $this->verified_at?->toDateTimeString(),
             "is_verified" => $this->isVerified(),
             "created_at" => $this->created_at?->toDateTimeString(),
+            "employees_suspended_at" => $this->employees_suspended_at?->toDateTimeString(),
+            "cancels_at" => $this->cancels_at?->toDateTimeString(),
+            "scheduled_deletion_at" => $this->scheduled_deletion_at?->toDateTimeString(),
         ];
     }
 }

@@ -40,7 +40,19 @@ class PricingQuoteTest extends TestCase
             ->assertJsonCount(2, "data.payment_timings")        // prepay, postpay
             ->assertJsonCount(4, "data.seat_tiers")
             ->assertJsonCount(3, "data.bundle_options")
-            ->assertJsonCount(6, "data.plan.features");
+            ->assertJsonCount(6, "data.plan.features")
+            ->assertJsonPath("data.dpo_email", "privacy@talkam.net")
+            ->assertJsonPath("data.aggregate_minimum_cohort", 5);
+    }
+
+    /** The admin Settings "Privacy & Compliance" card must never drift from the real config. */
+    public function test_pricing_config_reflects_the_configured_cohort_threshold(): void
+    {
+        config(["business.aggregate_minimum_cohort" => 8]);
+
+        $this->getJson("/api/v2/business/pricing-config")
+            ->assertStatus(200)
+            ->assertJsonPath("data.aggregate_minimum_cohort", 8);
     }
 
     /** @dataProvider tierBoundaries */

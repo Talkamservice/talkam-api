@@ -60,6 +60,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('billing:invoice-sweep')->dailyAt('07:00');
         $schedule->command('digest:run-monthly')->monthlyOn(1, '06:00');
         $schedule->command('seats:alert-sweep')->dailyAt('07:30');
+        // Danger Zone (web §03 Settings) — cancellations land before the monthly billing run reads status.
+        $schedule->command('organizations:process-cancellations')->dailyAt('01:00');
+        $schedule->command('organizations:purge-scheduled-deletions')->dailyAt('04:00');
     }
 
     /**

@@ -204,6 +204,13 @@ Route::prefix("business")->as("business.")->group(function () {
             Route::get("organization", [BusinessOrganizationController::class, "show"])->name("organization.show");
             Route::post("organization/bench", [BusinessOrganizationController::class, "bench"])->name("organization.bench");
             Route::post("organization/session-policy", [BusinessOrganizationController::class, "sessionPolicy"])->name("organization.session-policy");
+
+            // Danger Zone (web §03 Settings).
+            Route::post("organization/employee-access", [BusinessOrganizationController::class, "employeeAccess"])->name("organization.employee-access");
+            Route::post("organization/cancel-subscription", [BusinessOrganizationController::class, "cancelSubscription"])->name("organization.cancel-subscription");
+            Route::post("organization/resume-subscription", [BusinessOrganizationController::class, "resumeSubscription"])->name("organization.resume-subscription");
+            Route::post("organization/request-deletion", [BusinessOrganizationController::class, "requestDeletion"])->name("organization.request-deletion");
+            Route::post("organization/cancel-deletion", [BusinessOrganizationController::class, "cancelDeletion"])->name("organization.cancel-deletion");
             Route::get("invitations", [BusinessInvitationController::class, "index"])->name("invitations.index");
             Route::post("invitations/import", [BusinessInvitationController::class, "import"])->name("invitations.import");
 
@@ -251,7 +258,7 @@ Route::get("user/faqs/{id}", [\App\Http\Controllers\Api\V1\User\Web\FaqControlle
 Route::get("user/groups", [GroupController::class, "index"])->name("groups.index");
 
 Route::middleware(["auth:sanctum"])->group(function () {
-    Route::prefix("user")->as("user.")->middleware(["pricingCountry"])->group(function () {
+    Route::prefix("user")->as("user.")->middleware(["pricingCountry", "org.active"])->group(function () {
         Route::get("/me", [UserController::class, "me"])->name("me");
 
         Route::get("interest-topics", [InterestController::class, "topics"])->name("interest-topics");
