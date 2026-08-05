@@ -63,6 +63,14 @@ class FlutterwaveWebhookService
             $transaction = $this->flutterwave_service
                 ->verifyTransaction($payload["data"]["id"]);
 
+            // B2B bank transfer into a dedicated virtual account (web §11) — carries
+            // no TalkAM meta.activity; reconcile it against the org that owns the
+            // account instead. Checked before the meta requirement below.
+            if (($transaction["data"]["payment_type"] ?? null) === "bank_transfer"
+                && ($transaction["data"]["status"] ?? null) === "successful") {
+                return $this->handleVirtualAccountTransfer($transaction["data"]);
+            }
+
             if (!isset($transaction["data"]["meta"])) {
                 throw new InvalidRequestException("We could not ascertain the purpose of this webhook");
             }
@@ -96,6 +104,32 @@ class FlutterwaveWebhookService
             ->setPayload($payload)
             ->setTransactionData($flutterwave_transaction)
             ->handle();
+    }
+
+    /**
+     * A bank transfer landed in a dedicated virtual account (web §11). Match it to
+     * the owning org and apply it to that org's open invoices. A transfer we can't
+     * match to any org is not one of ours — logged, not thrown.
+     */
+    public function handleVirtualAccountTransfer(array $data)
+    {
+        $organization = \App\Services\Business\VirtualAccountService::resolveForTransfer($data);
+
+        if (empty($organization)) {
+            logger("VA transfer: no matching org", [
+                "flw_ref" => $data["flw_ref"] ?? null,
+                "account" => $data["account_number"] ?? null,
+            ]);
+            return null;
+        }
+
+        $reference = $data["flw_ref"] ?? $data["tx_ref"] ?? ($data["id"] ?? null);
+
+        return \App\Services\Business\VirtualAccountService::recordTransfer(
+            $organization,
+            (float) ($data["amount"] ?? 0),
+            (string) $reference
+        );
     }
 
     public function handleSubscriptionPayments($payload)

@@ -72,6 +72,16 @@ return [
     'card_setup_amount' => env('BUSINESS_CARD_SETUP_AMOUNT', 50),
 
     /*
+    | Dedicated NGN virtual accounts (web §11). A bank-transfer org gets its own
+    | permanent Flutterwave account so transfers auto-reconcile via webhook. Gates
+    | account CREATION only (route + dashboard card) — OFF until real FLW account
+    | creation + reconciliation are verified on a live sandbox transfer. Static
+    | (permanent) NGN accounts require the customer's BVN or NIN.
+    */
+    'virtual_accounts_enabled' => env('BUSINESS_VIRTUAL_ACCOUNTS_ENABLED', false),
+    'kyc_id_types' => ['bvn', 'nin'],
+
+    /*
     | Blended-pricing inputs. `network_average_rate` here is only the
     | FALLBACK — OrganizationPricingService computes the live mean of
     | approved therapists' session_rate and uses this when the bench is empty.

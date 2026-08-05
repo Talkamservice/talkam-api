@@ -22,6 +22,10 @@ class Organization extends Model
         "employees_suspended_at" => "datetime",
         "cancels_at" => "datetime",
         "scheduled_deletion_at" => "datetime",
+        "card_setup_at" => "datetime",
+        "va_created_at" => "datetime",
+        "kyc_consent_at" => "datetime",
+        "credit_balance" => "decimal:2",
     ];
 
     public function members()

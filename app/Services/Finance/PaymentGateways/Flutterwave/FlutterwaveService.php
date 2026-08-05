@@ -370,6 +370,26 @@ class FlutterwaveService
         }
     }
 
+    // Additive (v2 B2B §11): create a dedicated NGN virtual account. The caller
+    // passes the BVN/NIN in $data (required for a permanent account); it is sent to
+    // Flutterwave only and is NEVER persisted by TalkAM.
+    public function createVirtualAccount(array $data)
+    {
+        try {
+            $full_url = "{$this->base_url}/virtual-account-numbers";
+            $response = $this->client->post($full_url, $data);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Virtual account creation failed');
+            }
+
+            return $response["data"]["data"] ?? $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Virtual account creation failed: ' . $e->getMessage());
+        }
+    }
+
     // Additive (v2 therapist onboarding): Flutterwave bank list.
     public function getBanks($country = "NG")
     {

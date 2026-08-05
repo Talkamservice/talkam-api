@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Api\V2\Business;
 
 use App\Constants\General\ApiConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Models\OrganizationInvoice;
 use App\Services\Business\OrganizationBillingRunService;
 use App\Services\Business\OrganizationBillingService;
+use App\Services\Business\VirtualAccountService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Exception;
 
 /**
@@ -28,6 +32,10 @@ class BillingController extends Controller
                 "usage" => OrganizationBillingService::usage($organization),
                 "current_seats" => (int) $organization->seats_licensed,
                 "catalogue" => OrganizationBillingService::catalogue($organization),
+                // Bank-transfer reconciliation (web §11): the org's dedicated account
+                // (null until set up) + whether setup is available at all.
+                "virtual_account" => VirtualAccountService::publicView($organization),
+                "virtual_accounts_enabled" => (bool) config("business.virtual_accounts_enabled"),
             ]);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
@@ -81,6 +89,56 @@ class BillingController extends Controller
                     $request->user()
                 )
             );
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /**
+     * Set up the org's dedicated bank-transfer account (web §11). Admin-gated by
+     * the route group. Requires a director's BVN/NIN + consent — passed to
+     * Flutterwave to mint the account and NEVER stored raw. Flag-gated.
+     */
+    public function createVirtualAccount(Request $request)
+    {
+        try {
+            if (!config("business.virtual_accounts_enabled")) {
+                return ApiHelper::problemResponse(
+                    "Bank-transfer account setup isn't available yet.",
+                    ApiConstants::BAD_REQ_ERR_CODE,
+                    null,
+                    null
+                );
+            }
+
+            $validator = Validator::make($request->all(), [
+                "id_type" => ["required", Rule::in(config("business.kyc_id_types"))],
+                "id_number" => ["required", "digits:11"],
+                "consent" => ["accepted"],
+            ]);
+
+            if ($validator->fails()) {
+                return ApiHelper::problemResponse(
+                    $validator->errors()->first(),
+                    ApiConstants::VALIDATION_ERR_CODE,
+                    null,
+                    null
+                );
+            }
+
+            $organization = VirtualAccountService::create(
+                $request->attributes->get("organization"),
+                $request->user(),
+                $request->input("id_type"),
+                $request->input("id_number")
+            );
+
+            return ApiHelper::validResponse(
+                "Bank-transfer account ready",
+                VirtualAccountService::publicView($organization)
+            );
+        } catch (InvalidRequestException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
