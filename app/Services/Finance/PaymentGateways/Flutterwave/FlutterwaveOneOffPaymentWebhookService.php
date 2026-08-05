@@ -212,8 +212,13 @@ class FlutterwaveOneOffPaymentWebhookService
             throw new InvalidRequestException("Payment has already been verified.");
         }
 
-        $data = $this->payload["data"] ?? [];
-        $card = $data["card"] ?? [];
+        // The verified transaction is authoritative for the card token; the raw
+        // webhook payload is a fallback if the shape differs.
+        $txn = isset($this->transaction_data)
+            ? ($this->transaction_data["data"] ?? $this->transaction_data)
+            : [];
+        $card = $txn["card"] ?? $this->payload["data"]["card"] ?? [];
+        $transaction_id = $txn["id"] ?? $this->payload["data"]["id"] ?? null;
 
         \App\Services\Business\OrganizationBillingService::saveCardOnFile(
             $this->payment,
@@ -221,9 +226,6 @@ class FlutterwaveOneOffPaymentWebhookService
             $card["last_4digits"] ?? null,
             $card["type"] ?? null
         );
-
-        // Refund the verification hold — the token is all we needed.
-        $transaction_id = $data["id"] ?? null;
         if ($transaction_id && (float) $this->payment->amount > 0) {
             try {
                 (new FlutterwaveService)->refundTransaction($transaction_id, ["amount" => $this->payment->amount]);

@@ -74,7 +74,11 @@ class FlutterwaveWebhookService
             $meta = $transaction["data"]["meta"] ?? $payload["meta_data"];
             $activity = $meta["activity"];
 
-            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
+            if (in_array($activity, [
+                PaymentConstants::PAYMENT_FOR_PROMOTION,
+                PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
+                PaymentConstants::PAYMENT_FOR_CARD_SETUP,
+            ])) {
                 return $this->handleOneOffPayments($payload, $transaction);
             } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
                 return $this->handleSubscriptionPayments($payload);
