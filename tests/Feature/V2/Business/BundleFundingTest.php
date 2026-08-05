@@ -106,6 +106,34 @@ class BundleFundingTest extends TestCase
         ));
     }
 
+    public function test_billing_summary_shows_an_unfunded_bundle_as_pending_and_no_pay_method(): void
+    {
+        // Skipped billing: bundle purchased (10) but never paid, no pay method chosen.
+        $org = $this->prepayOrg(["pay_method" => null]);
+
+        $usage = OrganizationBillingService::usage($org);
+        $this->assertFalse($usage["sessionsFunded"]);
+        $this->assertSame(0, $usage["sessionsRemaining"]); // unpaid → nothing usable yet
+        $this->assertSame(10, $usage["sessionsBundle"]);   // purchased count kept for context
+
+        $plan = OrganizationBillingService::currentPlan($org);
+        $this->assertNull($plan["payMethodLabel"]);        // skipped → "not set up"
+        $this->assertFalse($plan["bundleFunded"]);
+    }
+
+    public function test_billing_summary_reflects_a_funded_bundle_and_pay_method(): void
+    {
+        $org = $this->prepayOrg(["pay_method" => "invoice", "session_bundle_funded_at" => now()]);
+
+        $usage = OrganizationBillingService::usage($org);
+        $this->assertTrue($usage["sessionsFunded"]);
+        $this->assertSame(10, $usage["sessionsRemaining"]);
+
+        $plan = OrganizationBillingService::currentPlan($org);
+        $this->assertSame("Bank transfer", $plan["payMethodLabel"]);
+        $this->assertTrue($plan["bundleFunded"]);
+    }
+
     public function test_paying_the_transfer_invoice_funds_the_bundle(): void
     {
         $org = $this->prepayOrg();

@@ -63,6 +63,15 @@ class OrganizationBillingService
             ];
         }
 
+        // The real pay method (null = billing was skipped / not set up yet), so the
+        // dashboard never hardcodes "bank transfer".
+        $pay_method = $organization->pay_method;
+        $pay_method_label = match ($pay_method) {
+            "card" => "Card",
+            "invoice" => "Bank transfer",
+            default => null,
+        };
+
         return [
             "label" => strtoupper($name) . " · ACTIVE",
             "lines" => $lines,
@@ -70,6 +79,10 @@ class OrganizationBillingService
             "perSeat" => self::naira($seat_rate),
             "total" => self::naira($seats_monthly),
             "renews" => "Renews " . self::nextReset()->format("M j, Y") . " · billed monthly",
+            "payMethod" => $pay_method,
+            "payMethodLabel" => $pay_method_label,
+            // Prepay activates on payment (web §11): a bundle is not live until funded.
+            "bundleFunded" => !empty($organization->session_bundle_funded_at),
         ];
     }
 
@@ -88,6 +101,10 @@ class OrganizationBillingService
             "seatsTotal" => (int) $organization->seats_licensed,
             "sessionsUsed" => $sessions_used,
             "sessionsBundle" => (int) $organization->session_bundle_sessions,
+            // Prepay activates on payment (web §11): a purchased-but-unpaid bundle is
+            // NOT usable yet, so the dashboard shows it as pending, not available.
+            "sessionsFunded" => !empty($organization->session_bundle_funded_at),
+            "sessionsRemaining" => BundleLedgerService::remaining($organization),
             "nextReset" => self::nextReset()->format("j M Y"),
         ];
     }
