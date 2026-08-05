@@ -186,8 +186,9 @@ return [
 
     /*
     | Recurring B2B billing (web §08 Phase 2a). Seats are invoiced monthly in
-    | arrears by ACTIVE-EMPLOYEE count (HR-admin seats are included, not billed);
-    | net terms give the payer this many days, with a reminder a few days ahead.
+    | ADVANCE by LICENSED seat count — the same for prepay and postpay orgs, since
+    | the prepay/postpay switch governs sessions, not seats; net terms give the
+    | payer this many days, with a reminder a few days ahead.
     */
     'billing' => [
         'net_terms_days' => env('BUSINESS_NET_TERMS_DAYS', 14),

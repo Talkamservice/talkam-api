@@ -39,8 +39,8 @@ class OrganizationBillingService
         $plan = self::currentPlanKey($organization);
         $name = config("business.plans.{$plan}.name", config("business.plan.name"));
 
-        // Prepay bills the LICENSED seat count; postpay bills only ACTIVE
-        // (onboarded) seats. The per-seat rate stays the licensed tier's rate.
+        // Seats always bill on the LICENSED count at the licensed tier's rate —
+        // the prepay/postpay choice governs sessions, not seats (web §08).
         $seat_rate = (int) $quote["rates"]["seat"];
         $seats = OrganizationPricingService::billableSeats($organization);
         $seats_monthly = $seats * $seat_rate;

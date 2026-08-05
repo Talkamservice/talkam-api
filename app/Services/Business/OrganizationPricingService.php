@@ -138,20 +138,16 @@ class OrganizationPricingService
     /**
      * Seats actually BILLED for an existing org (web §08).
      *
-     * - Prepay commits to (and pays for) the LICENSED seat count from day one —
-     *   the seats are active whether or not employees have onboarded.
-     * - Postpay pays only for ACTIVE (onboarded) employee seats, so an
-     *   unonboarded seat costs nothing until that employee comes in.
-     *
-     * The per-seat RATE is unaffected — it stays the tier the licensed seat count
-     * locked in at signup; only the billed quantity changes.
+     * Seats are the CAPACITY layer and are decoupled from the session payment
+     * choice: a company always pays for the seats it has provisioned (the LICENSED
+     * count), billed in advance, whether it prepays a session bundle or pays for
+     * sessions as-you-go. The prepay/postpay switch governs SESSIONS only — never
+     * how many seats are billed. A company that doesn't want to pay for empty
+     * seats simply provisions fewer and raises capacity as people onboard (paid
+     * for at the point of the increase), rather than us billing an active subset.
      */
     public static function billableSeats(Organization $organization): int
     {
-        if (($organization->payment_timing ?? "prepay") === "postpay") {
-            return count(OrgAggregateService::memberIds($organization));
-        }
-
         return (int) $organization->seats_licensed;
     }
 

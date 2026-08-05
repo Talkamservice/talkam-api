@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Notification;
 /**
  * The recurring B2B billing run (web §08 Phase 2a).
  *
- * Seats are invoiced monthly in ARREARS: once a company's first employee
- * activates, each active-employee seat is billed at the volume-tier rate the
- * company locked in. HR-admin seats are included (never billed). Net terms give
- * the payer a configurable window; a daily sweep reminds before due and flags
- * overdue.
+ * Seats are the CAPACITY layer: they are invoiced monthly in ADVANCE by the
+ * company's LICENSED seat count, at the volume-tier rate it locked in — the same
+ * for a prepay and a postpay company, because the prepay/postpay choice governs
+ * SESSIONS, not seats. Net terms give the payer a configurable window; a daily
+ * sweep reminds before due and flags overdue.
  *
  * SCOPE NOTE: this bills SEATS only. Pay-as-you-go SESSION metering is
  * deliberately NOT here — it depends on the (not-yet-built) B2B session-coverage
@@ -57,17 +57,18 @@ class OrganizationBillingRunService
 
     /**
      * One invoice for one org for one period. Returns null when there is nothing
-     * to bill (no active employees yet). Idempotent on the period reference — a
-     * sent invoice is never regenerated or overwritten.
+     * to bill (no licensed seats). Idempotent on the period reference — a sent
+     * invoice is never regenerated or overwritten.
      */
     public static function generateInvoice(
         Organization $organization,
         Carbon $period_start,
         Carbon $period_end
     ): ?OrganizationInvoice {
-        // Prepay bills the committed (licensed) seats from day one; postpay bills
-        // only active (onboarded) employee seats — so a postpay org with nobody
-        // onboarded yet is billed nothing until an employee activates.
+        // Seats bill on the LICENSED count for every org, in advance — capacity is
+        // decoupled from the prepay/postpay session choice (web §08). A company
+        // avoids paying for empty seats by provisioning fewer, not by us billing
+        // an active subset.
         $seats = OrganizationPricingService::billableSeats($organization);
 
         if ($seats < 1) {
