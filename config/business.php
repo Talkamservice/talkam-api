@@ -64,6 +64,14 @@ return [
     'coverage_enabled' => env('BUSINESS_COVERAGE_ENABLED', false),
 
     /*
+    | Postpay card-on-file (web §10). A tiny refundable auth used to tokenize a
+    | card at onboarding — gateways only return a reusable token off an
+    | authorization, and the webhook refunds it immediately. Set to 0 to use a
+    | real pre-authorization if the Flutterwave account supports it.
+    */
+    'card_setup_amount' => env('BUSINESS_CARD_SETUP_AMOUNT', 50),
+
+    /*
     | Blended-pricing inputs. `network_average_rate` here is only the
     | FALLBACK — OrganizationPricingService computes the live mean of
     | approved therapists' session_rate and uses this when the bench is empty.

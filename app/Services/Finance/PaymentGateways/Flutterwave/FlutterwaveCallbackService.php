@@ -61,7 +61,7 @@ class FlutterwaveCallbackService
             $meta = $transaction["data"]["meta"];
             $activity = $meta["activity"];
 
-            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION, PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE])) {
+            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION, PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE, PaymentConstants::PAYMENT_FOR_CARD_SETUP])) {
                 return $this->handleOneOffPayments($payload, $transaction);
             } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
                 return $this->handleSubscriptionPayments($payload, $transaction);

@@ -110,6 +110,10 @@ class FlutterwaveOneOffPaymentWebhookService
             $this->handlePaymentForBusinessBundle();
         }
 
+        if (in_array($activity, [PaymentConstants::PAYMENT_FOR_CARD_SETUP])) {
+            $this->handlePaymentForCardSetup();
+        }
+
         if (isset($this->metadata["payload"])) {
             $this->handlePayloadAction($this->metadata);
         }
@@ -193,6 +197,45 @@ class FlutterwaveOneOffPaymentWebhookService
         if (!empty(sudo())) {
             Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
         }
+
+        return $this->payment;
+    }
+
+    /**
+     * Postpay card-on-file (web §10): the tiny verification auth succeeded. Save
+     * the card token on the company, then REFUND the auth — we only needed the
+     * token, so nothing is really charged.
+     */
+    public function handlePaymentForCardSetup()
+    {
+        if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+            throw new InvalidRequestException("Payment has already been verified.");
+        }
+
+        $data = $this->payload["data"] ?? [];
+        $card = $data["card"] ?? [];
+
+        \App\Services\Business\OrganizationBillingService::saveCardOnFile(
+            $this->payment,
+            $card["token"] ?? null,
+            $card["last_4digits"] ?? null,
+            $card["type"] ?? null
+        );
+
+        // Refund the verification hold — the token is all we needed.
+        $transaction_id = $data["id"] ?? null;
+        if ($transaction_id && (float) $this->payment->amount > 0) {
+            try {
+                (new FlutterwaveService)->refundTransaction($transaction_id, ["amount" => $this->payment->amount]);
+            } catch (\Throwable $th) {
+                logger("Card-setup verification refund failed", [
+                    "payment" => $this->payment->id,
+                    "error" => $th->getMessage(),
+                ]);
+            }
+        }
+
+        Notification::send($this->user, new NewPaymentNotification($this->payment->refresh()));
 
         return $this->payment;
     }

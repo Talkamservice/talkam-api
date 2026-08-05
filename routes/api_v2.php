@@ -224,6 +224,7 @@ Route::prefix("business")->as("business.")->group(function () {
                 Route::post("organization/seats", [BusinessOrganizationController::class, "seats"])->name("organization.seats");
                 Route::post("organization/plan", [BusinessOrganizationController::class, "plan"])->name("organization.plan");
                 Route::post("organization/plan/checkout", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "checkout"])->name("organization.plan.checkout");
+                Route::post("organization/card/setup", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "cardSetup"])->name("organization.card.setup");
                 Route::post("invitations", [BusinessInvitationController::class, "store"])->name("invitations.store");
                 Route::post("invitations/{id}/resend", [BusinessInvitationController::class, "resend"])->name("invitations.resend");
                 Route::post("invitations/{id}/revoke", [BusinessInvitationController::class, "revoke"])->name("invitations.revoke");

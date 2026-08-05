@@ -67,6 +67,26 @@ class BillingController extends Controller
     }
 
     /**
+     * Start the postpay card-on-file capture: create the verification payment and
+     * hand back the Flutterwave inline config. The card is saved (and the auth
+     * refunded) by the webhook; nothing is really charged now.
+     */
+    public function cardSetup(Request $request)
+    {
+        try {
+            return ApiHelper::validResponse(
+                "Card setup initiated",
+                OrganizationBillingService::cardSetupCheckout(
+                    $request->attributes->get("organization"),
+                    $request->user()
+                )
+            );
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /**
      * Reconcile a net-terms invoice as settled (offline bank transfer). Tenant-
      * scoped by reference within the caller's organization; admin-gated by the
      * route group. Returns the refreshed invoice list.

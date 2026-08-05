@@ -253,6 +253,76 @@ class OrganizationBillingService
         );
     }
 
+    /**
+     * Start the postpay card-on-file capture (web §10). Creates a pending payment
+     * for a tiny verification auth and hands back the Flutterwave inline config;
+     * the webhook then stores the card token and refunds the auth, so nothing is
+     * really charged. Mirrors bundleCheckout.
+     */
+    public static function cardSetupCheckout(Organization $organization, User $user): array
+    {
+        $amount = (int) config("business.card_setup_amount");
+        $currency = config("business.currency");
+
+        $reference = "TK-CARD-" . strtoupper(MethodsHelper::getRandomToken(10));
+        $meta = [
+            "activity" => PaymentConstants::PAYMENT_FOR_CARD_SETUP,
+            "organization_id" => $organization->id,
+        ];
+
+        Payment::create([
+            "user_id" => $user->id,
+            "currency" => $currency,
+            "amount" => $amount,
+            "reference" => $reference,
+            "activity" => PaymentConstants::PAYMENT_FOR_CARD_SETUP,
+            "description" => "TalkAM for Business — card verification (refunded)",
+            "type" => PaymentConstants::DEBIT,
+            "metadata" => $meta,
+            "status" => StatusConstants::PENDING,
+        ]);
+
+        return [
+            "reference" => $reference,
+            "amount" => $amount,
+            "currency" => $currency,
+            "customer" => [
+                "email" => $user->email,
+                "name" => $user->full_name ?? $user->name ?? $user->email,
+            ],
+            "meta" => $meta,
+        ];
+    }
+
+    /**
+     * Store a tokenized card on the company (web §10), called from the card-setup
+     * webhook. Marks the verification payment complete. Idempotent.
+     */
+    public static function saveCardOnFile(Payment $payment, ?string $token, ?string $last4, ?string $brand): void
+    {
+        if (empty($token)) {
+            throw new InvalidRequestException("The card could not be saved — no token was returned.");
+        }
+
+        $organization_id = $payment->metadata["organization_id"] ?? null;
+        $organization = $organization_id ? Organization::find($organization_id) : null;
+
+        if (empty($organization)) {
+            throw new InvalidRequestException("We could not match this card to a company.");
+        }
+
+        $organization->update([
+            "card_token" => $token,
+            "card_last4" => $last4,
+            "card_brand" => $brand,
+            "card_setup_at" => now(),
+        ]);
+
+        if ($payment->status !== StatusConstants::COMPLETED) {
+            $payment->update(["status" => StatusConstants::COMPLETED]);
+        }
+    }
+
     /** Which catalogue plan the org's seat count falls into. */
     public static function currentPlanKey(Organization $organization): string
     {
