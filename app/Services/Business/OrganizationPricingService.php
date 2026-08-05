@@ -191,6 +191,9 @@ class OrganizationPricingService
             "plan" => config("business.plan"),
             "pay_methods" => config("business.pay_methods"),
             "bank_details" => config("business.bank_details"),
+            // Feature toggle (web §11) — when on, onboarding tells bank-transfer orgs
+            // they'll get a dedicated auto-reconciling account from the dashboard.
+            "virtual_accounts_enabled" => (bool) config("business.virtual_accounts_enabled"),
             "dpo_email" => config("business.dpo_email"),
             "aggregate_minimum_cohort" => (int) config("business.aggregate_minimum_cohort"),
         ];
