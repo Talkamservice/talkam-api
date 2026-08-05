@@ -111,6 +111,7 @@ class OrganizationBillingService
 
         return [
             "plans" => $plans,
+            "seatTiers" => config("business.seat_tiers"),
             "topUpOptions" => config("business.bundle_options"),
             "seatPackOptions" => config("business.seat_pack_options"),
         ];
