@@ -136,6 +136,26 @@ class OrganizationPricingService
     }
 
     /**
+     * Seats actually BILLED for an existing org (web §08).
+     *
+     * - Prepay commits to (and pays for) the LICENSED seat count from day one —
+     *   the seats are active whether or not employees have onboarded.
+     * - Postpay pays only for ACTIVE (onboarded) employee seats, so an
+     *   unonboarded seat costs nothing until that employee comes in.
+     *
+     * The per-seat RATE is unaffected — it stays the tier the licensed seat count
+     * locked in at signup; only the billed quantity changes.
+     */
+    public static function billableSeats(Organization $organization): int
+    {
+        if (($organization->payment_timing ?? "prepay") === "postpay") {
+            return count(OrgAggregateService::memberIds($organization));
+        }
+
+        return (int) $organization->seats_licensed;
+    }
+
+    /**
      * The single Phase-1 plan the Step-4 card renders. per_seat is simply the
      * seat tier rate — no fairness multiplier — so the card matches the seats
      * screen exactly.

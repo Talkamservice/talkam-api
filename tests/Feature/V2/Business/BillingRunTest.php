@@ -80,11 +80,11 @@ class BillingRunTest extends TestCase
         ], $overrides));
     }
 
-    public function test_run_invoices_active_employee_seats_at_the_tier_rate(): void
+    public function test_prepay_bills_the_licensed_seat_count(): void
     {
         Notification::fake();
-        [$org, $admin] = $this->org();
-        $this->addEmployees($org, 3);
+        [$org, $admin] = $this->org(["seats_licensed" => 250]); // prepay by default
+        $this->addEmployees($org, 3); // only 3 onboarded so far
 
         [$start, $end] = $this->lastMonth();
         $result = OrganizationBillingRunService::run($start, $end);
@@ -93,23 +93,53 @@ class BillingRunTest extends TestCase
 
         $invoice = OrganizationInvoice::where("organization_id", $org->id)->first();
         $this->assertNotNull($invoice);
-        $this->assertSame(3, $invoice->seats);                       // active EMPLOYEES only (admin excluded)
-        $this->assertEquals(18000, (float) $invoice->amount);        // 3 × ₦6,000
+        // Prepay commits to all 250 licensed seats (tier ₦6,000) — not the 3 active.
+        $this->assertSame(250, $invoice->seats);
+        $this->assertEquals(1500000, (float) $invoice->amount);      // 250 × ₦6,000
         $this->assertSame(OrganizationInvoice::STATUS_DUE, $invoice->status);
         $this->assertSame(14, $invoice->issued_at->diffInDays($invoice->due_at)); // net-14
 
         Notification::assertSentTo($admin, OrganizationInvoiceNotification::class);
     }
 
-    public function test_run_skips_an_org_with_no_active_employees(): void
+    public function test_postpay_bills_only_active_onboarded_seats(): void
     {
         Notification::fake();
-        [$org] = $this->org(); // admin only
+        [$org] = $this->org(["seats_licensed" => 250, "payment_timing" => "postpay"]);
+        $this->addEmployees($org, 3);
+
+        [$start, $end] = $this->lastMonth();
+        OrganizationBillingRunService::run($start, $end);
+
+        $invoice = OrganizationInvoice::where("organization_id", $org->id)->first();
+        $this->assertNotNull($invoice);
+        // Postpay bills only the 3 active seats, at the licensed tier's rate.
+        $this->assertSame(3, $invoice->seats);
+        $this->assertEquals(18000, (float) $invoice->amount);        // 3 × ₦6,000
+    }
+
+    public function test_postpay_with_no_onboarded_employees_is_not_billed(): void
+    {
+        Notification::fake();
+        [$org] = $this->org(["payment_timing" => "postpay"]); // admin only, no employees
 
         [$start, $end] = $this->lastMonth();
         OrganizationBillingRunService::run($start, $end);
 
         $this->assertSame(0, OrganizationInvoice::where("organization_id", $org->id)->count());
+    }
+
+    public function test_prepay_is_billed_even_before_anyone_onboards(): void
+    {
+        Notification::fake();
+        [$org] = $this->org(["seats_licensed" => 50]); // prepay, admin only, no employees yet
+
+        [$start, $end] = $this->lastMonth();
+        OrganizationBillingRunService::run($start, $end);
+
+        $invoice = OrganizationInvoice::where("organization_id", $org->id)->first();
+        $this->assertNotNull($invoice); // prepay commits from day one
+        $this->assertSame(50, $invoice->seats);
     }
 
     public function test_run_is_idempotent_for_a_period(): void

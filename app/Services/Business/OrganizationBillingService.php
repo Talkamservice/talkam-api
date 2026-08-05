@@ -39,12 +39,18 @@ class OrganizationBillingService
         $plan = self::currentPlanKey($organization);
         $name = config("business.plans.{$plan}.name", config("business.plan.name"));
 
+        // Prepay bills the LICENSED seat count; postpay bills only ACTIVE
+        // (onboarded) seats. The per-seat rate stays the licensed tier's rate.
+        $seat_rate = (int) $quote["rates"]["seat"];
+        $seats = OrganizationPricingService::billableSeats($organization);
+        $seats_monthly = $seats * $seat_rate;
+
         $lines = [];
 
-        if ($quote["seats"] > 0) {
+        if ($seats > 0) {
             $lines[] = [
-                "label" => "Employee Seats · {$quote["seats"]} × " . self::naira($quote["rates"]["seat"]),
-                "value" => self::naira($quote["seats_monthly"]),
+                "label" => "Employee Seats · {$seats} × " . self::naira($seat_rate),
+                "value" => self::naira($seats_monthly),
             ];
         }
 
@@ -60,7 +66,9 @@ class OrganizationBillingService
         return [
             "label" => strtoupper($name) . " · ACTIVE",
             "lines" => $lines,
-            "total" => self::naira($quote["total_monthly"]),
+            "seats" => $seats,
+            "perSeat" => self::naira($seat_rate),
+            "total" => self::naira($seats_monthly),
             "renews" => "Renews " . self::nextReset()->format("M j, Y") . " · billed monthly",
         ];
     }

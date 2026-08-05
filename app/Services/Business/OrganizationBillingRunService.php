@@ -65,9 +65,11 @@ class OrganizationBillingRunService
         Carbon $period_start,
         Carbon $period_end
     ): ?OrganizationInvoice {
-        $seats = count(OrgAggregateService::memberIds($organization));
+        // Prepay bills the committed (licensed) seats from day one; postpay bills
+        // only active (onboarded) employee seats — so a postpay org with nobody
+        // onboarded yet is billed nothing until an employee activates.
+        $seats = OrganizationPricingService::billableSeats($organization);
 
-        // "Invoiced monthly once your first employee activates — not before."
         if ($seats < 1) {
             return null;
         }
