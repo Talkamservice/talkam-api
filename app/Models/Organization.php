@@ -26,6 +26,7 @@ class Organization extends Model
         "va_created_at" => "datetime",
         "kyc_consent_at" => "datetime",
         "credit_balance" => "decimal:2",
+        "session_bundle_funded_at" => "datetime",
     ];
 
     public function members()

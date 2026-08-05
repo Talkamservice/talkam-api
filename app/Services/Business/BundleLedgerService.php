@@ -29,6 +29,12 @@ class BundleLedgerService
 
     public static function remaining(Organization $organization): int
     {
+        // Prepay activates on payment (web §08/§11): an unfunded bundle is not yet
+        // usable, even though the purchased count is already recorded.
+        if (empty($organization->session_bundle_funded_at)) {
+            return 0;
+        }
+
         return max(0, (int) $organization->session_bundle_sessions - (int) $organization->session_bundle_used);
     }
 

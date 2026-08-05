@@ -64,7 +64,14 @@ class VirtualAccountService
             $idType => $idNumber,
         ]);
 
-        return self::storeAccount($organization, $account, $idType, substr($idNumber, -4), $tx_ref);
+        $organization = self::storeAccount($organization, $account, $idType, substr($idNumber, -4), $tx_ref);
+
+        // A prepay org paying by transfer needs a first invoice (seats + bundle) to
+        // reconcile against; the bundle activates when that transfer lands. No-op for
+        // postpay / no-bundle orgs.
+        OrganizationBillingService::ensurePrepayInvoice($organization);
+
+        return $organization;
     }
 
     /**

@@ -22,6 +22,7 @@ class OrganizationInvoice extends Model
         "period_start",
         "period_end",
         "seats",
+        "bundle_sessions",
         "amount",
         "status",
         "issued_at",
@@ -41,6 +42,7 @@ class OrganizationInvoice extends Model
         "overdue_notified_at" => "datetime",
         "amount" => "decimal:2",
         "seats" => "integer",
+        "bundle_sessions" => "integer",
     ];
 
     public function organization()

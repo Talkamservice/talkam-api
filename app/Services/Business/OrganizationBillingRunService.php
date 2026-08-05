@@ -162,6 +162,15 @@ class OrganizationBillingRunService
                 $invoice->period_start,
                 $invoice->period_end
             );
+
+            // Prepay activates on payment (web §08/§11): paying an invoice that
+            // carries a bundle flips that bundle live.
+            if ((int) $invoice->bundle_sessions > 0) {
+                $organization = Organization::find($invoice->organization_id);
+                if ($organization && empty($organization->session_bundle_funded_at)) {
+                    $organization->update(["session_bundle_funded_at" => now()]);
+                }
+            }
         }
 
         return $invoice->refresh();

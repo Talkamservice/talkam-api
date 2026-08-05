@@ -239,6 +239,8 @@ class OrganizationBillingService
 
         $payment->update(["status" => StatusConstants::COMPLETED]);
 
+        $bundle_sessions = (int) ($payment->metadata["bundle_sessions"] ?? 0);
+
         OrganizationInvoice::updateOrCreate(
             ["reference" => $payment->reference],
             [
@@ -246,9 +248,61 @@ class OrganizationBillingService
                 "period_start" => now()->startOfMonth(),
                 "period_end" => now()->endOfMonth(),
                 "seats" => (int) $organization->seats_licensed,
+                "bundle_sessions" => $bundle_sessions,
                 "amount" => $payment->amount,
                 "status" => OrganizationInvoice::STATUS_PAID,
                 "issued_at" => now(),
+            ]
+        );
+
+        // Prepay activates on payment (web §08/§11): the card charge cleared, so the
+        // bundle is now funded and usable.
+        if ($bundle_sessions > 0 && empty($organization->session_bundle_funded_at)) {
+            $organization->update(["session_bundle_funded_at" => now()]);
+        }
+    }
+
+    /**
+     * Prepay-by-bank-transfer (web §11): a prepay org paying by transfer gets a
+     * first invoice (first-month seats + bundle) to reconcile its dedicated-account
+     * transfer against; the bundle activates when that invoice is paid. Idempotent
+     * and inert for postpay / no-bundle orgs. Reuses the current period's reference
+     * so the monthly run treats month one as already invoiced (no double seat bill).
+     */
+    public static function ensurePrepayInvoice(Organization $organization): ?OrganizationInvoice
+    {
+        if (($organization->payment_timing ?? "prepay") !== "prepay") {
+            return null;
+        }
+        if (empty($organization->therapist_access) || (int) $organization->session_bundle_sessions < 1) {
+            return null;
+        }
+        if (!empty($organization->session_bundle_funded_at)) {
+            return null; // already paid — nothing to invoice
+        }
+
+        $quote = OrganizationPricingService::quoteFor($organization);
+        $amount = (int) $quote["seats_monthly"] + (int) $quote["bundle_total"];
+
+        if ($amount <= 0) {
+            return null;
+        }
+
+        $reference = "INV-" . now()->format("Ym") . "-" . $organization->id;
+        $net_days = (int) config("business.billing.net_terms_days");
+
+        return OrganizationInvoice::firstOrCreate(
+            ["reference" => $reference],
+            [
+                "organization_id" => $organization->id,
+                "period_start" => now()->startOfMonth(),
+                "period_end" => now()->endOfMonth(),
+                "seats" => (int) $organization->seats_licensed,
+                "bundle_sessions" => (int) $organization->session_bundle_sessions,
+                "amount" => $amount,
+                "status" => OrganizationInvoice::STATUS_DUE,
+                "issued_at" => now(),
+                "due_at" => now()->addDays($net_days),
             ]
         );
     }

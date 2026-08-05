@@ -29,6 +29,7 @@ class BundleLedgerTest extends TestCase
             "status" => OC::STATUS_ACTIVE,
             "session_bundle_sessions" => $purchased,
             "session_bundle_used" => $used,
+            "session_bundle_funded_at" => now(), // a purchased bundle is a paid one
             "verified_at" => now(),
         ]);
     }

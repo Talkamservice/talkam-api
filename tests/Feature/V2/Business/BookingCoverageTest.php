@@ -48,6 +48,7 @@ class BookingCoverageTest extends TestCase
             'name' => 'Co', 'slug' => 'co-' . uniqid(), 'domain' => 'co' . uniqid() . '.ng',
             'status' => OC::STATUS_ACTIVE, 'therapist_access' => true,
             'payment_timing' => 'prepay', 'session_bundle_sessions' => 25,
+            'session_bundle_funded_at' => now(), // a prepay org using its bundle has paid for it
             'verified_at' => now(),
         ], $o));
     }
