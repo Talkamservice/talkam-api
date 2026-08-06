@@ -14,8 +14,12 @@ class TherapistDirectoryService
 {
     public static function list(array $data = [])
     {
+        // Open consumer directory: TalkAM-verified therapists only. Business
+        // therapists a company brought in are unverified (no verified_at) and
+        // serve their employer's team via the org roster, not this network.
         $builder = Therapist::with('user')
             ->status()
+            ->whereNotNull('verified_at')
             ->withAvg('reviews as rating_avg', 'rating')
             ->withCount('reviews');
 
@@ -43,7 +47,10 @@ class TherapistDirectoryService
 
     public static function getById($id): Therapist
     {
-        $therapist = Therapist::with('user')->find($id);
+        // Verified-only: this backs the consumer profile, slots, reviews and
+        // booking paths, none of which should reach an unverified business
+        // therapist. Their employer's team books them through the org flow.
+        $therapist = Therapist::with('user')->whereNotNull('verified_at')->find($id);
         if (empty($therapist)) {
             throw new ModelNotFoundException("Therapist not found");
         }

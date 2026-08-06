@@ -6,6 +6,7 @@ use App\Constants\Account\User\ConsentConstants;
 use App\Constants\Account\User\UserConstants;
 use App\Constants\Auth\PinConstants;
 use App\Constants\Business\OrganizationConstants;
+use App\Constants\Post\PostCategoryConstants;
 use App\Exceptions\Auth\PinException;
 use App\Exceptions\General\InvalidRequestException;
 use App\Helpers\MethodsHelper;
@@ -311,16 +312,26 @@ class OrganizationService
 
     public function saveBench(Organization $organization, array $data): Organization
     {
+        // Selections are interest-topic category ids — the same taxonomy
+        // therapists tag and the app matches on. Validating against it keeps a
+        // company's bench pointing at categories that actually exist.
         $validator = Validator::make($data, [
             "bench_topics" => "present|array|max:50",
-            "bench_topics.*" => "required|string|max:60",
+            "bench_topics.*" => [
+                "required",
+                Rule::exists("post_categories", "id")
+                    ->where("type", PostCategoryConstants::TYPE_INTEREST_TOPIC),
+            ],
         ]);
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
 
-        $topics = array_values(array_unique($validator->validated()["bench_topics"]));
+        $topics = array_values(array_unique(array_map(
+            fn ($id) => (string) $id,
+            $validator->validated()["bench_topics"]
+        )));
 
         $organization->update(["bench_topics" => $topics]);
 

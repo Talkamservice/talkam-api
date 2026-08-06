@@ -7,7 +7,9 @@ use App\Constants\General\StatusConstants;
 use App\Models\Invitation;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\Therapist;
 use App\Models\User;
+use App\Services\Business\OrgRosterService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Sanctum\Sanctum;
@@ -414,6 +416,55 @@ class InvitationTest extends TestCase
             OrganizationConstants::ROLE_THERAPIST,
             OrganizationMember::where("user_id", $user->id)->first()->role
         );
+
+        // They become a therapist immediately, but UNVERIFIED — enough to unlock
+        // the dashboard, not enough to appear in the open consumer network.
+        $therapist = Therapist::where("user_id", $user->id)->first();
+        $this->assertNotNull($therapist, "a therapist row should be provisioned on accept");
+        $this->assertNull($therapist->verified_at, "a business therapist must start unverified");
+    }
+
+    public function test_an_accepted_therapist_shows_up_in_the_org_roster_as_its_own_provider(): void
+    {
+        // End-to-end across the write AND read paths: the real accept endpoint
+        // creates the membership, and the SAME roster the "My Therapists" page
+        // reads must then surface that therapist. This is the guard the earlier
+        // hand-built roster fixture couldn't give — if accept() ever stopped
+        // producing an active therapist-role member, this fails where a
+        // fixture-only test would stay green.
+        $organization = Organization::factory()->create();
+        $invitation = $this->pendingInvite($organization, "therapist");
+
+        $this->postJson("/api/v2/business/invitations/token/{$invitation->uuid}/accept", [
+            "full_name" => "Ngozi Uba",
+            "password" => "Passw0rd12!",
+        ])->assertStatus(200);
+
+        $user = User::where("email", "chidinma.eze@zenithbank.com")->first();
+        $therapist = Therapist::where("user_id", $user->id)->first();
+
+        $roster = OrgRosterService::therapists($organization->refresh());
+        $row = collect($roster["therapists"])->firstWhere("id", $therapist->id);
+
+        $this->assertNotNull($row, "an accepted therapist must appear in My Therapists");
+        $this->assertTrue($row["is_own"], "the org's own provider");
+        $this->assertTrue($row["in_network"], "own providers are always in-network");
+        $this->assertFalse($row["is_verified"], "brought in by the employer, not TalkAM-verified");
+        $this->assertGreaterThanOrEqual(1, $roster["stats"]["seats_used"]);
+    }
+
+    public function test_an_employee_invite_does_not_create_a_therapist_row(): void
+    {
+        $organization = Organization::factory()->create();
+        $invitation = $this->pendingInvite($organization, "employee");
+
+        $this->postJson("/api/v2/business/invitations/token/{$invitation->uuid}/accept", [
+            "full_name" => "Chidinma Eze",
+            "password" => "Passw0rd12!",
+        ])->assertStatus(200);
+
+        $user = User::where("email", "chidinma.eze@zenithbank.com")->first();
+        $this->assertSame(0, Therapist::where("user_id", $user->id)->count());
     }
 
     public function test_a_user_already_in_another_organization_cannot_accept(): void

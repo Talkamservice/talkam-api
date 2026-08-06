@@ -31,6 +31,23 @@ class TherapistDirectoryTest extends TestCase
             ]]]);
     }
 
+    public function test_excludes_unverified_business_therapists(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $verified = Therapist::factory()->create();
+        $unverified = Therapist::factory()->create(["verified_at" => null]);
+
+        // Not listed in the open consumer directory...
+        $ids = collect($this->getJson("/api/v2/user/therapists")->json("data.data"))->pluck("id");
+        $this->assertTrue($ids->contains($verified->id));
+        $this->assertFalse($ids->contains($unverified->id));
+
+        // ...and not reachable directly for a profile or booking slots.
+        $this->getJson("/api/v2/user/therapists/{$unverified->id}")->assertStatus(404);
+        $this->getJson("/api/v2/user/therapists/{$unverified->id}/slots?date=2026-09-01")->assertStatus(404);
+    }
+
     public function test_search_filters_by_name(): void
     {
         Sanctum::actingAs(User::factory()->create());

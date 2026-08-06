@@ -8,6 +8,7 @@ use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Business\OrganizationResource;
 use App\Models\Industry;
+use App\Services\Business\BenchTopicService;
 use App\Services\Business\OrganizationPricingService;
 use App\Services\Business\OrganizationService;
 use Illuminate\Http\Request;
@@ -69,7 +70,7 @@ class OrganizationController extends Controller
                 "quote" => OrganizationPricingService::quoteFor($organization),
                 "bench" => [
                     "topics" => $organization->bench_topics ?? [],
-                    "available" => config("business.bench_topics"),
+                    "available" => BenchTopicService::activeList(),
                     "verified_therapist_count" => OrganizationPricingService::benchTherapistCount(),
                 ],
             ]);
@@ -126,7 +127,7 @@ class OrganizationController extends Controller
                 "organization" => OrganizationResource::make($organization)->resolve(),
                 "bench" => [
                     "topics" => $organization->bench_topics ?? [],
-                    "available" => config("business.bench_topics"),
+                    "available" => BenchTopicService::activeList(),
                     "verified_therapist_count" => OrganizationPricingService::benchTherapistCount(),
                 ],
             ]);

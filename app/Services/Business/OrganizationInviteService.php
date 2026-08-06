@@ -11,6 +11,7 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Invitation;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\Therapist;
 use App\Models\User;
 use App\Services\Invitation\InvitationService;
 use App\Services\Notifications\Business\OrganizationInviteNotificationService;
@@ -337,6 +338,15 @@ class OrganizationInviteService
                     "activated_at" => now(),
                 ]
             );
+
+            // A therapist a business brings in becomes a therapist immediately,
+            // but UNVERIFIED (verified_at stays null): the employer vouches for
+            // them, TalkAM does not. That's enough to unlock their dashboard and
+            // serve their employer's team; they stay out of the open consumer
+            // directory until they complete TalkAM verification themselves.
+            if ($invitation->invite_role === OrganizationConstants::ROLE_THERAPIST) {
+                Therapist::firstOrCreate(["user_id" => $user->id]);
+            }
 
             $invitation->update([
                 "user_id" => $user->id,

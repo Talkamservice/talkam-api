@@ -16,44 +16,54 @@ class TherapistSlotService
     public static function slotsFor(Therapist $therapist, string $date): array
     {
         $day = Carbon::parse($date);
-        $availability = TherapistAvailability::where([
+
+        // The availability grid stores one row PER bookable block, so a weekday
+        // can have several windows (08:00–08:50, 09:00–09:50, …). Read them all,
+        // not just the first — otherwise only the earliest window is ever
+        // offered, and once it is in the past the day looks fully booked.
+        $windows = TherapistAvailability::where([
             'user_id' => $therapist->user_id,
             'day_of_week' => strtolower($day->englishDayOfWeek),
             'active' => true,
-        ])->first();
+        ])->get()
+            ->filter(fn ($w) => !empty($w->start_time) && !empty($w->end_time));
 
-        if (empty($availability) || empty($availability->start_time) || empty($availability->end_time)) {
+        if ($windows->isEmpty()) {
             return [];
         }
 
         $duration = (int) ($therapist->session_duration ?: 50);
         $step = $duration + (int) ($therapist->buffer_minutes ?: 0);
 
-        $window_start = $day->copy()->setTimeFromTimeString($availability->start_time);
-        $window_end = $day->copy()->setTimeFromTimeString($availability->end_time);
-
         $taken = TherapySession::where('therapist_id', $therapist->id)
             ->active()
-            ->whereBetween('starts_at', [$window_start, $window_end])
+            ->whereBetween('starts_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()])
             ->pluck('starts_at')
             ->map(fn ($t) => Carbon::parse($t)->format('Y-m-d H:i'))
             ->all();
 
         $slots = [];
-        for ($cursor = $window_start->copy(); $cursor->copy()->addMinutes($duration)->lte($window_end); $cursor->addMinutes($step)) {
-            if (in_array($cursor->format('Y-m-d H:i'), $taken)) {
-                continue;
+        foreach ($windows as $window) {
+            $window_start = $day->copy()->setTimeFromTimeString($window->start_time);
+            $window_end = $day->copy()->setTimeFromTimeString($window->end_time);
+
+            for ($cursor = $window_start->copy(); $cursor->copy()->addMinutes($duration)->lte($window_end); $cursor->addMinutes($step)) {
+                $key = $cursor->format('Y-m-d H:i');
+                if (in_array($key, $taken) || $cursor->isPast()) {
+                    continue;
+                }
+                // Overlapping windows (e.g. 16:00–16:50 and 16:30–17:20) can
+                // land on the same start; keep one entry per start time.
+                $slots[$key] = [
+                    'starts_at' => $cursor->toDateTimeString(),
+                    'ends_at' => $cursor->copy()->addMinutes($duration)->toDateTimeString(),
+                ];
             }
-            if ($cursor->isPast()) {
-                continue;
-            }
-            $slots[] = [
-                'starts_at' => $cursor->toDateTimeString(),
-                'ends_at' => $cursor->copy()->addMinutes($duration)->toDateTimeString(),
-            ];
         }
 
-        return $slots;
+        ksort($slots);
+
+        return array_values($slots);
     }
 
     /**

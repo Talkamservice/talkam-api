@@ -33,6 +33,7 @@ class AdminAuthorizationTest extends TestCase
             ["post", "/api/v2/business/employees/{$member_id}/deactivate", []],
             ["post", "/api/v2/business/employees/{$member_id}/reactivate", []],
             ["get", "/api/v2/business/therapists", []],
+            ["get", "/api/v2/business/therapists/1", []],
             ["get", "/api/v2/business/safety-reports", []],
             ["get", "/api/v2/business/activity", []],
             ["post", "/api/v2/business/organization/profile", ["name" => "Renamed Corp"]],

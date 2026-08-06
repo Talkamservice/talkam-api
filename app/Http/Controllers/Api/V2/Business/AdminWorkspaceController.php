@@ -129,6 +129,22 @@ class AdminWorkspaceController extends Controller
         }
     }
 
+    /** Full profile behind the "View profile" modal. */
+    public function therapistDetail(Request $request, $therapist)
+    {
+        try {
+            return ApiHelper::validResponse(
+                "Therapist returned successfully",
+                OrgRosterService::therapistDetail(
+                    $request->attributes->get("organization"),
+                    $therapist
+                )
+            );
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
     /* ── Trust & safety / activity / settings ───────────────────────────── */
 
     public function safetyReports(Request $request)

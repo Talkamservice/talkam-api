@@ -33,6 +33,8 @@ class DatabaseSeeder extends Seeder
             JournalSeeder::class,
             LegalSeeder::class,
             IndustrySeeder::class,
+            InterestTopicSeeder::class,
+            BenchTopicSeeder::class,
         ]);
     }
 }

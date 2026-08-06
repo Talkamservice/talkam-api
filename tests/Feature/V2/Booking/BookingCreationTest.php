@@ -66,6 +66,25 @@ class BookingCreationTest extends TestCase
         $this->assertEquals(17500, (float) TherapySession::first()->amount);
     }
 
+    public function test_therapist_without_a_rate_is_rejected_cleanly_not_a_500(): void
+    {
+        // A business-provisioned therapist is created bare (just a user_id via
+        // firstOrCreate on invite-accept), so session_rate is null. Booking one
+        // must fail with a clean 422 — never a NOT NULL crash leaking SQL, which
+        // is what a rate-less verified therapist produced in the wild.
+        Sanctum::actingAs(User::factory()->create());
+        [$therapist, $starts_at] = $this->bookableSlot();
+        $therapist->update(["session_rate" => null]);
+
+        $this->postJson("/api/v2/user/bookings", [
+            "therapist_id" => $therapist->id,
+            "starts_at" => $starts_at,
+            "format" => "video",
+        ])->assertStatus(422)->assertJson(["success" => false]);
+
+        $this->assertSame(0, TherapySession::count());
+    }
+
     public function test_missing_required_fields_rejected(): void
     {
         Sanctum::actingAs(User::factory()->create());

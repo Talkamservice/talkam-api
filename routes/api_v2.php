@@ -194,6 +194,7 @@ Route::prefix("business")->as("business.")->group(function () {
             Route::post("employees/{member}/reactivate", [AdminWorkspaceController::class, "reactivateEmployee"])->name("employees.reactivate");
 
             Route::get("therapists", [AdminWorkspaceController::class, "therapists"])->name("therapists.index");
+            Route::get("therapists/{therapist}", [AdminWorkspaceController::class, "therapistDetail"])->name("therapists.show");
             Route::get("safety-reports", [AdminWorkspaceController::class, "safetyReports"])->name("safety-reports.index");
             Route::get("activity", [AdminWorkspaceController::class, "activity"])->name("activity.index");
             Route::post("organization/profile", [AdminWorkspaceController::class, "updateProfile"])->name("organization.profile");

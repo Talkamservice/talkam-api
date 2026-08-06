@@ -72,6 +72,19 @@ class SessionBookingService
 
         $org_covered = $coverage['coverage'] !== Cov::CONSUMER;
 
+        // A consumer-pay booking must have a price to charge. A therapist with
+        // no session rate hasn't finished pricing setup — e.g. one an employer
+        // just brought in (provisioned bare, rate still null) — so there is
+        // nothing to charge. Reject cleanly instead of letting a null amount
+        // hit the NOT NULL column as a raw 500. (Org-covered pricing is the
+        // separate, still-unbuilt B2B path, so it is intentionally not touched
+        // here — see planning-docs B2B fulfilment.)
+        if (!$org_covered && !((float) $therapist->session_rate > 0)) {
+            throw ValidationException::withMessages([
+                'therapist_id' => ['This therapist is not open for booking yet.'],
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             // Active-status double-booking guard (service-level; a partial

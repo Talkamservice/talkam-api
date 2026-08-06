@@ -241,17 +241,11 @@ return [
     ],
 
     /*
-    | Therapist-bench specialties an admin can prioritise (bench screen).
-    | Free-form keys — they shape onboarding priority, not access.
+    | Therapist-bench specialties (bench screen) are no longer configured here.
+    | They are the interest-topic `post_categories` an admin features on the
+    | bench — one taxonomy shared with therapist specialties and the mobile
+    | directory. See BenchTopicService / BenchTopicSeeder.
     */
-    'bench_topics' => [
-        ['key' => 'anxiety', 'label' => 'Anxiety'],
-        ['key' => 'depression', 'label' => 'Depression'],
-        ['key' => 'relationships', 'label' => 'Relationships'],
-        ['key' => 'work', 'label' => 'Work Stress'],
-        ['key' => 'grief', 'label' => 'Grief'],
-        ['key' => 'trauma', 'label' => 'PTSD / Trauma'],
-    ],
 
     /*
     | Self check-in questionnaire. Categories must match
