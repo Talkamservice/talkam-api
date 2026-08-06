@@ -67,4 +67,17 @@ class Organization extends Model
 
         return $active + $pending;
     }
+
+    /**
+     * Has the company set up a way to pay? True once it has a payment path — a
+     * card on file, a dedicated bank-transfer account, or a funded prepay bundle.
+     * False means billing was skipped: the dashboard and invite flows say so
+     * instead of implying the plan is already live (web §11).
+     */
+    public function billingReady(): bool
+    {
+        return !empty($this->card_token)
+            || !empty($this->va_account_number)
+            || !empty($this->session_bundle_funded_at);
+    }
 }

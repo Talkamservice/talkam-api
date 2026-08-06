@@ -119,6 +119,15 @@ class BundleFundingTest extends TestCase
         $plan = OrganizationBillingService::currentPlan($org);
         $this->assertNull($plan["payMethodLabel"]);        // skipped → "not set up"
         $this->assertFalse($plan["bundleFunded"]);
+        $this->assertFalse($plan["billingReady"]);         // no payment path → setup incomplete
+    }
+
+    public function test_billing_ready_reflects_any_payment_path(): void
+    {
+        $this->assertFalse($this->prepayOrg(["pay_method" => null])->billingReady());       // skipped
+        $this->assertTrue($this->prepayOrg(["card_token" => "flw-tok"])->billingReady());   // card on file
+        $this->assertTrue($this->prepayOrg(["va_account_number" => "1234567890"])->billingReady()); // dedicated account
+        $this->assertTrue($this->prepayOrg(["session_bundle_funded_at" => now()])->billingReady()); // paid bundle
     }
 
     public function test_billing_summary_reflects_a_funded_bundle_and_pay_method(): void
@@ -132,6 +141,7 @@ class BundleFundingTest extends TestCase
         $plan = OrganizationBillingService::currentPlan($org);
         $this->assertSame("Bank transfer", $plan["payMethodLabel"]);
         $this->assertTrue($plan["bundleFunded"]);
+        $this->assertTrue($plan["billingReady"]);
     }
 
     public function test_paying_the_transfer_invoice_funds_the_bundle(): void

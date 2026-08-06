@@ -33,6 +33,9 @@ class OrganizationResource extends JsonResource
                 : null,
             "payment_timing" => $this->payment_timing ?? "prepay",
             "pay_method" => $this->pay_method,
+            // Whether billing has actually been set up (paid path exists) — lets the
+            // UI stop implying a skipped plan is already live (web §11).
+            "billing_ready" => $this->billingReady(),
             "bench_topics" => $this->bench_topics ?? [],
             "verified_at" => $this->verified_at?->toDateTimeString(),
             "is_verified" => $this->isVerified(),

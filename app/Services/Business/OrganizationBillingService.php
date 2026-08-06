@@ -74,6 +74,7 @@ class OrganizationBillingService
 
         return [
             "label" => strtoupper($name) . " · ACTIVE",
+            "planName" => strtoupper($name),
             "lines" => $lines,
             "seats" => $seats,
             "perSeat" => self::naira($seat_rate),
@@ -83,6 +84,9 @@ class OrganizationBillingService
             "payMethodLabel" => $pay_method_label,
             // Prepay activates on payment (web §11): a bundle is not live until funded.
             "bundleFunded" => !empty($organization->session_bundle_funded_at),
+            // Whether billing is set up at all — false = skipped, so the UI shows a
+            // setup-incomplete state rather than implying the plan is live.
+            "billingReady" => $organization->billingReady(),
         ];
     }
 
