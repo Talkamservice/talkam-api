@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ConversationMember;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -7,9 +8,10 @@ use Illuminate\Support\Facades\Broadcast;
 | Broadcast Channels
 |--------------------------------------------------------------------------
 |
-| Here you may register all of the event broadcasting channels that your
-| application supports. The given channel authorization callbacks are
-| used to check if an authenticated user can listen to the channel.
+| §16/§3b hardening: conversation channels require membership and the
+| refresh channel requires identity — previously any authenticated user
+| could subscribe to any private channel (verified v1 bug #7). Legitimate
+| clients are members of the channels they subscribe to and are unaffected.
 |
 */
 
@@ -22,9 +24,12 @@ Broadcast::channel('presence-user.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('private-conversation.{conversationId}', function ($user, $conversationId) {
-    return $user;
+    return ConversationMember::where([
+        'conversation_id' => $conversationId,
+        'user_id' => $user->id,
+    ])->exists();
 });
 
 Broadcast::channel('refresh-notification.{userId}', function ($user, $userId) {
-    return $user;
+    return (int) $user->id === (int) $userId;
 });

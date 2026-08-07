@@ -30,6 +30,27 @@ class NewMessageNotification extends Notification
      */
     public function via(object $notifiable): array
     {
+        // v2 (§16): per-member conversation mute — stored since v1 but never
+        // enforced — and §04 user-level mutes now suppress the notification.
+        // Only changes behavior for users who muted, which is what they asked.
+        $member = \App\Models\ConversationMember::where([
+            "conversation_id" => $this->message->conversation_id,
+            "user_id" => $notifiable->id,
+        ])->first();
+
+        $muted = !empty($member)
+            && $member->is_muted
+            && (empty($member->muted_until) || now()->lt($member->muted_until));
+
+        $user_muted = \App\Models\UserMute::where([
+            "user_id" => $notifiable->id,
+            "muted_user_id" => $this->message->sender_id,
+        ])->exists();
+
+        if ($muted || $user_muted) {
+            return [];
+        }
+
         return MethodsHelper::userNotificationPreference($notifiable);
     }
 

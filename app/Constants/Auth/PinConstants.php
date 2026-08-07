@@ -15,6 +15,7 @@ class PinConstants
     const TITLES = [
         self::TYPE_PASSWORD_RESET => "Password Reset",
         self::TYPE_VERIFY_EMAIL => "Verify Email",
+        self::TYPE_LOGIN => "Login Verification",
     ];
 
     const PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,32}$";

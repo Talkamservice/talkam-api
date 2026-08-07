@@ -70,6 +70,20 @@
                             <span class="side-menu__label list-item-label">Categories</span>
                         </a>
                     </li>
+
+                    <li class="slide">
+                        <a href="{{ route('admin.industries.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.industries.index', 'admin.industries.create', 'admin.industries.edit']) ? 'active' : '' }}">
+                            <i class="bx bx-buildings side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Industries</span>
+                        </a>
+                    </li>
+
+                    <li class="slide">
+                        <a href="{{ route('admin.bench-topics.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.bench-topics.index', 'admin.bench-topics.create', 'admin.bench-topics.edit']) ? 'active' : '' }}">
+                            <i class="bx bx-heart side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Bench Topics</span>
+                        </a>
+                    </li>
                 @endcan
 
                 @canAny(slugPermission('read plan'), slugPermission('read promotion'))

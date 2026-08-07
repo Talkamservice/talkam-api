@@ -113,7 +113,8 @@ class PaymentService
 
             $data = $validator->validated();
 
-            $transaction = (new FlutterwaveService)
+            // Container-resolved (behavior-identical) so tests can bind a mock.
+            $transaction = app(FlutterwaveService::class)
                 ->verifyTransactionByReference($data["reference"]);
 
             if (!isset($transaction["data"]["meta"])) {
@@ -131,6 +132,12 @@ class PaymentService
                 return $this->handleOneOffPayments($transaction);
             } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
                 return $this->handleSubscriptionPayments($transaction, $transaction);
+            } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SESSION])) {
+                // Additive v2 branch (therapist session bookings) — v1
+                // activities above are untouched.
+                return (new \App\Services\Therapist\SessionPaymentHandlerService)
+                    ->setPayload($transaction)
+                    ->handle();
             }
         } catch (\Throwable $th) {
             throw $th;

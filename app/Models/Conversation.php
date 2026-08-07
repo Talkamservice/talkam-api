@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Conversation extends Model
 {
-    use HasFactory;
+    use HasFactory, \Illuminate\Database\Eloquent\SoftDeletes; // SoftDeletes: flagged §16 exception (column pre-existing)
 
     protected $guarded = [];
 
