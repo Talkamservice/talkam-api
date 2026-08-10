@@ -10,11 +10,16 @@ use App\Exceptions\General\ModelNotFoundException;
 use App\Models\Invitation;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationTherapist;
 use App\Models\Therapist;
+use App\Models\TherapistCapacityRequest;
 use App\Models\TherapistReview;
 use App\Models\TherapySession;
+use App\Models\User;
 use App\Services\Therapist\TherapistSlotService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Seat administration for the admin dashboard.
@@ -175,20 +180,23 @@ class OrgRosterService
     {
         $member_ids = OrgAggregateService::memberIds($organization);
         $cohort = count($member_ids);
-        // The bench is stored as interest-topic category ids — the same rows a
-        // therapist tags as specialties — so "in network" is an exact category
-        // match, not a name guess.
-        $bench_ids = collect($organization->bench_topics ?? [])
-            ->map(fn ($k) => (int) $k)
-            ->filter()
-            ->values();
         // The org's own providers — therapists it brought in — always belong to
-        // "My Therapists", whether or not their specialties match the bench (a
-        // freshly added one may have none yet).
-        $own_ids = $organization->members()
+        // "My Therapists", whether or not they're also explicitly network-added.
+        // Keyed by user_id so "own" rows can also carry the membership id —
+        // removing an own therapist is a seat deactivation (same as an
+        // employee's), which needs the membership id, not the therapist id.
+        $own_member_ids = $organization->members()
             ->where('role', OrganizationConstants::ROLE_THERAPIST)
             ->where('status', OrganizationConstants::MEMBER_ACTIVE)
-            ->pluck('user_id');
+            ->pluck('id', 'user_id');
+        // Explicit network membership — the source of truth for "in_network"
+        // on every therapist that isn't "own". Specialty/bench-topic overlap
+        // is used only to recommend/filter candidates, never to silently
+        // grant network membership: an admin-removed therapist must stay
+        // removed even if their specialty still matches the bench.
+        $network_ids = OrganizationTherapist::where('organization_id', $organization->id)
+            ->where('status', OrganizationConstants::NETWORK_ACTIVE)
+            ->pluck('therapist_id');
         $month_start = now()->startOfMonth();
 
         $counts = empty($member_ids) ? collect() : TherapySession::query()
@@ -216,10 +224,10 @@ class OrgRosterService
             ->withAvg('reviews as rating_avg', 'rating')
             ->withCount('reviews')
             ->get()
-            ->map(function ($t) use ($counts, $team_counts, $enough, $bench_ids, $own_ids) {
+            ->map(function ($t) use ($counts, $team_counts, $enough, $own_member_ids, $network_ids) {
                 $info = self::specialtyInfoOf($t);
                 $specialty = $info['name'];
-                $is_own = $own_ids->contains($t->user_id);
+                $is_own = $own_member_ids->has($t->user_id);
 
                 return [
                     'id' => $t->id,
@@ -232,14 +240,16 @@ class OrgRosterService
                     'is_verified' => !empty($t->verified_at),
                     // A provider the org brought in itself (vs a TalkAM-network therapist).
                     'is_own' => $is_own,
+                    // Only present for "own" rows — the OrganizationMember id
+                    // needed to deactivate/reactivate their seat. Null for
+                    // TalkAM-network therapists, who use add/remove instead.
+                    'member_id' => $own_member_ids->get($t->user_id),
                     // Both are company-wide counts, suppressed below the cohort
                     // floor: month_sessions feeds the table's monthly column,
                     // team_sessions the detail modal's cumulative "team sessions".
                     'month_sessions' => $enough ? (int) ($counts[$t->id] ?? 0) : null,
                     'team_sessions' => $enough ? (int) ($team_counts[$t->id] ?? 0) : null,
-                    'in_network' => $is_own
-                        || $bench_ids->isEmpty()
-                        || collect($info['ids'])->intersect($bench_ids)->isNotEmpty(),
+                    'in_network' => $is_own || $network_ids->contains($t->id),
                 ];
             });
 
@@ -265,7 +275,11 @@ class OrgRosterService
                 // the frontend's "My Therapists" page, which independently
                 // derives the same number as `mine.length`.
                 'seats_used' => $network_seats_used,
-                'seats_total' => (int) $organization->seats_licensed,
+                // No therapist-network capacity concept exists yet (this
+                // used to silently reuse the employee seat count, which was
+                // never actually a therapist limit) — null until a real cap
+                // is defined; the UI shows "—" rather than a fabricated one.
+                'seats_total' => null,
                 'sessions_bundle' => (int) $organization->session_bundle_sessions,
                 'sessions_used' => $enough
                     ? (int) TherapySession::whereIn('user_id', $member_ids ?: [0])
@@ -359,6 +373,102 @@ class OrgRosterService
             'languages' => null,
             'response_time' => null,
         ];
+    }
+
+    /**
+     * Add a TalkAM-verified therapist to the org's network. Re-adding a
+     * previously removed therapist reactivates the same row rather than
+     * inserting a duplicate — `organization_id`+`therapist_id` is unique.
+     */
+    public function addToNetwork(Organization $organization, $therapist_id, User $actor): OrganizationTherapist
+    {
+        $therapist = Therapist::find($therapist_id);
+
+        if (empty($therapist)) {
+            throw new ModelNotFoundException('Therapist not found');
+        }
+
+        if (empty($therapist->verified_at)) {
+            throw new InvalidRequestException('Only TalkAM-verified therapists can be added to your network.');
+        }
+
+        $existing = OrganizationTherapist::where('organization_id', $organization->id)
+            ->where('therapist_id', $therapist->id)
+            ->first();
+
+        if (!empty($existing) && $existing->status === OrganizationConstants::NETWORK_ACTIVE) {
+            throw new InvalidRequestException('This therapist is already in your network.');
+        }
+
+        if (!empty($existing)) {
+            $existing->update([
+                'status' => OrganizationConstants::NETWORK_ACTIVE,
+                'added_by' => $actor->id,
+                'added_at' => now(),
+                'removed_at' => null,
+                'removed_by' => null,
+            ]);
+
+            return $existing->refresh();
+        }
+
+        return OrganizationTherapist::create([
+            'organization_id' => $organization->id,
+            'therapist_id' => $therapist->id,
+            'status' => OrganizationConstants::NETWORK_ACTIVE,
+            'added_by' => $actor->id,
+            'added_at' => now(),
+        ]);
+    }
+
+    /**
+     * Remove a TalkAM-verified therapist from the org's network. This only
+     * covers explicit network membership — an "own" (employer-vouched)
+     * therapist is a seat-holding OrganizationMember instead, removed via
+     * the same deactivate() employees already use.
+     */
+    public function removeFromNetwork(Organization $organization, $therapist_id, User $actor): OrganizationTherapist
+    {
+        $membership = OrganizationTherapist::where('organization_id', $organization->id)
+            ->where('therapist_id', $therapist_id)
+            ->where('status', OrganizationConstants::NETWORK_ACTIVE)
+            ->first();
+
+        if (empty($membership)) {
+            throw new InvalidRequestException("This therapist isn't in your network.");
+        }
+
+        $membership->update([
+            'status' => OrganizationConstants::NETWORK_REMOVED,
+            'removed_at' => now(),
+            'removed_by' => $actor->id,
+        ]);
+
+        return $membership->refresh();
+    }
+
+    /** File a capacity request for TalkAM to review — no automatic effect,
+     *  just a reviewable record (same shape as group/comment reports). */
+    public function requestCapacity(Organization $organization, User $actor, array $data): TherapistCapacityRequest
+    {
+        $validator = Validator::make($data, [
+            'specialty_category_id' => 'nullable|integer|exists:post_categories,id',
+            'note' => 'nullable|string|max:2000',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $validated = $validator->validated();
+
+        return TherapistCapacityRequest::create([
+            'organization_id' => $organization->id,
+            'requested_by' => $actor->id,
+            'specialty_category_id' => $validated['specialty_category_id'] ?? null,
+            'note' => $validated['note'] ?? null,
+            'status' => StatusConstants::PENDING,
+        ]);
     }
 
     /** Approved-application specialty category names, in order. */

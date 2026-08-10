@@ -19,7 +19,7 @@ class TherapistDirectoryController extends Controller
     public function index(Request $request)
     {
         try {
-            $therapists = TherapistDirectoryService::list($request->all())
+            $therapists = TherapistDirectoryService::list($request->all(), auth()->user())
                 ->paginate(AppConstants::API_PAGINATION_SIZE)
                 ->appends($request->query());
 
@@ -36,7 +36,7 @@ class TherapistDirectoryController extends Controller
     public function show($id)
     {
         try {
-            $therapist = TherapistDirectoryService::getById($id);
+            $therapist = TherapistDirectoryService::getById($id, auth()->user());
             return ApiHelper::validResponse(
                 "Therapist profile returned successfully",
                 TherapistDirectoryService::profile($therapist)
@@ -52,18 +52,25 @@ class TherapistDirectoryController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "date" => "required|date_format:Y-m-d",
+                "date" => "nullable|date_format:Y-m-d",
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
 
-            $therapist = TherapistDirectoryService::getById($id);
-            $slots = TherapistSlotService::slotsFor($therapist, $validator->validated()["date"]);
+            $therapist = TherapistDirectoryService::getById($id, auth()->user());
+            $date = $validator->validated()["date"] ?? null;
+
+            // No date = the booking/reschedule pickers just want "what's
+            // soonest", so scan forward instead of requiring the caller to
+            // already know a bookable day.
+            $slots = $date
+                ? TherapistSlotService::slotsFor($therapist, $date)
+                : TherapistSlotService::upcomingSlots($therapist);
 
             return ApiHelper::validResponse("Slots returned successfully", [
-                "date" => $validator->validated()["date"],
+                "date" => $date,
                 "slots" => $slots,
             ]);
         } catch (ValidationException $e) {

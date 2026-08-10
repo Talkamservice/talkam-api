@@ -9,6 +9,7 @@ use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Business\OrganizationResource;
 use App\Services\Business\OrgAdminService;
+use App\Services\Business\OrganizationInviteService;
 use App\Services\Business\OrgRosterService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -26,11 +27,13 @@ class AdminWorkspaceController extends Controller
 {
     public OrgRosterService $roster_service;
     public OrgAdminService $admin_service;
+    public OrganizationInviteService $invite_service;
 
     public function __construct()
     {
         $this->roster_service = new OrgRosterService;
         $this->admin_service = new OrgAdminService;
+        $this->invite_service = new OrganizationInviteService;
     }
 
     /* ── Employees ──────────────────────────────────────────────────────── */
@@ -140,6 +143,75 @@ class AdminWorkspaceController extends Controller
                     $therapist
                 )
             );
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    public function addTherapistToNetwork(Request $request, $therapist)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("manageTherapistNetwork", $organization);
+
+            $row = $this->roster_service->addToNetwork($organization, $therapist, $request->user());
+
+            return ApiHelper::validResponse("Therapist added to your network", [
+                "id" => $row->therapist_id,
+                "status" => $row->status,
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    public function removeTherapistFromNetwork(Request $request, $therapist)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("manageTherapistNetwork", $organization);
+
+            $row = $this->roster_service->removeFromNetwork($organization, $therapist, $request->user());
+
+            return ApiHelper::validResponse("Therapist removed from your network", [
+                "id" => $row->therapist_id,
+                "status" => $row->status,
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    /** "Add your own therapist" — sends a therapist-role invite with a
+     *  billing preference attached; the therapist still accepts it themselves. */
+    public function addOwnTherapist(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("manageTherapistNetwork", $organization);
+
+            $invitation = $this->invite_service->inviteOwnTherapist($organization, $request->user(), $request->all());
+
+            return ApiHelper::validResponse("Therapist invite sent for verification", [
+                "email" => $invitation->invitee_email,
+                "billing_type" => $invitation->billing_type,
+                "seats_used" => $organization->refresh()->seatsUsed(),
+                "seats_licensed" => (int) $organization->seats_licensed,
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    public function requestTherapistCapacity(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $this->authorize("manageTherapistNetwork", $organization);
+
+            $this->roster_service->requestCapacity($organization, $request->user(), $request->all());
+
+            return ApiHelper::validResponse("Capacity request sent to TalkAM", []);
         } catch (Exception $e) {
             return $this->failure($e);
         }

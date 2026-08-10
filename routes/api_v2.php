@@ -38,9 +38,11 @@ use App\Http\Controllers\Api\V2\Post\PostController;
 use App\Http\Controllers\Api\V2\Post\SearchController;
 use App\Http\Controllers\Api\V2\Finance\PaymentCallbackController;
 use App\Http\Controllers\Api\V2\Therapist\BookingController;
+use App\Http\Controllers\Api\V2\Therapist\ClientSessionRequestController;
 use App\Http\Controllers\Api\V2\Therapist\SessionController;
 use App\Http\Controllers\Api\V2\Therapist\SessionRequestController;
 use App\Http\Controllers\Api\V2\Therapist\SessionReviewController;
+use App\Http\Controllers\Api\V2\Therapist\TherapistSessionRequestController;
 use App\Http\Controllers\Api\V2\Webhook\AvProviderWebhookController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistApplicationController;
 use App\Http\Controllers\Api\V2\Therapist\TherapistDirectoryController;
@@ -76,6 +78,10 @@ Route::prefix("auth")->as("auth.")->group(function () {
     Route::post("/oauth-login", [LoginController::class, "oauthLogin"])->name("oauth_login");
     Route::post("/login", [V2LoginController::class, "login"])->name("login");
     Route::post("/2fa/verify", [TwoFactorController::class, "verify"])->name("2fa.verify");
+
+    Route::post("/logout", [V2LoginController::class, "logout"])
+        ->middleware("auth:sanctum")
+        ->name("logout");
 
     Route::get("/username/available", [UsernameController::class, "available"])
         ->middleware("throttle:30,1")
@@ -230,6 +236,11 @@ Route::prefix("business")->as("business.")->group(function () {
                 Route::post("invitations", [BusinessInvitationController::class, "store"])->name("invitations.store");
                 Route::post("invitations/{id}/resend", [BusinessInvitationController::class, "resend"])->name("invitations.resend");
                 Route::post("invitations/{id}/revoke", [BusinessInvitationController::class, "revoke"])->name("invitations.revoke");
+
+                Route::post("therapists/own", [AdminWorkspaceController::class, "addOwnTherapist"])->name("therapists.own");
+                Route::post("therapists/capacity-requests", [AdminWorkspaceController::class, "requestTherapistCapacity"])->name("therapists.capacity-requests");
+                Route::post("therapists/{therapist}/add", [AdminWorkspaceController::class, "addTherapistToNetwork"])->name("therapists.add");
+                Route::post("therapists/{therapist}/remove", [AdminWorkspaceController::class, "removeTherapistFromNetwork"])->name("therapists.remove");
             });
         });
 
@@ -467,6 +478,12 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::post("reschedules/{id}/respond", [SessionController::class, "respondToReschedule"])
             ->name("reschedules.respond");
+
+        Route::prefix("session-requests")->as("session-requests.")->group(function () {
+            Route::get("/", [ClientSessionRequestController::class, "index"])->name("index");
+            Route::post("/", [ClientSessionRequestController::class, "store"])->name("store");
+            Route::post("{id}/decline", [ClientSessionRequestController::class, "decline"])->name("decline");
+        });
     });
 
     Route::post("finance/payments/callback", [PaymentCallbackController::class, "callback"])
@@ -493,6 +510,12 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("{session}/acknowledge", [SessionRequestController::class, "acknowledge"])->name("acknowledge");
             Route::get("{session}/notes", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "show"])->name("notes.show");
             Route::post("{session}/notes", [\App\Http\Controllers\Api\V2\Therapist\SessionNoteController::class, "store"])->name("notes.store");
+        });
+
+        Route::prefix("session-requests")->as("session-requests.")->group(function () {
+            Route::get("/", [TherapistSessionRequestController::class, "index"])->name("index");
+            Route::post("{id}/propose", [TherapistSessionRequestController::class, "propose"])->name("propose");
+            Route::post("{id}/decline", [TherapistSessionRequestController::class, "decline"])->name("decline");
         });
 
         Route::get("sessions", [SessionRequestController::class, "index"])->name("sessions.index");

@@ -4,6 +4,7 @@ namespace App\Services\Therapist;
 
 use App\Exceptions\General\InvalidRequestException;
 use App\Models\TherapySession;
+use BoogieFromZk\AgoraToken\RtcTokenBuilder2;
 use Illuminate\Http\Request;
 
 /**
@@ -13,6 +14,10 @@ use Illuminate\Http\Request;
  */
 class SessionCallService
 {
+    /** How long a join token stays valid — comfortably covers the join
+     *  window plus the session's own duration for a slow/rejoining client. */
+    private const TOKEN_TTL_SECONDS = 4 * 60 * 60;
+
     /**
      * Channel name per session — the therapy_sessions.channel_ref.
      */
@@ -26,9 +31,11 @@ class SessionCallService
     }
 
     /**
-     * Short-lived RTC token for a participant. Real Agora token minting
-     * plugs in here once the Agora account/credentials land (infra
-     * prerequisite); the interface is final.
+     * Short-lived RTC token for a participant, minted with Agora's own
+     * token-builder algorithm (AccessToken2 / Token 007). Both the client
+     * and the therapist publish their own audio/video, so both get the
+     * publisher role — there's no host/audience distinction in a 1:1
+     * therapy session.
      */
     public function token(TherapySession $session, int $user_id): string
     {
@@ -39,16 +46,23 @@ class SessionCallService
             throw new InvalidRequestException("The call service is not configured yet.");
         }
 
-        // Placeholder HMAC token pending the Agora RtcTokenBuilder package —
-        // NOT a valid Agora token; swapped during Agora account setup.
-        $expires = now()->addMinutes(120)->timestamp;
-        $payload = "{$this->channelFor($session)}:{$user_id}:{$expires}";
-
-        return base64_encode($payload . ':' . hash_hmac('sha256', $payload, $certificate));
+        return RtcTokenBuilder2::buildTokenWithUid(
+            $app_id,
+            $certificate,
+            $this->channelFor($session),
+            $user_id,
+            RtcTokenBuilder2::ROLE_PUBLISHER,
+            self::TOKEN_TTL_SECONDS,
+            self::TOKEN_TTL_SECONDS
+        );
     }
 
     /**
-     * Webhook authenticity check (HMAC over the raw body).
+     * Webhook authenticity check — Agora Notifications signs the raw body
+     * with HMAC-SHA256, hex-encoded, in the `Agora-Signature-V2` header (a
+     * SHA1 `Agora-Signature` also exists; SHA256 is the stronger of the two
+     * and sufficient on its own). The secret comes from Console → Projects →
+     * [project] → Edit → All Features → Notifications → Secret.
      */
     public function verifyWebhook(Request $request): bool
     {
@@ -57,7 +71,7 @@ class SessionCallService
             return false;
         }
 
-        $signature = $request->header('x-av-signature');
+        $signature = $request->header('Agora-Signature-V2');
 
         return !empty($signature)
             && hash_equals(hash_hmac('sha256', $request->getContent(), $secret), $signature);

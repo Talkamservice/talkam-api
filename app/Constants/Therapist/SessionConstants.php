@@ -24,4 +24,10 @@ class SessionConstants
     // Cancellation actors
     const CANCELLED_BY_CLIENT = 'client';
     const CANCELLED_BY_THERAPIST = 'therapist';
+
+    // Inbound session-request lifecycle (client asks for a preferred time,
+    // therapist proposes a real slot from their availability).
+    const REQUEST_PENDING = 'pending';
+    const REQUEST_PROPOSED = 'proposed';
+    const REQUEST_DECLINED = 'declined';
 }

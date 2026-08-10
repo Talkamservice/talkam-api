@@ -127,12 +127,20 @@ class SessionCancellationTest extends TestCase
 
     public function test_terminal_statuses_cannot_be_cancelled(): void
     {
-        foreach (["completed", "cancelled", "in_progress"] as $status) {
+        $expected_messages = [
+            "completed" => "This session has already ended.",
+            "cancelled" => "This session has already been cancelled.",
+            "in_progress" => "This session is already in progress.",
+        ];
+
+        foreach ($expected_messages as $status => $message) {
             $session = $this->paidSession(["status" => $status]);
             Sanctum::actingAs($session->user);
 
             $this->postJson("/api/v2/user/bookings/{$session->id}/cancel")
-                ->assertStatus(400)->assertJson(["success" => false]);
+                ->assertStatus(400)
+                ->assertJson(["success" => false])
+                ->assertJsonPath("message", $message);
         }
     }
 }

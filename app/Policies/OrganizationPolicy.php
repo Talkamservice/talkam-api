@@ -37,6 +37,13 @@ class OrganizationPolicy
         return $this->update($user, $organization) && $organization->isVerified();
     }
 
+    /** Therapist-network add/remove/capacity-request — spends network capacity,
+     *  same gate as invites. */
+    public function manageTherapistNetwork(User $user, Organization $organization): bool
+    {
+        return $this->update($user, $organization) && $organization->isVerified();
+    }
+
     private function activeMemberOf(User $user, Organization $organization)
     {
         return $user->organizationMemberships()

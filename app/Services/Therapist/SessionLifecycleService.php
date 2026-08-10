@@ -51,6 +51,17 @@ class SessionLifecycleService
         return $session;
     }
 
+    /** Why a session in this status specifically can't be cancelled — shown
+     *  to the user instead of a blanket "can no longer be cancelled". */
+    private const UNCANCELLABLE_STATUS_REASONS = [
+        TherapistConstants::SESSION_IN_PROGRESS => "This session is already in progress.",
+        TherapistConstants::SESSION_COMPLETED => "This session has already ended.",
+        TherapistConstants::SESSION_CANCELLED => "This session has already been cancelled.",
+        TherapistConstants::SESSION_FAILED => "This session couldn't be set up, so there's nothing to cancel.",
+        TherapistConstants::SESSION_EXPIRED => "This session's payment window already expired.",
+        TherapistConstants::SESSION_NO_SHOW => "This session was already marked as a no-show.",
+    ];
+
     public function cancel(User $user, $booking_id, array $data): TherapySession
     {
         $validator = Validator::make($data, [
@@ -67,7 +78,9 @@ class SessionLifecycleService
             TherapistConstants::SESSION_CONFIRMED,
             TherapistConstants::SESSION_PENDING_PAYMENT,
         ])) {
-            throw new InvalidRequestException("This session can no longer be cancelled.");
+            throw new InvalidRequestException(
+                self::UNCANCELLABLE_STATUS_REASONS[$session->status] ?? "This session can no longer be cancelled."
+            );
         }
 
         $is_therapist = $session->therapist?->user_id == $user->id;
@@ -107,6 +120,16 @@ class SessionLifecycleService
         return $session->refresh();
     }
 
+    /** Why a session in this status specifically can't be joined — shown to
+     *  the user instead of a blanket "cannot be joined". */
+    private const UNJOINABLE_STATUS_REASONS = [
+        TherapistConstants::SESSION_COMPLETED => "This session has already ended.",
+        TherapistConstants::SESSION_CANCELLED => "This session was cancelled.",
+        TherapistConstants::SESSION_FAILED => "This session couldn't be set up — please book a new one.",
+        TherapistConstants::SESSION_EXPIRED => "This session's payment window expired before it was confirmed.",
+        TherapistConstants::SESSION_NO_SHOW => "This session was marked as a no-show.",
+    ];
+
     public function join(User $user, $booking_id): array
     {
         $session = self::getForParticipant($booking_id, $user);
@@ -115,14 +138,32 @@ class SessionLifecycleService
             TherapistConstants::SESSION_CONFIRMED,
             TherapistConstants::SESSION_IN_PROGRESS,
         ])) {
-            throw new InvalidRequestException("This session cannot be joined.");
+            // pending_payment reads differently depending on who's paying for
+            // it (§09) — everything else has one fixed reason.
+            $reason = $session->status === TherapistConstants::SESSION_PENDING_PAYMENT
+                ? ($session->coverage === Cov::CONSUMER
+                    ? "Payment for this session hasn't been completed yet."
+                    : "Your therapist hasn't accepted this session yet.")
+                : (self::UNJOINABLE_STATUS_REASONS[$session->status] ?? "This session cannot be joined.");
+
+            throw new InvalidRequestException($reason);
         }
 
         $window_opens = $session->starts_at->copy()
             ->subMinutes(config('therapist.sessions.join_early_minutes'));
 
         if (now()->lt($window_opens)) {
-            throw new InvalidRequestException("The session has not started yet.");
+            $starts_at = $session->starts_at;
+            $when = $starts_at->isToday()
+                ? ''
+                : ($starts_at->isTomorrow()
+                    ? ' tomorrow'
+                    : ' in ' . now()->startOfDay()->diffInDays($starts_at->copy()->startOfDay()) . ' days');
+
+            throw new InvalidRequestException(
+                "This session starts{$when} at {$starts_at->format('g:ia')} — "
+                . "you can join from {$window_opens->format('g:ia')}."
+            );
         }
 
         $is_therapist = $session->therapist?->user_id == $user->id;

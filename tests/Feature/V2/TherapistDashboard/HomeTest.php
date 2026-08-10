@@ -123,6 +123,25 @@ class HomeTest extends TestCase
         $this->assertStringNotContainsString("Chidinma", $response->getContent());
     }
 
+    public function test_next_session_with_a_first_time_client_has_no_shared_note(): void
+    {
+        [$therapist] = $this->therapist();
+        $client = User::factory()->create();
+
+        $next = TherapySession::factory()->create([
+            "therapist_id" => $therapist->id,
+            "user_id" => $client->id,
+            "starts_at" => now()->addHours(2),
+            "status" => TherapistConstants::SESSION_CONFIRMED,
+        ]);
+
+        $data = $this->getJson("/api/v2/therapist/home")->assertStatus(200)->json("data");
+
+        $this->assertSame($next->id, $data["next_session"]["id"]);
+        $this->assertNull($data["next_session"]["last_note"]);
+        $this->assertEmpty($data["continuity"][0]["shared_note"] ?? null);
+    }
+
     public function test_home_never_shows_another_therapists_sessions(): void
     {
         [$therapist] = $this->therapist();

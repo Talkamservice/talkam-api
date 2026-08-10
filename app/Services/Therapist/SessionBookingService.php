@@ -41,7 +41,7 @@ class SessionBookingService
         }
 
         $validated = $validator->validated();
-        $therapist = TherapistDirectoryService::getById($validated['therapist_id']);
+        $therapist = TherapistDirectoryService::getById($validated['therapist_id'], $user);
 
         $formats = $therapist->session_formats ?? TherapistConstants::SESSION_FORMATS;
         if (!in_array($validated['format'], $formats)) {
@@ -111,12 +111,19 @@ class SessionBookingService
                 'starts_at' => $validated['starts_at'],
                 'duration_minutes' => $therapist->session_duration ?: 50,
                 'format' => $validated['format'],
-                // Org-covered sessions are employer-funded: confirmed immediately,
-                // with no client payment and no payment hold. Consumer unchanged.
-                'status' => $org_covered
-                    ? TherapistConstants::SESSION_CONFIRMED
-                    : TherapistConstants::SESSION_PENDING_PAYMENT,
-                'amount' => $therapist->session_rate,
+                // Every new session — org-covered or consumer — starts out
+                // needing the therapist's own review before it's real: an
+                // org-covered one has nothing to pay, but the therapist still
+                // gets to accept or decline it (acknowledge() confirms it),
+                // same as the request/propose flow. See "Requests" tab.
+                'status' => TherapistConstants::SESSION_PENDING_PAYMENT,
+                // An org-brought-in therapist often has no consumer session_rate
+                // set (never needed one — org_external is settled outside
+                // TalkAM entirely, per EarningsLedgerService::creditForSession).
+                // Fall back to what the org is actually billed rather than hit
+                // the NOT NULL column with a real gap the guard above only
+                // covers for the consumer path.
+                'amount' => $therapist->session_rate ?? $coverage['billed_amount'] ?? 0,
                 'currency' => config('therapist.session_rate.currency'),
                 'notes' => $validated['notes'] ?? null,
                 'hold_expires_at' => $org_covered
@@ -135,6 +142,24 @@ class SessionBookingService
             DB::rollBack();
             throw $th;
         }
+    }
+
+    /**
+     * The therapist's review just cleared a pending session — for an
+     * org-covered one that IS the accept (there's no payment to wait on), so
+     * it goes straight to confirmed. A consumer session stays pending_payment
+     * regardless; the client still has to pay. Shared by SessionRequestController::
+     * acknowledge() and TherapistSessionRequestService::propose() (proposing
+     * a concrete time is itself the therapist's acceptance).
+     */
+    public static function confirmIfAwaitingReview(TherapySession $session): TherapySession
+    {
+        if ($session->status === TherapistConstants::SESSION_PENDING_PAYMENT
+            && $session->coverage !== Cov::CONSUMER) {
+            $session->update(['status' => TherapistConstants::SESSION_CONFIRMED]);
+        }
+
+        return $session->refresh();
     }
 
     public static function getOwnedByUser($booking_id, User $user): TherapySession
@@ -261,7 +286,19 @@ class SessionBookingService
             ->orderBy('starts_at')
             ->get();
 
-        [$upcoming, $past] = $sessions->partition(fn ($s) => $s->starts_at->isFuture());
+        // A future-dated row that's cancelled/failed/expired/no-show is a dead
+        // record, not something still coming up — the "next session" widget
+        // takes upcoming[0] on faith, so a stale cancelled session sorting in
+        // there would otherwise pose as the live one (Reschedule/Cancel/Join
+        // all wired to it) until someone actually acts on it and hits a stale
+        // "can no longer be cancelled" style rejection.
+        [$upcoming, $past] = $sessions->partition(
+            fn ($s) => $s->starts_at->isFuture() && in_array($s->status, [
+                TherapistConstants::SESSION_PENDING_PAYMENT,
+                TherapistConstants::SESSION_CONFIRMED,
+                TherapistConstants::SESSION_IN_PROGRESS,
+            ])
+        );
 
         return [
             'upcoming' => $upcoming->map(fn ($s) => self::detail($s))->values()->all(),
@@ -277,12 +314,20 @@ class SessionBookingService
     {
         $share = (float) config('therapist.platform_share_percent');
 
-        $sessions = TherapySession::with(['user', 'payment', 'review'])
+        $sessions = TherapySession::with(['user', 'payment', 'review', 'note'])
             ->where('therapist_id', $therapist->id)
             ->orderBy('starts_at')
             ->get();
 
-        [$upcoming, $past] = $sessions->partition(fn ($s) => $s->starts_at->isFuture());
+        // See listFor() — a future-dated cancelled/expired row is a dead
+        // record, not something still coming up.
+        [$upcoming, $past] = $sessions->partition(
+            fn ($s) => $s->starts_at->isFuture() && in_array($s->status, [
+                TherapistConstants::SESSION_PENDING_PAYMENT,
+                TherapistConstants::SESSION_CONFIRMED,
+                TherapistConstants::SESSION_IN_PROGRESS,
+            ])
+        );
 
         $serialize = fn ($s) => array_merge(self::detail($s), [
             'client_name' => $s->user?->full_name,
@@ -306,9 +351,19 @@ class SessionBookingService
             'duration_minutes' => $session->duration_minutes,
             'format' => $session->format,
             'status' => $session->status,
+            // Who's actually paying (§09) — the Requests tab uses this to
+            // tell an org-covered "acknowledging IS confirming" request apart
+            // from a consumer one that still needs the client to pay.
+            'coverage' => $session->coverage,
+            // The Requests tab's own triage state — acknowledging is the
+            // therapist's side of "dealt with"; a consumer session stays
+            // pending until the client pays, an org-covered one confirms
+            // right on acknowledge (§10, §3a).
+            'acknowledged_at' => $session->acknowledged_at?->toDateTimeString(),
             'amount' => $session->amount,
             'currency' => $session->currency,
             'notes' => $session->notes,
+            'has_note' => $session->note?->status === 'final',
             'payment_reference' => $session->payment?->reference,
             'rating' => $session->review?->rating,
             // Client-owned pre/post mood (web §02) — the deck's "😔 → 🙂" pips.
@@ -319,6 +374,30 @@ class SessionBookingService
                 : null,
             // Only notes the therapist explicitly shared (§11 privacy).
             'shared_note' => SessionNoteService::sharedNoteFor($session),
+            // A pending reschedule proposal on this session, if any — the
+            // requester waits, the counterpart gets an accept/decline prompt.
+            // Both dashboards need this to actually surface the respond step;
+            // there is otherwise no way to discover a reschedule's id at all.
+            'pending_reschedule' => self::pendingReschedule($session),
+        ];
+    }
+
+    public static function pendingReschedule(TherapySession $session): ?array
+    {
+        $reschedule = \App\Models\SessionReschedule::where('session_id', $session->id)
+            ->where('status', \App\Constants\Therapist\SessionConstants::RESCHEDULE_PENDING)
+            ->latest()
+            ->first();
+
+        if (empty($reschedule)) {
+            return null;
+        }
+
+        return [
+            'id' => $reschedule->id,
+            'new_starts_at' => $reschedule->new_starts_at->toDateTimeString(),
+            'reason' => $reschedule->reason,
+            'requested_by' => $reschedule->requested_by,
         ];
     }
 }

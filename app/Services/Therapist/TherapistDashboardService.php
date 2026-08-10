@@ -161,14 +161,18 @@ class TherapistDashboardService
             ->orderBy('starts_at')
             ->limit($limit)
             ->get()
-            ->map(fn ($s) => [
-                'client_ref' => self::clientRef($s->user_id),
-                'focus' => self::focusFor($s),
-                'next_at' => $s->starts_at->toDateTimeString(),
-                'shared_note' => SessionNoteService::sharedNoteFor(
-                    self::lastCompleted($therapist->id, $s->user_id)
-                )['content'] ?? null,
-            ])
+            ->map(function ($s) use ($therapist) {
+                $last_completed = self::lastCompleted($therapist->id, $s->user_id);
+
+                return [
+                    'client_ref' => self::clientRef($s->user_id),
+                    'focus' => self::focusFor($s),
+                    'next_at' => $s->starts_at->toDateTimeString(),
+                    'shared_note' => $last_completed
+                        ? SessionNoteService::sharedNoteFor($last_completed)['content'] ?? null
+                        : null,
+                ];
+            })
             ->values()
             ->all();
     }
@@ -393,6 +397,8 @@ class TherapistDashboardService
 
     private static function sessionCard(TherapySession $session, Therapist $therapist): array
     {
+        $last_completed = self::lastCompleted($therapist->id, $session->user_id);
+
         return [
             'id' => $session->id,
             'client_ref' => self::clientRef($session->user_id),
@@ -400,10 +406,11 @@ class TherapistDashboardService
             'format' => $session->format,
             'duration_minutes' => $session->duration_minutes,
             'focus' => self::focusFor($session),
-            'last_note' => SessionNoteService::sharedNoteFor(
-                self::lastCompleted($therapist->id, $session->user_id)
-            )['content'] ?? null,
+            'last_note' => $last_completed
+                ? SessionNoteService::sharedNoteFor($last_completed)['content'] ?? null
+                : null,
             'session_number' => self::sessionNumber($session),
+            'pending_reschedule' => SessionBookingService::pendingReschedule($session),
         ];
     }
 

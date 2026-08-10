@@ -67,4 +67,10 @@ return [
         'secretKey' => env('FLW_SECRET_KEY'),
         'secretHash' => env('FLW_SECRET_HASH'),
     ],
+
+    'agora' => [
+        'app_id' => env('AGORA_APP_ID'),
+        'certificate' => env('AGORA_APP_CERTIFICATE'),
+        'webhook_secret' => env('AGORA_WEBHOOK_SECRET'),
+    ],
 ];

@@ -30,6 +30,32 @@ class MyBookingsTest extends TestCase
         $this->assertEquals([$past->id], collect($data["past"])->pluck("id")->all());
     }
 
+    /** A future-dated dead session (cancelled/failed/expired/no_show) is not
+     *  "upcoming" — the next-session widget takes upcoming[0] on faith, so a
+     *  stale cancelled row sorting in there would pose as the live session. */
+    public function test_future_dated_terminal_sessions_are_not_upcoming(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $live = TherapySession::factory()->create([
+            "user_id" => $user->id,
+            "starts_at" => now()->addDays(2),
+        ]);
+        foreach (["cancelled", "failed", "expired", "no_show"] as $status) {
+            TherapySession::factory()->create([
+                "user_id" => $user->id,
+                "starts_at" => now()->addDays(3),
+                "status" => $status,
+            ]);
+        }
+
+        $data = $this->getJson("/api/v2/user/bookings")->assertStatus(200)->json("data");
+
+        $this->assertEquals([$live->id], collect($data["upcoming"])->pluck("id")->all());
+        $this->assertCount(4, $data["past"]);
+    }
+
     public function test_detail_includes_payment_reference_and_amount(): void
     {
         $user = User::factory()->create();

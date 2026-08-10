@@ -10,12 +10,16 @@ use App\Http\Controllers\Controller;
 use App\Models\TherapySession;
 use App\Models\UserInterest;
 use App\Notifications\Therapist\SessionAcknowledgedNotification;
+use App\Services\Therapist\SessionBookingService;
 use Illuminate\Support\Facades\Notification;
 use Exception;
 
 /**
  * Therapist lane (§10, §3a reconciliation): the request sheet + Accept.
- * Accept = acknowledgement (no state change); Decline = the §08 cancel.
+ * Accept = acknowledgement — a no-op for a consumer session still awaiting
+ * the client's payment, but the confirming action itself for an org-covered
+ * one (nothing left to pay, so the therapist's review IS what puts it on the
+ * calendar). Decline = the §08 cancel.
  */
 class SessionRequestController extends Controller
 {
@@ -124,9 +128,10 @@ class SessionRequestController extends Controller
         try {
             $session = $this->sessionForTherapist($session_id);
 
-            // First acknowledge wins; status never changes (§3a).
+            // First acknowledge wins (§3a).
             if (empty($session->acknowledged_at)) {
                 $session->update(['acknowledged_at' => now()]);
+                $session = SessionBookingService::confirmIfAwaitingReview($session);
                 Notification::send($session->user, new SessionAcknowledgedNotification($session));
             }
 

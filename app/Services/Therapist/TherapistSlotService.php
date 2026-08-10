@@ -82,6 +82,23 @@ class TherapistSlotService
         return null;
     }
 
+    /**
+     * Up to $limit bookable slots, soonest first, scanning forward across
+     * $days days — the no-date-picker booking/reschedule flow just wants
+     * "what can I grab soon", not a specific day. Stops as soon as $limit is
+     * reached rather than scanning every remaining day once it has enough.
+     */
+    public static function upcomingSlots(Therapist $therapist, int $days = 14, int $limit = 6): array
+    {
+        $slots = [];
+
+        for ($i = 0; $i < $days && count($slots) < $limit; $i++) {
+            $slots = array_merge($slots, self::slotsFor($therapist, now()->addDays($i)->toDateString()));
+        }
+
+        return array_slice($slots, 0, $limit);
+    }
+
     public static function isBookable(Therapist $therapist, string $starts_at): bool
     {
         $target = Carbon::parse($starts_at);

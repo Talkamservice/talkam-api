@@ -58,4 +58,26 @@ class LoginController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
+    /**
+     * Revokes the token this request authenticated with — i.e. logs out the
+     * calling device only. Pass all_devices=true to revoke every token on
+     * the account instead (e.g. a "log out everywhere" security action).
+     */
+    public function logout(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if ($request->boolean('all_devices')) {
+                $user->tokens()->delete();
+            } else {
+                $user->currentAccessToken()->delete();
+            }
+
+            return ApiHelper::validResponse("Logged out successfully", []);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
 }

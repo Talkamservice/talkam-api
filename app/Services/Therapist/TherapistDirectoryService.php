@@ -2,24 +2,38 @@
 
 namespace App\Services\Therapist;
 
+use App\Constants\Business\OrganizationConstants;
 use App\Constants\Therapist\TherapistConstants;
 use App\Exceptions\General\ModelNotFoundException;
+use App\Models\OrganizationMember;
+use App\Models\OrganizationTherapist;
 use App\Models\Therapist;
 use App\Models\TherapistApplication;
 use App\Models\TherapistReview;
 use App\Models\TherapistSpecialty;
 use App\Models\TherapySession;
+use App\Models\User;
+use Illuminate\Support\Collection;
 
 class TherapistDirectoryService
 {
-    public static function list(array $data = [])
+    public static function list(array $data = [], ?User $user = null)
     {
         // Open consumer directory: TalkAM-verified therapists only. Business
         // therapists a company brought in are unverified (no verified_at) and
-        // serve their employer's team via the org roster, not this network.
+        // normally serve only their employer's team via the org roster — but
+        // that team IS this directory for a business-employed caller, so
+        // their own org's therapists are unioned in below (§ booking picker).
+        $org_ids = self::orgEligibleIds($user);
+
         $builder = Therapist::with('user')
             ->status()
-            ->whereNotNull('verified_at')
+            ->where(function ($q) use ($org_ids) {
+                $q->whereNotNull('verified_at');
+                if ($org_ids->isNotEmpty()) {
+                    $q->orWhereIn('id', $org_ids);
+                }
+            })
             ->withAvg('reviews as rating_avg', 'rating')
             ->withCount('reviews');
 
@@ -45,16 +59,60 @@ class TherapistDirectoryService
         return $builder;
     }
 
-    public static function getById($id): Therapist
+    public static function getById($id, ?User $user = null): Therapist
     {
-        // Verified-only: this backs the consumer profile, slots, reviews and
-        // booking paths, none of which should reach an unverified business
-        // therapist. Their employer's team books them through the org flow.
-        $therapist = Therapist::with('user')->whereNotNull('verified_at')->find($id);
+        // Verified-only, plus — for a business-employed caller — their own
+        // org's therapists (own + network), unverified or not. See list().
+        $org_ids = self::orgEligibleIds($user);
+
+        $therapist = Therapist::with('user')
+            ->where(function ($q) use ($org_ids) {
+                $q->whereNotNull('verified_at');
+                if ($org_ids->isNotEmpty()) {
+                    $q->orWhereIn('id', $org_ids);
+                }
+            })
+            ->find($id);
+
         if (empty($therapist)) {
             throw new ModelNotFoundException("Therapist not found");
         }
         return $therapist;
+    }
+
+    /**
+     * The therapist ids a business-employed user's own organization has made
+     * available to them: therapists the org brought in as "own" (settled
+     * outside TalkAM) plus its explicit network roster. Empty for anyone who
+     * isn't an active employee — the consumer directory is unaffected.
+     */
+    private static function orgEligibleIds(?User $user): Collection
+    {
+        if (empty($user)) {
+            return collect();
+        }
+
+        $organization_id = OrganizationMember::where('user_id', $user->id)
+            ->where('role', OrganizationConstants::ROLE_EMPLOYEE)
+            ->where('status', OrganizationConstants::MEMBER_ACTIVE)
+            ->value('organization_id');
+
+        if (empty($organization_id)) {
+            return collect();
+        }
+
+        $own_user_ids = OrganizationMember::where('organization_id', $organization_id)
+            ->where('role', OrganizationConstants::ROLE_THERAPIST)
+            ->where('status', OrganizationConstants::MEMBER_ACTIVE)
+            ->pluck('user_id');
+
+        $own_ids = Therapist::whereIn('user_id', $own_user_ids)->pluck('id');
+
+        $network_ids = OrganizationTherapist::where('organization_id', $organization_id)
+            ->where('status', OrganizationConstants::NETWORK_ACTIVE)
+            ->pluck('therapist_id');
+
+        return $own_ids->merge($network_ids)->unique();
     }
 
     public static function card(Therapist $therapist): array

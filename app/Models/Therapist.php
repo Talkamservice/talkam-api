@@ -32,6 +32,11 @@ class Therapist extends Model
         return $this->hasMany(TherapySession::class, 'therapist_id');
     }
 
+    public function networkMemberships()
+    {
+        return $this->hasMany(OrganizationTherapist::class, 'therapist_id');
+    }
+
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
         return $query->where('status', $status);

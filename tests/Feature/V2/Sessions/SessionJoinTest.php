@@ -15,9 +15,12 @@ class SessionJoinTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Agora's real token builder requires a 32-character hex app id/cert
+        // (its isUUid() format check) — arbitrary strings silently produce
+        // an empty token rather than throwing.
         config([
-            "services.agora.app_id" => "test-app-id",
-            "services.agora.certificate" => "test-certificate",
+            "services.agora.app_id" => str_repeat("a", 32),
+            "services.agora.certificate" => str_repeat("b", 32),
         ]);
     }
 
@@ -39,19 +42,56 @@ class SessionJoinTest extends TestCase
         Sanctum::actingAs($session->user);
 
         $this->getJson("/api/v2/user/bookings/{$session->id}/join")
-            ->assertStatus(400)->assertJson(["success" => false]);
+            ->assertStatus(400)
+            ->assertJson(["success" => false])
+            ->assertJsonPath(
+                "message",
+                "This session starts at {$session->starts_at->format('g:ia')} — "
+                . "you can join from {$session->starts_at->format('g:ia')}."
+            );
+    }
+
+    public function test_join_before_window_names_the_day_when_not_today(): void
+    {
+        $tomorrow = TherapySession::factory()->create(["starts_at" => now()->addDay()->setTime(8, 0)]);
+        Sanctum::actingAs($tomorrow->user);
+
+        $this->getJson("/api/v2/user/bookings/{$tomorrow->id}/join")
+            ->assertStatus(400)
+            ->assertJsonPath(
+                "message",
+                "This session starts tomorrow at 8:00am — you can join from 8:00am."
+            );
+
+        $in_three_days = TherapySession::factory()->create(["starts_at" => now()->addDays(3)->setTime(8, 0)]);
+        Sanctum::actingAs($in_three_days->user);
+
+        $this->getJson("/api/v2/user/bookings/{$in_three_days->id}/join")
+            ->assertStatus(400)
+            ->assertJsonPath(
+                "message",
+                "This session starts in 3 days at 8:00am — you can join from 8:00am."
+            );
     }
 
     public function test_join_wrong_status_rejected(): void
     {
-        foreach (["pending_payment", "cancelled", "completed"] as $status) {
+        $expected_messages = [
+            "pending_payment" => "Payment for this session hasn't been completed yet.",
+            "cancelled" => "This session was cancelled.",
+            "completed" => "This session has already ended.",
+        ];
+
+        foreach ($expected_messages as $status => $message) {
             $session = TherapySession::factory()->create([
                 "starts_at" => now()->subMinute(),
                 "status" => $status,
             ]);
             Sanctum::actingAs($session->user);
 
-            $this->getJson("/api/v2/user/bookings/{$session->id}/join")->assertStatus(400);
+            $this->getJson("/api/v2/user/bookings/{$session->id}/join")
+                ->assertStatus(400)
+                ->assertJsonPath("message", $message);
         }
     }
 

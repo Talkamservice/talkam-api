@@ -44,6 +44,16 @@ class Organization extends Model
         return $this->belongsTo(User::class, "created_by");
     }
 
+    public function therapistNetworkMemberships()
+    {
+        return $this->hasMany(OrganizationTherapist::class);
+    }
+
+    public function capacityRequests()
+    {
+        return $this->hasMany(TherapistCapacityRequest::class);
+    }
+
     public function isVerified(): bool
     {
         return !empty($this->verified_at);

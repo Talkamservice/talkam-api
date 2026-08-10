@@ -49,6 +49,20 @@ class OrganizationConstants
     /** invitations.source marker for org invites (v1 uses "admin", §05 "group"). */
     const INVITE_SOURCE = "organization";
 
+    /** How an org-added ("own") therapist is paid — set at add time, copied
+     *  from the invitation onto the membership row on accept. */
+    const BILLING_TALKAM = "talkam_billed";
+    const BILLING_SELF = "self_billed";
+
+    const BILLING_TYPES = [
+        self::BILLING_TALKAM,
+        self::BILLING_SELF,
+    ];
+
+    /* organization_therapists.status */
+    const NETWORK_ACTIVE = "active";
+    const NETWORK_REMOVED = "removed";
+
     /* Self check-in categories — "TalkAM B2B Auth.dc.html", self-check screen. */
     const SELF_CHECK_WORK = "work";
     const SELF_CHECK_ANXIETY = "anxiety";

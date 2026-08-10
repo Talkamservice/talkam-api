@@ -144,13 +144,57 @@ class SlotEngineTest extends TestCase
         );
     }
 
-    public function test_missing_or_invalid_date_rejected(): void
+    public function test_invalid_date_rejected(): void
     {
         Sanctum::actingAs(User::factory()->create());
         [$therapist] = $this->therapistWithMondayAvailability();
 
-        $this->getJson("/api/v2/user/therapists/{$therapist->id}/slots")->assertStatus(422);
         $this->getJson("/api/v2/user/therapists/{$therapist->id}/slots?date=not-a-date")->assertStatus(422);
+    }
+
+    /** No date = the booking/reschedule pickers' "what's soonest" mode —
+     *  scans forward instead of requiring the caller to name a bookable day. */
+    public function test_missing_date_scans_forward_for_next_available_slots(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+        [$therapist, $monday] = $this->therapistWithMondayAvailability();
+
+        $response = $this->getJson("/api/v2/user/therapists/{$therapist->id}/slots")
+            ->assertStatus(200);
+
+        $this->assertNull($response->json("data.date"));
+        $starts = collect($response->json("data.slots"))->pluck("starts_at");
+        $this->assertNotEmpty($starts);
+        // Only Monday has availability, so with 3 slots/week the scan keeps
+        // going past this Monday into the next one before hitting the cap —
+        // the soonest result is what matters, not that every slot shares a day.
+        $this->assertTrue(str_starts_with($starts->first(), $monday));
+    }
+
+    public function test_missing_date_caps_at_six_slots(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+        $therapist = Therapist::factory()->create();
+        // Two 3-hour windows on consecutive available days — well over 6
+        // possible slots between them, so this proves the cap actually bites.
+        TherapistAvailability::factory()->create([
+            "user_id" => $therapist->user_id,
+            "day_of_week" => "monday",
+            "start_time" => "09:00",
+            "end_time" => "12:00",
+        ]);
+        TherapistAvailability::factory()->create([
+            "user_id" => $therapist->user_id,
+            "day_of_week" => "tuesday",
+            "start_time" => "09:00",
+            "end_time" => "12:00",
+        ]);
+
+        $slots = $this->getJson("/api/v2/user/therapists/{$therapist->id}/slots")
+            ->assertStatus(200)
+            ->json("data.slots");
+
+        $this->assertCount(6, $slots);
     }
 
     public function test_inactive_day_returns_empty_list(): void

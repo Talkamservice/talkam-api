@@ -107,6 +107,42 @@ class OrganizationInviteService
         return $created;
     }
 
+    /**
+     * "Add your own therapist" (web §04 Therapist Network) — an employer
+     * vouching for a provider they already work with, not a TalkAM-network
+     * pick. Rides the same invite/accept pipeline as any other therapist
+     * invite (the therapist still sets their own password — an admin can't
+     * mint a working login without their consent) with one extra field:
+     * how this provider is paid, carried on the invitation until accept
+     * copies it onto the resulting membership row.
+     */
+    public function inviteOwnTherapist(Organization $organization, User $inviter, array $data): Invitation
+    {
+        $validator = Validator::make($data, [
+            "email" => "required|email|max:190",
+            "billing_type" => ["required", "string", Rule::in(OrganizationConstants::BILLING_TYPES)],
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $validated = $validator->validated();
+
+        $created = $this->invite($organization, $inviter, [
+            "invites" => [[
+                "email" => $validated["email"],
+                "role" => OrganizationConstants::ROLE_THERAPIST,
+                "department" => null,
+            ]],
+        ]);
+
+        $invitation = $created[0];
+        $invitation->update(["billing_type" => $validated["billing_type"]]);
+
+        return $invitation->refresh();
+    }
+
     private function assertSeatsAvailable(Organization $organization, int $adding): void
     {
         $licensed = (int) $organization->seats_licensed;
@@ -334,6 +370,7 @@ class OrganizationInviteService
                     "role" => $invitation->invite_role,
                     "status" => OrganizationConstants::MEMBER_ACTIVE,
                     "department" => $invitation->department,
+                    "billing_type" => $invitation->billing_type,
                     "invited_by" => $invitation->invited_by,
                     "activated_at" => now(),
                 ]

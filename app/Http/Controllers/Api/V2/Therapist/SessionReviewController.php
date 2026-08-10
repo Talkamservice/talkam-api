@@ -45,7 +45,7 @@ class SessionReviewController extends Controller
     public function index(Request $request, $therapist)
     {
         try {
-            $model = TherapistDirectoryService::getById($therapist);
+            $model = TherapistDirectoryService::getById($therapist, auth()->user());
 
             $reviews = SessionReviewService::listFor($model->id)
                 ->paginate(AppConstants::API_PAGINATION_SIZE)

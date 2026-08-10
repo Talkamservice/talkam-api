@@ -23,10 +23,18 @@
         <!-- Privacy suppression tests assert against the canonical floor; pin it
              so they never inherit a developer's local .env override. -->
         <env name="BUSINESS_AGGREGATE_MIN_COHORT" value="5"/>
+        <!-- The whole suite (booking, cap, pricing) is written against the
+             consumer-pay baseline; pin it off so it never inherits a
+             developer's local .env override, same as the cohort floor above. -->
+        <env name="BUSINESS_COVERAGE_ENABLED" value="false"/>
         <env name="CACHE_DRIVER" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="LOCATION_TESTING" value="true"/>
+        <!-- The join-window tests are written against the documented default
+             (no early-join grace) — pin it so a local dev convenience value
+             in .env never changes their timing. -->
+        <env name="SESSION_JOIN_EARLY_MINUTES" value="0"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
