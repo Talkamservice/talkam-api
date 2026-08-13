@@ -46,6 +46,16 @@ class PostCommentController extends Controller
     }
 
     /**
+     * All comments by a specific user (id or username) — same query `index`
+     * already runs for `?user_id=`, just addressed by path.
+     */
+    public function byUser(Request $request, $id)
+    {
+        $request->merge(["user_id" => $id]);
+        return $this->index($request);
+    }
+
+    /**
      * v2 reply: hard 500-char server-side max. Threading, mentions and the
      * per-reply anonymous flag reuse the shared v1 service.
      */

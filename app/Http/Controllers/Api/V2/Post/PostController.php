@@ -91,6 +91,18 @@ class PostController extends Controller
     }
 
     /**
+     * All posts by a specific user (id or username) — the same feed query
+     * `index` already runs for `?user_id=`, just addressed by path instead
+     * of query string. Same visibility rules apply (own anonymous posts are
+     * only visible to their author, blocked/muted authors excluded, etc).
+     */
+    public function byUser(Request $request, $id)
+    {
+        $request->merge(["user_id" => $id]);
+        return $this->index($request);
+    }
+
+    /**
      * v2 create post: title required, at least one tag, body capped at 500
      * chars, and the category must be an interest topic (server-side check).
      * v1's looser rules stay untouched for v1 clients.

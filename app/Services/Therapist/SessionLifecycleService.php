@@ -192,6 +192,37 @@ class SessionLifecycleService
     }
 
     /**
+     * Opens (or reuses) the messaging thread tied to this booking. Resolving
+     * the counterpart from the session server-side — rather than trusting a
+     * client-supplied receiver_id — is what lets the therapist-facing app
+     * never learn a client's real user id, only their anonymised client_ref.
+     * A confirmed/in-progress/completed booking is proof enough these two
+     * are allowed to talk, so it skips the AWAITING_RESPONSE gate a
+     * cold-start conversation would normally sit in.
+     */
+    public function startConversation(User $user, $booking_id): array
+    {
+        $session = self::getForParticipant($booking_id, $user);
+
+        $is_client = $session->user_id == $user->id;
+        $counterpart_id = $is_client ? $session->therapist?->user_id : $session->user_id;
+
+        if (empty($counterpart_id)) {
+            throw new InvalidRequestException("There's no one to message on this session yet.");
+        }
+
+        $conversation = (new \App\Services\Messaging\ConversationService)->create([
+            'receiver_id' => $counterpart_id,
+        ]);
+
+        if ($conversation->status === \App\Constants\General\StatusConstants::AWAITING_RESPONSE) {
+            $conversation->update(['status' => \App\Constants\General\StatusConstants::ACTIVE]);
+        }
+
+        return \App\Services\Messaging\V2\ConversationStateService::serialize($conversation->refresh(), $user);
+    }
+
+    /**
      * AV webhook: room closed → ended_at + auto-complete.
      */
     public function handleRoomClosed(?string $channel_ref): ?TherapySession

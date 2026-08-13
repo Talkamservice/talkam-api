@@ -2,13 +2,14 @@
 
 namespace App\Events\Messaging;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageDelivered implements ShouldBroadcast
+/** Synchronous for the same reason as ReceiveMessage — see that class. */
+class MessageDelivered implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -18,7 +19,7 @@ class MessageDelivered implements ShouldBroadcast
 
     public function broadcastOn(): array
     {
-        return [new Channel('private-conversation.' . $this->conversationId)];
+        return [new PrivateChannel('conversation.' . $this->conversationId)];
     }
 
     public function broadcastAs()

@@ -66,6 +66,9 @@ class CareTeamService
             ],
             'continuity_note' => self::continuityNote($user, $therapist->id),
             'next_session_id' => $next?->id,
+            /* Any booking with this therapist works as the anchor for
+             * starting a conversation — doesn't have to be upcoming. */
+            'session_id' => $latest->id,
         ];
     }
 

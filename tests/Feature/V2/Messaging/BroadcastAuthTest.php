@@ -38,8 +38,13 @@ class BroadcastAuthTest extends TestCase
         [$conversation, $a] = $this->conversationBetween();
         Sanctum::actingAs($a);
 
+        // What a real Pusher client actually sends when subscribing to
+        // "private-conversation.{id}" — single prefix. The double-prefixed
+        // variant this test used to send only "passed" because it matched
+        // the (now-fixed) buggy channels.php registration; no real client
+        // would ever produce that string, so it was never really tested.
         $this->postJson("/broadcasting/auth", [
-            "channel_name" => "private-private-conversation.{$conversation->id}",
+            "channel_name" => "private-conversation.{$conversation->id}",
             "socket_id" => "123.456",
         ])->assertStatus(200);
     }
@@ -50,7 +55,7 @@ class BroadcastAuthTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
 
         $this->postJson("/broadcasting/auth", [
-            "channel_name" => "private-private-conversation.{$conversation->id}",
+            "channel_name" => "private-conversation.{$conversation->id}",
             "socket_id" => "123.456",
         ])->assertStatus(403);
     }

@@ -418,6 +418,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("{group}/invite", [GroupInviteController::class, "invite"])->name("invite");
             Route::post("{group}/request-access", [GroupMemberController::class, "requestAccess"])->name("request-access");
             Route::post("{group}/update-access-request", [GroupMemberController::class, "updateAccessRequest"])->name("update-access-request");
+            Route::get("{group}/members", [GroupMemberController::class, "byGroup"])->name("members.by-group");
             Route::get("{group}", [V1GroupController::class, "show"])->name("show");
         });
 
@@ -473,6 +474,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("{booking}/cancel", [SessionController::class, "cancel"])->name("cancel");
             Route::post("{booking}/reschedule", [SessionController::class, "reschedule"])->name("reschedule");
             Route::get("{booking}/join", [SessionController::class, "join"])->name("join");
+            Route::post("{booking}/message", [SessionController::class, "message"])->name("message");
             Route::get("{booking}", [BookingController::class, "show"])->name("show");
         });
 
@@ -550,6 +552,14 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("{user}/treatment-plan", [\App\Http\Controllers\Api\V2\Therapist\ClientController::class, "setTreatmentPlan"])->name("treatment-plan");
             Route::get("{user}", [\App\Http\Controllers\Api\V2\Therapist\ClientController::class, "show"])->name("show");
         });
+    });
+
+    // A specific user's posts/comments, addressed by id (or username) —
+    // same visibility rules as `/user/posts`, `/user/post-comments` with
+    // `?user_id=`, just a cleaner path for "view someone's profile content".
+    Route::prefix("users/{id}")->as("users.")->group(function () {
+        Route::get("posts", [PostController::class, "byUser"])->name("posts");
+        Route::get("comments", [PostCommentController::class, "byUser"])->name("comments");
     });
 });
 

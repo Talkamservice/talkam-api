@@ -23,7 +23,16 @@ Broadcast::channel('presence-user.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('private-conversation.{conversationId}', function ($user, $conversationId) {
+/*
+| Registered WITHOUT the "private-"/"presence-" prefix on purpose — Laravel
+| strips that prefix from the incoming channel name before matching it
+| against these patterns (see Broadcaster::normalizeChannelName /
+| UsePusherChannelConventions), so a pattern that includes the prefix can
+| never match and auth silently 403s. The client still subscribes to the
+| prefixed name ("private-conversation.{id}"); only the registration here
+| stays bare.
+*/
+Broadcast::channel('conversation.{conversationId}', function ($user, $conversationId) {
     return ConversationMember::where([
         'conversation_id' => $conversationId,
         'user_id' => $user->id,

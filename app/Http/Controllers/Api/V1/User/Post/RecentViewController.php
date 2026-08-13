@@ -14,6 +14,7 @@ use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Services\Post\RecentViewService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class RecentViewController extends Controller
 {
@@ -38,6 +39,8 @@ class RecentViewController extends Controller
             };
 
             return ApiHelper::validResponse("Recent returned successfully", $data);
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, $request, $e);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

@@ -37,6 +37,26 @@ class SendMessageTest extends TestCase
         Event::assertDispatched(MessageDelivered::class);
     }
 
+    /**
+     * ReceiveMessage/MessageDelivered must broadcast synchronously
+     * (ShouldBroadcastNow), not via the queue — this app has no `jobs`
+     * table migration and no queue worker running, so a queued broadcast
+     * event 500s the whole request the moment it tries to push the job.
+     * Real events (no Event::fake) against a `database` queue connection
+     * is the only way to actually exercise that failure mode.
+     */
+    public function test_send_does_not_touch_the_queue(): void
+    {
+        config(["queue.default" => "database"]);
+        [$conversation, $a] = $this->conversationBetween();
+        Sanctum::actingAs($a);
+
+        $this->postJson("/api/v2/user/messaging/messages/send", [
+            "conversation_id" => $conversation->id,
+            "message" => "Hello there",
+        ])->assertStatus(200)->assertJson(["success" => true]);
+    }
+
     public function test_body_over_config_max_rejected_and_config_driven(): void
     {
         Notification::fake();
