@@ -42,6 +42,22 @@ class PersonalStepTest extends TestCase
         $this->assertSame(0, TherapistApplication::count());
     }
 
+    public function test_years_experience_is_optional(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->postJson("/api/v2/therapist/application/personal", [
+            "credential_type" => "Clinical Psychologist",
+        ])->assertStatus(200)->assertJson(["success" => true]);
+
+        $this->assertDatabaseHas("therapist_applications", [
+            "user_id" => $user->id,
+            "credential_type" => "Clinical Psychologist",
+            "years_experience" => null,
+        ]);
+    }
+
     public function test_rejects_invalid_years_experience(): void
     {
         Sanctum::actingAs(User::factory()->create());

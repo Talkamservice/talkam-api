@@ -75,6 +75,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix("auth")->as("auth.")->group(function () {
     Route::post("/register", [RegisterController::class, "register"])->name("register");
+    Route::post("/register-therapist", [RegisterController::class, "registerTherapist"])->name("register-therapist");
     Route::post("/oauth-login", [LoginController::class, "oauthLogin"])->name("oauth_login");
     Route::post("/login", [V2LoginController::class, "login"])->name("login");
     Route::post("/2fa/verify", [TwoFactorController::class, "verify"])->name("2fa.verify");

@@ -93,7 +93,7 @@ class TherapistApplicationService
     {
         $validator = Validator::make($data, [
             'credential_type' => ['required', 'string', Rule::in(config('therapist.credential_types'))],
-            'years_experience' => 'required|integer|min:0|max:80',
+            'years_experience' => 'nullable|integer|min:0|max:80',
         ]);
 
         if ($validator->fails()) {
@@ -106,7 +106,7 @@ class TherapistApplicationService
         // Session rate is Payout-step only (decision) — never persisted here.
         $application->update([
             'credential_type' => $validated['credential_type'],
-            'years_experience' => $validated['years_experience'],
+            'years_experience' => $validated['years_experience'] ?? null,
         ]);
 
         return $application->refresh();
