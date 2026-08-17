@@ -63,7 +63,10 @@ class RegisterController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
-                'credential_type' => ['required', 'string', Rule::in(config('therapist.credential_types'))],
+                // credential_type is no longer required at signup — it's
+                // filled in later via the normal "personal" onboarding step.
+                // Still validated against the allowed list if it IS sent.
+                'credential_type' => ['nullable', 'string', Rule::in(config('therapist.credential_types'))],
                 'years_experience' => 'nullable|integer|min:0|max:80',
                 // Scoped to this endpoint (not the shared registration
                 // validation) so the existing /auth/register contract for
@@ -87,7 +90,14 @@ class RegisterController extends Controller
             }
 
             $user = $this->register_service->create($payload);
-            $application = $this->application_service->savePersonal($user, $payload);
+
+            // savePersonal() still requires credential_type (it's the one
+            // thing that actually marks the "personal" step done) — skip
+            // straight to a bare draft when the signup didn't send one, so
+            // the wizard can pick it up later via POST .../application/personal.
+            $application = !empty($payload['credential_type'])
+                ? $this->application_service->savePersonal($user, $payload)
+                : TherapistApplicationService::draftFor($user);
 
             $data["token"] = $user->createToken('auth')->plainTextToken;
             $data["user"] = UserResource::make($user);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2\Therapist;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\StatusConstants;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Services\Therapist\TherapistDirectoryService;
@@ -99,6 +100,43 @@ class TherapistProfileController extends Controller
             ]);
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /**
+     * Pulls the therapist out of client search immediately (§ directory
+     * reads Therapist::status()) without touching existing bookings —
+     * reversible via reactivate(). No admin/verification impact.
+     */
+    public function deactivate()
+    {
+        if ($forbidden = $this->forbiddenUnlessTherapist()) {
+            return $forbidden;
+        }
+
+        try {
+            $therapist = auth()->user()->therapist;
+            $therapist->update(["status" => StatusConstants::INACTIVE]);
+
+            return ApiHelper::validResponse("Profile deactivated", ["status" => $therapist->status]);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function reactivate()
+    {
+        if ($forbidden = $this->forbiddenUnlessTherapist()) {
+            return $forbidden;
+        }
+
+        try {
+            $therapist = auth()->user()->therapist;
+            $therapist->update(["status" => StatusConstants::ACTIVE]);
+
+            return ApiHelper::validResponse("Profile reactivated", ["status" => $therapist->status]);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

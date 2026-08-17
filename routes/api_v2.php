@@ -532,6 +532,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
 
         Route::get("profile", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "show"])->name("profile.show");
         Route::post("profile/update", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "update"])->name("profile.update");
+        Route::post("profile/deactivate", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "deactivate"])->name("profile.deactivate");
+        Route::post("profile/reactivate", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "reactivate"])->name("profile.reactivate");
 
         Route::prefix("earnings")->as("earnings.")->group(function () {
             Route::get("dashboard", [\App\Http\Controllers\Api\V2\Therapist\EarningsController::class, "dashboard"])->name("dashboard");

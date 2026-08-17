@@ -108,16 +108,27 @@ class RegisterTherapistTest extends TestCase
         $this->assertTrue($response->json("data.application.steps.personal"));
     }
 
-    public function test_missing_credential_type_creates_no_user(): void
+    public function test_credential_type_is_optional_and_creates_bare_draft(): void
     {
         Mail::fake();
         $payload = $this->validPayload();
-        unset($payload["credential_type"]);
+        unset($payload["credential_type"], $payload["years_experience"]);
 
-        $this->postJson("/api/v2/auth/register-therapist", $payload)
-            ->assertStatus(422)->assertJson(["success" => false]);
+        $response = $this->postJson("/api/v2/auth/register-therapist", $payload)
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                "data" => ["token", "user", "application" => ["application_id", "status", "steps"]],
+            ]);
 
-        $this->assertDatabaseMissing("users", ["email" => "danny.doe@example.com"]);
+        $this->assertFalse($response->json("data.application.steps.personal"));
+
+        $user = User::where("email", "danny.doe@example.com")->first();
+        $this->assertNotNull($user);
+
+        $application = TherapistApplication::where("user_id", $user->id)->first();
+        $this->assertNotNull($application);
+        $this->assertNull($application->credential_type);
+        $this->assertSame("draft", $application->status);
     }
 
     public function test_invalid_credential_type_creates_no_user(): void

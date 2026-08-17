@@ -142,6 +142,7 @@ class TherapistDirectoryService
 
         return array_merge(self::card($therapist->loadAvg('reviews as rating_avg', 'rating')->loadCount('reviews')), [
             'bio' => $therapist->user?->bio,
+            'status' => $therapist->status,
             'session_duration' => $therapist->session_duration,
             'buffer_minutes' => $therapist->buffer_minutes,
             'completed_sessions' => $completed_sessions,
