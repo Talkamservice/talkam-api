@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\V2\Auth;
 
+use App\Constants\Account\User\UserConstants;
 use App\Constants\General\ApiConstants;
 use App\Exceptions\General\InvalidRequestException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Users\UserResource;
+use App\Models\TherapistApplication;
 use App\Services\Auth\V2\RegistrationService;
 use App\Services\Therapist\TherapistApplicationService;
 use App\Services\User\UserService;
@@ -101,10 +103,25 @@ class RegisterController extends Controller
 
             $this->register_service->postRegisterActions($user);
             DB::commit();
-            // No token/user/application payload — the account isn't usable
-            // until the verify_email OTP just sent is confirmed via POST
+
+            // users.role is left untouched here — it only flips to Therapist
+            // on admin approval (TherapistReviewService::approve). Having a
+            // therapist_applications row for this user_id is what actually
+            // makes them a therapist-in-progress, so the response role is
+            // derived from that instead of the (still "User") column.
+            $userPayload = UserResource::make($user)->resolve();
+            if (TherapistApplication::where('user_id', $user->id)->exists()) {
+                $userPayload['role'] = UserConstants::THERAPIST;
+            }
+
+            // No token/application payload — the account isn't usable until
+            // the verify_email OTP just sent is confirmed via POST
             // /auth/otp/verify, then a normal /auth/login issues the token.
-            return ApiHelper::validResponse("Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.", []);
+            // The user (with role) is still returned so the client can show
+            // who just registered before that verification step.
+            return ApiHelper::validResponse("Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.", [
+                "user" => $userPayload,
+            ]);
         } catch (ValidationException $e) {
             DB::rollBack();
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);

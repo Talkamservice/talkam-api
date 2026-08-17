@@ -55,15 +55,20 @@ class RegisterTherapistTest extends TestCase
 
         $this->postJson("/api/v2/auth/register-therapist", $this->validPayload())
             ->assertStatus(200)
-            ->assertExactJson([
-                "message" => "Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.",
-                "data" => [],
-                "success" => true,
-                "code" => 200,
-            ]);
+            ->assertJsonPath("message", "Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.")
+            ->assertJsonPath("success", true)
+            ->assertJsonPath("code", 200)
+            ->assertJsonPath("data.user.email", "danny.doe@example.com")
+            ->assertJsonPath("data.user.role", "Therapist")
+            ->assertJsonMissingPath("data.token")
+            ->assertJsonMissingPath("data.application");
 
         $user = User::where("email", "danny.doe@example.com")->first();
         $this->assertNotNull($user);
+        // users.role column is untouched here — it only flips on admin
+        // approval; the response's "Therapist" role is derived from the
+        // therapist_applications row instead (asserted below).
+        $this->assertSame("User", $user->role);
 
         $application = TherapistApplication::where("user_id", $user->id)->first();
         $this->assertNotNull($application);
@@ -151,12 +156,10 @@ class RegisterTherapistTest extends TestCase
 
         $this->postJson("/api/v2/auth/register-therapist", $payload)
             ->assertStatus(200)
-            ->assertExactJson([
-                "message" => "Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.",
-                "data" => [],
-                "success" => true,
-                "code" => 200,
-            ]);
+            ->assertJsonPath("message", "Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.")
+            ->assertJsonPath("data.user.role", "Therapist")
+            ->assertJsonMissingPath("data.token")
+            ->assertJsonMissingPath("data.application");
 
         $user = User::where("email", "danny.doe@example.com")->first();
         $this->assertNotNull($user);
