@@ -95,21 +95,16 @@ class RegisterController extends Controller
             // thing that actually marks the "personal" step done) — skip
             // straight to a bare draft when the signup didn't send one, so
             // the wizard can pick it up later via POST .../application/personal.
-            $application = !empty($payload['credential_type'])
+            !empty($payload['credential_type'])
                 ? $this->application_service->savePersonal($user, $payload)
                 : TherapistApplicationService::draftFor($user);
 
-            $data["token"] = $user->createToken('auth')->plainTextToken;
-            $data["user"] = UserResource::make($user);
-            $data["application"] = [
-                "application_id" => $application->id,
-                "status" => $application->status,
-                "steps" => TherapistApplicationService::stepCompleteness($application),
-            ];
-
             $this->register_service->postRegisterActions($user);
             DB::commit();
-            return ApiHelper::validResponse("Therapist registered and onboarding started", $data);
+            // No token/user/application payload — the account isn't usable
+            // until the verify_email OTP just sent is confirmed via POST
+            // /auth/otp/verify, then a normal /auth/login issues the token.
+            return ApiHelper::validResponse("Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.", []);
         } catch (ValidationException $e) {
             DB::rollBack();
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);

@@ -71,5 +71,8 @@ class Kernel extends HttpKernel
         'org.verified' => \App\Http\Middleware\EnsureOrganizationVerified::class,
         // Danger Zone (web §03 Settings): suspend/cancel/delete enforcement on the app itself.
         'org.active' => \App\Http\Middleware\EnsureOrgMembershipActive::class,
+        // Therapist application wizard: blocks write steps until the
+        // register-therapist verify_email OTP is confirmed.
+        'email.verified' => \App\Http\Middleware\EnsureEmailVerified::class,
     ];
 }

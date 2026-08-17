@@ -496,13 +496,19 @@ Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("therapist")->as("therapist.")->group(function () {
         Route::prefix("application")->as("application.")->group(function () {
             Route::get("/", [TherapistApplicationController::class, "show"])->name("show");
-            Route::post("personal", [TherapistApplicationController::class, "personal"])->name("personal");
-            Route::post("documents", [TherapistApplicationController::class, "storeDocument"])->name("documents.store");
-            Route::delete("documents/{id}", [TherapistApplicationController::class, "deleteDocument"])->name("documents.delete");
-            Route::post("specialties", [TherapistApplicationController::class, "specialties"])->name("specialties");
-            Route::post("availability", [TherapistApplicationController::class, "availability"])->name("availability");
-            Route::post("payout", [TherapistPayoutController::class, "payout"])->name("payout");
-            Route::post("submit", [TherapistApplicationController::class, "submit"])->name("submit");
+
+            // Write steps stay locked until the register-therapist verify_email
+            // OTP is confirmed via POST /auth/otp/verify — reading state above
+            // stays open so the frontend can show the "verify your email" prompt.
+            Route::middleware("email.verified")->group(function () {
+                Route::post("personal", [TherapistApplicationController::class, "personal"])->name("personal");
+                Route::post("documents", [TherapistApplicationController::class, "storeDocument"])->name("documents.store");
+                Route::delete("documents/{id}", [TherapistApplicationController::class, "deleteDocument"])->name("documents.delete");
+                Route::post("specialties", [TherapistApplicationController::class, "specialties"])->name("specialties");
+                Route::post("availability", [TherapistApplicationController::class, "availability"])->name("availability");
+                Route::post("payout", [TherapistPayoutController::class, "payout"])->name("payout");
+                Route::post("submit", [TherapistApplicationController::class, "submit"])->name("submit");
+            });
         });
 
         Route::get("banks", [TherapistPayoutController::class, "banks"])->name("banks");
