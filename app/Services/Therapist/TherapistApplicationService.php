@@ -33,6 +33,17 @@ class TherapistApplicationService
     }
 
     /**
+     * True while an application is in progress (draft/submitted/in_review).
+     * users.role only flips to Therapist on admin approval — this is what
+     * auth responses (register-therapist, login) use instead to show
+     * "Therapist" for an applicant ahead of that approval.
+     */
+    public static function isApplicant(User $user): bool
+    {
+        return !empty(self::activeFor($user));
+    }
+
+    /**
      * Active draft or a new one. Blocks while an application is under review.
      */
     public static function draftFor(User $user): TherapistApplication

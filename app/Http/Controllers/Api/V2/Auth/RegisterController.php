@@ -8,7 +8,6 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Users\UserResource;
-use App\Models\TherapistApplication;
 use App\Services\Auth\V2\RegistrationService;
 use App\Services\Therapist\TherapistApplicationService;
 use App\Services\User\UserService;
@@ -110,7 +109,7 @@ class RegisterController extends Controller
             // makes them a therapist-in-progress, so the response role is
             // derived from that instead of the (still "User") column.
             $userPayload = UserResource::make($user)->resolve();
-            if (TherapistApplication::where('user_id', $user->id)->exists()) {
+            if (TherapistApplicationService::isApplicant($user)) {
                 $userPayload['role'] = UserConstants::THERAPIST;
             }
 

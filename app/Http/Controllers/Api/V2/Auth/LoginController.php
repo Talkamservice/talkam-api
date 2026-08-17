@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V2\Auth;
 
+use App\Constants\Account\User\UserConstants;
 use App\Constants\Auth\PinConstants;
 use App\Constants\General\ApiConstants;
 use App\Exceptions\Auth\AuthException;
@@ -11,6 +12,7 @@ use App\Http\Resources\Users\UserResource;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\PinService;
 use App\Services\Business\OrganizationService;
+use App\Services\Therapist\TherapistApplicationService;
 use App\Services\User\PrivacySettingService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -42,6 +44,13 @@ class LoginController extends Controller
             }
 
             $data["user"] = UserResource::make($user)->toArray($request);
+            // users.role only flips to Therapist on admin approval — an
+            // in-progress applicant still logs in as "User" underneath, so
+            // this reflects the therapist_applications row instead, same as
+            // the register-therapist response.
+            if (TherapistApplicationService::isApplicant($user)) {
+                $data["user"]["role"] = UserConstants::THERAPIST;
+            }
             $data["token"] = $user->createToken('api')->plainTextToken;
             // TalkAM for Business role context — the web sign-in screen reads
             // business.dashboard to pick which of the three dashboards to land
