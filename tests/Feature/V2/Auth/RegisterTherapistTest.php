@@ -16,12 +16,11 @@ use Tests\TestCase;
  * "personal" step in one unauthenticated call, so a prospective therapist
  * never has to exist as a plain logged-in user first before onboarding
  * can start. The rest of the wizard (documents/specialties/availability/
- * submit) is unchanged and runs against a token obtained via /auth/login.
+ * submit) is unchanged and runs against the token returned here.
  *
- * The response itself carries no data — just message/success/code — since
- * the account isn't usable yet: the verify_email OTP sent here has to be
- * confirmed (POST /auth/otp/verify) and the client logs in separately
- * (POST /auth/login) to get a token.
+ * The response includes a token for immediate authentication, along with
+ * the user data. A verify_email OTP is still sent and must be confirmed
+ * (POST /auth/otp/verify) before the write steps of the application can proceed.
  */
 class RegisterTherapistTest extends TestCase
 {
@@ -60,7 +59,7 @@ class RegisterTherapistTest extends TestCase
             ->assertJsonPath("code", 200)
             ->assertJsonPath("data.user.email", "danny.doe@example.com")
             ->assertJsonPath("data.user.role", "Therapist")
-            ->assertJsonMissingPath("data.token")
+            ->assertJsonStructure(["data" => ["token"]])
             ->assertJsonMissingPath("data.application");
 
         $user = User::where("email", "danny.doe@example.com")->first();
@@ -158,7 +157,7 @@ class RegisterTherapistTest extends TestCase
             ->assertStatus(200)
             ->assertJsonPath("message", "Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.")
             ->assertJsonPath("data.user.role", "Therapist")
-            ->assertJsonMissingPath("data.token")
+            ->assertJsonStructure(["data" => ["token"]])
             ->assertJsonMissingPath("data.application");
 
         $user = User::where("email", "danny.doe@example.com")->first();

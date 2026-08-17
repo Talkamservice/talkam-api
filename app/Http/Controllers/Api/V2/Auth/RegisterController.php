@@ -113,12 +113,13 @@ class RegisterController extends Controller
                 $userPayload['role'] = UserConstants::THERAPIST;
             }
 
-            // No token/application payload — the account isn't usable until
-            // the verify_email OTP just sent is confirmed via POST
-            // /auth/otp/verify, then a normal /auth/login issues the token.
-            // The user (with role) is still returned so the client can show
-            // who just registered before that verification step.
+            // Generate token for immediate authentication, similar to regular register
+            $token = $user->createToken('auth')->plainTextToken;
+
+            // The user (with role) is returned so the client can show
+            // who just registered and proceed with authenticated requests
             return ApiHelper::validResponse("Therapist registered and onboarding started. An OTP has been sent to your email, check your email to verify.", [
+                "token" => $token,
                 "user" => $userPayload,
             ]);
         } catch (ValidationException $e) {
