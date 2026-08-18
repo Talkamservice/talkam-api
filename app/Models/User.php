@@ -146,7 +146,7 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role == UserConstants::ADMIN;
+        return in_array($this->role, [UserConstants::ADMIN, UserConstants::SUPER_ADMIN]);
     }
 
     public function avatar()

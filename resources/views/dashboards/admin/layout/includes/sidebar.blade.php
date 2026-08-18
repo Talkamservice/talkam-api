@@ -58,6 +58,14 @@
                         </li>
                     @endcan
 
+                    {{-- Therapist Applications --}}
+                    <li class="slide">
+                        <a href="{{ route('admin.therapist-applications.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.therapist-applications.index', 'admin.therapist-applications.show']) ? 'active' : '' }}">
+                            <i class="bx bx-user-check side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Therapist Applications</span>
+                        </a>
+                    </li>
+
                 @endcanAny
 
                 @can(slugPermission('read category'))
