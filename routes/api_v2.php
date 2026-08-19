@@ -489,10 +489,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
         });
     });
 
-    Route::post("finance/payments/callback", [PaymentCallbackController::class, "callback"])
-        ->middleware("auth:sanctum")
-        ->name("finance.payments.callback");
-
     Route::prefix("therapist")->as("therapist.")->group(function () {
         Route::prefix("application")->as("application.")->group(function () {
             Route::get("/", [TherapistApplicationController::class, "show"])->name("show");
@@ -575,3 +571,10 @@ Route::middleware(["auth:sanctum"])->group(function () {
 // AV provider call-state webhook (HMAC-verified, no session auth).
 Route::post("webhooks/av-provider", [AvProviderWebhookController::class, "handle"])
     ->name("webhooks.av-provider");
+
+// Flutterwave webhook - NO AUTH (Flutterwave calls this). Previously nested
+// inside the auth:sanctum group above, which meant Flutterwave's actual
+// server-to-server calls (no Sanctum token) were 302-redirected to /login
+// instead of reaching the controller.
+Route::post("finance/payments/callback", [PaymentCallbackController::class, "callback"])
+    ->name("finance.payments.callback");

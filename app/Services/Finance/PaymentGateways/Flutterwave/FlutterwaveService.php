@@ -213,7 +213,6 @@ class FlutterwaveService
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
                 throw new FlutterwaveException($response["message"]["message"] ?? 'Unknown error occurred');
             }
-
             return $response['data'];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
@@ -221,31 +220,51 @@ class FlutterwaveService
         }
     }
 
+    // Additive (v2 session bookings, mobile): Flutterwave Standard — a
+    // hosted checkout page, returned as a link the client just opens (native
+    // in-app browser/webview), instead of the inline SDK's client-side popup.
+    public function createCheckoutLink(array $data)
+    {
+        try {
+            $full_url = "{$this->base_url}/payments";
+            $response = $this->client->post($full_url, $data);
+
+            if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
+                throw new FlutterwaveException($response["message"]["message"] ?? 'Unable to create checkout link');
+            }
+
+            return $response["data"]["data"] ?? $response["data"];
+        } catch (Exception $e) {
+            ExceptionService::logAndBroadcast($e);
+            throw new FlutterwaveException('Unable to create checkout link: ' . $e->getMessage());
+        }
+    }
+
+    // Dedicated single-record lookup — NOT the same as GET /transactions
+    // (a search/list endpoint whose index lagged behind a transaction that
+    // had genuinely just succeeded, causing real false "not found" 400s
+    // right after checkout). This endpoint reads the transaction directly
+    // and is immediately consistent.
     public function verifyTransactionByReference($reference)
     {
         try {
-            $full_url = "{$this->base_url}/transactions?tx_ref={$reference}";
+            $full_url = "{$this->base_url}/transactions/verify_by_reference?tx_ref={$reference}";
 
             $response = $this->client->get($full_url);
 
+            // A genuinely unknown reference 400s here — treated as "no
+            // transaction found" (same shape as an empty search result)
+            // rather than a hard failure, so the caller's retry/backoff
+            // covers both "doesn't exist" and "not visible yet".
             if (!in_array($response["status"], [ApiConstants::GOOD_REQ_CODE])) {
-                throw new FlutterwaveException($response["message"]["message"] ?? 'Unknown error occurred');
+                return ["status" => "error", "data" => []];
             }
 
-            return $this->removeZeroIndex($response["data"]);
+            return $response["data"];
         } catch (Exception $e) {
             ExceptionService::logAndBroadcast($e);
             throw new FlutterwaveException('Transaction verification failed: ' . $e->getMessage());
         }
-    }
-
-    function removeZeroIndex(array $response)
-    {
-        if (isset($response['data'][0])) {
-            $response['data'] = $response['data'][0];
-        }
-
-        return $response;
     }
 
 

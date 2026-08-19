@@ -16,6 +16,8 @@ use App\Models\User;
 use App\Services\Business\BundleLedgerService;
 use App\Services\Business\CoverageResolver;
 use App\Services\Business\SessionCapService;
+use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
+use App\Services\System\ExceptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -183,7 +185,6 @@ class SessionBookingService
     public function initiatePayment(User $user, $booking_id, array $data = []): array
     {
         $session = self::getOwnedByUser($booking_id, $user);
-
         if ($session->status == TherapistConstants::SESSION_CONFIRMED) {
             throw new InvalidRequestException("This session has already been paid for.");
         }
@@ -226,19 +227,46 @@ class SessionBookingService
             return $this->chargeSavedCard($user, $session, $payment, $data);
         }
 
+        $customer = [
+            'email' => $user->email,
+            'name' => $user->full_name,
+        ];
+        $meta = [
+            'activity' => PaymentConstants::PAYMENT_FOR_SESSION,
+            'booking_id' => $session->id,
+        ];
+
         return [
             'reference' => $payment->reference,
             'amount' => $session->amount,
             'currency' => $session->currency,
-            'customer' => [
-                'email' => $user->email,
-                'name' => $user->full_name,
-            ],
-            'meta' => [
-                'activity' => PaymentConstants::PAYMENT_FOR_SESSION,
-                'booking_id' => $session->id,
-            ],
+            // Hosted checkout (mobile: open in a webview instead of embedding
+            // the inline SDK; web keeps using reference/amount/customer above
+            // for its own inline widget, so this failing never blocks that).
+            'link' => $this->checkoutLink($payment, $session, $customer, $meta),
+            'customer' => $customer,
+            'meta' => $meta,
         ];
+    }
+
+    private function checkoutLink(Payment $payment, TherapySession $session, array $customer, array $meta): ?string
+    {
+        try {
+            $checkout = app(FlutterwaveService::class)->createCheckoutLink([
+                'tx_ref' => $payment->reference,
+                'amount' => $session->amount,
+                'currency' => $session->currency,
+                'redirect_url' => config('services.flutterwave.redirectUrl'),
+                'customer' => $customer,
+                'customizations' => ['title' => 'TalkAM session'],
+                'meta' => $meta,
+            ]);
+
+            return $checkout['link'] ?? null;
+        } catch (\Throwable $e) {
+            ExceptionService::logAndBroadcast($e);
+            return null;
+        }
     }
 
     /**

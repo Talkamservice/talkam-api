@@ -21,6 +21,9 @@ class PaymentMethodTest extends TestCase
         Sanctum::actingAs($user);
         $session = TherapySession::factory()->pending()->create(["user_id" => $user->id]);
 
+        $this->mock(FlutterwaveService::class, function ($mock) {
+            $mock->shouldReceive("createCheckoutLink")->andReturn(["link" => "https://checkout.flutterwave.com/v3/hosted/pay/fake"]);
+        });
         $reference = $this->postJson(
             "/api/v2/user/bookings/{$session->id}/initiate-payment",
             ["save_card" => $save_card]

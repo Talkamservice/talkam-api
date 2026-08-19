@@ -66,6 +66,17 @@ return [
         'publicKey' => env('FLW_PUBLIC_KEY'),
         'secretKey' => env('FLW_SECRET_KEY'),
         'secretHash' => env('FLW_SECRET_HASH'),
+        // Where Flutterwave sends the browser/webview after a hosted
+        // checkout completes. Confirmation itself never trusts this redirect
+        // — it's only the client's cue to stop showing the checkout page —
+        // the callback webhook is what actually confirms the booking.
+        'redirectUrl' => env('FLW_REDIRECT_URL', env('APP_URL') . '/payment/complete'),
+        // A callback firing right after checkout can beat Flutterwave's own
+        // tx_ref search index — verifyTransactionByReference briefly comes
+        // back empty for a transaction that genuinely just succeeded. Retry
+        // a few times before giving up on the payment.
+        'verifyRetries' => (int) env('FLW_VERIFY_RETRIES', 3),
+        'verifyRetryDelayMs' => (int) env('FLW_VERIFY_RETRY_DELAY_MS', 1000),
     ],
 
     'agora' => [
