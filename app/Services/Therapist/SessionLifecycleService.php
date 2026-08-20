@@ -168,6 +168,14 @@ class SessionLifecycleService
 
         $is_therapist = $session->therapist?->user_id == $user->id;
 
+        // Mint the channel/token BEFORE touching the session row — if the AV
+        // provider isn't configured (or the request otherwise fails), the
+        // session must not be left stamped in_progress/joined with no actual
+        // way to join, which would silently vanish it from "upcoming" once
+        // its start time passes without ever having had a working call.
+        $channel_ref = $this->call_service->channelFor($session);
+        $token = $this->call_service->token($session, $user->id);
+
         $updates = [];
         if (empty($session->started_at)) {
             $updates['started_at'] = now();
@@ -184,8 +192,8 @@ class SessionLifecycleService
         }
 
         return [
-            'channel_ref' => $this->call_service->channelFor($session),
-            'token' => $this->call_service->token($session, $user->id),
+            'channel_ref' => $channel_ref,
+            'token' => $token,
             'starts_at' => $session->starts_at->toDateTimeString(),
             'duration_minutes' => $session->duration_minutes,
         ];

@@ -358,6 +358,7 @@ class SessionBookingService
         );
 
         $serialize = fn ($s) => array_merge(self::detail($s), [
+            'client_id' => $s->user_id,
             'client_name' => $s->user?->full_name,
             'earnings' => round((float) $s->amount * (1 - $share / 100), 2),
         ]);
