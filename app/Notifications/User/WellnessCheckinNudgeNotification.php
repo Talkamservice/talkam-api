@@ -3,13 +3,14 @@
 namespace App\Notifications\User;
 
 use App\Helpers\MethodsHelper;
+use App\Notifications\Concerns\SendsFirebasePush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class WellnessCheckinNudgeNotification extends Notification
 {
-    use Queueable;
+    use Queueable, SendsFirebasePush;
 
     public function via(object $notifiable): array
     {

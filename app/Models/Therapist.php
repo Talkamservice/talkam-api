@@ -37,6 +37,23 @@ class Therapist extends Model
         return $this->hasMany(OrganizationTherapist::class, 'therapist_id');
     }
 
+    public function walletTransactions()
+    {
+        return $this->hasMany(TherapistWalletTransaction::class, 'therapist_id');
+    }
+
+    public function payoutAccount()
+    {
+        return $this->hasOneThrough(
+            TherapistPayoutAccount::class,
+            User::class,
+            'id', // Foreign key on users table
+            'user_id', // Foreign key on therapist_payout_accounts table
+            'user_id', // Local key on therapists table
+            'id' // Local key on users table
+        );
+    }
+
     public function scopeStatus($query, $status = StatusConstants::ACTIVE)
     {
         return $query->where('status', $status);

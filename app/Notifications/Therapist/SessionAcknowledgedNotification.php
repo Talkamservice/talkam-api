@@ -3,13 +3,14 @@
 namespace App\Notifications\Therapist;
 
 use App\Helpers\MethodsHelper;
+use App\Notifications\Concerns\SendsFirebasePush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SessionAcknowledgedNotification extends Notification
 {
-    use Queueable;
+    use Queueable, SendsFirebasePush;
 
     public function __construct(public $session)
     {
