@@ -14,12 +14,13 @@ use Illuminate\Support\Str;
 class CreateTestCallSessionSeeder extends Seeder
 {
     /**
-     * Creates a CONFIRMED, fully-paid 1-hour therapy session starting N
-     * minutes from now (default 1; override with CALL_TEST_START_IN_MINUTES),
-     * so the Agora join/token flow can be exercised immediately
-     * (SessionLifecycleService::join() requires status confirmed|in_progress
-     * and now() >= starts_at - join_early_minutes). Each run adds a NEW
-     * session between the same two accounts — safe to re-run.
+     * Creates a CONFIRMED, fully-paid 1-hour VOICE therapy session starting
+     * 10 minutes from now (override with CALL_TEST_START_IN_MINUTES /
+     * CALL_TEST_FORMAT), so the Agora join/token flow can be exercised
+     * immediately (SessionLifecycleService::join() requires status
+     * confirmed|in_progress and now() >= starts_at - join_early_minutes).
+     * Each run adds a NEW session between the same two accounts — safe to
+     * re-run.
      *
      * A call needs two participants, so this seeds both sides — log in as
      * the therapist on one device/simulator and the client on another.
@@ -31,10 +32,10 @@ class CreateTestCallSessionSeeder extends Seeder
 
     public function run(): void
     {
-        $startInMinutes = (int) env('CALL_TEST_START_IN_MINUTES', 1);
-        $format = env('CALL_TEST_FORMAT', TherapistConstants::FORMAT_VIDEO);
+        $startInMinutes = (int) env('CALL_TEST_START_IN_MINUTES', 10);
+        $format = env('CALL_TEST_FORMAT', TherapistConstants::FORMAT_VOICE);
         if (!in_array($format, TherapistConstants::SESSION_FORMATS, true)) {
-            $format = TherapistConstants::FORMAT_VIDEO;
+            $format = TherapistConstants::FORMAT_VOICE;
         }
 
         $this->command->info("🎥 Seeding a test {$format} call session starting in {$startInMinutes} minute(s)...");
