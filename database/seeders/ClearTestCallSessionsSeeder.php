@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Payment;
+use App\Models\Therapist;
 use App\Models\TherapistWalletTransaction;
 use App\Models\TherapySession;
 use App\Models\User;
@@ -11,10 +12,16 @@ use Illuminate\Database\Seeder;
 class ClearTestCallSessionsSeeder extends Seeder
 {
     /**
-     * Wipes only the sessions BETWEEN this specific therapist/client pair
-     * (e.g. everything CreateTestCallSessionSeeder created) — unlike
+     * Wipes EVERY session BETWEEN this specific therapist/client pair —
+     * upcoming, in-progress, past/completed, cancelled, all of them — e.g.
+     * everything CreateTestCallSessionSeeder created. Unlike
      * ClearUserSessionsSeeder, this leaves the therapist's real sessions
      * with other clients (e.g. "Paul Michael2") untouched.
+     *
+     * Matches against EVERY Therapist row for this user, not just
+     * `$user->therapist` (a `hasOne`, so it only ever returns one) — if a
+     * duplicate Therapist row exists, sessions tied to it would otherwise
+     * be silently skipped.
      */
     private const THERAPIST_EMAIL = 'mikebingpseventh@gmail.com';
     private const CLIENT_EMAIL = 'call-test-client@talkam.test';
@@ -22,14 +29,14 @@ class ClearTestCallSessionsSeeder extends Seeder
     public function run(): void
     {
         $this->command->info(
-            "🧹 Clearing sessions between " . self::THERAPIST_EMAIL . " and " . self::CLIENT_EMAIL . "..."
+            "🧹 Clearing all sessions between " . self::THERAPIST_EMAIL . " and " . self::CLIENT_EMAIL . "..."
         );
 
         $therapistUser = User::where('email', self::THERAPIST_EMAIL)->first();
         $client = User::where('email', self::CLIENT_EMAIL)->first();
 
-        if (! $therapistUser || ! $therapistUser->therapist) {
-            $this->command->warn("⚠️  No therapist found for " . self::THERAPIST_EMAIL);
+        if (! $therapistUser) {
+            $this->command->warn("⚠️  No user found for " . self::THERAPIST_EMAIL);
             return;
         }
         if (! $client) {
@@ -37,7 +44,16 @@ class ClearTestCallSessionsSeeder extends Seeder
             return;
         }
 
-        $sessionIds = TherapySession::where('therapist_id', $therapistUser->therapist->id)
+        $therapistIds = Therapist::where('user_id', $therapistUser->id)->pluck('id');
+        if ($therapistIds->isEmpty()) {
+            $this->command->warn("⚠️  No therapist profile found for " . self::THERAPIST_EMAIL);
+            return;
+        }
+        if ($therapistIds->count() > 1) {
+            $this->command->warn("⚠️  Found {$therapistIds->count()} Therapist rows for this user (ids: {$therapistIds->implode(', ')}) — clearing sessions under all of them.");
+        }
+
+        $sessionIds = TherapySession::whereIn('therapist_id', $therapistIds)
             ->where('user_id', $client->id)
             ->pluck('id');
 
