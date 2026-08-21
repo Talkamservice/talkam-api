@@ -44,7 +44,7 @@ class CreateTestCallSessionSeeder extends Seeder
         $startInMinutes = (int) env('CALL_TEST_START_IN_MINUTES', 1);
         $format = env('CALL_TEST_FORMAT', TherapistConstants::FORMAT_VIDEO);
         if (!in_array($format, TherapistConstants::SESSION_FORMATS, true)) {
-            $format = TherapistConstants::FORMAT_VOICE;
+            $format = TherapistConstants::FORMAT_VIDEO;
         }
 
         $this->command->info("🎥 Seeding a test {$format} call session starting in {$startInMinutes} minute(s)...");
