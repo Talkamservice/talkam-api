@@ -42,7 +42,7 @@ class CreateTestCallSessionSeeder extends Seeder
     public function run(): void
     {
         $startInMinutes = (int) env('CALL_TEST_START_IN_MINUTES', 1);
-        $format = env('CALL_TEST_FORMAT', TherapistConstants::FORMAT_VOICE);
+        $format = env('CALL_TEST_FORMAT', TherapistConstants::FORMAT_VIDEO);
         if (!in_array($format, TherapistConstants::SESSION_FORMATS, true)) {
             $format = TherapistConstants::FORMAT_VOICE;
         }
