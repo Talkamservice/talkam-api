@@ -320,12 +320,20 @@ class SessionBookingService
         // there would otherwise pose as the live one (Reschedule/Cancel/Join
         // all wired to it) until someone actually acts on it and hits a stale
         // "can no longer be cancelled" style rejection.
+        //
+        // The cutoff is starts_at + duration_minutes, not bare starts_at —
+        // join() has no expiry check (sweep() is what eventually flips a
+        // stale confirmed session to no_show, and only after the full
+        // duration elapses), so a session that's still fully joinable must
+        // not disappear from "upcoming" the instant its scheduled time
+        // passes.
         [$upcoming, $past] = $sessions->partition(
-            fn ($s) => $s->starts_at->isFuture() && in_array($s->status, [
-                TherapistConstants::SESSION_PENDING_PAYMENT,
-                TherapistConstants::SESSION_CONFIRMED,
-                TherapistConstants::SESSION_IN_PROGRESS,
-            ])
+            fn ($s) => $s->starts_at->copy()->addMinutes($s->duration_minutes)->isFuture()
+                && in_array($s->status, [
+                    TherapistConstants::SESSION_PENDING_PAYMENT,
+                    TherapistConstants::SESSION_CONFIRMED,
+                    TherapistConstants::SESSION_IN_PROGRESS,
+                ])
         );
 
         return [
@@ -348,13 +356,16 @@ class SessionBookingService
             ->get();
 
         // See listFor() — a future-dated cancelled/expired row is a dead
-        // record, not something still coming up.
+        // record, not something still coming up. Cutoff is starts_at +
+        // duration_minutes so a still-joinable session doesn't disappear
+        // the instant its scheduled time passes.
         [$upcoming, $past] = $sessions->partition(
-            fn ($s) => $s->starts_at->isFuture() && in_array($s->status, [
-                TherapistConstants::SESSION_PENDING_PAYMENT,
-                TherapistConstants::SESSION_CONFIRMED,
-                TherapistConstants::SESSION_IN_PROGRESS,
-            ])
+            fn ($s) => $s->starts_at->copy()->addMinutes($s->duration_minutes)->isFuture()
+                && in_array($s->status, [
+                    TherapistConstants::SESSION_PENDING_PAYMENT,
+                    TherapistConstants::SESSION_CONFIRMED,
+                    TherapistConstants::SESSION_IN_PROGRESS,
+                ])
         );
 
         $serialize = fn ($s) => array_merge(self::detail($s), [
