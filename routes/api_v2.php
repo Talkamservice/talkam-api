@@ -302,6 +302,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::get("list", [NotificationController::class, "index"])->name("index");
             Route::post("clear-all", [NotificationController::class, "clearAll"])->name("clear-all");
             Route::post("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
+            Route::get("{notification}/show", [NotificationController::class, "show"])->name("show");
             Route::get("get-notification-status", [NotificationController::class, "notificationStatus"])->name("get-notification-status");
         });
 
