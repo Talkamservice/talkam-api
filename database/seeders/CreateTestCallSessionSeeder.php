@@ -24,15 +24,6 @@ class CreateTestCallSessionSeeder extends Seeder
      *
      * A call needs two participants, so this seeds both sides — log in as
      * the therapist on one device/simulator and the client on another.
-     *
-     * Run:
-     *   php artisan db:seed --class=CreateTestCallSessionSeeder
-     *
-     * Override start time / format:
-     *   CALL_TEST_START_IN_MINUTES=10 CALL_TEST_FORMAT=video php artisan db:seed --class=CreateTestCallSessionSeeder
-     *
-     * Clear it afterwards:
-     *   php artisan db:seed --class=ClearTestCallSessionsSeeder
      */
     private const THERAPIST_EMAIL = 'mikebingpseventh@gmail.com';
     private const CLIENT_EMAIL = 'call-test-client@talkam.test';
@@ -42,9 +33,9 @@ class CreateTestCallSessionSeeder extends Seeder
     public function run(): void
     {
         $startInMinutes = (int) env('CALL_TEST_START_IN_MINUTES', 1);
-        $format = env('CALL_TEST_FORMAT', TherapistConstants::FORMAT_VIDEO);
+        $format = env('CALL_TEST_FORMAT', TherapistConstants::FORMAT_VOICE);
         if (!in_array($format, TherapistConstants::SESSION_FORMATS, true)) {
-            $format = TherapistConstants::FORMAT_VIDEO;
+            $format = TherapistConstants::FORMAT_VOICE;
         }
 
         $this->command->info("🎥 Seeding a test {$format} call session starting in {$startInMinutes} minute(s)...");
