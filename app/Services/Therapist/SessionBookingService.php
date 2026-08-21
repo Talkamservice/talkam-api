@@ -311,7 +311,7 @@ class SessionBookingService
     {
         $sessions = TherapySession::with(['therapist.user', 'payment', 'review'])
             ->where('user_id', $user->id)
-            ->orderBy('starts_at')
+            ->orderBy('starts_at', 'desc')
             ->get();
 
         // A future-dated row that's cancelled/failed/expired/no-show is a dead
@@ -352,7 +352,7 @@ class SessionBookingService
 
         $sessions = TherapySession::with(['user', 'payment', 'review', 'note'])
             ->where('therapist_id', $therapist->id)
-            ->orderBy('starts_at')
+            ->orderBy('starts_at', 'desc')
             ->get();
 
         // See listFor() — a future-dated cancelled/expired row is a dead
