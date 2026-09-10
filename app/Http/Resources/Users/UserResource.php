@@ -39,6 +39,8 @@ class UserResource extends JsonResource
             "role" => $this->role,
             "age" => $this->age,
             "username" => (string) $this->username,
+            "phone_number" => $this->phone_number,
+            "bio" => $this->bio,
             "google_id" => $this->google_id,
             "facebook_id" => $this->facebook_id,
             "tiktok_id" => $this->social_id,
