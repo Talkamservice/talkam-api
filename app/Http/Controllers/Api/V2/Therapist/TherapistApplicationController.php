@@ -30,6 +30,20 @@ class TherapistApplicationController extends Controller
         }
     }
 
+    /**
+     * The single source of truth for "Credential type" options — savePersonal()
+     * validates against this same config value (Rule::in), so a client that
+     * renders exactly this list can never submit one it rejects.
+     */
+    public function credentialTypes()
+    {
+        try {
+            return ApiHelper::validResponse("Credential types returned successfully", config("therapist.credential_types"));
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
     public function personal(Request $request)
     {
         try {

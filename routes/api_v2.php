@@ -493,6 +493,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("therapist")->as("therapist.")->group(function () {
         Route::prefix("application")->as("application.")->group(function () {
             Route::get("/", [TherapistApplicationController::class, "show"])->name("show");
+            Route::get("credential-types", [TherapistApplicationController::class, "credentialTypes"])->name("credential_types");
 
             // Write steps stay locked until the register-therapist verify_email
             // OTP is confirmed via POST /auth/otp/verify — reading state above
