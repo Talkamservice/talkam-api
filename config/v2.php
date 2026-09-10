@@ -22,6 +22,16 @@ return [
     | the Check-ins screen — data, so the list is a config fix.
     */
     'checkins' => [
+        // The 5-level emoji scale on the check-in modal (MoodConstants::MIN..MAX).
+        // Key+label lookup, same shape as 'factors' below — the mobile client
+        // was rendering these 5 with a hardcoded label, no server list to match.
+        'moods' => [
+            ['value' => 1, 'key' => 'very_sad', 'label' => 'Very sad'],
+            ['value' => 2, 'key' => 'sad', 'label' => 'Sad'],
+            ['value' => 3, 'key' => 'neutral', 'label' => 'Neutral'],
+            ['value' => 4, 'key' => 'happy', 'label' => 'Happy'],
+            ['value' => 5, 'key' => 'very_happy', 'label' => 'Very happy'],
+        ],
         'factors' => [
             ['key' => 'work', 'label' => 'Work'],
             ['key' => 'sleep', 'label' => 'Sleep'],

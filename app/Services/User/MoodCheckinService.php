@@ -225,11 +225,13 @@ class MoodCheckinService
 
         $labels = collect(config('v2.checkins.factors'))->pluck('label', 'key');
         $factors = $checkin->factors ?? [];
+        $mood_labels = collect(config('v2.checkins.moods'))->pluck('label', 'value');
 
         return [
             'id' => $checkin->id,
             'date' => (string) $checkin->checked_in_on,
             'mood' => $checkin->mood,
+            'mood_label' => $mood_labels[$checkin->mood] ?? null,
             'factors' => array_values($factors),
             'factor_labels' => array_values(array_map(fn ($k) => $labels[$k] ?? $k, $factors)),
             'note' => $checkin->note,

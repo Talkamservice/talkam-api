@@ -45,6 +45,7 @@ class MoodCheckinController extends Controller
                 "mood" => $checkin?->mood,
                 "checked_in_on" => $checkin?->checked_in_on,
                 "checkin" => MoodCheckinService::serialize($checkin),
+                "moods" => config("v2.checkins.moods"),
                 "factors" => config("v2.checkins.factors"),
             ]);
         } catch (Exception $e) {
