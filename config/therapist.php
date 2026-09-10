@@ -48,6 +48,7 @@ return [
         'Counselling Psychologist',
         'Psychiatrist',
         'Licensed Therapist',
+        'Licensed Clinical Social Worker',
     ],
 
     'document_max_kb' => 5120,
