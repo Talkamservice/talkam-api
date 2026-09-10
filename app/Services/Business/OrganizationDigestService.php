@@ -8,6 +8,7 @@ use App\Models\OrganizationDigest;
 use App\Notifications\Business\OrganizationDigestNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 /**
  * The monthly usage-digest run (web §03 Settings → "Monthly usage digest").
@@ -41,8 +42,11 @@ class OrganizationDigestService
     /** Returns true when a digest was actually sent (false when skipped or a repeat). */
     public static function sendFor(Organization $organization, Carbon $period_start, Carbon $period_end): bool
     {
+        $member_ids = OrgAggregateService::memberIds($organization);
+        $cohort = count($member_ids);
+
         // No point digesting a company with nobody on it yet.
-        if (empty(OrgAggregateService::memberIds($organization))) {
+        if ($cohort === 0) {
             return false;
         }
 
@@ -60,10 +64,23 @@ class OrganizationDigestService
         if ($recipients->isNotEmpty()) {
             $summary = OrgAggregateService::monthlySummary($organization, $period_start, $period_end);
 
+            // Additive here rather than in OrgAggregateService::monthlySummary()
+            // itself, so that method's return shape (and the live dashboard's
+            // unrelated overview() caller) is untouched.
+            $active = $summary["active_members"];
+            $engagement_rate = (!$active["suppressed"] && $cohort > 0)
+                ? round(($active["value"] / $cohort) * 100, 1) . '%'
+                : null;
+
             Notification::send($recipients, new OrganizationDigestNotification(
                 $organization->name,
                 $period_start->format("F Y"),
-                $summary
+                $summary,
+                [
+                    "companyShortName" => Str::limit(Str::before($organization->name, ' '), 24, ''),
+                    "engagementRate" => $engagement_rate,
+                    "reportUrl" => rtrim((string) config("business.web_url"), "/") . "/business/admin/reports",
+                ]
             ));
         }
 

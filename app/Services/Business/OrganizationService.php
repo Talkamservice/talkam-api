@@ -27,9 +27,10 @@ use Illuminate\Validation\ValidationException;
  * Company account lifecycle: signup, domain confirmation, seats, plan, bench.
  *
  * Domain confirmation deliberately rides the existing PIN pipeline
- * (TYPE_VERIFY_EMAIL at 6 digits via Auth\V2\VerifyService) rather than a new
- * codes table — it is already exactly "a 6-digit code with a short expiry
- * emailed to the work address".
+ * (TYPE_VERIFY_EMAIL_BUSINESS at 6 digits via Auth\V2\VerifyService) rather
+ * than a new codes table — it is already exactly "a 6-digit code with a short
+ * expiry emailed to the work address". A distinct type from mobile signup's
+ * TYPE_VERIFY_EMAIL keeps the two OTP emails on separate templates.
  */
 class OrganizationService
 {
@@ -89,7 +90,7 @@ class OrganizationService
 
         // Outside the transaction: a mail failure must not roll back the
         // account. The admin can always resend from the verify screen.
-        $this->verify_service->sendPin($user);
+        $this->verify_service->sendPin($user, PinConstants::TYPE_VERIFY_EMAIL_BUSINESS);
 
         return [
             "user" => $user->refresh(),
@@ -211,7 +212,7 @@ class OrganizationService
 
         $check = PinService::verify([
             "code" => $validator->validated()["code"],
-            "type" => PinConstants::TYPE_VERIFY_EMAIL,
+            "type" => PinConstants::TYPE_VERIFY_EMAIL_BUSINESS,
         ]);
 
         $pin_user = $check["user"] ?? null;

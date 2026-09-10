@@ -22,9 +22,34 @@ class SessionRescheduleNotification extends Notification
         return MethodsHelper::userNotificationPreference($notifiable);
     }
 
+    /**
+     * Only the 'accepted' case matches the new template's "your session was
+     * rescheduled" premise. 'requested' (please respond) and 'declined'
+     * (request rejected) are different emails with no corresponding design —
+     * they keep the existing generic template. Either party can be the
+     * requester (SessionRescheduleService::request() has no role
+     * restriction), so also guard against notifying the therapist with
+     * client-facing "your session" copy about their own session.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $data = $this->buildData($notifiable);
+        $session = $this->reschedule->session;
+        $is_therapist_recipient = $session?->therapist?->user_id === $notifiable->id;
+
+        if ($this->event === 'accepted' && !$is_therapist_recipient) {
+            $therapist_user = $session?->therapist?->user;
+            return (new MailMessage)
+                ->subject($data["title"])
+                ->view('emails.mobile.session-rescheduled', [
+                    "therapistShortName" => $therapist_user?->first_name,
+                    "previousDateTime" => SessionNotificationSupport::formatDateTime($this->reschedule->old_starts_at),
+                    "newDateTime" => SessionNotificationSupport::formatDateTime($this->reschedule->new_starts_at),
+                    "sessionFormat" => SessionNotificationSupport::formatLabel($session?->format),
+                    "sessionUrl" => SessionNotificationSupport::sessionUrl($session),
+                ]);
+        }
+
         return (new MailMessage)
             ->subject($data["title"])
             ->markdown('emails.general.index', [

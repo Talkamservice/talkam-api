@@ -19,7 +19,8 @@ class OrganizationDigestNotification extends Notification implements ShouldQueue
     public function __construct(
         public string $organizationName,
         public string $periodLabel,
-        public array $summary
+        public array $summary,
+        public array $extra = []
     ) {
     }
 
@@ -31,27 +32,19 @@ class OrganizationDigestNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $sessions = $this->summary["sessions_completed"];
-        $active = $this->summary["active_members"];
-
-        $mail = (new MailMessage)
-            ->subject("Your {$this->periodLabel} usage digest")
-            ->greeting("Hi {$notifiable->getName()},")
-            ->line("Here's how {$this->organizationName} used TalkAM in {$this->periodLabel}.")
-            ->line("Seats: {$this->summary['seats_used']} of {$this->summary['seats_total']} filled")
-            ->line($sessions["suppressed"]
-                ? "Sessions completed: not enough activity yet to report"
-                : "Sessions completed: {$sessions['value']}")
-            ->line($active["suppressed"]
-                ? "Active members: not enough activity yet to report"
-                : "Active members: {$active['value']}");
-
         $topics = $this->summary["top_topics"];
-        if (!$topics["suppressed"] && !empty($topics["value"])) {
-            $labels = collect($topics["value"])->pluck("label")->take(3)->implode(", ");
-            $mail->line("Top topics: {$labels}");
-        }
 
-        return $mail->line("See the full breakdown any time on your Overview dashboard.");
+        return (new MailMessage)
+            ->subject("Your {$this->periodLabel} usage digest")
+            ->view('emails.business.monthly-digest', [
+                "companyShortName" => $this->extra["companyShortName"] ?? $this->organizationName,
+                "sessionsBooked" => $sessions["suppressed"] ? null : $sessions["value"],
+                "engagementRate" => $this->extra["engagementRate"] ?? null,
+                "topTheme" => (!$topics["suppressed"] && !empty($topics["value"]))
+                    ? $topics["value"][0]["label"]
+                    : null,
+                "reportUrl" => $this->extra["reportUrl"] ?? config("business.web_url"),
+            ]);
     }
 
     public function toArray(object $notifiable): array

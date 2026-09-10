@@ -12,6 +12,7 @@ use App\Models\TherapySession;
 use App\Models\User;
 use App\Services\Business\BundleLedgerService;
 use App\Notifications\Therapist\SessionCancelledNotification;
+use App\Notifications\Therapist\SessionFollowUpNotification;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
@@ -301,7 +302,12 @@ class SessionLifecycleService
                 'ended_at' => $session->ended_at ?? now(),
             ]);
 
-            EarningsLedgerService::creditForSession($session->refresh());
+            $session = $session->refresh();
+            EarningsLedgerService::creditForSession($session);
+
+            if (!empty($session->user)) {
+                Notification::send($session->user, new SessionFollowUpNotification($session));
+            }
         }
     }
 

@@ -22,9 +22,29 @@ class SessionCancelledNotification extends Notification
         return MethodsHelper::userNotificationPreference($notifiable);
     }
 
+    /**
+     * The new template is written for the client's "your session was
+     * cancelled" moment (refund status, rebook CTA). When the notified
+     * counterpart is actually the therapist for this session, that framing
+     * doesn't fit — keep the existing generic template for them.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $data = $this->buildData($notifiable);
+        $is_therapist_recipient = $this->session->therapist?->user_id === $notifiable->id;
+
+        if (!$is_therapist_recipient) {
+            $therapist_user = $this->session->therapist?->user;
+            return (new MailMessage)
+                ->subject($data["title"])
+                ->view('emails.mobile.session-cancelled', [
+                    "therapistShortName" => $therapist_user?->first_name,
+                    "sessionDateTime" => SessionNotificationSupport::formatDateTime($this->session->starts_at),
+                    "refundSummary" => $this->refunded ? "Fully refunded" : "No refund",
+                    "rebookUrl" => SessionNotificationSupport::rebookUrl($this->session),
+                ]);
+        }
+
         return (new MailMessage)
             ->subject($data["title"])
             ->markdown('emails.general.index', [

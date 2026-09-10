@@ -63,9 +63,15 @@ class UserResource extends JsonResource
         ];
     }
 
-    public static function custom($model)
+    /**
+     * $following_ids: pass the authenticated user's followed-user ids to
+     * include an "is_following" flag (omitted when null, so every other
+     * caller of custom()/customCollection() keeps its exact current shape).
+     * A set, not a per-call query — see customCollection().
+     */
+    public static function custom($model, ?array $following_ids = null)
     {
-        return [
+        $data = [
             "id" => (int) $model->id,
             "avatar" => $model->avatar,
             "name" => $model->full_name,
@@ -73,12 +79,24 @@ class UserResource extends JsonResource
             "active_subscription" => !empty($model->activeSubscription) ? SubscriptionResource::custom($model->activeSubscription) : null,
             "email" => (string) $model->email,
         ];
+
+        if ($following_ids !== null) {
+            $data["is_following"] = in_array($model->id, $following_ids);
+        }
+
+        return $data;
     }
 
-    public static function customCollection($collections)
+    /**
+     * $following_ids: forwarded to custom() for every item — compute this
+     * once per request (e.g. UserFollow::where("follower_id", auth()->id())
+     * ->pluck("followed_id")->all()), never per-item, to avoid an N+1 query
+     * across the collection.
+     */
+    public static function customCollection($collections, ?array $following_ids = null)
     {
-        return $collections->map(function ($model) {
-            return self::custom($model);
+        return $collections->map(function ($model) use ($following_ids) {
+            return self::custom($model, $following_ids);
         });
     }
 }

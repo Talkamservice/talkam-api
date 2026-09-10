@@ -9,6 +9,7 @@ use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Payment;
 use App\Models\Promotion;
 use App\Models\User;
+use App\Notifications\Business\BusinessBundlePaymentReceiptNotification;
 use App\Notifications\Finance\Payment\AdminNewPaymentNotification;
 use App\Notifications\Finance\Payment\NewPaymentNotification;
 use App\Services\Finance\Payment\PaymentIntentService;
@@ -193,7 +194,11 @@ class FlutterwaveOneOffPaymentWebhookService
 
         \App\Services\Business\OrganizationBillingService::fulfilBundlePayment($this->payment);
 
-        Notification::send($this->user, new NewPaymentNotification($this->payment->refresh()));
+        $this->payment->refresh();
+        $organization = \App\Models\Organization::find($this->payment->metadata["organization_id"] ?? null);
+        if ($organization) {
+            Notification::send($this->user, new BusinessBundlePaymentReceiptNotification($this->payment, $organization));
+        }
         if (!empty(sudo())) {
             Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
         }

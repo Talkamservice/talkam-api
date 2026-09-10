@@ -18,11 +18,11 @@ class VerifyService extends V1VerifyService
 {
     const PIN_LENGTH = 6;
 
-    public function sendPin(User $user)
+    public function sendPin(User $user, string $type = PinConstants::TYPE_VERIFY_EMAIL)
     {
         $pin_expiry = now()->addSeconds(config("system.configuration.pin_expiry"));
         $this->pin_service->create($user, [
-            "type" => PinConstants::TYPE_VERIFY_EMAIL,
+            "type" => $type,
             "expires_at" => $pin_expiry,
             "length" => self::PIN_LENGTH,
             "code_type" => "int",

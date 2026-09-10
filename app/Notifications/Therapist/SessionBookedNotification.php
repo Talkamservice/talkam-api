@@ -22,9 +22,31 @@ class SessionBookedNotification extends Notification
         return MethodsHelper::userNotificationPreference($notifiable);
     }
 
+    /**
+     * The new session-booked template is written for the client's "your
+     * session is confirmed" moment. The therapist audience is a different
+     * email in substance — a new booking *request* they still need to
+     * acknowledge or decline (see the actionable `extra` below) — so it
+     * keeps the existing generic template rather than being told their own
+     * session is already booked.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $data = $this->buildData($notifiable);
+
+        if ($this->audience !== "therapist") {
+            $therapist_user = $this->session->therapist?->user;
+            return (new MailMessage)
+                ->subject($data["title"])
+                ->view('emails.mobile.session-booked', [
+                    "therapistName" => $therapist_user?->full_name,
+                    "therapistShortName" => $therapist_user?->first_name,
+                    "sessionDateTime" => SessionNotificationSupport::formatDateTime($this->session->starts_at),
+                    "sessionFormat" => SessionNotificationSupport::formatLabel($this->session->format),
+                    "sessionUrl" => SessionNotificationSupport::sessionUrl($this->session),
+                ]);
+        }
+
         return (new MailMessage)
             ->subject($data["title"])
             ->markdown('emails.general.index', [

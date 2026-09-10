@@ -24,14 +24,11 @@ class PayoutReceivedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $data = $this->buildData($notifiable);
         return (new MailMessage)
-            ->subject($data["title"])
-            ->markdown('emails.general.index', [
-                "title" => $data["title"],
-                "message" => $data["message"],
-                "recipient_name" => $notifiable->getName(),
-                "action_url" => $data["link"]
+            ->subject("Payout processed")
+            ->view('emails.business.payout-processed', [
+                "payoutAmount" => format_money($this->payout->amount, 2, "₦"),
+                "earningsUrl" => config("app.web_url") . "/earnings",
             ]);
     }
 

@@ -153,7 +153,7 @@ class OrgAggregateService
             'seats_total' => (int) $organization->seats_licensed,
             'sessions_completed' => self::suppress($sessions_completed, $cohort),
             'active_members' => self::suppress($active_members, $cohort),
-            'top_topics' => self::topTopics($organization, $member_ids, $cohort),
+            'top_topics' => self::topTopics($organization, $member_ids, $cohort, $period_start, $period_end),
         ];
     }
 
@@ -211,16 +211,29 @@ class OrgAggregateService
      * Read from mood-check-in FACTORS in aggregate — never a member's note, and
      * never joined back to a user id.
      */
-    private static function topTopics(Organization $organization, array $member_ids, int $cohort): array
+    /**
+     * $from/$to scope the window explicitly (e.g. a closed digest period);
+     * omitted, it falls back to the original rolling-90-day trend the live
+     * dashboard has always shown — that default is untouched so overview()'s
+     * existing call site behaves exactly as before.
+     */
+    private static function topTopics(Organization $organization, array $member_ids, int $cohort, $from = null, $to = null): array
     {
         if (empty($member_ids)) {
             return self::suppress([], $cohort);
         }
 
-        $rows = MoodCheckin::whereIn('user_id', $member_ids)
-            ->where('checked_in_on', '>=', now()->subDays(90)->toDateString())
-            ->whereNotNull('factors')
-            ->get(['factors']);
+        $from ??= now()->subDays(90);
+
+        $query = MoodCheckin::whereIn('user_id', $member_ids)
+            ->where('checked_in_on', '>=', $from->toDateString())
+            ->whereNotNull('factors');
+
+        if ($to) {
+            $query->where('checked_in_on', '<=', $to->toDateString());
+        }
+
+        $rows = $query->get(['factors']);
 
         $labels = collect(config('v2.checkins.factors'))->pluck('label', 'key');
         $counts = [];

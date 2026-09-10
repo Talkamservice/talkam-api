@@ -7,6 +7,7 @@ use App\Exceptions\General\InvalidRequestException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Users\UserResource;
+use App\Models\UserFollow;
 use App\Services\User\FollowService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -40,7 +41,7 @@ class FollowController extends Controller
     {
         try {
             $users = FollowService::following(auth()->user())->get();
-            return ApiHelper::validResponse("Following returned successfully", UserResource::customCollection($users));
+            return ApiHelper::validResponse("Following returned successfully", UserResource::customCollection($users, $this->followingIds()));
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
@@ -50,9 +51,15 @@ class FollowController extends Controller
     {
         try {
             $users = FollowService::followers(auth()->user())->get();
-            return ApiHelper::validResponse("Followers returned successfully", UserResource::customCollection($users));
+            return ApiHelper::validResponse("Followers returned successfully", UserResource::customCollection($users, $this->followingIds()));
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
+    }
+
+    /** One query per request, not per listed user — feeds is_following on each item. */
+    private function followingIds(): array
+    {
+        return UserFollow::where("follower_id", auth()->id())->pluck("followed_id")->all();
     }
 }

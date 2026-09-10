@@ -22,9 +22,29 @@ class SessionReminderNotification extends Notification
         return MethodsHelper::userNotificationPreference($notifiable);
     }
 
+    /**
+     * Sent to both the client and the therapist (SendSessionRemindersCommand)
+     * with identical content today. The new template's client-facing framing
+     * only fits the client recipient — the therapist keeps the generic one.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $data = $this->buildData($notifiable);
+        $is_therapist_recipient = $this->session->therapist?->user_id === $notifiable->id;
+
+        if (!$is_therapist_recipient) {
+            $therapist_user = $this->session->therapist?->user;
+            return (new MailMessage)
+                ->subject($data["title"])
+                ->view('emails.mobile.session-reminder', [
+                    "therapistShortName" => $therapist_user?->first_name,
+                    "sessionDateTime" => SessionNotificationSupport::formatDateTime($this->session->starts_at),
+                    "sessionTime" => SessionNotificationSupport::formatTime($this->session->starts_at),
+                    "sessionFormat" => SessionNotificationSupport::formatLabel($this->session->format),
+                    "sessionUrl" => SessionNotificationSupport::sessionUrl($this->session),
+                ]);
+        }
+
         return (new MailMessage)
             ->subject($data["title"])
             ->markdown('emails.general.index', [

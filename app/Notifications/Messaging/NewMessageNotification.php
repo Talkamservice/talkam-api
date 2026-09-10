@@ -56,9 +56,27 @@ class NewMessageNotification extends Notification
 
     /**
      * Get the mail representation of the notification.
+     *
+     * Messaging is generic peer-to-peer (no role restriction anywhere in
+     * ConversationService/MessageActionService) — only render the "your
+     * therapist replied" template when the sender genuinely has a Therapist
+     * record; any other sender keeps the neutral generic template so a peer
+     * message is never mislabeled as coming from a therapist.
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $sender = $this->message->sender;
+        $therapist = $sender?->therapist;
+
+        if ($therapist) {
+            return (new MailMessage)
+                ->subject("{$sender->first_name} sent you a message")
+                ->view('emails.mobile.new-message', [
+                    "therapistShortName" => $sender->first_name,
+                    "conversationUrl" => config("app.web_url") . "/conversation/{$this->message->conversation_id}",
+                ]);
+        }
+
         $data = $this->buildData($notifiable);
         return (new MailMessage)
             ->subject($data["title"])
