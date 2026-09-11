@@ -102,4 +102,24 @@ class GroupController extends Controller
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }
     }
+
+    /** Groups the user is currently a member of — not to be confused with
+     *  following() above, which is the lighter group_follows bookmark. */
+    public function joined(Request $request)
+    {
+        try {
+            $groups = GroupService::joinedGroups(auth()->user())
+                ->status()
+                ->orderBy("name")
+                ->paginate(AppConstants::API_PAGINATION_SIZE)
+                ->appends($request->query());
+
+            $data = collectPagination($groups);
+            $data["data"] = GroupResource::collection($groups);
+
+            return ApiHelper::validResponse("Joined groups returned successfully", $data);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
 }
