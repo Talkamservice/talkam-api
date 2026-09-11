@@ -58,6 +58,14 @@
                         </li>
                     @endcan
 
+                    {{-- Therapist Applications --}}
+                    <li class="slide">
+                        <a href="{{ route('admin.therapist-applications.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.therapist-applications.index', 'admin.therapist-applications.show']) ? 'active' : '' }}">
+                            <i class="bx bx-user-check side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Therapist Applications</span>
+                        </a>
+                    </li>
+
                 @endcanAny
 
                 @can(slugPermission('read category'))
@@ -68,6 +76,20 @@
                         <a href="{{ route('admin.post-categories.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.post-categories.index', 'admin.post-categories.create', 'admin.post-categories.show', 'admin.post-categories.edit']) ? 'active' : '' }}">
                             <i class="bx bx-folder-open side-menu__icon list-item-icon"></i>
                             <span class="side-menu__label list-item-label">Categories</span>
+                        </a>
+                    </li>
+
+                    <li class="slide">
+                        <a href="{{ route('admin.industries.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.industries.index', 'admin.industries.create', 'admin.industries.edit']) ? 'active' : '' }}">
+                            <i class="bx bx-buildings side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Industries</span>
+                        </a>
+                    </li>
+
+                    <li class="slide">
+                        <a href="{{ route('admin.bench-topics.index') }}" class="side-menu__item list-item {{ in_array(Route::currentRouteName(), ['admin.bench-topics.index', 'admin.bench-topics.create', 'admin.bench-topics.edit']) ? 'active' : '' }}">
+                            <i class="bx bx-heart side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Bench Topics</span>
                         </a>
                     </li>
                 @endcan

@@ -303,6 +303,22 @@ class GroupService
 
 
 
+    /**
+     * Groups the user is actually a member of (owner/admin/member with an
+     * Active GroupMember row) — distinct from GroupFollowService's lighter
+     * bookmark concept, which the v2 "following" endpoint already covers.
+     * Defaults to Active only; GroupMember::status also covers Pending
+     * (requested, not yet approved) and Suspended/Banned, none of which
+     * count as "currently a member".
+     */
+    public static function joinedGroups(User $user, array $statuses = [StatusConstants::ACTIVE])
+    {
+        return Group::whereIn(
+            "id",
+            GroupMember::where("user_id", $user->id)->whereIn("status", $statuses)->pluck("group_id")
+        );
+    }
+
     public static function following(array $data = [])
     {
         $builder = self::list($data);

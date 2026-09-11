@@ -140,7 +140,7 @@ class UserService
         return $user;
     }
 
-    private static function generateUsername()
+    public static function generateUsername()
     {
         $username = MethodsHelper::getRandomToken(10);
         $username = ucfirst(strtolower($username));

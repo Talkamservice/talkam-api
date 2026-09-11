@@ -9,6 +9,7 @@ use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Payment;
 use App\Models\Promotion;
 use App\Models\User;
+use App\Notifications\Business\BusinessBundlePaymentReceiptNotification;
 use App\Notifications\Finance\Payment\AdminNewPaymentNotification;
 use App\Notifications\Finance\Payment\NewPaymentNotification;
 use App\Services\Finance\Payment\PaymentIntentService;
@@ -106,6 +107,14 @@ class FlutterwaveOneOffPaymentWebhookService
             $this->handlePaymentForPromotion();
         }
 
+        if (in_array($activity, [PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE])) {
+            $this->handlePaymentForBusinessBundle();
+        }
+
+        if (in_array($activity, [PaymentConstants::PAYMENT_FOR_CARD_SETUP])) {
+            $this->handlePaymentForCardSetup();
+        }
+
         if (isset($this->metadata["payload"])) {
             $this->handlePayloadAction($this->metadata);
         }
@@ -170,5 +179,71 @@ class FlutterwaveOneOffPaymentWebhookService
             DB::rollBack();
             throw $th;
         }
+    }
+
+    /**
+     * B2B onboarding: the up-front session-bundle charge succeeded. Mark it
+     * complete and record the paid invoice (delegated to the billing service so
+     * the fulfilment stays in one place), then notify.
+     */
+    public function handlePaymentForBusinessBundle()
+    {
+        if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+            throw new InvalidRequestException("Payment has already been verified.");
+        }
+
+        \App\Services\Business\OrganizationBillingService::fulfilBundlePayment($this->payment);
+
+        $this->payment->refresh();
+        $organization = \App\Models\Organization::find($this->payment->metadata["organization_id"] ?? null);
+        if ($organization) {
+            Notification::send($this->user, new BusinessBundlePaymentReceiptNotification($this->payment, $organization));
+        }
+        if (!empty(sudo())) {
+            Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
+        }
+
+        return $this->payment;
+    }
+
+    /**
+     * Postpay card-on-file (web §10): the tiny verification auth succeeded. Save
+     * the card token on the company, then REFUND the auth — we only needed the
+     * token, so nothing is really charged.
+     */
+    public function handlePaymentForCardSetup()
+    {
+        if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+            throw new InvalidRequestException("Payment has already been verified.");
+        }
+
+        // The verified transaction is authoritative for the card token; the raw
+        // webhook payload is a fallback if the shape differs.
+        $txn = isset($this->transaction_data)
+            ? ($this->transaction_data["data"] ?? $this->transaction_data)
+            : [];
+        $card = $txn["card"] ?? $this->payload["data"]["card"] ?? [];
+        $transaction_id = $txn["id"] ?? $this->payload["data"]["id"] ?? null;
+
+        \App\Services\Business\OrganizationBillingService::saveCardOnFile(
+            $this->payment,
+            $card["token"] ?? null,
+            $card["last_4digits"] ?? null,
+            $card["type"] ?? null
+        );
+        if ($transaction_id && (float) $this->payment->amount > 0) {
+            try {
+                (new FlutterwaveService)->refundTransaction($transaction_id, ["amount" => $this->payment->amount]);
+            } catch (\Throwable $th) {
+                logger("Card-setup verification refund failed", [
+                    "payment" => $this->payment->id,
+                    "error" => $th->getMessage(),
+                ]);
+            }
+        }
+
+        Notification::send($this->user, new NewPaymentNotification($this->payment->refresh()));
+
+        return $this->payment;
     }
 }

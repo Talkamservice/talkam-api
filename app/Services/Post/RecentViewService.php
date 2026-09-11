@@ -66,13 +66,21 @@ class RecentViewService
 
     public static function list($user_id, array $data = [])
     {
+        $validator = Validator::make($data, [
+            "sort" => "required|in:post,category,tag,group",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
         $builder = RecentView::with("user")->where("user_id", $user_id)->latest();
 
         if (!empty($key = $data["user_id"] ?? null)) {
             $builder->where("user_id", $key);
         }
 
-        $sort_key = $data["sort"] ?? null;
+        $sort_key = $data["sort"];
         $record_key = "{$sort_key}_id";
 
         $record_ids = $builder->pluck($record_key)->toArray();

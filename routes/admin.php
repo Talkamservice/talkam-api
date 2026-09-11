@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\Authorization\PermissionController;
 use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
 use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
+use App\Http\Controllers\Admin\Business\BenchTopicController;
+use App\Http\Controllers\Admin\Business\IndustryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Faq\FaqCategoryController;
 use App\Http\Controllers\Admin\Faq\FaqController;
@@ -59,6 +61,8 @@ Route::middleware(["auth"])->group(
             'promotions' => PromotionController::class,
             'promotion-pricings' => PromotionPricingSettingController::class,
             "payment-terms" => PaymentTermsController::class,
+            "industries" => IndustryController::class,
+            "bench-topics" => BenchTopicController::class,
         ]);
 
         Route::prefix("users")->as("users.")->group(function () {
@@ -173,6 +177,15 @@ Route::middleware(["auth"])->group(
         Route::get('view-flutterwave-plans', [PlanCountryPricingController::class, 'fetchFlutterwavePlans'])->name('view-flutterwave-plans');
 
         Route::delete('country-plan-pricings/{plan_pricing_id}/delete/{plan_pricing_provider_id}', [PlanCountryPricingController::class, 'deleteCountryPlanProvider'])->name('country-plan-pricings.provider.delete');
+        
+        // Therapist application review (both web and API)
+        Route::prefix("therapist-applications")->as("therapist-applications.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "index"])->name("index");
+            Route::get("{id}", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "show"])->name("show");
+            Route::post("{id}/approve", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "approve"])->name("approve");
+            Route::post("{id}/reject", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "reject"])->name("reject");
+            Route::post("documents/{id}/verdict", [\App\Http\Controllers\Admin\Therapist\TherapistReviewController::class, "documentVerdict"])->name("documents.verdict");
+        });
     }
 
 
