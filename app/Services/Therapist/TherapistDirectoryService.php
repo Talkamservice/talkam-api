@@ -63,9 +63,13 @@ class TherapistDirectoryService
     {
         // Verified-only, plus — for a business-employed caller — their own
         // org's therapists (own + network), unverified or not. See list().
+        // ->status() matches list() — an inactive/deactivated therapist must
+        // be unreachable by direct id too, not just absent from search, or
+        // deactivation/suspension has no real effect on bookability.
         $org_ids = self::orgEligibleIds($user);
 
         $therapist = Therapist::with('user')
+            ->status()
             ->where(function ($q) use ($org_ids) {
                 $q->whereNotNull('verified_at');
                 if ($org_ids->isNotEmpty()) {

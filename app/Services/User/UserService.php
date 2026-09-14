@@ -365,6 +365,10 @@ class UserService
                 'suspension_end' => $suspension_end,
                 "status" => $status
             ]);
+            // A suspended therapist must stop being bookable/visible too —
+            // TherapistDirectoryService gates on Therapist.status, which
+            // this account's User.status alone never touched.
+            $user->therapist?->update(['status' => StatusConstants::INACTIVE]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, $suspension_reason, $suspension_end->toFormattedDateString()));
             broadcast(new RefreshNotification($user->id));
             $user->refresh();
@@ -444,6 +448,11 @@ class UserService
             "status" => StatusConstants::BANNED,
             'remember_token' => Str::random(60) // Reset remember_token to invalidate web sessions
         ]);
+
+        // Same as suspend(): a banned therapist must stop being
+        // bookable/visible — Therapist.status is a separate column User::ban
+        // never reached before.
+        $user->therapist?->update(['status' => StatusConstants::INACTIVE]);
 
         // Send a notification to the user
         Notification::send($user, new BannedUserNotification($user, $ban_reason));
