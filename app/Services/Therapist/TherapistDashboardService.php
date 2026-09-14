@@ -11,6 +11,8 @@ use App\Models\Therapist;
 use App\Models\TherapistReview;
 use App\Models\TherapySession;
 use App\Models\User;
+use App\Notifications\Therapist\TherapistWelcomeNotification;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * The therapist "cockpit" aggregates: Home and Analytics.
@@ -49,6 +51,8 @@ class TherapistDashboardService
     {
         $user = $therapist->user;
 
+        self::sendWelcomeEmailOnce($therapist, $user);
+
         $next = TherapySession::with('user')
             ->where('therapist_id', $therapist->id)
             ->where('status', TherapistConstants::SESSION_CONFIRMED)
@@ -65,6 +69,27 @@ class TherapistDashboardService
             'self_care' => self::selfCareNudge($therapist),
             'employment' => self::employment($user),
         ];
+    }
+
+    /**
+     * Fires once, on whichever request is genuinely this therapist's first
+     * dashboard load — home() has no other side effects and runs on every
+     * visit, so welcome_email_sent_at is the only guard. Never let a mail
+     * failure break the dashboard response itself.
+     */
+    private static function sendWelcomeEmailOnce(Therapist $therapist, User $user): void
+    {
+        if (!empty($therapist->welcome_email_sent_at)) {
+            return;
+        }
+
+        try {
+            Notification::send($user, new TherapistWelcomeNotification($therapist));
+        } catch (\Throwable $th) {
+            logger("Therapist welcome mail failed for therapist {$therapist->id}: " . $th->getMessage());
+        }
+
+        $therapist->update(['welcome_email_sent_at' => now()]);
     }
 
     /** Counts behind the "needs your attention" strip. */

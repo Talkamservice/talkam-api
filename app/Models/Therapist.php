@@ -15,6 +15,7 @@ class Therapist extends Model
     protected $casts = [
         'session_formats' => 'array',
         'verified_at' => 'datetime',
+        'welcome_email_sent_at' => 'datetime',
     ];
 
     public function user()
