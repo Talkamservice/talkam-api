@@ -181,21 +181,25 @@
                         </div>
                     </div>
                 @endif
+            </div>
+        </div>
 
-                <!-- Documents -->
-                @php
-                    // Always shows all 5 required types, uploaded or not — the
-                    // previous version only rendered a row (or the whole card)
-                    // for documents that already existed, so a reviewer had no
-                    // way to see what's still missing without cross-checking
-                    // TherapistConstants::DOCUMENT_TYPES by hand.
-                    $documentsByType = $application->documents->keyBy('type');
-                    $docStatusColors = [
-                        'pending' => 'warning',
-                        'approved' => 'success',
-                        'rejected' => 'danger',
-                    ];
-                @endphp
+        <!-- Documents -->
+        @php
+            // Always shows all 5 required types, uploaded or not — the
+            // previous version only rendered a row (or the whole card)
+            // for documents that already existed, so a reviewer had no
+            // way to see what's still missing without cross-checking
+            // TherapistConstants::DOCUMENT_TYPES by hand.
+            $documentsByType = $application->documents->keyBy('type');
+            $docStatusColors = [
+                'pending' => 'warning',
+                'approved' => 'success',
+                'rejected' => 'danger',
+            ];
+        @endphp
+        <div class="row">
+            <div class="col-xl-12">
                 <div class="card custom-card">
                     <div class="card-header">
                         <div class="card-title">Uploaded Documents</div>
