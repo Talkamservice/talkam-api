@@ -118,7 +118,7 @@ class OrgRosterService
                 'activated_at' => null,
                 'source' => 'invitation',
                 'sessions_used' => null,
-                'sessions_cap' => $cap,
+                'sessions_cap' => $i->invite_role === OrganizationConstants::ROLE_EMPLOYEE ? $cap : null,
                 'last_active' => null,
             ]);
 
