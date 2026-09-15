@@ -19,11 +19,13 @@ use Exception;
  * Seat administration, the therapist network, trust & safety, the activity log
  * and company settings.
  *
- * The roster/export served here is CONTRACT data only — who holds a seat,
- * where, and at what status; it carries no session count and no last-active
- * timestamp, see planning-docs/web-api/03-admin-dashboard.md §0. `employeeDetail`
- * is the one deliberate exception: the "view seat" modal for a single member
- * does show that member's own usage.
+ * `employees` (the roster) carries CONTRACT data — who holds a seat, where,
+ * at what status — PLUS each employee seat's own session-cap usage and
+ * last-active timestamp; a deliberate exception to this dashboard's usual
+ * anonymised/company-wide-only rule, scoped to employee-role seats only. See
+ * OrgRosterService's class docblock. `exportEmployees` deliberately does NOT
+ * carry those columns — the CSV stays contract-only. `employeeDetail` is the
+ * single-row counterpart behind the "view seat" modal.
  */
 class AdminWorkspaceController extends Controller
 {

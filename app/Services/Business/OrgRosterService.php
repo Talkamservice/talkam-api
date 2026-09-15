@@ -24,14 +24,18 @@ use Illuminate\Validation\ValidationException;
 /**
  * Seat administration for the admin dashboard.
  *
- * The roster() list is deliberately CONTRACT data only — who holds a seat, in
- * which department, at what status. It carries no session count, no
- * last-active timestamp and no wellbeing signal of any kind; those are
- * behaviour, and behaviour is otherwise only ever exposed company-wide through
- * OrgAggregateService. (planning-docs/web-api/03-admin-dashboard.md §0)
+ * The roster() list is CONTRACT data (who holds a seat, in which department,
+ * at what status) PLUS each employee seat's own session cap usage and
+ * last-active timestamp — a deliberate, explicit design choice for this
+ * dashboard's employee table, scoped to employee-role seats only (admin/
+ * therapist seats and pending invitations carry no usage figures). It still
+ * carries no session content, no mood/wellbeing signal and nothing about any
+ * OTHER employee — company-wide behaviour stays exposed only in aggregate,
+ * through OrgAggregateService. (planning-docs/web-api/03-admin-dashboard.md §0
+ * predates this choice — see AdminPrivacyTest for the current contract.)
  *
- * employeeDetail() is the one deliberate exception — the "view seat" modal
- * shows that one member's own session usage.
+ * employeeDetail() is the single-row counterpart behind the "view seat" modal
+ * — the same figures, plus a 6-month breakdown and the seat rate.
  */
 class OrgRosterService
 {
@@ -52,19 +56,53 @@ class OrgRosterService
      */
     public static function roster(Organization $organization, array $filters = []): array
     {
+        $cap = $organization->per_employee_session_quota !== null
+            ? (int) $organization->per_employee_session_quota
+            : null;
+
+        // Batched once for the whole roster rather than per row, matching the
+        // "view seat" modal's own cap/last-active figures (employeeDetail()).
+        $employee_user_ids = OrganizationMember::where('organization_id', $organization->id)
+            ->where('role', OrganizationConstants::ROLE_EMPLOYEE)
+            ->pluck('user_id');
+
+        $used_by_user = $employee_user_ids->isEmpty() ? collect() : TherapySession::whereIn('user_id', $employee_user_ids)
+            ->active()
+            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->selectRaw('user_id, COUNT(*) as total')
+            ->groupBy('user_id')
+            ->pluck('total', 'user_id');
+
+        $last_active_by_user = $employee_user_ids->isEmpty() ? collect() : TherapySession::whereIn('user_id', $employee_user_ids)
+            ->where('status', TherapistConstants::SESSION_COMPLETED)
+            ->selectRaw('user_id, MAX(ended_at) as last_active')
+            ->groupBy('user_id')
+            ->pluck('last_active', 'user_id')
+            ->map(fn ($v) => $v ? Carbon::parse($v)->toIso8601String() : null);
+
         $members = OrganizationMember::where('organization_id', $organization->id)
             ->with('user:id,email,first_name,last_name')
             ->get()
-            ->map(fn ($m) => [
-                'id' => self::displayId($m->id),
-                'member_id' => $m->id,
-                'email' => $m->user?->email,
-                'department' => $m->department,
-                'role' => $m->role,
-                'status' => $m->status,
-                'activated_at' => $m->activated_at?->toDateString(),
-                'source' => 'member',
-            ]);
+            ->map(function ($m) use ($cap, $used_by_user, $last_active_by_user) {
+                $is_employee = $m->role === OrganizationConstants::ROLE_EMPLOYEE;
+
+                return [
+                    'id' => self::displayId($m->id),
+                    'member_id' => $m->id,
+                    'email' => $m->user?->email,
+                    'department' => $m->department,
+                    'role' => $m->role,
+                    'status' => $m->status,
+                    'activated_at' => $m->activated_at?->toDateString(),
+                    'source' => 'member',
+                    // Deliberate, scoped exception to the roster's usual
+                    // contract-only rule — see the class docblock. Employee
+                    // seats only; admin/therapist seats carry no session cap.
+                    'sessions_used' => $is_employee ? (int) ($used_by_user[$m->user_id] ?? 0) : null,
+                    'sessions_cap' => $is_employee ? $cap : null,
+                    'last_active' => $is_employee ? ($last_active_by_user[$m->user_id] ?? null) : null,
+                ];
+            });
 
         $invites = Invitation::where('organization_id', $organization->id)
             ->where('status', StatusConstants::PENDING)
@@ -79,6 +117,9 @@ class OrgRosterService
                 'status' => OrganizationConstants::MEMBER_INVITED,
                 'activated_at' => null,
                 'source' => 'invitation',
+                'sessions_used' => null,
+                'sessions_cap' => $cap,
+                'last_active' => null,
             ]);
 
         $rows = $members->concat($invites);

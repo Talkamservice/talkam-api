@@ -176,6 +176,14 @@ class AdminPrivacyTest extends TestCase
             $body = $this->getJson($uri)->assertStatus(200)->getContent();
 
             foreach (self::FORBIDDEN_KEYS as $key) {
+                // The roster (and its "view seat" modal counterpart, not
+                // covered by this sweep) is a deliberate, scoped exception:
+                // it shows each EMPLOYEE seat's own last-active timestamp.
+                // See OrgRosterService::roster()'s class docblock.
+                if ($key === "last_active" && $uri === "/api/v2/business/employees") {
+                    continue;
+                }
+
                 $this->assertStringNotContainsString(
                     "\"{$key}\"",
                     $body,
@@ -207,22 +215,41 @@ class AdminPrivacyTest extends TestCase
 
     /* ── The roster's specific carve-outs ───────────────────────────────── */
 
-    public function test_the_roster_carries_no_usage_or_activity_data(): void
+    /**
+     * The roster shows each EMPLOYEE seat's own session-cap usage and
+     * last-active timestamp (a deliberate, explicit exception — see
+     * OrgRosterService::roster()'s class docblock) but nothing about any
+     * OTHER employee, and nothing about mood/checkins/session content for
+     * anyone, ever.
+     */
+    public function test_the_roster_shows_usage_only_for_employee_seats_and_nothing_else(): void
     {
         $rows = $this->getJson("/api/v2/business/employees")->assertStatus(200)->json("data.employees");
 
         $this->assertNotEmpty($rows);
 
         foreach ($rows as $row) {
-            foreach (["used", "total", "sessions", "last_active", "lastActive", "mood", "checkins"] as $key) {
+            foreach (["mood", "checkins", "checked_in_on", "note", "session_id"] as $key) {
                 $this->assertArrayNotHasKey($key, $row, "the roster exposed '{$key}'");
             }
 
-            // What it MAY carry: contract data the admin already holds.
             $this->assertArrayHasKey("id", $row);
             $this->assertArrayHasKey("status", $row);
             $this->assertArrayHasKey("department", $row);
+            $this->assertArrayHasKey("sessions_used", $row);
+            $this->assertArrayHasKey("sessions_cap", $row);
+            $this->assertArrayHasKey("last_active", $row);
+
+            // Non-employee seats (admin here) carry no usage figures at all.
+            if ($row["role"] !== OrganizationConstants::ROLE_EMPLOYEE) {
+                $this->assertNull($row["sessions_used"]);
+                $this->assertNull($row["last_active"]);
+            }
         }
+
+        $employeeRow = collect($rows)->firstWhere("role", OrganizationConstants::ROLE_EMPLOYEE);
+        $this->assertNotNull($employeeRow);
+        $this->assertIsInt($employeeRow["sessions_used"]);
     }
 
     public function test_safety_reports_never_name_the_reporter_or_quote_them(): void
