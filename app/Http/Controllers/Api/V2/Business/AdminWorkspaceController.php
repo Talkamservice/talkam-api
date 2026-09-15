@@ -19,9 +19,11 @@ use Exception;
  * Seat administration, the therapist network, trust & safety, the activity log
  * and company settings.
  *
- * The roster served here is CONTRACT data only — who holds a seat, where, and
- * at what status. It deliberately carries no session count and no last-active
- * timestamp; see planning-docs/web-api/03-admin-dashboard.md §0.
+ * The roster/export served here is CONTRACT data only — who holds a seat,
+ * where, and at what status; it carries no session count and no last-active
+ * timestamp, see planning-docs/web-api/03-admin-dashboard.md §0. `employeeDetail`
+ * is the one deliberate exception: the "view seat" modal for a single member
+ * does show that member's own usage.
  */
 class AdminWorkspaceController extends Controller
 {
@@ -78,6 +80,20 @@ class AdminWorkspaceController extends Controller
 
                 fclose($out);
             }, "talkam-employees-" . now()->format("Y-m-d") . ".csv", ["Content-Type" => "text/csv"]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
+    /** Full profile behind the "View seat" modal — includes this one
+     *  member's own usage, unlike the roster/export above. */
+    public function employeeDetail(Request $request, $member)
+    {
+        try {
+            return ApiHelper::validResponse(
+                "Employee returned successfully",
+                OrgRosterService::employeeDetail($request->attributes->get("organization"), $member)
+            );
         } catch (Exception $e) {
             return $this->failure($e);
         }

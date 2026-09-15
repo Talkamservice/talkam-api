@@ -4,6 +4,7 @@ namespace App\Services\Business;
 
 use App\Constants\Business\OrganizationConstants;
 use App\Exceptions\General\InvalidRequestException;
+use App\Models\Organization;
 use App\Models\TherapySession;
 use App\Models\User;
 use App\Notifications\Business\SessionCapRequestNotification;
@@ -32,6 +33,17 @@ class SessionCapService
             return null;
         }
 
+        return self::forOrganization($user, $org);
+    }
+
+    /**
+     * The same cap/used figures as status(), for a member already known to
+     * belong to $org — used by the admin roster's per-employee detail view,
+     * which looks up an arbitrary (possibly inactive) member directly rather
+     * than the caller's own current membership.
+     */
+    public static function forOrganization(User $user, Organization $org): array
+    {
         $cap = $org->per_employee_session_quota !== null
             ? (int) $org->per_employee_session_quota
             : null;

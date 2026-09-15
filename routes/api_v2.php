@@ -197,6 +197,7 @@ Route::prefix("business")->as("business.")->group(function () {
 
             Route::get("employees", [AdminWorkspaceController::class, "employees"])->name("employees.index");
             Route::get("employees/export", [AdminWorkspaceController::class, "exportEmployees"])->name("employees.export");
+            Route::get("employees/{member}/detail", [AdminWorkspaceController::class, "employeeDetail"])->name("employees.detail");
             Route::post("employees/{member}/deactivate", [AdminWorkspaceController::class, "deactivateEmployee"])->name("employees.deactivate");
             Route::post("employees/{member}/reactivate", [AdminWorkspaceController::class, "reactivateEmployee"])->name("employees.reactivate");
 

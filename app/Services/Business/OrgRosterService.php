@@ -24,11 +24,14 @@ use Illuminate\Validation\ValidationException;
 /**
  * Seat administration for the admin dashboard.
  *
- * The roster is deliberately CONTRACT data only — who holds a seat, in which
- * department, at what status. It carries no session count, no last-active
- * timestamp and no wellbeing signal of any kind; those are behaviour, and
- * behaviour is only ever exposed company-wide through OrgAggregateService.
- * (planning-docs/web-api/03-admin-dashboard.md §0)
+ * The roster() list is deliberately CONTRACT data only — who holds a seat, in
+ * which department, at what status. It carries no session count, no
+ * last-active timestamp and no wellbeing signal of any kind; those are
+ * behaviour, and behaviour is otherwise only ever exposed company-wide through
+ * OrgAggregateService. (planning-docs/web-api/03-admin-dashboard.md §0)
+ *
+ * employeeDetail() is the one deliberate exception — the "view seat" modal
+ * shows that one member's own session usage.
  */
 class OrgRosterService
 {
@@ -121,6 +124,62 @@ class OrgRosterService
         }
 
         return $member;
+    }
+
+    /**
+     * The "view seat" modal (web §03): everything the roster row carries, plus
+     * this one member's own usage — the org explicitly chose to show this
+     * per-person, unlike every other insight in this controller, which stays
+     * anonymised/company-wide. `sessions_this_cycle` is null for non-employee
+     * seats (admin/therapist rows), which never carry a session-cap policy.
+     */
+    public static function employeeDetail(Organization $organization, $member_id): array
+    {
+        $member = self::scopedMember($organization, $member_id);
+        $member->loadMissing('user:id,email');
+
+        $cap_status = $member->role === OrganizationConstants::ROLE_EMPLOYEE && $member->user
+            ? SessionCapService::forOrganization($member->user, $organization)
+            : null;
+
+        $since = $member->activated_at ?? $member->created_at;
+        $months_elapsed = max(1, (int) ceil($since->diffInDays(now()) / 30));
+
+        $completed = TherapySession::where('user_id', $member->user_id)
+            ->where('status', TherapistConstants::SESSION_COMPLETED);
+
+        $last_session = (clone $completed)->latest('ended_at')->first();
+
+        $monthly_sessions = collect(range(5, 0))->map(function ($i) use ($member) {
+            $month = now()->subMonths($i);
+
+            return [
+                'label' => $month->format('M'),
+                'count' => TherapySession::where('user_id', $member->user_id)
+                    ->where('status', TherapistConstants::SESSION_COMPLETED)
+                    ->whereYear('ended_at', $month->year)
+                    ->whereMonth('ended_at', $month->month)
+                    ->count(),
+            ];
+        })->values()->all();
+
+        return [
+            'id' => self::displayId($member->id),
+            'member_id' => $member->id,
+            'email' => $member->user?->email,
+            'department' => $member->department,
+            'role' => $member->role,
+            'status' => $member->status,
+            'activated_at' => $member->activated_at?->toDateString(),
+            'seat_rate' => (int) config('business.employee_seat_rate'),
+            'sessions_this_cycle' => $cap_status ? [
+                'used' => $cap_status['used'],
+                'cap' => $cap_status['cap'],
+            ] : null,
+            'avg_sessions_per_month' => round((clone $completed)->count() / $months_elapsed, 1),
+            'last_active' => $last_session?->ended_at?->toIso8601String(),
+            'monthly_sessions' => $monthly_sessions,
+        ];
     }
 
     public function deactivate(Organization $organization, $member_id): OrganizationMember
