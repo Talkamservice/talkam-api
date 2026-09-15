@@ -124,7 +124,9 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-muted">Session Rate</label>
-                                <p class="fw-semibold">₦{{ number_format($application->session_rate ?? 0) }}</p>
+                                <p class="fw-semibold">
+                                    {{ $application->session_rate ? '₦' . number_format($application->session_rate) : 'Not provided' }}
+                                </p>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-muted">Session Duration</label>
@@ -181,73 +183,107 @@
                 @endif
 
                 <!-- Documents -->
-                @if($application->documents && $application->documents->count() > 0)
-                    <div class="card custom-card">
-                        <div class="card-header">
-                            <div class="card-title">Uploaded Documents</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
+                @php
+                    // Always shows all 5 required types, uploaded or not — the
+                    // previous version only rendered a row (or the whole card)
+                    // for documents that already existed, so a reviewer had no
+                    // way to see what's still missing without cross-checking
+                    // TherapistConstants::DOCUMENT_TYPES by hand.
+                    $documentsByType = $application->documents->keyBy('type');
+                    $docStatusColors = [
+                        'pending' => 'warning',
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                    ];
+                @endphp
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title">Uploaded Documents</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Preview</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Expires</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(\App\Constants\Therapist\TherapistConstants::DOCUMENT_TYPES as $type)
+                                        @php
+                                            $document = $documentsByType->get($type);
+                                            $file = $document?->file;
+                                            // Despite the column name, File::mime_type actually stores a
+                                            // bare extension (FileService.php sets it from
+                                            // pathinfo($path)['extension']), not a real "image/..." string.
+                                            $isImage = $file && in_array(strtolower($file->mime_type ?? ''), ['png', 'jpg', 'jpeg', 'gif', 'webp']);
+                                        @endphp
                                         <tr>
-                                            <th>Type</th>
-                                            <th>Status</th>
-                                            <th>Expires</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($application->documents as $document)
-                                            <tr>
-                                                <td>
-                                                    <span class="badge bg-secondary-transparent">
-                                                        {{ ucfirst($document->type) }}
+                                            <td>
+                                                @if($file)
+                                                    <a href="{{ $file->url() }}" target="_blank" rel="noopener">
+                                                        @if($isImage)
+                                                            <img src="{{ $file->url() }}" alt="{{ ucfirst(str_replace('_', ' ', $type)) }}"
+                                                                 class="rounded border" style="width:56px;height:56px;object-fit:cover;">
+                                                        @else
+                                                            <span class="d-flex align-items-center justify-content-center rounded border bg-light" style="width:56px;height:56px;">
+                                                                <i class="ti ti-file-type-pdf fs-20 text-danger"></i>
+                                                            </span>
+                                                        @endif
+                                                    </a>
+                                                @else
+                                                    <span class="d-flex align-items-center justify-content-center rounded border bg-light text-muted" style="width:56px;height:56px;">
+                                                        <i class="ti ti-file-off fs-18"></i>
                                                     </span>
-                                                </td>
-                                                <td>
-                                                    @php
-                                                        $docStatusColors = [
-                                                            'pending' => 'warning',
-                                                            'approved' => 'success',
-                                                            'rejected' => 'danger'
-                                                        ];
-                                                        $docColor = $docStatusColors[$document->status] ?? 'secondary';
-                                                    @endphp
-                                                    <span class="badge bg-{{ $docColor }}-transparent">
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary-transparent">
+                                                    {{ ucfirst(str_replace('_', ' ', $type)) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if($document)
+                                                    <span class="badge bg-{{ $docStatusColors[$document->status] ?? 'secondary' }}-transparent">
                                                         {{ ucfirst($document->status) }}
                                                     </span>
-                                                </td>
-                                                <td>
-                                                    @if($document->expires_at)
-                                                        {{ \Carbon\Carbon::parse($document->expires_at)->format('M d, Y') }}
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($document->file_url)
-                                                        <a href="{{ $document->file_url }}" target="_blank" class="btn btn-sm btn-primary">
-                                                            <i class="ti ti-download"></i> View
-                                                        </a>
-                                                    @endif
-                                                    @if($document->status === 'pending')
-                                                        <button class="btn btn-sm btn-success" onclick="approveDocument({{ $document->id }})">
-                                                            <i class="ti ti-check"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-danger" onclick="rejectDocument({{ $document->id }})">
-                                                            <i class="ti ti-x"></i>
-                                                        </button>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                                @else
+                                                    <span class="text-muted">Not uploaded</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($document?->expires_at)
+                                                    {{ \Carbon\Carbon::parse($document->expires_at)->format('M d, Y') }}
+                                                @else
+                                                    <span class="text-muted">N/A</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($file)
+                                                    <a href="{{ $file->url() }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
+                                                        <i class="ti ti-eye"></i> Preview
+                                                    </a>
+                                                @endif
+                                                @if($document && $document->status === 'pending')
+                                                    <button class="btn btn-sm btn-success" onclick="approveDocument({{ $document->id }})">
+                                                        <i class="ti ti-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="rejectDocument({{ $document->id }})">
+                                                        <i class="ti ti-x"></i>
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                @endif
+                </div>
             </div>
         </div>
     </div>
