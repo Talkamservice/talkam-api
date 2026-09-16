@@ -413,7 +413,7 @@ class OrgRosterService
         $enough = count($member_ids) >= OrgAggregateService::cohortFloor();
 
         $therapist = Therapist::whereHas('user')
-            ->with('user:id,first_name,last_name,avatar')
+            ->with('user:id,first_name,last_name,avatar,bio')
             ->withAvg('reviews as rating_avg', 'rating')
             ->withCount('reviews')
             ->find($therapist_id);
@@ -473,8 +473,11 @@ class OrgRosterService
                 'pct' => $total_reviews ? (int) round(((int) ($review_counts[$s] ?? 0) / $total_reviews) * 100) : 0,
             ])->all(),
 
-            // Not captured in the schema yet — UI degrades gracefully.
-            'bio' => null,
+            // The therapist's own bio lives on the User row (same field the
+            // self-service profile reads — TherapistDirectoryService::profile()).
+            // languages/response_time genuinely aren't captured anywhere in
+            // the schema yet, so the UI degrades gracefully for those two.
+            'bio' => $therapist->user?->bio,
             'languages' => null,
             'response_time' => null,
         ];
