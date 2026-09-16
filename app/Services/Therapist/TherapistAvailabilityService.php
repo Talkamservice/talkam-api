@@ -20,6 +20,12 @@ class TherapistAvailabilityService
 {
     const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
+    /** Every slot must fall inside this daily window — matches the web
+     *  availability editor's "add slot" modal, enforced here too so a
+     *  direct API call can't bypass it. */
+    const WINDOW_START = '08:00';
+    const WINDOW_END = '18:00';
+
     /** Deck short keys ↔ the full day names §06 stores in day_of_week. */
     const DAY_TO_NAME = [
         'mon' => 'monday', 'tue' => 'tuesday', 'wed' => 'wednesday', 'thu' => 'thursday',
@@ -71,15 +77,29 @@ class TherapistAvailabilityService
             'days' => 'required|array',
             // present, not required: an empty array turns that day off.
             'days.*' => 'present|array',
-            'days.*.*.start' => 'required|date_format:H:i',
-            'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start',
+            'days.*.*.start' => 'required|date_format:H:i|after_or_equal:' . self::WINDOW_START,
+            'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start|before_or_equal:' . self::WINDOW_END,
         ]);
 
-        // Only known day keys are accepted.
         $validator->after(function ($validator) use ($data) {
+            // Only known day keys are accepted.
             foreach (array_keys($data['days'] ?? []) as $day) {
                 if (!in_array($day, self::DAYS, true)) {
                     $validator->errors()->add('days', "Unknown day: {$day}");
+                }
+            }
+
+            // No two slots on the same day may overlap.
+            foreach ($data['days'] ?? [] as $day => $slots) {
+                $sorted = collect($slots)->sortBy('start')->values();
+
+                for ($i = 1; $i < $sorted->count(); $i++) {
+                    if ($sorted[$i]['start'] < $sorted[$i - 1]['end']) {
+                        $validator->errors()->add(
+                            "days.{$day}",
+                            "Overlapping slots on {$day}: {$sorted[$i - 1]['start']}–{$sorted[$i - 1]['end']} and {$sorted[$i]['start']}–{$sorted[$i]['end']}."
+                        );
+                    }
                 }
             }
         });
