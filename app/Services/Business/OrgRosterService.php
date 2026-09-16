@@ -14,6 +14,7 @@ use App\Models\OrganizationTherapist;
 use App\Models\Therapist;
 use App\Models\TherapistCapacityRequest;
 use App\Models\TherapistReview;
+use App\Models\TherapistSessionRequest;
 use App\Models\TherapySession;
 use App\Models\User;
 use App\Services\Therapist\TherapistSlotService;
@@ -403,9 +404,7 @@ class OrgRosterService
      * session formats, next availability and the anonymised review breakdown.
      *
      * Reviews carry NO reviewer identity and no session content, matching the
-     * deck's "shown anonymised" rule. Fields the schema does not yet capture
-     * (bio, languages, avg response time) are returned null so the UI can
-     * degrade rather than invent them.
+     * deck's "shown anonymised" rule.
      */
     public static function therapistDetail(Organization $organization, $therapist_id): array
     {
@@ -475,11 +474,9 @@ class OrgRosterService
 
             // The therapist's own bio lives on the User row (same field the
             // self-service profile reads — TherapistDirectoryService::profile()).
-            // languages/response_time genuinely aren't captured anywhere in
-            // the schema yet, so the UI degrades gracefully for those two.
             'bio' => $therapist->user?->bio,
-            'languages' => null,
-            'response_time' => null,
+            'languages' => self::formatLabel($therapist->languages, ', '),
+            'response_time' => self::responseTimeLabel($therapist),
         ];
     }
 
@@ -596,11 +593,49 @@ class OrgRosterService
     }
 
     /** ["video","voice"] → "Video · Voice"; empty → null. */
-    private static function formatLabel($formats): ?string
+    private static function formatLabel($formats, string $glue = ' · '): ?string
     {
         $list = collect($formats ?? [])->filter()->map(fn ($f) => ucfirst((string) $f));
 
-        return $list->isNotEmpty() ? $list->implode(' · ') : null;
+        return $list->isNotEmpty() ? $list->implode($glue) : null;
+    }
+
+    /**
+     * "~2 hrs" / "~1 day" — the average time between a client's session
+     * request and this therapist's response (accept or decline), from
+     * therapist_session_requests.created_at → responded_at. Real,
+     * already-instrumented data (TherapistSessionRequestService sets
+     * responded_at on both propose and decline) — null until they've
+     * responded to at least one request.
+     */
+    private static function responseTimeLabel(Therapist $therapist): ?string
+    {
+        // Computed in PHP rather than a raw SQL diff (TIMESTAMPDIFF is
+        // MySQL-only and would break on SQLite, e.g. the test suite) — the
+        // row count per therapist is small enough that this is cheap.
+        $gaps = TherapistSessionRequest::where('therapist_id', $therapist->id)
+            ->whereNotNull('responded_at')
+            ->get(['created_at', 'responded_at'])
+            ->map(fn ($r) => $r->created_at->diffInSeconds($r->responded_at));
+
+        if ($gaps->isEmpty()) {
+            return null;
+        }
+
+        $minutes = (int) round($gaps->avg() / 60);
+
+        if ($minutes < 60) {
+            return '~' . max(1, $minutes) . ' min';
+        }
+
+        $hours = round($minutes / 60);
+        if ($hours < 24) {
+            return '~' . $hours . ' hr' . ($hours == 1 ? '' : 's');
+        }
+
+        $days = round($hours / 24);
+
+        return '~' . $days . ' day' . ($days == 1 ? '' : 's');
     }
 
     /** A bookable slot → a short "Today 5pm" / "Tomorrow 2pm" / "Aug 8, 4pm" label. */

@@ -48,8 +48,8 @@ class TherapistProfileController extends Controller
     }
 
     /**
-     * Therapist edit profile: bio/experience/rate. credential_type is
-     * read-only post-approval (re-verification path — decision).
+     * Therapist edit profile: bio/experience/rate/languages. credential_type
+     * is read-only post-approval (re-verification path — decision).
      */
     public function update(Request $request)
     {
@@ -67,6 +67,8 @@ class TherapistProfileController extends Controller
                 "bio" => "nullable|string|max:300",
                 "years_experience" => "nullable|integer|min:0|max:80",
                 "session_rate" => "nullable|numeric|min:$min|max:$max",
+                "languages" => "nullable|array|max:10",
+                "languages.*" => "string|max:40",
             ]);
 
             if ($validator->fails()) {
@@ -87,7 +89,7 @@ class TherapistProfileController extends Controller
             }
 
             // credential_type is deliberately never read from the payload.
-            $therapist_fields = array_intersect_key($validated, array_flip(["years_experience", "session_rate"]));
+            $therapist_fields = array_intersect_key($validated, array_flip(["years_experience", "session_rate", "languages"]));
             if (!empty($therapist_fields)) {
                 $therapist->update($therapist_fields);
             }
@@ -96,6 +98,7 @@ class TherapistProfileController extends Controller
                 "bio" => $user->refresh()->bio,
                 "years_experience" => $therapist->refresh()->years_experience,
                 "session_rate" => $therapist->session_rate,
+                "languages" => $therapist->languages,
                 "credential_type" => $therapist->credential_type,
             ]);
         } catch (ValidationException $e) {

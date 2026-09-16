@@ -131,6 +131,7 @@ class TherapistDirectoryService
             'years_experience' => $therapist->years_experience,
             'session_rate' => $therapist->session_rate,
             'session_formats' => $therapist->session_formats,
+            'languages' => $therapist->languages,
             'rating' => round((float) ($therapist->rating_avg ?? 0), 1),
             'reviews_count' => (int) ($therapist->reviews_count ?? 0),
             'specialties' => self::specialties($therapist),
