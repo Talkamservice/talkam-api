@@ -320,6 +320,10 @@ class OrgRosterService
         $enough = $cohort >= OrgAggregateService::cohortFloor();
 
         $therapists = Therapist::status()
+            // A Therapist row with no linked user is orphaned data (never a
+            // real, displayable provider — no name, no specialty, nothing to
+            // show or book) and must never reach the admin UI as a blank card.
+            ->whereHas('user')
             ->with('user:id,first_name,last_name,avatar')
             ->withAvg('reviews as rating_avg', 'rating')
             ->withCount('reviews')
@@ -408,7 +412,8 @@ class OrgRosterService
         $member_ids = OrgAggregateService::memberIds($organization);
         $enough = count($member_ids) >= OrgAggregateService::cohortFloor();
 
-        $therapist = Therapist::with('user:id,first_name,last_name,avatar')
+        $therapist = Therapist::whereHas('user')
+            ->with('user:id,first_name,last_name,avatar')
             ->withAvg('reviews as rating_avg', 'rating')
             ->withCount('reviews')
             ->find($therapist_id);
