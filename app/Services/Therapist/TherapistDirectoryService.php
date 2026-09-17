@@ -120,7 +120,14 @@ class TherapistDirectoryService
         return $own_ids->merge($network_ids)->unique();
     }
 
-    public static function card(Therapist $therapist): array
+    /**
+     * $specialties lets a caller mapping many therapists (the directory list)
+     * pass in what it already batch-fetched via specialtiesFor() instead of
+     * this running its own 2 queries per therapist; omitted, it fetches for
+     * just this one therapist as before — profile()'s single-item call is
+     * unaffected.
+     */
+    public static function card(Therapist $therapist, ?array $specialties = null): array
     {
         return [
             'id' => $therapist->id,
@@ -135,9 +142,45 @@ class TherapistDirectoryService
             'languages' => $therapist->languages,
             'rating' => round((float) ($therapist->rating_avg ?? 0), 1),
             'reviews_count' => (int) ($therapist->reviews_count ?? 0),
-            'specialties' => self::specialties($therapist),
+            'specialties' => $specialties ?? self::specialties($therapist),
             'next_slot' => TherapistSlotService::nextSlot($therapist),
         ];
+    }
+
+    /**
+     * card() for a whole page of therapists at once — the actual fix for the
+     * directory list being slow. Previously every card() call ran its own
+     * specialties() query pair (application lookup + specialty rows), so a
+     * page of N therapists cost 2N extra round trips; this batches both into
+     * 2 queries total regardless of N.
+     */
+    public static function cardsFor(Collection $therapists): array
+    {
+        $user_ids = $therapists->pluck('user_id')->filter()->unique()->values();
+
+        $latest_approved = TherapistApplication::whereIn('user_id', $user_ids)
+            ->where('status', TherapistConstants::STATUS_APPROVED)
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn ($apps) => $apps->first());
+
+        $specialties_by_application = TherapistSpecialty::with('category')
+            ->whereIn('application_id', $latest_approved->pluck('id'))
+            ->get()
+            ->groupBy('application_id');
+
+        return $therapists->map(function ($therapist) use ($latest_approved, $specialties_by_application) {
+            $application = $latest_approved->get($therapist->user_id);
+            $specialties = $application
+                ? ($specialties_by_application->get($application->id) ?? collect())
+                    ->map(fn ($row) => ['id' => $row->category?->id, 'name' => $row->category?->name])
+                    ->values()
+                    ->all()
+                : [];
+
+            return self::card($therapist, $specialties);
+        })->all();
     }
 
     public static function profile(Therapist $therapist): array

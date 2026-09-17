@@ -24,8 +24,7 @@ class TherapistDirectoryController extends Controller
                 ->appends($request->query());
 
             $data = collectPagination($therapists);
-            $data["data"] = $therapists->getCollection()
-                ->map(fn ($therapist) => TherapistDirectoryService::card($therapist));
+            $data["data"] = TherapistDirectoryService::cardsFor($therapists->getCollection());
 
             return ApiHelper::validResponse("Therapists returned successfully", $data);
         } catch (Exception $e) {
