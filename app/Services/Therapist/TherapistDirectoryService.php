@@ -19,19 +19,20 @@ class TherapistDirectoryService
 {
     public static function list(array $data = [], ?User $user = null)
     {
-        // Open consumer directory: TalkAM-verified therapists only. Business
-        // therapists a company brought in are unverified (no verified_at) and
-        // normally serve only their employer's team via the org roster — but
-        // that team IS this directory for a business-employed caller, so
-        // their own org's therapists are unioned in below (§ booking picker).
+        // Open consumer directory: TalkAM-verified therapists only. A
+        // business-employed caller's directory IS their employer's roster —
+        // own providers plus network-added ones, verified or not — not the
+        // wider marketplace on top of it; that's what actually shows up in
+        // their session-booking picker, so it must actually be exclusive.
         $org_ids = self::orgEligibleIds($user);
 
         $builder = Therapist::with('user')
             ->status()
             ->where(function ($q) use ($org_ids) {
-                $q->whereNotNull('verified_at');
                 if ($org_ids->isNotEmpty()) {
-                    $q->orWhereIn('id', $org_ids);
+                    $q->whereIn('id', $org_ids);
+                } else {
+                    $q->whereNotNull('verified_at');
                 }
             })
             ->withAvg('reviews as rating_avg', 'rating')
