@@ -81,7 +81,14 @@ class TherapistAvailabilityService
             'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start|before_or_equal:' . self::WINDOW_END,
         ]);
 
-        $validator->after(function ($validator) use ($data) {
+        // Same fallback TherapistSlotService::slotsFor() uses when a therapist
+        // has never had a session_duration set — a window shorter than this
+        // can NEVER produce a bookable slot, so it must be rejected here
+        // rather than silently saved and silently never offered to clients.
+        $duration = (int) ($user->therapist?->session_duration ?: 50);
+        $to_minutes = fn (string $t) => ((int) substr($t, 0, 2) * 60) + (int) substr($t, 3, 2);
+
+        $validator->after(function ($validator) use ($data, $duration, $to_minutes) {
             // Only known day keys are accepted.
             foreach (array_keys($data['days'] ?? []) as $day) {
                 if (!in_array($day, self::DAYS, true)) {
@@ -89,9 +96,23 @@ class TherapistAvailabilityService
                 }
             }
 
-            // No two slots on the same day may overlap.
+            // No two slots on the same day may overlap, and no slot may be
+            // shorter than the therapist's own session length — a narrower
+            // window would validate and save fine but TherapistSlotService
+            // would never fit a single slot into it, leaving a "gap" the
+            // therapist believes is bookable but no client can ever book.
             foreach ($data['days'] ?? [] as $day => $slots) {
                 $sorted = collect($slots)->sortBy('start')->values();
+
+                foreach ($sorted as $slot) {
+                    $length = $to_minutes($slot['end']) - $to_minutes($slot['start']);
+                    if ($length < $duration) {
+                        $validator->errors()->add(
+                            "days.{$day}",
+                            "The slot {$slot['start']}–{$slot['end']} on {$day} is only {$length} minutes — shorter than your {$duration}-minute session length, so it could never be booked."
+                        );
+                    }
+                }
 
                 for ($i = 1; $i < $sorted->count(); $i++) {
                     if ($sorted[$i]['start'] < $sorted[$i - 1]['end']) {
