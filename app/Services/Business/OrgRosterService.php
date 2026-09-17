@@ -347,7 +347,7 @@ class OrgRosterService
             // real, displayable provider — no name, no specialty, nothing to
             // show or book) and must never reach the admin UI as a blank card.
             ->whereHas('user')
-            ->with('user:id,first_name,last_name,avatar')
+            ->with('user:id,first_name,last_name,avatar,email')
             ->withAvg('reviews as rating_avg', 'rating')
             ->withCount('reviews')
             ->get()
@@ -361,6 +361,7 @@ class OrgRosterService
                     'name' => $t->user?->full_name,
                     'initials' => self::initials($t->user?->full_name),
                     'avatar' => $t->user?->avatar,
+                    'email' => $t->user?->email,
                     'specialty' => $specialty,
                     'rating' => $t->rating_avg ? round((float) $t->rating_avg, 1) : null,
                     'reviews' => (int) $t->reviews_count,
