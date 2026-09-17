@@ -45,6 +45,10 @@ class SessionController extends Controller
             return ApiHelper::validResponse("Session cancelled successfully", [
                 "status" => $session->status,
                 "cancelled_by" => $session->cancelled_by,
+                // Lets the client show an accurate outcome — a bundle session
+                // is credited back to the company's allowance; an externally
+                // (self-billed) or individually paid one is not a "token".
+                "coverage" => $session->coverage,
             ]);
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);

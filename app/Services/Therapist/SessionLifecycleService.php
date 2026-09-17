@@ -113,9 +113,15 @@ class SessionLifecycleService
         // §09: return the drawn prepaid-bundle session to the company (inert for consumer).
         $this->refundBundleIfCovered($session);
 
+        // Both sides get their own confirmation — the client's "your session
+        // was cancelled" email/rebook-CTA branch and the therapist's generic
+        // branch already exist on this notification (toMail() picks per
+        // recipient); only the counterpart was ever actually sent it before,
+        // so the person who just cancelled never got their own confirmation.
         $counterpart = $is_therapist ? $session->user : $session->therapist?->user;
-        if (!empty($counterpart)) {
-            Notification::send($counterpart, new SessionCancelledNotification($session, $refund_due));
+        $recipients = array_filter([$user, $counterpart]);
+        if (!empty($recipients)) {
+            Notification::send($recipients, new SessionCancelledNotification($session, $refund_due));
         }
 
         return $session->refresh();
