@@ -61,12 +61,14 @@ class TherapistDirectoryController extends Controller
             $therapist = TherapistDirectoryService::getById($id, auth()->user());
             $date = $validator->validated()["date"] ?? null;
 
-            // No date = the booking/reschedule pickers just want "what's
+            // No date = the reschedule/propose pickers just want "what's
             // soonest", so scan forward instead of requiring the caller to
-            // already know a bookable day.
+            // already know a bookable day. Limit is generous (not the
+            // default 6) because those pickers paginate client-side, 6 per
+            // page, rather than only ever offering the first 6.
             $slots = $date
                 ? TherapistSlotService::slotsFor($therapist, $date)
-                : TherapistSlotService::upcomingSlots($therapist);
+                : TherapistSlotService::upcomingSlots($therapist, 14, 200);
 
             return ApiHelper::validResponse("Slots returned successfully", [
                 "date" => $date,
