@@ -267,6 +267,28 @@ class OrgRosterService
         return $member->refresh();
     }
 
+    /**
+     * Update a seat's own contract details — currently just department,
+     * the one editable field the admin dashboard's "view seat" modal never
+     * had a way to change after the invite was sent.
+     */
+    public function updateEmployee(Organization $organization, $member_id, array $data): OrganizationMember
+    {
+        $member = self::scopedMember($organization, $member_id);
+
+        $validator = Validator::make($data, [
+            'department' => 'nullable|string|max:100',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $member->update($validator->validated());
+
+        return $member->refresh();
+    }
+
     /* ── Therapist network ──────────────────────────────────────────────── */
 
     /**

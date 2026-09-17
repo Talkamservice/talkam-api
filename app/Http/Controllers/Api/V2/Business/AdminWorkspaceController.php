@@ -101,6 +101,21 @@ class AdminWorkspaceController extends Controller
         }
     }
 
+    public function updateEmployee(Request $request, $member)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+            $row = $this->roster_service->updateEmployee($organization, $member, $request->all());
+
+            return ApiHelper::validResponse("Employee updated successfully", [
+                "id" => OrgRosterService::displayId($row->id),
+                "department" => $row->department,
+            ]);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
     public function deactivateEmployee(Request $request, $member)
     {
         try {
