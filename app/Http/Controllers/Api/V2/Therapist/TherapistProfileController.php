@@ -69,11 +69,6 @@ class TherapistProfileController extends Controller
                 "session_rate" => "nullable|numeric|min:$min|max:$max",
                 "languages" => "nullable|array|max:10",
                 "languages.*" => "string|max:40",
-                // No fixed list of allowed lengths — a therapist can run
-                // whatever session length suits their practice. Bounds are
-                // just sanity limits (nothing books in under a minute or
-                // runs past a working day), not a restriction on choice.
-                "session_duration" => "nullable|integer|min:1|max:480",
             ]);
 
             if ($validator->fails()) {
@@ -94,7 +89,7 @@ class TherapistProfileController extends Controller
             }
 
             // credential_type is deliberately never read from the payload.
-            $therapist_fields = array_intersect_key($validated, array_flip(["years_experience", "session_rate", "languages", "session_duration"]));
+            $therapist_fields = array_intersect_key($validated, array_flip(["years_experience", "session_rate", "languages"]));
             if (!empty($therapist_fields)) {
                 $therapist->update($therapist_fields);
             }
@@ -105,7 +100,6 @@ class TherapistProfileController extends Controller
                 "session_rate" => $therapist->session_rate,
                 "languages" => $therapist->languages,
                 "credential_type" => $therapist->credential_type,
-                "session_duration" => $therapist->session_duration,
             ]);
         } catch (ValidationException $e) {
             return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
