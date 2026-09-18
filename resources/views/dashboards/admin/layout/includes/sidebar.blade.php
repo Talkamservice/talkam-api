@@ -92,6 +92,13 @@
                             <span class="side-menu__label list-item-label">Bench Topics</span>
                         </a>
                     </li>
+
+                    <li class="slide">
+                        <a href="{{ route('admin.custom-plan-quote-requests.index') }}" class="side-menu__item list-item {{ Route::currentRouteName() === 'admin.custom-plan-quote-requests.index' ? 'active' : '' }}">
+                            <i class="bx bx-briefcase side-menu__icon list-item-icon"></i>
+                            <span class="side-menu__label list-item-label">Custom Plan Requests</span>
+                        </a>
+                    </li>
                 @endcan
 
                 @canAny(slugPermission('read plan'), slugPermission('read promotion'))

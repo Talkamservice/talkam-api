@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Authorization\RoleController;
 use App\Http\Controllers\Admin\Avatar\AvatarController;
 use App\Http\Controllers\Admin\BulkMessages\NotificationController as BulkMessagesNotificationController;
 use App\Http\Controllers\Admin\Business\BenchTopicController;
+use App\Http\Controllers\Admin\Business\CustomPlanQuoteRequestController;
 use App\Http\Controllers\Admin\Business\IndustryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Faq\FaqCategoryController;
@@ -87,6 +88,11 @@ Route::middleware(["auth"])->group(
         Route::prefix("account-deactivation-requests")->as("account-deactivation-requests.")->group(function () {
             Route::get('/', [AccountStatusController::class, "deactivationRequestLists"])->name("index");
             Route::post('/submit', [AccountStatusController::class, "submitDeactivationRequest"])->name("submit");
+        });
+
+        Route::prefix("custom-plan-quote-requests")->as("custom-plan-quote-requests.")->group(function () {
+            Route::get('/', [CustomPlanQuoteRequestController::class, "index"])->name("index");
+            Route::post('{id}/mark-contacted', [CustomPlanQuoteRequestController::class, "markContacted"])->name("mark-contacted");
         });
 
         Route::post('/invitation/send-invite', [InviteController::class, "sendInvite"])->name("invite.sendInvite");

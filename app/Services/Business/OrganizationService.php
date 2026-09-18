@@ -326,6 +326,56 @@ class OrganizationService
         return $organization->refresh();
     }
 
+    /**
+     * A Wellbeing Plus (custom pricing) lead from the Billing screen's Compare
+     * view. No pipeline table — this is a notify-TalkAM-to-follow-up action,
+     * not a persisted sales record, matching the scope of what the UI asks for.
+     */
+    public function requestCustomQuote(Organization $organization, User $user, array $data): \App\Models\CustomPlanQuoteRequest
+    {
+        // One per organization, ever — enforced here (not just the UI), and
+        // backstopped by a unique index on organization_id at the DB layer.
+        $existing = \App\Models\CustomPlanQuoteRequest::where("organization_id", $organization->id)->first();
+        if ($existing) {
+            throw new InvalidRequestException("Your organisation has already requested a custom quote — our team will be in touch.");
+        }
+
+        $validator = Validator::make($data, [
+            "team_size" => "nullable|integer|min:1|max:1000000",
+            "email" => "required|email|max:191",
+            "notes" => "nullable|string|max:1000",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $validated = $validator->validated();
+
+        $request = \App\Models\CustomPlanQuoteRequest::create([
+            "organization_id" => $organization->id,
+            "requested_by" => $user->id,
+            "team_size" => $validated["team_size"] ?? null,
+            "email" => $validated["email"],
+            "notes" => $validated["notes"] ?? null,
+        ]);
+
+        if (!empty(sudo())) {
+            \Illuminate\Support\Facades\Notification::send(
+                sudo(),
+                new \App\Notifications\Business\CustomPlanQuoteRequestNotification(
+                    $organization,
+                    $user->full_name ?? $user->email,
+                    $validated["email"],
+                    isset($validated["team_size"]) ? (int) $validated["team_size"] : null,
+                    $validated["notes"] ?? null
+                )
+            );
+        }
+
+        return $request;
+    }
+
     public function saveBench(Organization $organization, array $data): Organization
     {
         // Selections are interest-topic category ids — the same taxonomy

@@ -214,6 +214,7 @@ Route::prefix("business")->as("business.")->group(function () {
             Route::get("organization", [BusinessOrganizationController::class, "show"])->name("organization.show");
             Route::post("organization/bench", [BusinessOrganizationController::class, "bench"])->name("organization.bench");
             Route::post("organization/session-policy", [BusinessOrganizationController::class, "sessionPolicy"])->name("organization.session-policy");
+            Route::post("organization/custom-quote-request", [BusinessOrganizationController::class, "requestCustomQuote"])->name("organization.custom-quote-request");
 
             // Danger Zone (web §03 Settings).
             Route::post("organization/employee-access", [BusinessOrganizationController::class, "employeeAccess"])->name("organization.employee-access");

@@ -143,6 +143,9 @@ class OrganizationBillingService
             "seatTiers" => config("business.seat_tiers"),
             "topUpOptions" => config("business.bundle_options"),
             "seatPackOptions" => config("business.seat_pack_options"),
+            // Persisted, not just a page-session flag — an org can only ever
+            // send one Wellbeing Plus custom-quote request (unique per org).
+            "customQuoteRequested" => \App\Models\CustomPlanQuoteRequest::where("organization_id", $organization->id)->exists(),
         ];
     }
 

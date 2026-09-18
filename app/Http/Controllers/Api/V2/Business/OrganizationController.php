@@ -136,6 +136,20 @@ class OrganizationController extends Controller
         }
     }
 
+    /** Wellbeing Plus (custom pricing) lead — Billing screen's Compare view. */
+    public function requestCustomQuote(Request $request)
+    {
+        try {
+            $organization = $request->attributes->get("organization");
+
+            $this->organization_service->requestCustomQuote($organization, $request->user(), $request->all());
+
+            return ApiHelper::validResponse("Your request has been sent — our team will reach out shortly", []);
+        } catch (Exception $e) {
+            return $this->failure($e);
+        }
+    }
+
     public function sessionPolicy(Request $request)
     {
         try {
