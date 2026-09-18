@@ -3,6 +3,7 @@
 use App\Http\Controllers\Web\AccountDeactivationController;
 use App\Http\Controllers\Web\IndexController;
 use App\Http\Controllers\Web\InviteController;
+use App\Http\Controllers\Web\PasswordResetController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -39,5 +40,13 @@ Route:: as('web.')->namespace('Web')->group(function () {
         Route::post('{source}/complete-onboarding/submit', [InviteController::class, "completeOnboardingSubmit"])->name("complete-onboarding-submit");
     });
 });
+
+// The link in emails.mobile.auth-password-reset — signed so the code+email
+// can't be tampered with in transit, expiring with the pin itself.
+Route::get('reset-password', [PasswordResetController::class, 'index'])
+    ->middleware('signed')
+    ->name('password.reset.form');
+Route::post('reset-password', [PasswordResetController::class, 'submit'])
+    ->name('password.reset.submit');
 
 Auth::routes();

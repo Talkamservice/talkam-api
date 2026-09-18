@@ -10,6 +10,7 @@ class UserConstants
     const OWNER = "Owner";
     const USER = "User";
     const ADMIN = "Admin";
+    const THERAPIST = "Therapist";
     const MEMBER = "Member";
     const AMBASSADOR = "Ambassador";
     const SUPER_ADMIN = "Super Admin";

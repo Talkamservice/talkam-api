@@ -8,6 +8,7 @@ use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Resources\Group\GroupMemberResource;
+use App\Models\GroupFollow;
 use App\Models\GroupMember;
 use App\Models\GroupMemberReport;
 use App\Models\User;
@@ -129,6 +130,14 @@ class GroupMemberService
 
             Notification::send($member->user, new RemoveGroupMemberNotification($member, StatusConstants::INACTIVE));
             $member->delete();
+            // Membership and the lighter group_follows record are tracked
+            // separately (GroupFollowService::toggle) — without this,
+            // GroupFollowService::followedGroups() keeps returning a group
+            // the user just left, since it only ever queries group_follows.
+            GroupFollow::where([
+                'user_id' => $member->user_id,
+                'group_id' => $member->group_id,
+            ])->delete();
             DB::commit();
             return $member;
         } catch (\Throwable $th) {

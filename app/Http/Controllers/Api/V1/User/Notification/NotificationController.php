@@ -56,8 +56,11 @@ class NotificationController extends Controller
     public function show(Request $request, $notification_id)
     {
         try {
-
-            $notification = AppDatabaseNotification::findOrFail($notification_id);
+            $user = auth()->user();
+            $notification = AppDatabaseNotification::where([
+                "notifiable_type" => User::class,
+                "notifiable_id" => $user->id,
+            ])->findOrFail($notification_id);
             $notification->markAsRead();
             broadcast(new RefreshNotification($notification->notifiable_id))->toOthers();
             $data = NotificationResource::make($notification);

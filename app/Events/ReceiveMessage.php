@@ -2,15 +2,20 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ReceiveMessage implements ShouldBroadcast
+/**
+ * Broadcasts synchronously (ShouldBroadcastNow, not ShouldBroadcast) — a
+ * queued broadcast needs a `jobs` table and a running queue worker, neither
+ * of which this app has; and for a chat message, "queued" and "realtime"
+ * are in direct tension anyway.
+ */
+class ReceiveMessage implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,7 +41,7 @@ class ReceiveMessage implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('private-conversation.' . $this->conversationId)
+            new PrivateChannel('conversation.' . $this->conversationId)
         ];
     }
 

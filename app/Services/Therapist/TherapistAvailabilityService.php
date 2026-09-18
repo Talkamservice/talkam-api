@@ -1,0 +1,161 @@
+<?php
+
+namespace App\Services\Therapist;
+
+use App\Models\TherapistAvailability;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+
+/**
+ * The live weekly availability grid — the Availability screen's read/write.
+ *
+ * This grid is authoritative for FUTURE bookings only. The §07 slot engine
+ * computes concrete bookable slots from it; editing the grid never rewrites an
+ * already-booked therapy_sessions row (those reference a concrete starts_at).
+ */
+class TherapistAvailabilityService
+{
+    const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+    /** Every slot must fall inside this daily window — matches the web
+     *  availability editor's "add slot" modal, enforced here too so a
+     *  direct API call can't bypass it. */
+    const WINDOW_START = '08:00';
+    const WINDOW_END = '18:00';
+
+    /** Deck short keys ↔ the full day names §06 stores in day_of_week. */
+    const DAY_TO_NAME = [
+        'mon' => 'monday', 'tue' => 'tuesday', 'wed' => 'wednesday', 'thu' => 'thursday',
+        'fri' => 'friday', 'sat' => 'saturday', 'sun' => 'sunday',
+    ];
+
+    public static function grid(User $user): array
+    {
+        $rows = TherapistAvailability::where('user_id', $user->id)
+            ->orderBy('start_time')
+            ->get();
+
+        $name_to_day = array_flip(self::DAY_TO_NAME);
+        $grid = array_fill_keys(self::DAYS, []);
+        $active = array_fill_keys(self::DAYS, false);
+
+        foreach ($rows as $row) {
+            $day = $name_to_day[$row->day_of_week] ?? null;
+            if (empty($day)) {
+                continue;
+            }
+
+            if ($row->active) {
+                $active[$day] = true;
+            }
+
+            $grid[$day][] = [
+                'id' => $row->id,
+                'start' => substr((string) $row->start_time, 0, 5),
+                'end' => substr((string) $row->end_time, 0, 5),
+                'active' => (bool) $row->active,
+            ];
+        }
+
+        return [
+            'days' => $active,
+            'slots' => $grid,
+            // The web "Add slot" modal needs this to default a sensible end
+            // time — without it, it has no way to know a shorter/longer
+            // session length than the 50-minute fallback every other slot
+            // rule here already assumes.
+            'session_duration' => (int) ($user->therapist?->session_duration ?: 50),
+        ];
+    }
+
+    /**
+     * Replace the whole recurring schedule with the submitted grid. A full
+     * replace keeps the client simple (send the grid you want); booked sessions
+     * are untouched because they never read this table.
+     */
+    public function replace(User $user, array $data): array
+    {
+        $validator = Validator::make($data, [
+            'days' => 'required|array',
+            // present, not required: an empty array turns that day off.
+            'days.*' => 'present|array',
+            'days.*.*.start' => 'required|date_format:H:i|after_or_equal:' . self::WINDOW_START,
+            'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start|before_or_equal:' . self::WINDOW_END,
+        ]);
+
+        // Same fallback TherapistSlotService::slotsFor() uses when a therapist
+        // has never had a session_duration set — a window shorter than this
+        // can NEVER produce a bookable slot, so it must be rejected here
+        // rather than silently saved and silently never offered to clients.
+        $duration = (int) ($user->therapist?->session_duration ?: 50);
+        $to_minutes = fn (string $t) => ((int) substr($t, 0, 2) * 60) + (int) substr($t, 3, 2);
+
+        $validator->after(function ($validator) use ($data, $duration, $to_minutes) {
+            // Only known day keys are accepted.
+            foreach (array_keys($data['days'] ?? []) as $day) {
+                if (!in_array($day, self::DAYS, true)) {
+                    $validator->errors()->add('days', "Unknown day: {$day}");
+                }
+            }
+
+            // No two slots on the same day may overlap, and no slot may be
+            // shorter than the therapist's own session length — a narrower
+            // window would validate and save fine but TherapistSlotService
+            // would never fit a single slot into it, leaving a "gap" the
+            // therapist believes is bookable but no client can ever book.
+            foreach ($data['days'] ?? [] as $day => $slots) {
+                $sorted = collect($slots)->sortBy('start')->values();
+
+                foreach ($sorted as $slot) {
+                    $length = $to_minutes($slot['end']) - $to_minutes($slot['start']);
+                    if ($length < $duration) {
+                        $validator->errors()->add(
+                            "days.{$day}",
+                            "The slot {$slot['start']}–{$slot['end']} on {$day} is only {$length} minutes — shorter than your {$duration}-minute session length, so it could never be booked."
+                        );
+                    }
+                }
+
+                for ($i = 1; $i < $sorted->count(); $i++) {
+                    if ($sorted[$i]['start'] < $sorted[$i - 1]['end']) {
+                        $validator->errors()->add(
+                            "days.{$day}",
+                            "Overlapping slots on {$day}: {$sorted[$i - 1]['start']}–{$sorted[$i - 1]['end']} and {$sorted[$i]['start']}–{$sorted[$i]['end']}."
+                        );
+                    }
+                }
+            }
+        });
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        DB::beginTransaction();
+        try {
+            TherapistAvailability::where('user_id', $user->id)->delete();
+
+            foreach ($data['days'] as $day => $slots) {
+                foreach ($slots as $slot) {
+                    TherapistAvailability::create([
+                        'user_id' => $user->id,
+                        'day_of_week' => self::DAY_TO_NAME[$day],
+                        'start_time' => $slot['start'],
+                        'end_time' => $slot['end'],
+                        'active' => $slot['active'] ?? true,
+                    ]);
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+
+        return self::grid($user->refresh());
+    }
+}

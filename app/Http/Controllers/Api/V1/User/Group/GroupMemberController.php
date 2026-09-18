@@ -48,6 +48,17 @@ class GroupMemberController extends Controller
         }
     }
 
+    /**
+     * All members and moderators of a group, addressed by path instead of
+     * `?group_id=`. Same `index` under the hood — grouped by role (Owner,
+     * Admin i.e. moderator, Member), active + suspended only.
+     */
+    public function byGroup(Request $request, $group)
+    {
+        $request->merge(["group_id" => $group]);
+        return $this->index($request);
+    }
+
     public function show($id)
     {
         try {

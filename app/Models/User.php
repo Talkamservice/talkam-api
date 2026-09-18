@@ -74,6 +74,44 @@ class User extends Authenticatable
         return $this->hasMany(Pin::class, "user_id");
     }
 
+    public function consents()
+    {
+        return $this->hasMany(UserConsent::class, "user_id");
+    }
+
+    public function therapist()
+    {
+        return $this->hasOne(Therapist::class, "user_id");
+    }
+
+    public function therapistApplications()
+    {
+        return $this->hasMany(TherapistApplication::class, "user_id");
+    }
+
+    public function organizationMemberships()
+    {
+        return $this->hasMany(OrganizationMember::class, "user_id");
+    }
+
+    /**
+     * The caller's single active org membership. A user belongs to at most one
+     * organization at a time — the unique (organization_id, user_id) index plus
+     * this "first active" read is the whole tenancy rule.
+     */
+    public function organizationMember(): ?OrganizationMember
+    {
+        return $this->organizationMemberships()
+            ->where("status", \App\Constants\Business\OrganizationConstants::MEMBER_ACTIVE)
+            ->with("organization")
+            ->first();
+    }
+
+    public function payoutAccount()
+    {
+        return $this->hasOne(TherapistPayoutAccount::class, "user_id");
+    }
+
 
     public function blockedUsers()
     {
@@ -108,7 +146,7 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role == UserConstants::ADMIN;
+        return in_array($this->role, [UserConstants::ADMIN, UserConstants::SUPER_ADMIN]);
     }
 
     public function avatar()

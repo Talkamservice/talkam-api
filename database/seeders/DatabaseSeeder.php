@@ -21,12 +21,20 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             // CategoryTableSeeder::class,
-            // UserTableSeeder::class,
-            // PermissionTableSeeder::class,
+            UserTableSeeder::class,
+            PermissionTableSeeder::class,
             // RapidUpdatesSeeder::class
             // CountryTableSeeder::class,
             // StateTableSeeder::class
             // AvatarTableSeeder::class
+
+            // Web content seeders (idempotent, keyed on natural keys).
+            EmployeeFaqSeeder::class,
+            JournalSeeder::class,
+            LegalSeeder::class,
+            IndustrySeeder::class,
+            InterestTopicSeeder::class,
+            BenchTopicSeeder::class,
         ]);
     }
 }

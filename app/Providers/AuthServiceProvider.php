@@ -13,7 +13,9 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        // TalkAM for Business (web §01) — object-level tenant authorization.
+        \App\Models\Organization::class => \App\Policies\OrganizationPolicy::class,
+        \App\Models\Invitation::class => \App\Policies\InvitationPolicy::class,
     ];
 
     /**

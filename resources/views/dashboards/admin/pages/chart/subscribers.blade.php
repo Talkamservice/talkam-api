@@ -39,6 +39,9 @@
             position: "top",
         },
         yaxis: {
+            min: 0,
+            max: Math.max(...subscriptionCounts, 1),
+            forceNiceScale: true,
             title: {
                 style: {
                     color: "#adb5be",
@@ -50,7 +53,7 @@
             },
             labels: {
                 formatter: function(y) {
-                    return y.toFixed(0) + "";
+                    return Number.isFinite(y) ? y.toFixed(0) : "0";
                 },
             },
         },

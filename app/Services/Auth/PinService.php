@@ -9,6 +9,7 @@ use App\Models\Pin;
 use App\Models\User;
 use App\Services\Notifications\AppMailerService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -40,18 +41,47 @@ class PinService
             'expires_at' => $data["expires_at"],
         ]);
 
+        [$template, $mailData] = $this->buildMailPayload($user, $pin, $data);
+
         AppMailerService::send([
-            "data" => [
-                "pin" => $pin,
-                'user' => $user,
-                "expires_at" => Carbon::parse($data["expires_at"])->diffForHumans()
-            ],
+            "data" => $mailData,
             "to" => $user->email,
-            "template" => "emails.auth.pin." . $data["type"],
+            "template" => $template,
             "subject" => PinConstants::TITLES[$data["type"]],
         ]);
 
         return $pin;
+    }
+
+    /**
+     * Picks the email template + data for a pin's type. TYPE_LOGIN and
+     * TYPE_VERIFY_EMAIL (mobile) share one OTP-grid template; business domain
+     * verification gets its own; password reset gets a signed one-click link
+     * instead of a code (the mobile app's own "enter the code" screen keeps
+     * working unchanged — this only changes what the *email* shows).
+     */
+    private function buildMailPayload(User $user, Pin $pin, array $data): array
+    {
+        return match ($data["type"]) {
+            PinConstants::TYPE_PASSWORD_RESET => [
+                'emails.mobile.auth-password-reset',
+                [
+                    'resetPasswordUrl' => URL::temporarySignedRoute(
+                        'password.reset.form',
+                        Carbon::parse($data["expires_at"]),
+                        ['email' => $user->email, 'code' => $pin->code],
+                    ),
+                ],
+            ],
+            PinConstants::TYPE_VERIFY_EMAIL_BUSINESS => [
+                'emails.business.auth-domain-verification',
+                ['otpDigits' => str_split($pin->code)],
+            ],
+            default => [
+                'emails.mobile.auth-verification-code',
+                ['otpDigits' => str_split($pin->code)],
+            ],
+        };
     }
 
 

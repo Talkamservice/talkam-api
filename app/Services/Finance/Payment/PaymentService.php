@@ -113,8 +113,8 @@ class PaymentService
 
             $data = $validator->validated();
 
-            $transaction = (new FlutterwaveService)
-                ->verifyTransactionByReference($data["reference"]);
+            // Container-resolved (behavior-identical) so tests can bind a mock.
+            $transaction = $this->verifyWithRetry($data["reference"]);
 
             if (!isset($transaction["data"]["meta"])) {
                 throw new InvalidRequestException("We could not ascertain the purpose of this payment");
@@ -127,14 +127,51 @@ class PaymentService
             $meta = $transaction["data"]["meta"];
             $activity = $meta["activity"];
 
-            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
+            // handleOneOffPayments() dispatches by activity internally
+            // (FlutterwaveOneOffPaymentWebhookService::actionHandler()
+            // already branches on PAYMENT_FOR_BUSINESS_BUNDLE) — this list
+            // just has to actually route the call there, which it wasn't
+            // for business bundle payments before now.
+            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION, PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE, PaymentConstants::PAYMENT_FOR_CARD_SETUP])) {
                 return $this->handleOneOffPayments($transaction);
             } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
                 return $this->handleSubscriptionPayments($transaction, $transaction);
+            } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SESSION])) {
+                // Additive v2 branch (therapist session bookings) — v1
+                // activities above are untouched.
+                return (new \App\Services\Therapist\SessionPaymentHandlerService)
+                    ->setPayload($transaction)
+                    ->handle();
             }
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    /**
+     * A callback that fires right after checkout can beat Flutterwave's own
+     * tx_ref search index — verifyTransactionByReference briefly comes back
+     * with no matching transaction (no "meta") for a payment that actually
+     * just succeeded. Retries only that specific "not found yet" shape;
+     * a transaction that's genuinely found but failed/pending returns
+     * immediately, same as before.
+     */
+    private function verifyWithRetry(string $reference): array
+    {
+        $attempts = max(1, (int) config("services.flutterwave.verifyRetries", 3));
+        $delayMs = (int) config("services.flutterwave.verifyRetryDelayMs", 1000);
+
+        for ($attempt = 1; $attempt <= $attempts; $attempt++) {
+            $transaction = app(FlutterwaveService::class)->verifyTransactionByReference($reference);
+
+            if (isset($transaction["data"]["meta"]) || $attempt === $attempts) {
+                return $transaction;
+            }
+
+            usleep($delayMs * 1000);
+        }
+
+        return $transaction;
     }
 
     public function handleOneOffPayments($payload, $flutterwave_transaction = null)

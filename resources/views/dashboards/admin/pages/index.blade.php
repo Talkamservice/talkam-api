@@ -2,13 +2,10 @@
 
 @section('content')
     <div class="container-fluid">
-        <!-- ApexCharts -->
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
         <!-- Start::page-header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
             <div>
-                <p class="fw-semibold fs-18 mb-0">Welcome back, {{ auth()->user()?->name }}</p>
+                <p class="fw-semibold fs-18 mb-0">Welcome back, {{ auth()->user()?->full_name }}</p>
             </div>
             <form method="GET" action="{{ route('admin.home') }}" class="d-inline">
                 <div class="dropdown">
@@ -42,7 +39,7 @@
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
                                             <span class="avatar avatar-md avatar-rounded bg-{{ $card['class'] }}">
-                                                <i class="ti ti-{{ $card['icon'] ?? 'udrtd' }} fs-16"></i>
+                                                <i class="ti ti-{{ $card['icon'] ?? 'chart-bar' }} fs-16"></i>
                                             </span>
                                         </div>
                                         <div class="flex-fill ms-3">
@@ -115,7 +112,7 @@
                                                         <div class="d-flex align-items-center fw-semibold">
                                                             <span class="avatar avatar-sm me-2 avatar-rounded">
                                                                 <img src="{{ $user->avatarUrl() }}" alt="img">
-                                                            </span>{{ $user->name }}
+                                                            </span>{{ $user->full_name }}
                                                         </div>
                                                     </td>
                                                     <td>{{ $user->email }}</td>
@@ -237,7 +234,7 @@
                     var data = [];
 
                     // Use the card title to decide which data to use
-                    if ("{{ $card['title'] }}" === "Total Users") {
+                    if ("{{ $card['title'] }}" === "Total Active Users") {
                         data = dashboardData.currentUsers;
                     } else if ("{{ $card['title'] }}" === "Total Categories") {
                         data = dashboardData.currentCategories;

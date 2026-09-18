@@ -33,6 +33,12 @@ class Invitation extends Model
         return $this->belongsTo(Role::class, "role_id");
     }
 
+    /** Set only by org invites (web §01); null for v1 admin and §05 group invites. */
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, "organization_id");
+    }
+
     public function inviterName()
     {
         return  $this->inviter->name;

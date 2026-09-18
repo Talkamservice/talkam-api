@@ -9,6 +9,7 @@ use App\Exceptions\Payment\FlutterwaveException;
 use App\Models\Payment;
 use App\Models\Promotion;
 use App\Models\User;
+use App\Notifications\Business\BusinessBundlePaymentReceiptNotification;
 use App\Notifications\Finance\Payment\AdminNewPaymentNotification;
 use App\Notifications\Finance\Payment\NewPaymentNotification;
 use App\Services\Finance\Payment\PaymentIntentService;
@@ -67,14 +68,26 @@ class FlutterwaveOneOffPaymentWebhookService
 
         $this->metadata = $payload["meta"] ?? $this->payload["meta_data"] ?? $payload["data"]["meta_data"] ?? null;
 
-        $this->user = $this->setUser($payload);
+        // Payment first — setUser() falls back to the payment's own recorded
+        // owner, so it needs $this->payment already set.
         $this->payment = $this->setPayment($payload);
+        $this->user = $this->setUser($payload);
     }
 
     public function setUser($payload)
     {
-        if (isset($payload["customer"])) {
+        if (isset($payload["customer"]["email"])) {
             $user = User::where("email", $payload["customer"]["email"])->first();
+        }
+
+        // Flutterwave's sandbox/test-mode transactions don't reliably echo
+        // back the real customer we passed at checkout — the verify response
+        // can carry Flutterwave's own mock test-customer email instead. We
+        // already know who initiated this payment (Payment::user_id, set
+        // ourselves at checkout), so fall back to that rather than hard-
+        // failing a genuinely-verified transaction over a sandbox quirk.
+        if (empty($user) && !empty($this->payment)) {
+            $user = $this->payment->user;
         }
 
         if (empty($user)) {
@@ -82,6 +95,25 @@ class FlutterwaveOneOffPaymentWebhookService
         }
 
         return $user;
+    }
+
+    /**
+     * Every call site here runs inside handle()'s DB transaction (see above),
+     * so a notification failure — a bounced admin mailbox, an invalid org
+     * email, an SMTP outage — must never propagate and roll back a payment
+     * that already succeeded. Best-effort: log and move on.
+     */
+    private function notifySafely($notifiable, $notification): void
+    {
+        try {
+            Notification::send($notifiable, $notification);
+        } catch (\Throwable $th) {
+            logger("Payment notification failed (payment fulfilled regardless)", [
+                "payment" => $this->payment->id ?? null,
+                "notification" => get_class($notification),
+                "error" => $th->getMessage(),
+            ]);
+        }
     }
 
     public function setPayment($payload)
@@ -104,6 +136,14 @@ class FlutterwaveOneOffPaymentWebhookService
 
         if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
             $this->handlePaymentForPromotion();
+        }
+
+        if (in_array($activity, [PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE])) {
+            $this->handlePaymentForBusinessBundle();
+        }
+
+        if (in_array($activity, [PaymentConstants::PAYMENT_FOR_CARD_SETUP])) {
+            $this->handlePaymentForCardSetup();
         }
 
         if (isset($this->metadata["payload"])) {
@@ -159,9 +199,9 @@ class FlutterwaveOneOffPaymentWebhookService
                 "payment_id" => $this->payment->id,
             ]);
 
-            Notification::send($this->user, new NewPaymentNotification($this->payment));
+            $this->notifySafely($this->user, new NewPaymentNotification($this->payment));
             if (!empty(sudo())) {
-                Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
+                $this->notifySafely(sudo(), new AdminNewPaymentNotification($this->payment));
             }
 
             DB::commit();
@@ -170,5 +210,71 @@ class FlutterwaveOneOffPaymentWebhookService
             DB::rollBack();
             throw $th;
         }
+    }
+
+    /**
+     * B2B onboarding: the up-front session-bundle charge succeeded. Mark it
+     * complete and record the paid invoice (delegated to the billing service so
+     * the fulfilment stays in one place), then notify.
+     */
+    public function handlePaymentForBusinessBundle()
+    {
+        if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+            throw new InvalidRequestException("Payment has already been verified.");
+        }
+
+        \App\Services\Business\OrganizationBillingService::fulfilBundlePayment($this->payment);
+
+        $this->payment->refresh();
+        $organization = \App\Models\Organization::find($this->payment->metadata["organization_id"] ?? null);
+        if ($organization) {
+            $this->notifySafely($this->user, new BusinessBundlePaymentReceiptNotification($this->payment, $organization));
+        }
+        if (!empty(sudo())) {
+            $this->notifySafely(sudo(), new AdminNewPaymentNotification($this->payment));
+        }
+
+        return $this->payment;
+    }
+
+    /**
+     * Postpay card-on-file (web §10): the tiny verification auth succeeded. Save
+     * the card token on the company, then REFUND the auth — we only needed the
+     * token, so nothing is really charged.
+     */
+    public function handlePaymentForCardSetup()
+    {
+        if (in_array($this->payment->status, [StatusConstants::FAILED, StatusConstants::COMPLETED])) {
+            throw new InvalidRequestException("Payment has already been verified.");
+        }
+
+        // The verified transaction is authoritative for the card token; the raw
+        // webhook payload is a fallback if the shape differs.
+        $txn = isset($this->transaction_data)
+            ? ($this->transaction_data["data"] ?? $this->transaction_data)
+            : [];
+        $card = $txn["card"] ?? $this->payload["data"]["card"] ?? [];
+        $transaction_id = $txn["id"] ?? $this->payload["data"]["id"] ?? null;
+
+        \App\Services\Business\OrganizationBillingService::saveCardOnFile(
+            $this->payment,
+            $card["token"] ?? null,
+            $card["last_4digits"] ?? null,
+            $card["type"] ?? null
+        );
+        if ($transaction_id && (float) $this->payment->amount > 0) {
+            try {
+                (new FlutterwaveService)->refundTransaction($transaction_id, ["amount" => $this->payment->amount]);
+            } catch (\Throwable $th) {
+                logger("Card-setup verification refund failed", [
+                    "payment" => $this->payment->id,
+                    "error" => $th->getMessage(),
+                ]);
+            }
+        }
+
+        $this->notifySafely($this->user, new NewPaymentNotification($this->payment->refresh()));
+
+        return $this->payment;
     }
 }
