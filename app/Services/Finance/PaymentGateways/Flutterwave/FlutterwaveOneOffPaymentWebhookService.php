@@ -97,6 +97,25 @@ class FlutterwaveOneOffPaymentWebhookService
         return $user;
     }
 
+    /**
+     * Every call site here runs inside handle()'s DB transaction (see above),
+     * so a notification failure — a bounced admin mailbox, an invalid org
+     * email, an SMTP outage — must never propagate and roll back a payment
+     * that already succeeded. Best-effort: log and move on.
+     */
+    private function notifySafely($notifiable, $notification): void
+    {
+        try {
+            Notification::send($notifiable, $notification);
+        } catch (\Throwable $th) {
+            logger("Payment notification failed (payment fulfilled regardless)", [
+                "payment" => $this->payment->id ?? null,
+                "notification" => get_class($notification),
+                "error" => $th->getMessage(),
+            ]);
+        }
+    }
+
     public function setPayment($payload)
     {
         if (isset($payload["tx_ref"])) {
@@ -180,9 +199,9 @@ class FlutterwaveOneOffPaymentWebhookService
                 "payment_id" => $this->payment->id,
             ]);
 
-            Notification::send($this->user, new NewPaymentNotification($this->payment));
+            $this->notifySafely($this->user, new NewPaymentNotification($this->payment));
             if (!empty(sudo())) {
-                Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
+                $this->notifySafely(sudo(), new AdminNewPaymentNotification($this->payment));
             }
 
             DB::commit();
@@ -209,10 +228,10 @@ class FlutterwaveOneOffPaymentWebhookService
         $this->payment->refresh();
         $organization = \App\Models\Organization::find($this->payment->metadata["organization_id"] ?? null);
         if ($organization) {
-            Notification::send($this->user, new BusinessBundlePaymentReceiptNotification($this->payment, $organization));
+            $this->notifySafely($this->user, new BusinessBundlePaymentReceiptNotification($this->payment, $organization));
         }
         if (!empty(sudo())) {
-            Notification::send(sudo(), new AdminNewPaymentNotification($this->payment));
+            $this->notifySafely(sudo(), new AdminNewPaymentNotification($this->payment));
         }
 
         return $this->payment;
@@ -254,7 +273,7 @@ class FlutterwaveOneOffPaymentWebhookService
             }
         }
 
-        Notification::send($this->user, new NewPaymentNotification($this->payment->refresh()));
+        $this->notifySafely($this->user, new NewPaymentNotification($this->payment->refresh()));
 
         return $this->payment;
     }

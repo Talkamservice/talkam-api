@@ -26,6 +26,26 @@ class FlutterwaveSubscriptionPaymentWebhookService
         return $this;
     }
 
+    /**
+     * handle() wraps parsePayload()+actionHandler() in a DB transaction, so a
+     * notification failure here (bounced mailbox, SMTP outage, no sudo user)
+     * must never roll back a subscription change that already succeeded.
+     */
+    private function notifySafely($notifiable, $notification): void
+    {
+        if (empty($notifiable)) {
+            return;
+        }
+        try {
+            Notification::send($notifiable, $notification);
+        } catch (\Throwable $th) {
+            logger("Subscription notification failed (subscription change applied regardless)", [
+                "notification" => get_class($notification),
+                "error" => $th->getMessage(),
+            ]);
+        }
+    }
+
     public function handle()
     {
         DB::beginTransaction();
@@ -121,7 +141,7 @@ class FlutterwaveSubscriptionPaymentWebhookService
             ]);
         }
 
-        Notification::send($this->user, new NewSubscriptionNotification($subscription));
+        $this->notifySafely($this->user, new NewSubscriptionNotification($subscription));
         // Notification::send(sudo(), new AdminNewSubscriptionNotification($subscription));
     }
 
@@ -144,7 +164,7 @@ class FlutterwaveSubscriptionPaymentWebhookService
             "expires_at" => carbon()->parse($subscription->expires_at)->addDays($subscription->duration),
         ]);
 
-        Notification::send($this->user, new SubscriptionRenewalNotification($subscription));
+        $this->notifySafely($this->user, new SubscriptionRenewalNotification($subscription));
     }
 
     public function disableUserSubscription($subscription)
@@ -153,6 +173,6 @@ class FlutterwaveSubscriptionPaymentWebhookService
             "status" => StatusConstants::INACTIVE
         ]);
 
-        Notification::send($this->user, new SubscriptionDisabledNotification($subscription));
+        $this->notifySafely($this->user, new SubscriptionDisabledNotification($subscription));
     }
 }
