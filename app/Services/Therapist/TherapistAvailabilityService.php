@@ -63,6 +63,11 @@ class TherapistAvailabilityService
         return [
             'days' => $active,
             'slots' => $grid,
+            // The web "Add slot" modal needs this to default a sensible end
+            // time — without it, it has no way to know a shorter/longer
+            // session length than the 50-minute fallback every other slot
+            // rule here already assumes.
+            'session_duration' => (int) ($user->therapist?->session_duration ?: 50),
         ];
     }
 
