@@ -173,6 +173,17 @@ class SessionLifecycleService
             );
         }
 
+        // Symmetric with the early-join check above: joinable anywhere inside
+        // the scheduled window, never after it. Without this, join() would
+        // otherwise succeed right up until sweep() next runs (up to a minute
+        // later) and hand back a starts_at/duration_minutes the call room's
+        // own countdown immediately reads as already-expired, ending the call
+        // the instant it connects instead of rejecting the join outright.
+        $due_at = $session->starts_at->copy()->addMinutes($session->duration_minutes);
+        if (now()->gte($due_at)) {
+            throw new InvalidRequestException("This session's scheduled time has ended.");
+        }
+
         $is_therapist = $session->therapist?->user_id == $user->id;
 
         // Mint the channel/token BEFORE touching the session row — if the AV
@@ -300,7 +311,13 @@ class SessionLifecycleService
     }
 
     /**
-     * AV webhook: room closed → ended_at + auto-complete.
+     * AV webhook: room closed → ended_at + auto-complete. Only when BOTH
+     * sides actually joined at some point — the last person leaving empties
+     * the channel just the same whether one participant showed up or two,
+     * and completing a session neither the client (nor, symmetrically, the
+     * therapist) ever joined would credit a session that never happened.
+     * A solo join-then-leave is a no-show, not a completion — leave it for
+     * sweep() to resolve correctly once the scheduled time actually passes.
      */
     public function handleRoomClosed(?string $channel_ref): ?TherapySession
     {
@@ -310,6 +327,10 @@ class SessionLifecycleService
 
         $session = TherapySession::where('channel_ref', $channel_ref)->first();
         if (empty($session) || $session->status != TherapistConstants::SESSION_IN_PROGRESS) {
+            return null;
+        }
+
+        if (empty($session->client_joined_at) || empty($session->therapist_joined_at)) {
             return null;
         }
 
