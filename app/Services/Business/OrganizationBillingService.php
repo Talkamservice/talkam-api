@@ -166,6 +166,34 @@ class OrganizationBillingService
     }
 
     /**
+     * Session-bundle top-up history — every topUpCheckout() payment for this
+     * org, newest first. Excludes the one-off onboarding signup charge
+     * (bundleCheckout(), no `is_topup` flag) — that one is already covered
+     * by invoices(); this is specifically "sessions bought after signup".
+     */
+    public static function topUpHistory(Organization $organization): array
+    {
+        return Payment::where("activity", PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE)
+            ->whereJsonContains("metadata->organization_id", $organization->id)
+            ->whereJsonContains("metadata->is_topup", true)
+            ->orderByDesc("created_at")
+            ->get()
+            ->map(fn (Payment $payment) => [
+                "reference" => $payment->reference,
+                "date" => $payment->created_at->format("M j, Y · g:ia"),
+                "sessions" => (int) ($payment->metadata["bundle_sessions"] ?? 0),
+                "amount" => self::naira($payment->amount),
+                "status" => $payment->status,
+                "tone" => match ($payment->status) {
+                    StatusConstants::COMPLETED => "green",
+                    StatusConstants::FAILED => "red",
+                    default => "gold",
+                },
+            ])
+            ->all();
+    }
+
+    /**
      * Create a pending payment for the up-front session-bundle charge and return
      * the config the web Flutterwave inline modal needs. Returns amount 0 when
      * there is nothing to charge now (no bundle) — the caller then just continues
@@ -241,6 +269,58 @@ class OrganizationBillingService
     }
 
     /**
+     * Start a top-up checkout: buy MORE sessions on top of whatever is
+     * already funded — or fund a bundle for the very first time from the
+     * Billing page, for an org that skipped payment at onboarding. Unlike
+     * bundleCheckout() (the one-time signup charge for seats + bundle
+     * together, sized off the org's CURRENT totals), this charges ONLY for
+     * the sessions being added now. fulfilBundlePayment() below reads the
+     * `is_topup` flag to increment session_bundle_sessions on success
+     * instead of leaving it alone (the onboarding charge never touches that
+     * column — saveSeats() already set it before checkout ever starts).
+     */
+    public static function topUpCheckout(Organization $organization, User $user, int $sessions): array
+    {
+        $currency = config("business.currency");
+        $rate = $organization->bundle_custom
+            ? (int) config("business.session_custom_rate")
+            : (int) config("business.session_rate");
+        $amount = $sessions * $rate;
+
+        $reference = "TK-TOPUP-" . strtoupper(MethodsHelper::getRandomToken(10));
+
+        $meta = [
+            "activity" => PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
+            "organization_id" => $organization->id,
+            "bundle_sessions" => $sessions,
+            "is_topup" => true,
+        ];
+
+        Payment::create([
+            "user_id" => $user->id,
+            "currency" => $currency,
+            "amount" => $amount,
+            "reference" => $reference,
+            "activity" => PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE,
+            "description" => "Session bundle top-up ({$sessions} sessions)",
+            "type" => PaymentConstants::DEBIT,
+            "metadata" => $meta,
+            "status" => StatusConstants::PENDING,
+        ]);
+
+        return [
+            "reference" => $reference,
+            "amount" => $amount,
+            "currency" => $currency,
+            "customer" => [
+                "email" => $user->email,
+                "name" => $organization->name,
+            ],
+            "meta" => $meta,
+        ];
+    }
+
+    /**
      * Fulfil a completed bundle payment — called from the Flutterwave webhook.
      * Marks the payment complete and records a paid invoice for the charge.
      * Idempotent: a repeat callback is a no-op.
@@ -261,6 +341,7 @@ class OrganizationBillingService
         $payment->update(["status" => StatusConstants::COMPLETED]);
 
         $bundle_sessions = (int) ($payment->metadata["bundle_sessions"] ?? 0);
+        $is_topup = !empty($payment->metadata["is_topup"]);
 
         OrganizationInvoice::updateOrCreate(
             ["reference" => $payment->reference],
@@ -276,8 +357,16 @@ class OrganizationBillingService
             ]
         );
 
+        // A top-up ADDS to whatever's there — the onboarding charge never
+        // does this itself, since saveSeats() already set the total it's
+        // charging for before checkout starts.
+        if ($is_topup && $bundle_sessions > 0) {
+            $organization->increment("session_bundle_sessions", $bundle_sessions);
+        }
+
         // Prepay activates on payment (web §08/§11): the card charge cleared, so the
-        // bundle is now funded and usable.
+        // bundle is now funded and usable. A top-up can ALSO be an org's very first
+        // payment (onboarding skipped entirely), so this isn't onboarding-only.
         if ($bundle_sessions > 0 && empty($organization->session_bundle_funded_at)) {
             $organization->update(["session_bundle_funded_at" => now()]);
         }

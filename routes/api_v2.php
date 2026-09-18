@@ -228,12 +228,14 @@ Route::prefix("business")->as("business.")->group(function () {
             Route::get("billing", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "summary"])->name("billing.summary");
             Route::get("billing/invoices", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "invoices"])->name("billing.invoices");
             Route::post("billing/invoices/{reference}/mark-paid", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "markInvoicePaid"])->name("billing.invoices.mark-paid");
+            Route::get("billing/topups", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "topUpHistory"])->name("billing.topups");
 
             // Domain confirmation gates everything that spends seats or money.
             Route::middleware(["org.verified"])->group(function () {
                 Route::post("organization/seats", [BusinessOrganizationController::class, "seats"])->name("organization.seats");
                 Route::post("organization/plan", [BusinessOrganizationController::class, "plan"])->name("organization.plan");
                 Route::post("organization/plan/checkout", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "checkout"])->name("organization.plan.checkout");
+                Route::post("billing/topup-checkout", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "topUp"])->name("billing.topup-checkout");
                 Route::post("organization/card/setup", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "cardSetup"])->name("organization.card.setup");
                 Route::post("organization/virtual-account", [\App\Http\Controllers\Api\V2\Business\BillingController::class, "createVirtualAccount"])->name("organization.virtual-account");
                 Route::post("invitations", [BusinessInvitationController::class, "store"])->name("invitations.store");

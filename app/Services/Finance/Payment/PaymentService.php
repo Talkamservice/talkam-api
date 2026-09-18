@@ -127,7 +127,12 @@ class PaymentService
             $meta = $transaction["data"]["meta"];
             $activity = $meta["activity"];
 
-            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION])) {
+            // handleOneOffPayments() dispatches by activity internally
+            // (FlutterwaveOneOffPaymentWebhookService::actionHandler()
+            // already branches on PAYMENT_FOR_BUSINESS_BUNDLE) — this list
+            // just has to actually route the call there, which it wasn't
+            // for business bundle payments before now.
+            if (in_array($activity, [PaymentConstants::PAYMENT_FOR_PROMOTION, PaymentConstants::PAYMENT_FOR_BUSINESS_BUNDLE, PaymentConstants::PAYMENT_FOR_CARD_SETUP])) {
                 return $this->handleOneOffPayments($transaction);
             } else if (in_array($activity, [PaymentConstants::PAYMENT_FOR_SUBSCRIPTION])) {
                 return $this->handleSubscriptionPayments($transaction, $transaction);

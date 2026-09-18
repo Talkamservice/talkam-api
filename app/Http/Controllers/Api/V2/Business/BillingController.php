@@ -54,6 +54,18 @@ class BillingController extends Controller
         }
     }
 
+    public function topUpHistory(Request $request)
+    {
+        try {
+            return ApiHelper::validResponse(
+                "Top-up history returned successfully",
+                OrganizationBillingService::topUpHistory($request->attributes->get("organization"))
+            );
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
     /**
      * Start the onboarding card checkout: create a pending payment for the
      * up-front session-bundle charge and hand back the config the web Flutterwave
@@ -67,6 +79,41 @@ class BillingController extends Controller
                 OrganizationBillingService::bundleCheckout(
                     $request->attributes->get("organization"),
                     $request->user()
+                )
+            );
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /**
+     * Start a session-bundle top-up checkout: charges only for the sessions
+     * being added now (not the org's whole current total), whether they
+     * already have a funded bundle or are paying for the first time because
+     * onboarding was skipped.
+     */
+    public function topUp(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "sessions" => "required|integer|min:1|max:100000",
+            ]);
+
+            if ($validator->fails()) {
+                return ApiHelper::problemResponse(
+                    $validator->errors()->first(),
+                    ApiConstants::VALIDATION_ERR_CODE,
+                    null,
+                    null
+                );
+            }
+
+            return ApiHelper::validResponse(
+                "Top-up checkout initiated successfully",
+                OrganizationBillingService::topUpCheckout(
+                    $request->attributes->get("organization"),
+                    $request->user(),
+                    (int) $validator->validated()["sessions"]
                 )
             );
         } catch (Exception $e) {

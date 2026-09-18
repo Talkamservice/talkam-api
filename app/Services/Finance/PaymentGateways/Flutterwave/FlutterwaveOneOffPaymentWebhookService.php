@@ -68,14 +68,26 @@ class FlutterwaveOneOffPaymentWebhookService
 
         $this->metadata = $payload["meta"] ?? $this->payload["meta_data"] ?? $payload["data"]["meta_data"] ?? null;
 
-        $this->user = $this->setUser($payload);
+        // Payment first — setUser() falls back to the payment's own recorded
+        // owner, so it needs $this->payment already set.
         $this->payment = $this->setPayment($payload);
+        $this->user = $this->setUser($payload);
     }
 
     public function setUser($payload)
     {
-        if (isset($payload["customer"])) {
+        if (isset($payload["customer"]["email"])) {
             $user = User::where("email", $payload["customer"]["email"])->first();
+        }
+
+        // Flutterwave's sandbox/test-mode transactions don't reliably echo
+        // back the real customer we passed at checkout — the verify response
+        // can carry Flutterwave's own mock test-customer email instead. We
+        // already know who initiated this payment (Payment::user_id, set
+        // ourselves at checkout), so fall back to that rather than hard-
+        // failing a genuinely-verified transaction over a sandbox quirk.
+        if (empty($user) && !empty($this->payment)) {
+            $user = $this->payment->user;
         }
 
         if (empty($user)) {

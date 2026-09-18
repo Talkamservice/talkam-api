@@ -243,11 +243,18 @@ class OrganizationService
 
     /* ── Setup steps ────────────────────────────────────────────────────── */
 
+    /**
+     * Onboarding's one-screen form always sends every field explicitly, so
+     * making the rest optional here doesn't change that path — it just lets
+     * a caller updating a single thing later (the Billing page bumping seats
+     * or topping up the bundle) omit whatever it isn't touching instead of
+     * having to already know and resend the organization's entire state.
+     */
     public function saveSeats(Organization $organization, array $data): Organization
     {
         $validator = Validator::make($data, [
             "seats_licensed" => "required|integer|min:1|max:1000000",
-            "therapist_access" => "required|boolean",
+            "therapist_access" => "nullable|boolean",
             "payment_timing" => ["nullable", Rule::in(config("business.payment_timings"))],
             "bundle_sessions" => "nullable|integer|min:0|max:100000",
             "bundle_custom" => "nullable|boolean",
@@ -260,8 +267,10 @@ class OrganizationService
         }
 
         $validated = $validator->validated();
-        $uses_network = (bool) $validated["therapist_access"];
-        $timing = $validated["payment_timing"] ?? "prepay";
+        $uses_network = array_key_exists("therapist_access", $validated)
+            ? (bool) $validated["therapist_access"]
+            : (bool) $organization->therapist_access;
+        $timing = $validated["payment_timing"] ?? $organization->payment_timing ?? "prepay";
 
         // Seats already handed out cannot be undercut by a later reduction.
         $used = $organization->seatsUsed();
@@ -274,13 +283,19 @@ class OrganizationService
         // A prepaid bundle only exists when the org uses the network AND prepays.
         // Postpay is pay-as-you-go, so nothing is bought up front.
         $has_bundle = $uses_network && $timing === "prepay";
+        $bundle_sessions = array_key_exists("bundle_sessions", $validated)
+            ? $validated["bundle_sessions"]
+            : (int) $organization->session_bundle_sessions;
+        $bundle_custom = array_key_exists("bundle_custom", $validated)
+            ? (bool) $validated["bundle_custom"]
+            : (bool) $organization->bundle_custom;
 
         $organization->update([
             "seats_licensed" => $validated["seats_licensed"],
             "therapist_access" => $uses_network,
             "payment_timing" => $uses_network ? $timing : "prepay",
-            "session_bundle_sessions" => $has_bundle ? ($validated["bundle_sessions"] ?? 0) : 0,
-            "bundle_custom" => $has_bundle ? (bool) ($validated["bundle_custom"] ?? false) : false,
+            "session_bundle_sessions" => $has_bundle ? $bundle_sessions : 0,
+            "bundle_custom" => $has_bundle ? $bundle_custom : false,
         ]);
 
         return $organization->refresh();
