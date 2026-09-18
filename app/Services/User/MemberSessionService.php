@@ -23,9 +23,21 @@ class MemberSessionService
      */
     public static function summary(User $user): array
     {
+        // Matches SessionBookingService::listFor()'s own definition of
+        // "upcoming" — anything not yet past its scheduled END time (not
+        // bare starts_at, which would drop a session the instant it began),
+        // in a not-yet-resolved status. Previously this counted only
+        // "confirmed" sessions starting in the future, so an in_progress
+        // session (someone currently on the call) silently dropped out of
+        // this count while still correctly appearing as bookings.upcoming[0]
+        // — "0 Upcoming" next to a visibly live "next session" card.
         $upcoming = TherapySession::where('user_id', $user->id)
-            ->where('starts_at', '>', now())
-            ->where('status', TherapistConstants::SESSION_CONFIRMED)
+            ->whereIn('status', [
+                TherapistConstants::SESSION_PENDING_PAYMENT,
+                TherapistConstants::SESSION_CONFIRMED,
+                TherapistConstants::SESSION_IN_PROGRESS,
+            ])
+            ->whereRaw('DATE_ADD(starts_at, INTERVAL duration_minutes MINUTE) > ?', [now()])
             ->count();
 
         $completed = TherapySession::where('user_id', $user->id)
