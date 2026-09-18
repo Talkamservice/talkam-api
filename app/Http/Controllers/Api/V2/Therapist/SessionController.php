@@ -114,6 +114,22 @@ class SessionController extends Controller
         }
     }
 
+    public function leave($booking)
+    {
+        try {
+            $session = $this->lifecycle_service->leave(auth()->user(), $booking);
+            return ApiHelper::validResponse("Left the call", [
+                "status" => $session->status,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::NOT_FOUND_ERR_CODE, null, $e);
+        } catch (InvalidRequestException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
     public function message($booking)
     {
         try {

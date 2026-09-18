@@ -188,11 +188,18 @@ class SessionLifecycleService
             $updates['started_at'] = now();
             $updates['status'] = TherapistConstants::SESSION_IN_PROGRESS;
         }
-        if ($is_therapist && empty($session->therapist_joined_at)) {
-            $updates['therapist_joined_at'] = now();
-        }
-        if (!$is_therapist && empty($session->client_joined_at)) {
-            $updates['client_joined_at'] = now();
+        if ($is_therapist) {
+            if (empty($session->therapist_joined_at)) {
+                $updates['therapist_joined_at'] = now();
+            }
+            // A rejoin means they're active again — clear a prior leave mark
+            // so completeIfBothLeft() doesn't treat them as still gone.
+            $updates['therapist_left_at'] = null;
+        } else {
+            if (empty($session->client_joined_at)) {
+                $updates['client_joined_at'] = now();
+            }
+            $updates['client_left_at'] = null;
         }
         if (!empty($updates)) {
             $session->update($updates);
@@ -204,6 +211,61 @@ class SessionLifecycleService
             'starts_at' => $session->starts_at->toDateTimeString(),
             'duration_minutes' => $session->duration_minutes,
         ];
+    }
+
+    /**
+     * A participant leaving the call room — stamps their own leave time and,
+     * if BOTH sides have now joined and left (and the session hasn't reached
+     * its scheduled end time yet), completes it early rather than waiting on
+     * sweep() to catch it once starts_at + duration_minutes passes. Reusing
+     * the exact same completion side effects (earnings credit + follow-up
+     * notification) sweep() already uses, just triggered sooner.
+     */
+    public function leave(User $user, $booking_id): TherapySession
+    {
+        $session = self::getForParticipant($booking_id, $user);
+        $is_therapist = $session->therapist?->user_id == $user->id;
+
+        $session->update(
+            $is_therapist ? ['therapist_left_at' => now()] : ['client_left_at' => now()]
+        );
+
+        $this->completeIfBothLeft($session->refresh());
+
+        return $session->refresh();
+    }
+
+    /**
+     * Early completion, gated on still being before the session's due time —
+     * once that passes, sweep() already handles it (and handles the no-show
+     * cases this method deliberately doesn't need to, since both sides
+     * joining is a precondition here).
+     */
+    private function completeIfBothLeft(TherapySession $session): void
+    {
+        if ($session->status !== TherapistConstants::SESSION_IN_PROGRESS) {
+            return;
+        }
+
+        $both_joined = !empty($session->client_joined_at) && !empty($session->therapist_joined_at);
+        $both_left = !empty($session->client_left_at) && !empty($session->therapist_left_at);
+        $due_at = $session->starts_at->copy()->addMinutes($session->duration_minutes);
+
+        if (!$both_joined || !$both_left || !now()->lt($due_at)) {
+            return;
+        }
+
+        $session->update([
+            'status' => TherapistConstants::SESSION_COMPLETED,
+            'ended_at' => $session->ended_at ?? now(),
+        ]);
+
+        $session = $session->refresh();
+        EarningsLedgerService::creditForSession($session);
+
+        if (!empty($session->user)) {
+            Notification::send($session->user, new SessionFollowUpNotification($session));
+        }
     }
 
     /**

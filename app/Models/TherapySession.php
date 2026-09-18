@@ -20,6 +20,8 @@ class TherapySession extends Model
         'started_at' => 'datetime',
         'client_joined_at' => 'datetime',
         'therapist_joined_at' => 'datetime',
+        'client_left_at' => 'datetime',
+        'therapist_left_at' => 'datetime',
         'ended_at' => 'datetime',
     ];
 

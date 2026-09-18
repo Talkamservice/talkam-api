@@ -482,6 +482,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("{booking}/cancel", [SessionController::class, "cancel"])->name("cancel");
             Route::post("{booking}/reschedule", [SessionController::class, "reschedule"])->name("reschedule");
             Route::get("{booking}/join", [SessionController::class, "join"])->name("join");
+            Route::post("{booking}/leave", [SessionController::class, "leave"])->name("leave");
             Route::post("{booking}/message", [SessionController::class, "message"])->name("message");
             Route::get("{booking}", [BookingController::class, "show"])->name("show");
         });
