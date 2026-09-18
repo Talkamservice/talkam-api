@@ -76,7 +76,12 @@ class OrganizationBillingRunService
         }
 
         $rate = (int) OrganizationPricingService::tier((int) $organization->seats_licensed)["price"];
-        $amount = $seats * $rate;
+        // Network access is a flat per-seat fee, independent of prepay/postpay —
+        // a postpay org has no upfront bundle but still pays this every month.
+        $network_rate = $organization->therapist_access
+            ? (int) config("business.therapist_access_rate")
+            : 0;
+        $amount = $seats * ($rate + $network_rate);
 
         $reference = "INV-" . $period_start->format("Ym") . "-" . $organization->id;
 

@@ -44,6 +44,9 @@ class OrganizationBillingService
         $seat_rate = (int) $quote["rates"]["seat"];
         $seats = OrganizationPricingService::billableSeats($organization);
         $seats_monthly = $seats * $seat_rate;
+        $network_rate = (int) $quote["rates"]["network_access"];
+        $network_monthly = (int) $quote["network_monthly"];
+        $monthly_total = $seats_monthly + $network_monthly;
 
         $lines = [];
 
@@ -51,6 +54,15 @@ class OrganizationBillingService
             $lines[] = [
                 "label" => "Employee Seats · {$seats} × " . self::naira($seat_rate),
                 "value" => self::naira($seats_monthly),
+            ];
+        }
+
+        // Flat per-seat fee for using the network at all — separate from the
+        // prepay bundle (a one-off purchase) or postpay metering (below).
+        if ($quote["uses_network"] && $network_monthly > 0) {
+            $lines[] = [
+                "label" => "Therapist Network Access · {$seats} × " . self::naira($network_rate),
+                "value" => self::naira($network_monthly),
             ];
         }
 
@@ -78,7 +90,7 @@ class OrganizationBillingService
             "lines" => $lines,
             "seats" => $seats,
             "perSeat" => self::naira($seat_rate),
-            "total" => self::naira($seats_monthly),
+            "total" => self::naira($monthly_total),
             "renews" => "Renews " . self::nextReset()->format("M j, Y") . " · billed monthly",
             "payMethod" => $pay_method,
             "payMethodLabel" => $pay_method_label,
@@ -217,10 +229,11 @@ class OrganizationBillingService
             ];
         }
 
-        // The signup charge is the FIRST MONTH (seats) + the prepaid session bundle.
-        // Reuse the same quote the onboarding screen displays so the two agree.
+        // The signup charge is the FIRST MONTH (seats + network access) + the
+        // prepaid session bundle. Reuse the same quote the onboarding screen
+        // displays so the two agree.
         $quote = OrganizationPricingService::quoteFor($organization);
-        $seats_charge = (int) $quote["seats_monthly"];
+        $seats_charge = (int) $quote["seats_monthly"] + (int) $quote["network_monthly"];
         $bundle_charge = (int) $quote["bundle_total"];
         $bundle_sessions = (int) $quote["bundle_sessions"];
         $amount = $seats_charge + $bundle_charge;

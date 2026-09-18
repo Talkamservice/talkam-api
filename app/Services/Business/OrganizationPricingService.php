@@ -92,8 +92,12 @@ class OrganizationPricingService
 
         $tier = self::tier($seats);
         $seat_rate = (int) $tier["price"];
+        // Flat per-seat network fee — independent of prepay/postpay, charged
+        // whenever the org actually uses TalkAM's therapist network at all.
+        $network_rate = $uses_network ? (int) config("business.therapist_access_rate") : 0;
 
         $seats_monthly = $seats * $seat_rate;
+        $network_monthly = $seats * $network_rate;
         $bundle_total = $bundle_sessions * $session_rate;
 
         return [
@@ -106,6 +110,7 @@ class OrganizationPricingService
             "metered_sessions" => $metered_active,
             "rates" => [
                 "seat" => $seat_rate,
+                "network_access" => $network_rate,
                 "session_block" => $block_rate,
                 "session_custom" => $custom_rate,
                 "session_applied" => $session_rate,   // rate the prepaid bundle used
@@ -113,12 +118,13 @@ class OrganizationPricingService
             ],
             "tier" => $tier,
             "seats_monthly" => $seats_monthly,
+            "network_monthly" => $network_monthly,
             "bundle_total" => $bundle_total,
             // What is owed up front (prepay bundle) vs on the recurring invoice.
             "due_now" => $prepay ? $bundle_total : 0,
-            "billed_monthly" => $seats_monthly,
+            "billed_monthly" => $seats_monthly + $network_monthly,
             // Recurring monthly total. The bundle is a one-off, so it is NOT here.
-            "total_monthly" => $seats_monthly,
+            "total_monthly" => $seats_monthly + $network_monthly,
             "plan" => self::planShape($seat_rate),
         ];
     }
