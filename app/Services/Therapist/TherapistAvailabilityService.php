@@ -22,9 +22,20 @@ class TherapistAvailabilityService
 
     /** Every slot must fall inside this daily window — matches the web
      *  availability editor's "add slot" modal, enforced here too so a
-     *  direct API call can't bypass it. */
-    const WINDOW_START = '08:00';
-    const WINDOW_END = '18:00';
+     *  direct API call can't bypass it. Wide open under APP_ENV=local so
+     *  testing isn't stuck matching whatever the real clock says right now;
+     *  every deployed environment (staging, production) keeps the real
+     *  8am-6pm window. Methods, not consts, since the value now depends on
+     *  runtime config. */
+    private static function windowStart(): string
+    {
+        return app()->environment('local') ? '00:00' : '08:00';
+    }
+
+    private static function windowEnd(): string
+    {
+        return app()->environment('local') ? '23:59' : '18:00';
+    }
 
     /** Deck short keys ↔ the full day names §06 stores in day_of_week. */
     const DAY_TO_NAME = [
@@ -82,18 +93,11 @@ class TherapistAvailabilityService
             'days' => 'required|array',
             // present, not required: an empty array turns that day off.
             'days.*' => 'present|array',
-            'days.*.*.start' => 'required|date_format:H:i|after_or_equal:' . self::WINDOW_START,
-            'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start|before_or_equal:' . self::WINDOW_END,
+            'days.*.*.start' => 'required|date_format:H:i|after_or_equal:' . self::windowStart(),
+            'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start|before_or_equal:' . self::windowEnd(),
         ]);
 
-        // Same fallback TherapistSlotService::slotsFor() uses when a therapist
-        // has never had a session_duration set — a window shorter than this
-        // can NEVER produce a bookable slot, so it must be rejected here
-        // rather than silently saved and silently never offered to clients.
-        $duration = (int) ($user->therapist?->session_duration ?: 50);
-        $to_minutes = fn (string $t) => ((int) substr($t, 0, 2) * 60) + (int) substr($t, 3, 2);
-
-        $validator->after(function ($validator) use ($data, $duration, $to_minutes) {
+        $validator->after(function ($validator) use ($data) {
             // Only known day keys are accepted.
             foreach (array_keys($data['days'] ?? []) as $day) {
                 if (!in_array($day, self::DAYS, true)) {
@@ -101,23 +105,13 @@ class TherapistAvailabilityService
                 }
             }
 
-            // No two slots on the same day may overlap, and no slot may be
-            // shorter than the therapist's own session length — a narrower
-            // window would validate and save fine but TherapistSlotService
-            // would never fit a single slot into it, leaving a "gap" the
-            // therapist believes is bookable but no client can ever book.
+            // No two slots on the same day may overlap. A window shorter
+            // than the therapist's own session length is allowed — the
+            // therapist sets whatever window they want; TherapistSlotService
+            // simply won't fit a slot into one that's too narrow, rather
+            // than this rejecting the save outright.
             foreach ($data['days'] ?? [] as $day => $slots) {
                 $sorted = collect($slots)->sortBy('start')->values();
-
-                foreach ($sorted as $slot) {
-                    $length = $to_minutes($slot['end']) - $to_minutes($slot['start']);
-                    if ($length < $duration) {
-                        $validator->errors()->add(
-                            "days.{$day}",
-                            "The slot {$slot['start']}–{$slot['end']} on {$day} is only {$length} minutes — shorter than your {$duration}-minute session length, so it could never be booked."
-                        );
-                    }
-                }
 
                 for ($i = 1; $i < $sorted->count(); $i++) {
                     if ($sorted[$i]['start'] < $sorted[$i - 1]['end']) {

@@ -88,6 +88,25 @@ class TherapistSlotService
             $window_start = $day->copy()->setTimeFromTimeString($window->start_time);
             $window_end = $day->copy()->setTimeFromTimeString($window->end_time);
 
+            // A window shorter than the therapist's own session length can
+            // never fit one at full length — rather than offering nothing
+            // (the old behaviour), offer the window itself as a single
+            // slot, exactly as long as the therapist actually made
+            // available. The booking side (SessionBookingService::create())
+            // reads duration_minutes back off the matched slot, so this
+            // stays consistent end to end rather than one side promising a
+            // window it can't keep.
+            if ($window_start->copy()->addMinutes($duration)->gt($window_end)) {
+                $key = $window_start->format('Y-m-d H:i');
+                if (!in_array($key, $taken) && !$window_start->isPast() && !isset($slots[$key])) {
+                    $slots[$key] = [
+                        'starts_at' => $window_start->toDateTimeString(),
+                        'ends_at' => $window_end->toDateTimeString(),
+                    ];
+                }
+                continue;
+            }
+
             for ($cursor = $window_start->copy(); $cursor->copy()->addMinutes($duration)->lte($window_end); $cursor->addMinutes($step)) {
                 $key = $cursor->format('Y-m-d H:i');
                 if (in_array($key, $taken) || $cursor->isPast()) {
@@ -155,10 +174,22 @@ class TherapistSlotService
 
     public static function isBookable(Therapist $therapist, string $starts_at): bool
     {
+        return self::matchSlot($therapist, $starts_at) !== null;
+    }
+
+    /**
+     * The actual generated slot for this exact start time, if bookable — its
+     * own ends_at (not just $therapist->session_duration) is what the
+     * booking side must stamp, since a window shorter than the therapist's
+     * usual session length produces a slot no longer than the window itself
+     * (see slotsFor() above).
+     */
+    public static function matchSlot(Therapist $therapist, string $starts_at): ?array
+    {
         $target = Carbon::parse($starts_at);
         $slots = self::slotsFor($therapist, $target->toDateString());
 
-        return collect($slots)->contains(
+        return collect($slots)->first(
             fn ($slot) => Carbon::parse($slot['starts_at'])->equalTo($target)
         );
     }

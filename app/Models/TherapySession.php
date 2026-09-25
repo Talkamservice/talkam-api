@@ -50,6 +50,11 @@ class TherapySession extends Model
         return $this->hasOne(SessionNote::class, 'session_id');
     }
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
     /**
      * Statuses that hold a slot: an unexpired pending_payment or anything
      * confirmed/underway.

@@ -12,6 +12,7 @@ use App\Http\Resources\Users\UserResource;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\PinService;
 use App\Services\Business\OrganizationService;
+use App\Services\PlatformAdmin\PlatformAuthService;
 use App\Services\Therapist\TherapistApplicationService;
 use App\Services\User\PrivacySettingService;
 use Illuminate\Http\Request;
@@ -57,6 +58,9 @@ class LoginController extends Controller
             // on, so it needs no second round-trip. Non-members get is_member
             // false; mobile clients ignore the key.
             $data["business"] = OrganizationService::context($user);
+            // Platform Admin panel (/platform) role context — same
+            // no-second-round-trip pattern as "business" above.
+            $data["platform_role"] = PlatformAuthService::context($user);
             LoginService::newLogin($user);
             return ApiHelper::validResponse("Logged in successfully", $data);
         } catch (ValidationException $e) {

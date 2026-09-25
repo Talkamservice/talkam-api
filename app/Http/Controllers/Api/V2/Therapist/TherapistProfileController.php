@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\V2\Therapist;
 
 use App\Constants\General\ApiConstants;
 use App\Constants\General\StatusConstants;
+use App\Exceptions\General\InvalidRequestException;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
+use App\Services\Therapist\TherapistApplicationService;
 use App\Services\Therapist\TherapistDirectoryService;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
@@ -140,6 +142,52 @@ class TherapistProfileController extends Controller
             $therapist->update(["status" => StatusConstants::ACTIVE]);
 
             return ApiHelper::validResponse("Profile reactivated", ["status" => $therapist->status]);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    /** Web Profile card's "+ Add" — picks one specialty onto an already-
+     *  approved application. See TherapistApplicationService::addSpecialty(). */
+    public function addSpecialty(Request $request)
+    {
+        if ($forbidden = $this->forbiddenUnlessTherapist()) {
+            return $forbidden;
+        }
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "category_id" => "required|integer",
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $specialties = (new TherapistApplicationService)->addSpecialty(
+                auth()->user(),
+                (int) $validator->validated()["category_id"]
+            );
+
+            return ApiHelper::validResponse("Specialty added", ["specialties" => $specialties]);
+        } catch (InvalidRequestException $e) {
+            return ApiHelper::problemResponse($e->getMessage(), ApiConstants::BAD_REQ_ERR_CODE, null, $e);
+        } catch (ValidationException $e) {
+            return ApiHelper::inputErrorResponse($this->validationErrorMessage, ApiConstants::VALIDATION_ERR_CODE, null, $e);
+        } catch (Exception $e) {
+            return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
+        }
+    }
+
+    public function removeSpecialty($categoryId)
+    {
+        if ($forbidden = $this->forbiddenUnlessTherapist()) {
+            return $forbidden;
+        }
+
+        try {
+            $specialties = (new TherapistApplicationService)->removeSpecialty(auth()->user(), (int) $categoryId);
+            return ApiHelper::validResponse("Specialty removed", ["specialties" => $specialties]);
         } catch (Exception $e) {
             return ApiHelper::problemResponse($this->serverErrorMessage, ApiConstants::SERVER_ERR_CODE, null, $e);
         }

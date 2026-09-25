@@ -23,12 +23,11 @@ class SessionBookedNotification extends Notification
     }
 
     /**
-     * The new session-booked template is written for the client's "your
-     * session is confirmed" moment. The therapist audience is a different
-     * email in substance — a new booking *request* they still need to
-     * acknowledge or decline (see the actionable `extra` below) — so it
-     * keeps the existing generic template rather than being told their own
-     * session is already booked.
+     * The client's "your session is confirmed" moment and the therapist's
+     * "you have a new request to review" moment are different in substance
+     * (see the actionable `extra` below for the therapist's app-side accept/
+     * decline), but both now get a branded template of their own rather
+     * than the therapist falling back to the generic one.
      */
     public function toMail(object $notifiable): MailMessage
     {
@@ -47,13 +46,24 @@ class SessionBookedNotification extends Notification
                 ]);
         }
 
+        // A business-covered booking (anything but "consumer") means this is
+        // an employee the therapist is seeing through their employer's
+        // network, not an anonymous public client — same distinction the web
+        // dashboard's own clientRef() makes. Only a true consumer session
+        // stays anonymized.
+        $client_ref = $this->session->coverage
+            && $this->session->coverage !== \App\Constants\Business\SessionCoverageConstants::CONSUMER
+            && $this->session->user?->full_name
+                ? $this->session->user->full_name
+                : SessionNotificationSupport::anonRef($this->session->user_id);
+
         return (new MailMessage)
             ->subject($data["title"])
-            ->markdown('emails.general.index', [
-                "title" => $data["title"],
-                "message" => $data["message"],
-                "recipient_name" => $notifiable->getName(),
-                "action_url" => $data["link"]
+            ->view('emails.mobile.session-request', [
+                "clientRef" => $client_ref,
+                "sessionDateTime" => SessionNotificationSupport::formatDateTime($this->session->starts_at),
+                "sessionFormat" => SessionNotificationSupport::formatLabel($this->session->format),
+                "sessionUrl" => SessionNotificationSupport::sessionUrl($this->session),
             ]);
     }
 

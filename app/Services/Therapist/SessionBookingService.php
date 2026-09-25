@@ -17,8 +17,11 @@ use App\Services\Business\BundleLedgerService;
 use App\Services\Business\CoverageResolver;
 use App\Services\Business\SessionCapService;
 use App\Services\Finance\PaymentGateways\Flutterwave\FlutterwaveService;
+use App\Notifications\Therapist\SessionBookedNotification;
 use App\Services\System\ExceptionService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -52,11 +55,14 @@ class SessionBookingService
             ]);
         }
 
-        if (!TherapistSlotService::isBookable($therapist, $validated['starts_at'])) {
+        $matched_slot = TherapistSlotService::matchSlot($therapist, $validated['starts_at']);
+        if (!$matched_slot) {
             throw ValidationException::withMessages([
                 'starts_at' => ['This slot is not available.'],
             ]);
         }
+        $slot_duration_minutes = Carbon::parse($matched_slot['starts_at'])
+            ->diffInMinutes(Carbon::parse($matched_slot['ends_at']));
 
         // Admin-set per-employee cap (web §03 Session Policy) — independent of
         // the coverage flag below; a raw count of the employee's own bookings.
@@ -111,7 +117,7 @@ class SessionBookingService
                 'coverage' => $coverage['coverage'],
                 'billed_amount' => $coverage['billed_amount'],
                 'starts_at' => $validated['starts_at'],
-                'duration_minutes' => $therapist->session_duration ?: 50,
+                'duration_minutes' => $slot_duration_minutes,
                 'format' => $validated['format'],
                 // Every new session — org-covered or consumer — starts out
                 // needing the therapist's own review before it's real: an
@@ -139,11 +145,34 @@ class SessionBookingService
             }
 
             DB::commit();
-            return $session;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
+
+        // Org-covered bookings have nothing left to pay, so this booking is
+        // real right now — notify both sides, same SessionBookedNotification
+        // SessionPaymentHandlerService already sends once a CONSUMER booking's
+        // payment clears. A consumer booking here is still pending_payment
+        // (nothing paid yet), so it stays quiet until that webhook fires.
+        // Best-effort and outside the transaction above: a notification
+        // failure must never look like the booking itself failed — it
+        // already committed.
+        if ($org_covered) {
+            try {
+                Notification::send($user, new SessionBookedNotification($session, "user"));
+                if (!empty($session->therapist?->user)) {
+                    Notification::send($session->therapist->user, new SessionBookedNotification($session, "therapist"));
+                }
+            } catch (\Throwable $th) {
+                logger("Session-booked notification failed (booking created regardless)", [
+                    "session" => $session->id,
+                    "error" => $th->getMessage(),
+                ]);
+            }
+        }
+
+        return $session;
     }
 
     /**

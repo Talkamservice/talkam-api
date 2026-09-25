@@ -50,4 +50,13 @@ class SessionNotificationSupport
     {
         return config('app.web_url') . "/session/{$session->id}/rate";
     }
+
+    /** Same "Anonymous · #4103" scheme the web dashboards compute client-side
+     *  (clientRef()) — a therapist-facing email about a client never names
+     *  them (§11 privacy), so this mirrors that here rather than leaking the
+     *  real name into buildData()/toMail(). */
+    public static function anonRef(int $user_id): string
+    {
+        return "Anonymous · #" . (4000 + ($user_id % 6000));
+    }
 }

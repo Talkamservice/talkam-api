@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'pricingCountry' => UpdatePricingCountryMiddleware::class,
         // TalkAM for Business (web §01): role gate + domain-confirmation gate.
         'org.role' => \App\Http\Middleware\EnsureOrganizationRole::class,
+        'platform.role' => \App\Http\Middleware\EnsurePlatformRole::class,
         'org.verified' => \App\Http\Middleware\EnsureOrganizationVerified::class,
         // Danger Zone (web §03 Settings): suspend/cancel/delete enforcement on the app itself.
         'org.active' => \App\Http\Middleware\EnsureOrgMembershipActive::class,

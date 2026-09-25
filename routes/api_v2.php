@@ -545,6 +545,8 @@ Route::middleware(["auth:sanctum"])->group(function () {
         Route::post("profile/update", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "update"])->name("profile.update");
         Route::post("profile/deactivate", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "deactivate"])->name("profile.deactivate");
         Route::post("profile/reactivate", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "reactivate"])->name("profile.reactivate");
+        Route::post("profile/specialties", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "addSpecialty"])->name("profile.specialties.add");
+        Route::delete("profile/specialties/{categoryId}", [\App\Http\Controllers\Api\V2\Therapist\TherapistProfileController::class, "removeSpecialty"])->name("profile.specialties.remove");
 
         Route::prefix("earnings")->as("earnings.")->group(function () {
             Route::get("dashboard", [\App\Http\Controllers\Api\V2\Therapist\EarningsController::class, "dashboard"])->name("dashboard");
@@ -574,6 +576,169 @@ Route::middleware(["auth:sanctum"])->group(function () {
     Route::prefix("users/{id}")->as("users.")->group(function () {
         Route::get("posts", [PostController::class, "byUser"])->name("posts");
         Route::get("comments", [PostCommentController::class, "byUser"])->name("comments");
+    });
+});
+
+// Platform Admin panel (web §/platform) — staff-only, gated by the
+// EnsurePlatformRole middleware ("platform.role") on top of auth:sanctum.
+// Kept as its own top-level group (not nested in the block above) since it
+// has nothing to do with the TalkAM-for-Business org lane.
+Route::prefix("platform-admin")->as("platform-admin.")->middleware(["auth:sanctum"])->group(function () {
+    Route::get("session", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformAuthController::class, "session"])
+        ->middleware("platform.role")->name("session");
+
+    Route::middleware(["platform.role:Super Admin,Admin"])->group(function () {
+        Route::get("dashboard", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDashboardController::class, "index"])->name("dashboard");
+        Route::get("nav-counts", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDashboardController::class, "navCounts"])->name("nav-counts");
+        Route::get("growth", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformGrowthController::class, "index"])->name("growth");
+
+        Route::prefix("users")->as("users.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "index"])->name("index");
+            Route::get("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "show"])->name("show");
+            Route::get("{id}/sessions", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "sessions"])->name("sessions");
+            Route::get("{id}/mood", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "mood"])->name("mood");
+            Route::get("{id}/community", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "community"])->name("community");
+            Route::get("{id}/activity", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "activity"])->name("activity");
+            Route::get("{id}/journey", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "journey"])->name("journey");
+            Route::put("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "update"])->name("update");
+            Route::delete("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "destroy"])->name("destroy");
+            Route::post("{id}/suspend", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "suspend"])->name("suspend");
+            Route::post("{id}/unsuspend", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "unsuspend"])->name("unsuspend");
+            Route::post("{id}/ban", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "ban"])->name("ban");
+            Route::post("{id}/strike", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "strike"])->name("strike");
+        });
+
+        Route::prefix("businesses")->as("businesses.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "index"])->name("index");
+            Route::post("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "store"])->name("store");
+            Route::get("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "show"])->name("show");
+            Route::put("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "update"])->name("update");
+            Route::delete("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "destroy"])->name("destroy");
+            Route::post("{id}/suspend", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "suspend"])->name("suspend");
+            Route::post("{id}/reactivate", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "reactivate"])->name("reactivate");
+            Route::get("{id}/employees", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "employees"])->name("employees");
+            Route::post("{id}/employees/invite", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "inviteEmployee"])->name("employees.invite");
+            Route::get("{id}/employees/{memberId}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "employeeDetail"])->name("employees.show");
+            Route::post("{id}/employees/{memberId}/deactivate", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "deactivateEmployee"])->name("employees.deactivate");
+            Route::post("{id}/employees/{memberId}/reactivate", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "reactivateEmployee"])->name("employees.reactivate");
+            Route::get("{id}/therapists", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "therapists"])->name("therapists");
+            Route::get("{id}/invoices", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "invoices"])->name("invoices");
+            Route::get("{id}/activity", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessController::class, "activity"])->name("activity");
+        });
+
+        Route::prefix("therapist-verification")->as("therapist-verification.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformTherapistVerificationController::class, "index"])->name("index");
+            Route::get("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformTherapistVerificationController::class, "show"])->name("show");
+            Route::post("{id}/start-review", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformTherapistVerificationController::class, "startReview"])->name("start-review");
+            Route::post("{id}/approve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformTherapistVerificationController::class, "approve"])->name("approve");
+            Route::post("{id}/reject", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformTherapistVerificationController::class, "reject"])->name("reject");
+            Route::post("documents/{documentId}/verdict", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformTherapistVerificationController::class, "documentVerdict"])->name("documents.verdict");
+        });
+
+        Route::prefix("performance")->as("performance.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPerformanceController::class, "index"])->name("index");
+            Route::put("thresholds", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPerformanceController::class, "updateThreshold"])->name("thresholds");
+            Route::post("{id}/warning", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPerformanceController::class, "sendWarning"])->name("warning");
+            Route::post("{id}/hold", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPerformanceController::class, "placeOnHold"])->name("hold");
+            Route::post("{id}/clear-hold", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPerformanceController::class, "clearHold"])->name("clear-hold");
+            Route::post("{id}/reverify", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPerformanceController::class, "forceReverification"])->name("reverify");
+            Route::post("{id}/terminate", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPerformanceController::class, "terminate"])->name("terminate");
+        });
+
+        Route::get("activity-logs", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformActivityLogController::class, "index"])->name("activity-logs");
+
+        Route::get("sessions", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformSessionController::class, "index"])->name("sessions");
+
+        Route::prefix("community")->as("community.")->group(function () {
+            Route::get("overview", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "overview"])->name("overview");
+            Route::get("post-reports", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "postReports"])->name("post-reports.index");
+            Route::post("post-reports/{id}/resolve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "resolvePostReport"])->name("post-reports.resolve");
+            Route::delete("post-reports/{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "deletePostReport"])->name("post-reports.delete");
+            Route::get("comment-reports", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "commentReports"])->name("comment-reports.index");
+            Route::post("comment-reports/{id}/resolve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "resolveCommentReport"])->name("comment-reports.resolve");
+            Route::delete("comment-reports/{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "deleteCommentReport"])->name("comment-reports.delete");
+            Route::get("group-reports", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "groupReports"])->name("group-reports.index");
+            Route::post("group-reports/{id}/resolve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "resolveGroupReport"])->name("group-reports.resolve");
+            Route::post("groups/{groupId}/suspend", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "suspendGroup"])->name("groups.suspend");
+            Route::post("groups/{groupId}/ban", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "banGroup"])->name("groups.ban");
+            Route::post("groups/{groupId}/reactivate", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "reactivateGroup"])->name("groups.reactivate");
+            Route::delete("groups/{groupId}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "deleteGroup"])->name("groups.delete");
+            Route::get("categories", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "categories"])->name("categories");
+            Route::get("groups", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "allGroups"])->name("groups.index");
+            Route::post("groups", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "createGroup"])->name("groups.create");
+            Route::put("groups/{groupId}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "updateGroup"])->name("groups.update");
+            Route::get("groups/{groupId}/detail", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "groupDetail"])->name("groups.detail");
+            Route::get("groups/{groupId}/group-reports", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "groupReportsForGroup"])->name("groups.group-reports");
+            Route::get("groups/{groupId}/comment-reports", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "commentReportsForGroup"])->name("groups.comment-reports");
+            Route::get("groups/{groupId}/members", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "groupMembers"])->name("groups.members");
+            Route::post("groups/{groupId}/members", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "addGroupMember"])->name("groups.members.add");
+            Route::put("groups/members/{memberId}/role", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "updateGroupMemberRole"])->name("groups.members.role");
+            Route::post("groups/members/{memberId}/suspend", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "suspendGroupMember"])->name("groups.members.suspend");
+            Route::delete("groups/members/{memberId}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "removeGroupMember"])->name("groups.members.remove");
+            Route::get("group-member-reports", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "groupMemberReports"])->name("group-member-reports.index");
+            Route::post("group-member-reports/{id}/resolve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "resolveGroupMemberReport"])->name("group-member-reports.resolve");
+            Route::post("group-member-reports/{id}/suspend", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "suspendReportedMember"])->name("group-member-reports.suspend");
+            Route::post("group-members/{groupMemberId}/unsuspend", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCommunityController::class, "unsuspendReportedMember"])->name("group-members.unsuspend");
+        });
+
+        Route::get("waitlist", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformWaitlistController::class, "index"])->name("waitlist");
+
+        Route::prefix("legal")->as("legal.")->group(function () {
+            Route::get("{slug}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformLegalController::class, "show"])->name("show");
+            Route::put("{slug}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformLegalController::class, "update"])->name("update");
+        });
+    });
+
+    Route::middleware(["platform.role:Super Admin"])->group(function () {
+        Route::get("billing", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBillingController::class, "index"])->name("billing");
+        Route::prefix("payouts")->as("payouts.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPayoutController::class, "index"])->name("index");
+            Route::get("last-run", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPayoutController::class, "lastRun"])->name("last-run");
+            Route::post("process-all", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPayoutController::class, "processAll"])->name("process-all");
+            Route::post("{therapistId}/process", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformPayoutController::class, "process"])->name("process");
+        });
+
+        Route::prefix("roles")->as("roles.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformRoleController::class, "index"])->name("index");
+            Route::post("assign", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformRoleController::class, "assign"])->name("assign");
+            Route::post("revoke", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformRoleController::class, "revoke"])->name("revoke");
+        });
+
+        Route::prefix("settings")->as("settings.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformSettingController::class, "index"])->name("index");
+            Route::put("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformSettingController::class, "update"])->name("update");
+        });
+    });
+
+    Route::middleware(["platform.role:Super Admin,Admin,Content Manager"])->group(function () {
+        Route::prefix("cms/articles")->as("cms.articles.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "index"])->name("index");
+            Route::post("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "store"])->name("store");
+            Route::get("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "show"])->name("show");
+            Route::put("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "update"])->name("update");
+            Route::delete("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "destroy"])->name("destroy");
+        });
+    });
+
+    Route::middleware(["platform.role:Super Admin,Admin,Support Staff"])->group(function () {
+        Route::prefix("disputes")->as("disputes.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDisputeController::class, "index"])->name("index");
+            Route::post("{id}/start-review", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDisputeController::class, "startReview"])->name("start-review");
+            Route::post("{id}/escalate", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDisputeController::class, "escalate"])->name("escalate");
+            Route::post("{id}/resolve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDisputeController::class, "resolve"])->name("resolve");
+        });
+
+        Route::prefix("feedback")->as("feedback.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformFeedbackController::class, "index"])->name("index");
+            Route::post("{id}/resolve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformFeedbackController::class, "resolve"])->name("resolve");
+            Route::post("{id}/respond", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformFeedbackController::class, "respond"])->name("respond");
+        });
+
+        Route::prefix("deactivations")->as("deactivations.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDeactivationController::class, "index"])->name("index");
+            Route::post("{id}/approve", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDeactivationController::class, "approve"])->name("approve");
+            Route::post("{id}/reject", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDeactivationController::class, "reject"])->name("reject");
+        });
     });
 });
 

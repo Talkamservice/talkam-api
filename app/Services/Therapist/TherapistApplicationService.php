@@ -224,10 +224,76 @@ class TherapistApplicationService
         }
     }
 
+    /**
+     * Web Profile card's "+ Add" specialty — picks one more category onto an
+     * already-APPROVED application, without resubmitting the whole
+     * bio+specialties array through the mobile-only saveSpecialties() above.
+     * Requires an approved application to attach to; a business-invited
+     * therapist with none yet has nothing to add onto (same "set in the
+     * mobile app" gate the read side already shows).
+     */
+    public function addSpecialty(User $user, int $category_id): array
+    {
+        $application = TherapistApplication::where('user_id', $user->id)
+            ->where('status', TherapistConstants::STATUS_APPROVED)
+            ->latest()
+            ->first();
+
+        if (empty($application)) {
+            throw new InvalidRequestException(
+                "Complete your application in the mobile app before adding specialties from here."
+            );
+        }
+
+        $validator = Validator::make(['category_id' => $category_id], [
+            'category_id' => [
+                'required',
+                Rule::exists('post_categories', 'id')
+                    ->where('type', PostCategoryConstants::TYPE_INTEREST_TOPIC),
+            ],
+        ], [
+            'category_id.exists' => 'That is not a valid specialty.',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        TherapistSpecialty::firstOrCreate([
+            'application_id' => $application->id,
+            'category_id' => $category_id,
+        ]);
+
+        return TherapistDirectoryService::specialties($user->therapist);
+    }
+
+    /** Web Profile card's remove ("x") on a specialty tag — same approved-
+     *  application scope as addSpecialty() above. Idempotent: removing one
+     *  that's already gone (or an application that no longer exists) is a
+     *  no-op, not an error. */
+    public function removeSpecialty(User $user, int $category_id): array
+    {
+        $application = TherapistApplication::where('user_id', $user->id)
+            ->where('status', TherapistConstants::STATUS_APPROVED)
+            ->latest()
+            ->first();
+
+        if ($application) {
+            TherapistSpecialty::where('application_id', $application->id)
+                ->where('category_id', $category_id)
+                ->delete();
+        }
+
+        return TherapistDirectoryService::specialties($user->therapist);
+    }
+
     public function saveAvailability(User $user, array $data): TherapistApplication
     {
         $validator = Validator::make($data, [
-            'session_duration' => ['required', 'integer', Rule::in(config('therapist.session_durations'))],
+            // Any length in a sane range, not a fixed [15, 30, 50] list — a
+            // 5- or 10-minute check-in is a real session length, not an
+            // edge case to reject.
+            'session_duration' => ['required', 'integer', 'min:1', 'max:480'],
             'buffer_minutes' => ['required', 'integer', Rule::in(config('therapist.buffers'))],
             'days' => 'required|array|min:1',
             'days.*.day_of_week' => ['required', Rule::in(TherapistConstants::DAYS_OF_WEEK)],

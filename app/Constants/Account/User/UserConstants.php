@@ -14,6 +14,8 @@ class UserConstants
     const MEMBER = "Member";
     const AMBASSADOR = "Ambassador";
     const SUPER_ADMIN = "Super Admin";
+    const COMMUNITY_MANAGER = "Community Manager";
+    const MODERATOR = "Moderator";
 
     const GREEN = "Green";
     const YELLOW = "Yellow";
@@ -53,6 +55,18 @@ class UserConstants
     const GROUP_ROLES = [
         self::OWNER => self::OWNER,
         self::ADMIN => self::ADMIN,
+        self::COMMUNITY_MANAGER => self::COMMUNITY_MANAGER,
+        self::MODERATOR => self::MODERATOR,
         self::MEMBER => self::MEMBER,
+    ];
+
+    /** Roles an admin can hand a member via the platform-admin panel —
+     *  Owner is excluded, since reassigning it is a separate transfer-of-
+     *  ownership operation, not a routine role change. */
+    const ADMIN_ASSIGNABLE_GROUP_ROLES = [
+        self::ADMIN,
+        self::COMMUNITY_MANAGER,
+        self::MODERATOR,
+        self::MEMBER,
     ];
 }
