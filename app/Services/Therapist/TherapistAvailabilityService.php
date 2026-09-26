@@ -20,22 +20,10 @@ class TherapistAvailabilityService
 {
     const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-    /** Every slot must fall inside this daily window — matches the web
-     *  availability editor's "add slot" modal, enforced here too so a
-     *  direct API call can't bypass it. Wide open under APP_ENV=local so
-     *  testing isn't stuck matching whatever the real clock says right now;
-     *  every deployed environment (staging, production) keeps the real
-     *  8am-6pm window. Methods, not consts, since the value now depends on
-     *  runtime config. */
-    private static function windowStart(): string
-    {
-        return app()->environment('local') ? '00:00' : '08:00';
-    }
-
-    private static function windowEnd(): string
-    {
-        return app()->environment('local') ? '23:59' : '18:00';
-    }
+    /** No business-hours restriction — a slot may fall anywhere in the day.
+     *  Bounds exist only to keep start/end within a single calendar day. */
+    const WINDOW_START = '00:00';
+    const WINDOW_END = '23:59';
 
     /** Deck short keys ↔ the full day names §06 stores in day_of_week. */
     const DAY_TO_NAME = [
@@ -93,8 +81,8 @@ class TherapistAvailabilityService
             'days' => 'required|array',
             // present, not required: an empty array turns that day off.
             'days.*' => 'present|array',
-            'days.*.*.start' => 'required|date_format:H:i|after_or_equal:' . self::windowStart(),
-            'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start|before_or_equal:' . self::windowEnd(),
+            'days.*.*.start' => 'required|date_format:H:i|after_or_equal:' . self::WINDOW_START,
+            'days.*.*.end' => 'required|date_format:H:i|after:days.*.*.start|before_or_equal:' . self::WINDOW_END,
         ]);
 
         $validator->after(function ($validator) use ($data) {
