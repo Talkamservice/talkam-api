@@ -77,7 +77,7 @@
   
       <body style="word-spacing:normal;background-color:#EEF4FC;">
         
-    <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">A link to set a new password</div>
+    <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Your code to reset your password</div>
   
         <div aria-label="Reset your TalkAM password" aria-roledescription="email" role="article" lang="und" dir="auto" style="word-spacing:normal;background-color:#EEF4FC;">
         
@@ -199,35 +199,32 @@
             
               <tr>
                 <td align="left" style="font-size:0px;padding:0 0 14px;word-break:break-word;">
-                  
-      <div style="font-family:'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:14.5px;line-height:1.7;text-align:left;color:#4A5462;">We received a request to reset your password. Tap the button below to choose a new one. This link expires in 30 minutes.</div>
-    
+
+      <div style="font-family:'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:14.5px;line-height:1.7;text-align:left;color:#4A5462;">We received a request to reset your password. Enter this code in the app to choose a new one. It expires in 10 minutes.</div>
+
                 </td>
               </tr>
-            
+
               <tr>
-                <td align="left" style="font-size:0px;padding:0;word-break:break-word;">
-                  
-      <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">
-        <tbody>
-          <tr>
-            <td align="center" bgcolor="#017FC8" role="presentation" style="border:none;border-radius:12px;cursor:auto;mso-padding-alt:14px 28px;background:#017FC8;" valign="middle">
-              <a href="{{ $resetPasswordUrl }}" style="display:inline-block;background:#017FC8;color:#ffffff;font-family:'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:14.5px;font-weight:800;line-height:1.2;margin:0;text-decoration:none;text-transform:none;padding:14px 28px;mso-padding-alt:0px;border-radius:12px;" target="_blank">
-                Choose New Password
-              </a>
-            </td>
-          </tr>
-        </tbody>
+                <td align="left" style="font-size:0px;padding:4px 0 20px;word-break:break-word;">
+
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#000000;font-family:'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
+        <tr>
+              @foreach($otpDigits as $digit)
+              <td class="code-cell" width="15%" style="font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif; height: 56px; background-color: #F2F6FC; border: 1.5px solid #D6E6F5; border-radius: 11px; font-size: 26px; font-weight: 900; color: #017FC8; text-align: center; vertical-align: middle; mso-line-height-rule: exactly; line-height: 53px;" height="56" bgcolor="#F2F6FC" align="center" valign="middle">{{ $digit }}</td>
+              @if(!$loop->last)<td class="code-gap" width="2%" style="font-size: 0; line-height: 0;">&#160;</td>@endif
+              @endforeach
+            </tr>
       </table>
-    
+
                 </td>
               </tr>
-            
+
               <tr>
                 <td align="left" style="font-size:0px;padding:18px 0 0;word-break:break-word;">
-                  
+
       <div style="font-family:'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12.5px;line-height:1.65;text-align:left;color:#9299A8;">If you didn’t request this, ignore this email and your password stays the same.</div>
-    
+
                 </td>
               </tr>
             

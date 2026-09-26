@@ -9,7 +9,6 @@ use App\Models\Pin;
 use App\Models\User;
 use App\Services\Notifications\AppMailerService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -54,24 +53,16 @@ class PinService
     }
 
     /**
-     * Picks the email template + data for a pin's type. TYPE_LOGIN and
-     * TYPE_VERIFY_EMAIL (mobile) share one OTP-grid template; business domain
-     * verification gets its own; password reset gets a signed one-click link
-     * instead of a code (the mobile app's own "enter the code" screen keeps
-     * working unchanged — this only changes what the *email* shows).
+     * Picks the email template + data for a pin's type. Password reset,
+     * login, and email verification all share the OTP-grid template;
+     * business domain verification gets its own.
      */
     private function buildMailPayload(User $user, Pin $pin, array $data): array
     {
         return match ($data["type"]) {
             PinConstants::TYPE_PASSWORD_RESET => [
                 'emails.mobile.auth-password-reset',
-                [
-                    'resetPasswordUrl' => URL::temporarySignedRoute(
-                        'password.reset.form',
-                        Carbon::parse($data["expires_at"]),
-                        ['email' => $user->email, 'code' => $pin->code],
-                    ),
-                ],
+                ['otpDigits' => str_split($pin->code)],
             ],
             PinConstants::TYPE_VERIFY_EMAIL_BUSINESS => [
                 'emails.business.auth-domain-verification',
