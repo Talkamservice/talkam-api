@@ -59,7 +59,7 @@ class DashboardController extends Controller
                     "icon" => "friends",
                     "title" => "Total Groups",
                     "value" => array_sum($dashboardData['currentGroups']),
-                    "class" => "primary",
+                    "class" => "danger",
                     "url" => "",
                     "percentage" => $dashboardData['groupsChangePercentage'],
                     'period' =>  $period,

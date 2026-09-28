@@ -24,6 +24,26 @@ class StripePaymentWebhookService
         return $this;
     }
 
+    /**
+     * handle() wraps parsePayload()+actionHandler() in a DB transaction, so a
+     * notification failure here (bounced mailbox, SMTP outage, no sudo user)
+     * must never roll back a subscription that already succeeded.
+     */
+    private function notifySafely($notifiable, $notification): void
+    {
+        if (empty($notifiable)) {
+            return;
+        }
+        try {
+            Notification::send($notifiable, $notification);
+        } catch (\Throwable $th) {
+            logger("Subscription notification failed (subscription created regardless)", [
+                "notification" => get_class($notification),
+                "error" => $th->getMessage(),
+            ]);
+        }
+    }
+
     public function handle()
     {
         DB::beginTransaction();
@@ -104,8 +124,8 @@ class StripePaymentWebhookService
         }
 
         $this->createStripeSubscription($subscription, $payment_method);
-        Notification::send($this->user, new NewSubscriptionNotification($subscription));
-        Notification::send(sudo(), new AdminNewSubscriptionNotification($subscription));
+        $this->notifySafely($this->user, new NewSubscriptionNotification($subscription));
+        $this->notifySafely(sudo(), new AdminNewSubscriptionNotification($subscription));
     }
 
     public function createStripeSubscription($subscription, $payment_method)

@@ -23,6 +23,27 @@ class StripeInvoicePaymentWebhookService
         return $this;
     }
 
+    /**
+     * handle() wraps parsePayload()+actionHandler() in a DB transaction, so a
+     * notification failure here (bounced mailbox, SMTP outage, no sudo user)
+     * must never roll back a renewal that already succeeded.
+     */
+    private function notifySafely($notifiable, $notification): void
+    {
+        if (empty($notifiable)) {
+            return;
+        }
+        try {
+            Notification::send($notifiable, $notification);
+        } catch (\Throwable $th) {
+            logger("Subscription renewal notification failed (renewal applied regardless)", [
+                "subscription" => $this->subscription->id ?? null,
+                "notification" => get_class($notification),
+                "error" => $th->getMessage(),
+            ]);
+        }
+    }
+
     public function handle()
     {
         DB::beginTransaction();
@@ -92,7 +113,7 @@ class StripeInvoicePaymentWebhookService
             "status" => StatusConstants::ACTIVE
         ]);
 
-        Notification::send($this->user, new SubscriptionRenewalNotification($subscription));
-        Notification::send(sudo(), new AdminSubscriptionRenewalNotification($subscription));
+        $this->notifySafely($this->user, new SubscriptionRenewalNotification($subscription));
+        $this->notifySafely(sudo(), new AdminSubscriptionRenewalNotification($subscription));
     }
 }

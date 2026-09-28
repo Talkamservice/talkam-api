@@ -8,11 +8,13 @@ use App\Events\RefreshNotification;
 use App\Exceptions\General\InvalidRequestException;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Http\Resources\Group\GroupMemberResource;
+use App\Models\GroupFollow;
 use App\Models\GroupMember;
 use App\Models\GroupMemberReport;
 use App\Models\User;
 use App\Notifications\Group\ChangedGroupMemberRoleNotification;
 use App\Notifications\Group\ChangedGroupMemberStatusNotification;
+use App\Notifications\Group\NewGroupMemberNotification;
 use App\Notifications\Group\RemoveGroupMemberNotification;
 use App\Notifications\Group\SuspendGroupMemberNotification;
 use App\Services\Group\GroupService;
@@ -93,13 +95,22 @@ class GroupMemberService
                 "status" => StatusConstants::ACTIVE,
             ]);
 
-            // Notification::send($user, new NewGroupAdminNotification($member, $password));
             DB::commit();
-            return $member;
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
+
+        // Best-effort, outside the transaction: a real membership row is
+        // already committed at this point, so a mail failure must never
+        // look like the add itself failed.
+        try {
+            Notification::send($member->user, new NewGroupMemberNotification($member));
+        } catch (\Throwable $th) {
+            Log::warning("Failed to send new-group-member notification for member {$member->id}: " . $th->getMessage());
+        }
+
+        return $member;
     }
 
     public static function removeByUserId(array $data)
@@ -129,6 +140,14 @@ class GroupMemberService
 
             Notification::send($member->user, new RemoveGroupMemberNotification($member, StatusConstants::INACTIVE));
             $member->delete();
+            // Membership and the lighter group_follows record are tracked
+            // separately (GroupFollowService::toggle) — without this,
+            // GroupFollowService::followedGroups() keeps returning a group
+            // the user just left, since it only ever queries group_follows.
+            GroupFollow::where([
+                'user_id' => $member->user_id,
+                'group_id' => $member->group_id,
+            ])->delete();
             DB::commit();
             return $member;
         } catch (\Throwable $th) {

@@ -140,7 +140,7 @@ class UserService
         return $user;
     }
 
-    private static function generateUsername()
+    public static function generateUsername()
     {
         $username = MethodsHelper::getRandomToken(10);
         $username = ucfirst(strtolower($username));
@@ -175,6 +175,11 @@ class UserService
                 "should_display_ads" => "nullable|in:0,1",
                 "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
                 "date_of_birth" => 'nullable|date_format:Y-m-d|before:today',
+                // Only reachable via the platform-admin edit-user modal today
+                // (self-service profile edits go through ProfileController) —
+                // an admin correcting a typo'd signup phone is a real case;
+                // email stays immutable here too, same as self-service.
+                "phone_number" => "nullable|string|max:30",
             ], [
                 "username.unique" => "The username has already been taken",
                 "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",
@@ -365,6 +370,10 @@ class UserService
                 'suspension_end' => $suspension_end,
                 "status" => $status
             ]);
+            // A suspended therapist must stop being bookable/visible too —
+            // TherapistDirectoryService gates on Therapist.status, which
+            // this account's User.status alone never touched.
+            $user->therapist?->update(['status' => StatusConstants::INACTIVE]);
             Notification::send($user, new SuspendUserNotification($user, $user->status, $suspension_reason, $suspension_end->toFormattedDateString()));
             broadcast(new RefreshNotification($user->id));
             $user->refresh();
@@ -444,6 +453,11 @@ class UserService
             "status" => StatusConstants::BANNED,
             'remember_token' => Str::random(60) // Reset remember_token to invalidate web sessions
         ]);
+
+        // Same as suspend(): a banned therapist must stop being
+        // bookable/visible — Therapist.status is a separate column User::ban
+        // never reached before.
+        $user->therapist?->update(['status' => StatusConstants::INACTIVE]);
 
         // Send a notification to the user
         Notification::send($user, new BannedUserNotification($user, $ban_reason));

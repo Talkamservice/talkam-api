@@ -3,7 +3,7 @@
 return [
 
     'emails' => [
-        'sudo' => env("SUDO_EMAIL" , "sudo@talkam.com"),
+        'sudo' => env("SUDO_EMAIL" , "admin@talkam.net"),
     ],
 
     'configuration' => [

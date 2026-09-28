@@ -10,4 +10,9 @@ class PrivacyPolicy extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    // The web §06 structured legal document (mobile/v1 read `body` only).
+    protected $casts = [
+        "document" => "array",
+    ];
 }

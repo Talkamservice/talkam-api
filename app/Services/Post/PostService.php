@@ -13,6 +13,7 @@ use App\Models\PostAttachment;
 use App\Models\PostComment;
 use App\Models\Promotion;
 use App\Models\TrendingTag;
+use App\Models\UserInterest;
 use App\Services\Post\PostAttachmentService;
 use App\Services\Post\PostPollService;
 use Carbon\Carbon;
@@ -286,6 +287,36 @@ class PostService
                 });
 
                 $builder = $builder->latest();
+            }
+
+            // v2-only tab (v1 clients never send it): interest-category posts
+            // first (recency-ordered), backfilled with popular recent posts so
+            // the feed never renders empty.
+            if ($key == "for_you") {
+                $builder = $builder->withCount('comments')
+                    ->withCount(['reactions as likes_count' => function ($query) {
+                        $query->where('action', PostConstants::LIKE);
+                    }]);
+
+                $interest_ids = auth("sanctum")->check()
+                    ? UserInterest::where("user_id", auth("sanctum")->id())
+                        ->pluck("category_id")
+                        ->map(fn ($id) => (int) $id)
+                        ->all()
+                    : [];
+
+                if (!empty($interest_ids)) {
+                    $ids = implode(",", $interest_ids);
+                    $builder = $builder
+                        ->orderByRaw("CASE WHEN category_id IN ($ids) THEN 0 ELSE 1 END")
+                        ->orderByRaw("CASE WHEN category_id IN ($ids) THEN created_at END DESC")
+                        ->orderByRaw("(comments_count + likes_count) DESC")
+                        ->latest();
+                } else {
+                    $builder = $builder
+                        ->orderByRaw("(comments_count + likes_count) DESC")
+                        ->latest();
+                }
             }
         }
 

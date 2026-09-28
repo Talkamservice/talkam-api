@@ -1,0 +1,96 @@
+{
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "July 9, 2026",
+    "callout": "TalkAM is compliant with the Nigeria Data Protection Act (NDPA) 2023. On TalkAM for Business, employers can never access an individual employee's sessions, messages, mood check-ins, or community activity — only anonymised, aggregate trends across the whole team.",
+    "contact": {
+      "lead": "Questions about how we handle your data? Contact our Data Protection Officer at",
+      "email": "privacy@talkam.net"
+    },
+    "sections": [
+      {
+        "title": "1. What We Collect",
+        "body": "Account information (name, email, phone), profile details you choose to add, session and booking history, payment information (processed by our payment partner, never stored in full on our servers), and optional mood check-ins and community activity."
+      },
+      {
+        "title": "2. How We Use Your Data",
+        "body": "To operate the platform (matching you with therapists, processing payments, sending session reminders), to improve TalkAM through aggregated and anonymised analysis, and to meet legal and safety obligations. We never sell your personal data."
+      },
+      {
+        "title": "3. Individual Privacy on Business Accounts",
+        "body": "If your account is enrolled through an employer's TalkAM for Business plan, your employer's admin dashboard only ever displays anonymised, aggregate trends (e.g. \"34% of check-ins mention work stress\") once a minimum response threshold is met. Your individual therapy sessions, messages, mood entries, and community posts are never visible to your employer, under any circumstance."
+      },
+      {
+        "title": "4. Anonymity in the Community",
+        "body": "You may participate in community spaces under a pseudonym. We do not display your real name or employer to other community members unless you choose to."
+      },
+      {
+        "title": "5. Consent, Your Way",
+        "body": "During onboarding, you separately consent to account operation, session delivery, anonymous community participation, and anonymised research use. Optional consents can be withdrawn at any time from Profile & Privacy without affecting your ability to use core features."
+      },
+      {
+        "title": "6. Data Sharing",
+        "body": "We share data only with: the licensed therapist you book with (for your sessions only), payment processors (to complete transactions), and service providers who help us operate the platform under strict confidentiality agreements. We do not share your data with advertisers."
+      },
+      {
+        "title": "7. Data Security",
+        "body": "All session content and personal data are encrypted in transit and at rest. Access to identifiable user data is limited to TalkAM staff who need it to operate or support the service, under confidentiality obligations."
+      },
+      {
+        "title": "8. Your Rights",
+        "body": "Under the NDPA 2023 and applicable data protection law, you can request access to, correction of, or deletion of your personal data at any time from Profile & Privacy, or by contacting us directly. Deleting your account removes your personal data, subject to limited legal retention requirements."
+      },
+      {
+        "title": "9. Changes to This Policy",
+        "body": "We may update this policy as TalkAM evolves. Material changes will be communicated by email or in-app notice before they take effect."
+      }
+    ]
+  },
+  "terms": {
+    "title": "Terms of Use",
+    "lastUpdated": "July 9, 2026",
+    "callout": null,
+    "contact": {
+      "lead": "Questions about these terms? Contact us at",
+      "email": "legal@talkam.net"
+    },
+    "sections": [
+      {
+        "title": "1. Acceptance of Terms",
+        "body": "By creating an account or using TalkAM — whether as an individual community member, a client booking therapy sessions, a verified therapist, or a business customer through TalkAM for Business — you agree to be bound by these Terms of Use. If you do not agree, please do not use the platform."
+      },
+      {
+        "title": "2. Who Can Use TalkAM",
+        "body": "You must be at least 18 years old, or the age of legal majority in your jurisdiction, to create an account. TalkAM for Business accounts additionally require that the signing company hold a valid company email domain and provide accurate business information during onboarding."
+      },
+      {
+        "title": "3. Community Conduct",
+        "body": "TalkAM's community spaces are moderated to keep every space respectful and safe. Harassment, hate speech, impersonation, spam, and content that encourages self-harm to others are prohibited and may result in suspension or permanent removal, with or without notice."
+      },
+      {
+        "title": "4. Therapy Sessions Are Not Emergency Services",
+        "body": "TalkAM is not a crisis or emergency response service. If you are experiencing a mental health emergency, please contact local emergency services immediately. Licensed therapists on TalkAM provide scheduled, non-emergency mental wellness support."
+      },
+      {
+        "title": "5. Therapist Verification & Independence",
+        "body": "All therapists on TalkAM undergo credential verification (license, qualifications, and indemnity insurance where applicable) before being listed. Therapists are independent practitioners, not TalkAM employees, and are solely responsible for the clinical advice and care they provide."
+      },
+      {
+        "title": "6. Payments, Fees & Cancellations",
+        "body": "Session fees are set by each therapist and charged at time of booking. Cancellations made 24 hours or more before a session receive a full refund; cancellations within 24 hours receive a 50% refund; no-shows are non-refundable. TalkAM for Business accounts are billed monthly per active seat, as described on our Pricing page."
+      },
+      {
+        "title": "7. Anonymity & Account Identity",
+        "body": "You may use a pseudonym for community participation. Booking and paying for a licensed therapy session requires accurate identity information for safety, billing, and clinical accountability purposes; this information is never shared with the community."
+      },
+      {
+        "title": "8. Intellectual Property",
+        "body": "All TalkAM branding, software, and platform content are the property of TalkAM Technologies. Content you post to the community remains yours, but you grant TalkAM a license to host and display it as part of operating the service."
+      },
+      {
+        "title": "9. Termination",
+        "body": "We may suspend or terminate your access for violating these terms, including harmful conduct toward other users or therapists. You may close your account at any time from Settings; some records may be retained as required by law or described in our Privacy Policy."
+      }
+    ]
+  }
+}

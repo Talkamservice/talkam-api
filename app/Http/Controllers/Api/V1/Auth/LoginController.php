@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\OAuthLoginService;
 use App\Services\Auth\VerifyService;
+use App\Services\Business\OrganizationService;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -49,6 +50,10 @@ class LoginController extends Controller
             $user = LoginService::authenticate($request->all());
             $data["user"] =  UserResource::make($user)->toArray($request);
             $data["token"] = $user->createToken('api')->plainTextToken;
+            // A therapist (network or org-employed) belongs on the therapist
+            // dashboard, not the generic consumer experience — same context
+            // v2's login already sends; clients that don't care ignore it.
+            $data["business"] = OrganizationService::context($user);
             LoginService::newLogin($user);
             return ApiHelper::validResponse("Logged in successfully", $data);
         } catch (ValidationException $e) {
@@ -130,6 +135,7 @@ class LoginController extends Controller
 
             $data["user"] =  UserResource::make($user)->toArray($request);
             $data["token"] = $user->createToken('api')->plainTextToken;
+            $data["business"] = OrganizationService::context($user);
             LoginService::newLogin($user);
             return ApiHelper::validResponse("Logged in successfully", $data);
         } catch (ValidationException $e) {
