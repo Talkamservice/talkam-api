@@ -5,6 +5,7 @@ namespace App\Services\PlatformAdmin;
 use App\Constants\Business\OrganizationConstants;
 use App\Constants\Therapist\TherapistConstants;
 use App\Models\AccountDeactivation;
+use App\Models\CustomPlanQuoteRequest;
 use App\Models\Dispute;
 use App\Models\Feedback;
 use App\Models\Organization;
@@ -61,6 +62,7 @@ class PlatformDashboardService
             "flagged_therapists" => PlatformPerformanceService::overview(true)['flagged_count'],
             "pending_deactivations" => AccountDeactivation::whereIn('status', ['Pending', 'Processing'])->count(),
             "open_disputes" => Dispute::where('status', 'Pending')->count(),
+            "pending_custom_quotes" => CustomPlanQuoteRequest::where('status', PlatformCustomQuoteRequestService::STATUS_PENDING)->count(),
         ];
     }
 }

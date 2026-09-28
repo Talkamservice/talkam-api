@@ -37,7 +37,7 @@ class OrganizationBillingService
     {
         $quote = OrganizationPricingService::quoteFor($organization);
         $plan = self::currentPlanKey($organization);
-        $name = config("business.plans.{$plan}.name", config("business.plan.name"));
+        $name = BusinessPlanService::findByKey($plan)?->name ?? config("business.plan.name");
 
         // Seats always bill on the LICENSED count at the licensed tier's rate —
         // the prepay/postpay choice governs sessions, not seats (web §08).
@@ -133,19 +133,23 @@ class OrganizationBillingService
     {
         $current = self::currentPlanKey($organization);
 
-        $plans = collect(config("business.plans"))
-            ->mapWithKeys(function ($plan, $key) use ($current) {
-                return [$key => [
-                    "key" => $plan["key"],
-                    "name" => $plan["name"],
-                    "seatRange" => $plan["seat_range"],
-                    "minSeats" => $plan["min_seats"],
-                    "maxSeats" => $plan["max_seats"],
-                    "defaultSeats" => $plan["default_seats"],
-                    "custom" => $plan["custom"],
-                    "tiers" => $plan["tiers"],
-                    "features" => $plan["features"],
-                    "isCurrent" => $key === $current,
+        $plans = BusinessPlanService::catalogue()
+            ->mapWithKeys(function ($plan) use ($current) {
+                return [$plan->key => [
+                    "key" => $plan->key,
+                    "name" => $plan->name,
+                    "seatRange" => $plan->seat_range,
+                    "minSeats" => $plan->min_seats,
+                    "maxSeats" => $plan->max_seats,
+                    "defaultSeats" => $plan->default_seats,
+                    "custom" => $plan->is_custom,
+                    "tiers" => $plan->tiers->map(fn ($t) => [
+                        "min" => $t->min_seats,
+                        "max" => $t->max_seats,
+                        "price" => $t->price,
+                    ])->values()->all(),
+                    "features" => $plan->features->pluck("label")->values()->all(),
+                    "isCurrent" => $plan->key === $current,
                 ]];
             })
             ->all();
@@ -506,17 +510,7 @@ class OrganizationBillingService
     /** Which catalogue plan the org's seat count falls into. */
     public static function currentPlanKey(Organization $organization): string
     {
-        $seats = (int) $organization->seats_licensed;
-
-        foreach (config("business.plans") as $key => $plan) {
-            $above = $seats >= ($plan["min_seats"] ?? 0);
-            $below = ($plan["max_seats"] ?? null) === null || $seats <= $plan["max_seats"];
-            if ($above && $below) {
-                return $key;
-            }
-        }
-
-        return "lite";
+        return BusinessPlanService::keyForSeats((int) $organization->seats_licensed);
     }
 
     private static function statusLabel(OrganizationInvoice $invoice): string
