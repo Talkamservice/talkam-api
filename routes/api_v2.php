@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V2\Auth\UsernameController;
 use App\Http\Controllers\Api\V2\Auth\VerificationController;
 use App\Http\Controllers\Api\V2\Business\AdminInsightsController;
 use App\Http\Controllers\Api\V2\Business\AdminWorkspaceController;
+use App\Http\Controllers\Api\V2\Business\DepartmentController;
 use App\Http\Controllers\Api\V2\Business\InvitationController as BusinessInvitationController;
 use App\Http\Controllers\Api\V2\Business\OnboardingController as BusinessOnboardingController;
 use App\Http\Controllers\Api\V2\Business\OrganizationController as BusinessOrganizationController;
@@ -201,6 +202,11 @@ Route::prefix("business")->as("business.")->group(function () {
             Route::post("employees/{member}/update", [AdminWorkspaceController::class, "updateEmployee"])->name("employees.update");
             Route::post("employees/{member}/deactivate", [AdminWorkspaceController::class, "deactivateEmployee"])->name("employees.deactivate");
             Route::post("employees/{member}/reactivate", [AdminWorkspaceController::class, "reactivateEmployee"])->name("employees.reactivate");
+
+            Route::get("departments", [DepartmentController::class, "index"])->name("departments.index");
+            Route::post("departments", [DepartmentController::class, "store"])->name("departments.store");
+            Route::post("departments/{department}/update", [DepartmentController::class, "update"])->name("departments.update");
+            Route::post("departments/{department}/delete", [DepartmentController::class, "destroy"])->name("departments.delete");
 
             Route::get("therapists", [AdminWorkspaceController::class, "therapists"])->name("therapists.index");
             Route::get("therapists/{therapist}", [AdminWorkspaceController::class, "therapistDetail"])->name("therapists.show");
@@ -591,6 +597,13 @@ Route::prefix("platform-admin")->as("platform-admin.")->middleware(["auth:sanctu
         Route::get("dashboard", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDashboardController::class, "index"])->name("dashboard");
         Route::get("nav-counts", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformDashboardController::class, "navCounts"])->name("nav-counts");
         Route::get("growth", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformGrowthController::class, "index"])->name("growth");
+        Route::prefix("growth")->as("growth.")->group(function () {
+            Route::get("aarrr", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformGrowthController::class, "aarrr"])->name("aarrr");
+            Route::get("funnel", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformGrowthController::class, "funnel"])->name("funnel");
+            Route::get("cohorts", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformGrowthController::class, "cohorts"])->name("cohorts");
+            Route::get("segments", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformGrowthController::class, "segments"])->name("segments");
+            Route::get("segments/{key}/users", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformGrowthController::class, "segmentUsers"])->name("segments.users");
+        });
 
         Route::prefix("users")->as("users.")->group(function () {
             Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformUserController::class, "index"])->name("index");
@@ -707,6 +720,21 @@ Route::prefix("platform-admin")->as("platform-admin.")->middleware(["auth:sanctu
         Route::prefix("settings")->as("settings.")->group(function () {
             Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformSettingController::class, "index"])->name("index");
             Route::put("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformSettingController::class, "update"])->name("update");
+        });
+
+        Route::prefix("custom-quote-requests")->as("custom-quote-requests.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCustomQuoteRequestController::class, "index"])->name("index");
+            Route::post("{id}/mark-contacted", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCustomQuoteRequestController::class, "markContacted"])->name("mark-contacted");
+        });
+
+        // The B2B plan catalogue (Wellbeing Lite/Core/Plus) a business admin
+        // sees on their own Billing page — GET .../business/billing's
+        // "catalogue" reads the exact same business_plans table this edits.
+        Route::prefix("business-plans")->as("business-plans.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessPlanController::class, "index"])->name("index");
+            Route::post("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessPlanController::class, "store"])->name("store");
+            Route::put("{plan}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessPlanController::class, "update"])->name("update");
+            Route::delete("{plan}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformBusinessPlanController::class, "destroy"])->name("destroy");
         });
     });
 
