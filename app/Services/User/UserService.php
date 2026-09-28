@@ -175,6 +175,11 @@ class UserService
                 "should_display_ads" => "nullable|in:0,1",
                 "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
                 "date_of_birth" => 'nullable|date_format:Y-m-d|before:today',
+                // Only reachable via the platform-admin edit-user modal today
+                // (self-service profile edits go through ProfileController) —
+                // an admin correcting a typo'd signup phone is a real case;
+                // email stays immutable here too, same as self-service.
+                "phone_number" => "nullable|string|max:30",
             ], [
                 "username.unique" => "The username has already been taken",
                 "username.regex" => "The username can only contain letters, numbers, underscores, and dashes, and no spaces",

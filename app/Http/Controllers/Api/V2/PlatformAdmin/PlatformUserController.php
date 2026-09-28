@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2\PlatformAdmin;
 
 use App\Constants\General\ApiConstants;
+use App\Constants\General\AppConstants;
 use App\Constants\General\StatusConstants;
 use App\Helpers\ApiHelper;
 use App\Http\Controllers\Controller;
@@ -11,6 +12,7 @@ use App\Services\PlatformAdmin\PlatformUserService;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Exception;
 
@@ -87,14 +89,20 @@ class PlatformUserController extends Controller
         }
     }
 
-    /** Restricted to `name` — a platform admin correcting a display name is
-     *  the only edit this page needs; everything else (email, password,
-     *  interests…) stays a self-service or support-ticket action. */
+    /** The real profile fields a platform admin plausibly needs to correct
+     *  on someone else's account (wrong phone, gender, DOB, etc.). Email
+     *  stays immutable here too — same as self-service — since an admin
+     *  changing it would silently redirect the account's login/notifications.
+     *  Password/username/interests stay a self-service or support-ticket
+     *  action — this is for fixing a record, not impersonating the user. */
     public function update(Request $request, $id)
     {
         try {
             $validator = Validator::make($request->all(), [
                 "name" => "required|string|max:150",
+                "phone_number" => "nullable|string|max:30",
+                "gender" => Rule::in(AppConstants::GENDERS) . "|nullable",
+                "date_of_birth" => "nullable|date_format:Y-m-d|before:today",
             ]);
 
             if ($validator->fails()) {
