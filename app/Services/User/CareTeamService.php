@@ -17,8 +17,16 @@ use App\Services\Therapist\SessionNoteService;
  */
 class CareTeamService
 {
-    /** Sessions that count as "seeing this therapist". */
+    /** Sessions that count as "seeing this therapist". Includes
+     *  pending_payment — every new booking (org-covered or consumer) starts
+     *  there until the therapist acknowledges it or payment clears (see
+     *  SessionBookingService), and MemberSessionService::summary() already
+     *  treats that same status as a real "upcoming session". Excluding it
+     *  here meant a member with a freshly booked, genuinely real session had
+     *  no "Your care team" card and therefore no way to message their
+     *  therapist until the therapist got around to acknowledging it. */
     private const ACTIVE_STATUSES = [
+        TherapistConstants::SESSION_PENDING_PAYMENT,
         TherapistConstants::SESSION_CONFIRMED,
         TherapistConstants::SESSION_IN_PROGRESS,
         TherapistConstants::SESSION_COMPLETED,

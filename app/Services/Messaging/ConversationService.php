@@ -75,6 +75,7 @@ class ConversationService
                 })->first();
 
             if (!empty($conversation)) {
+                DB::commit();
                 return $conversation;
             }
 
@@ -147,6 +148,7 @@ class ConversationService
             }
 
             if (!empty($conversation)) {
+                DB::commit();
                 return $conversation;
             }
 

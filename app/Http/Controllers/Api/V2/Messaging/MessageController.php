@@ -53,7 +53,7 @@ class MessageController extends Controller
 
             $hidden_ids = MessageHide::where("user_id", $viewer->id)->pluck("message_id");
 
-            $builder = Message::with("reactions")
+            $builder = Message::with(["reactions", "file"])
                 ->where("conversation_id", $conversation_id)
                 ->whereNotIn("id", $hidden_ids);
 
@@ -86,6 +86,8 @@ class MessageController extends Controller
                     "message" => $message->message,
                     "message_type" => $message->message_type,
                     "file_id" => $message->file_id,
+                    "file_url" => $message->file?->url(),
+                    "file_name" => $message->file?->name,
                     "voice_duration" => $message->voice_duration,
                     "delivered_at" => $message->delivered_at?->toDateTimeString(),
                     "read" => $show_read ? (bool) $message->read : null,

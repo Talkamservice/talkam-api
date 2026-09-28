@@ -163,7 +163,11 @@ class ConversationController extends Controller
             return false;
         }
 
+        // Mirrors CareTeamService::ACTIVE_STATUSES — pending_payment is a
+        // real booking (every session starts there until the therapist
+        // acknowledges it or payment clears), not just confirmed/completed.
         $statuses = [
+            TherapistConstants::SESSION_PENDING_PAYMENT,
             TherapistConstants::SESSION_CONFIRMED,
             TherapistConstants::SESSION_IN_PROGRESS,
             TherapistConstants::SESSION_COMPLETED,

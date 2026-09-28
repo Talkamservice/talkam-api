@@ -10,6 +10,7 @@ use App\Models\ConversationMember;
 use App\Models\Message;
 use App\Models\MessageHide;
 use App\Models\User;
+use App\Services\Business\CoverageResolver;
 
 class ConversationStateService
 {
@@ -139,6 +140,11 @@ class ConversationStateService
                 'name' => $other->full_name,
                 'username' => $other->username,
                 'avatar' => $other->avatar,
+                // Display-privacy signal: real name is only safe to SHOW (a
+                // client's therapist-facing screens still use it internally
+                // regardless) when the two aren't strangers — see
+                // CoverageResolver::shareOrganization().
+                'same_organization' => CoverageResolver::shareOrganization($viewer->id, $other->id),
             ],
             'last_message' => empty($last_message) ? null : [
                 'id' => $last_message->id,

@@ -2,6 +2,7 @@
 
 namespace App\Services\Messaging\V2;
 
+use App\Constants\Messaging\MessagingConstants;
 use App\Constants\Messaging\MessagingV2Constants;
 use App\Events\Messaging\MessageDeleted;
 use App\Events\Messaging\MessageDelivered;
@@ -123,6 +124,44 @@ class MessageActionService
 
         // Notification path is mute-aware (per-member + §04 user mutes) via
         // the notification's own via() guard.
+        Notification::send($receiver, new NewMessageNotification($message));
+
+        return $message;
+    }
+
+    /**
+     * System-originated file message: the attachment is a File row this
+     * service didn't create via a multipart upload (e.g. a shared session
+     * note rendered to text), so it skips send()'s upload validation but
+     * keeps the same membership resolution, event broadcast and
+     * notification side effects.
+     */
+    public function sendFile(User $sender, int $conversation_id, int $file_id, ?string $caption = null): Message
+    {
+        $member = ConversationStateService::memberRow($sender, $conversation_id);
+        $conversation = $member->conversation;
+
+        $receiver = $conversation->members()
+            ->where('user_id', '!=', $sender->id)
+            ->first()?->user;
+
+        if (empty($receiver)) {
+            throw new InvalidRequestException("No counterpart in this conversation.");
+        }
+
+        $message = Message::create([
+            'conversation_id' => $conversation->id,
+            'sender_id' => $sender->id,
+            'receiver_id' => $receiver->id,
+            'message' => $caption,
+            'message_type' => MessagingConstants::FILE,
+            'file_id' => $file_id,
+            'read' => false,
+            'delivered_at' => now(),
+        ]);
+
+        broadcast(new ReceiveMessage($message->toArray(), $conversation->id, $receiver->id))->toOthers();
+        event(new MessageDelivered($conversation->id, ['message_id' => $message->id]));
         Notification::send($receiver, new NewMessageNotification($message));
 
         return $message;

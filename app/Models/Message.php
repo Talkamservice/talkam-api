@@ -48,6 +48,11 @@ class Message extends Model
         return $this->belongsTo(User::class, "receiver_id");
     }
 
+    public function file()
+    {
+        return $this->belongsTo(File::class, "file_id");
+    }
+
     public function scopeSearch($query, $key)
     {
         $query->where(function ($query) use ($key) {

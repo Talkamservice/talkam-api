@@ -11,6 +11,7 @@ use App\Models\TherapistSessionRequest;
 use App\Models\UserInterest;
 use App\Models\User;
 use App\Notifications\Therapist\TherapistSessionRequestNotification;
+use App\Services\Business\CoverageResolver;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -75,6 +76,11 @@ class TherapistSessionRequestService
                 'note' => $r->note,
                 'focus' => UserInterest::with('category')->where('user_id', $r->user_id)->first()?->category?->name,
                 'created_at' => $r->created_at->toDateTimeString(),
+                // No TherapySession/coverage exists yet at the request stage
+                // — same-org membership is the only signal available this
+                // early to decide whether a real name is safe to show.
+                'client_name' => $r->user?->full_name,
+                'same_organization' => CoverageResolver::shareOrganization($therapist->user_id, $r->user_id),
             ])
             ->values()
             ->all();

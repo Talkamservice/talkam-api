@@ -80,6 +80,32 @@ class CoverageResolver
             ->exists();
     }
 
+    /**
+     * Display-privacy gate, distinct from resolve()'s payment logic above and
+     * NOT behind the coverage_enabled flag — a therapist and a client who are
+     * both active members of the same organization (the employer vouched for
+     * this therapist, or this client is a colleague) are no longer strangers,
+     * so showing a real name instead of an "Anonymous · #1234" handle is safe
+     * regardless of how any individual session happened to be paid for.
+     * Used everywhere a therapist-facing screen decides whether to reveal a
+     * client's identity: sessions, messaging, leads, dashboard cards.
+     */
+    public static function shareOrganization(int $userIdA, int $userIdB): bool
+    {
+        $orgIds = OrganizationMember::where('user_id', $userIdA)
+            ->where('status', OrganizationConstants::MEMBER_ACTIVE)
+            ->pluck('organization_id');
+
+        if ($orgIds->isEmpty()) {
+            return false;
+        }
+
+        return OrganizationMember::where('user_id', $userIdB)
+            ->where('status', OrganizationConstants::MEMBER_ACTIVE)
+            ->whereIn('organization_id', $orgIds)
+            ->exists();
+    }
+
     private static function metered(Organization $org): array
     {
         return self::decision(

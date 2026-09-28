@@ -3,6 +3,7 @@
 namespace App\Services\Therapist;
 
 use App\Constants\Business\OrganizationConstants;
+use App\Constants\Business\SessionCoverageConstants;
 use App\Constants\Therapist\TherapistConstants;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -11,7 +12,9 @@ use App\Models\Therapist;
 use App\Models\TherapistReview;
 use App\Models\TherapySession;
 use App\Models\User;
+use App\Notifications\Therapist\SessionNotificationSupport;
 use App\Notifications\Therapist\TherapistWelcomeNotification;
+use App\Services\Business\CoverageResolver;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -190,7 +193,7 @@ class TherapistDashboardService
                 $last_completed = self::lastCompleted($therapist->id, $s->user_id);
 
                 return [
-                    'client_ref' => self::clientRef($s->user_id),
+                    'client_ref' => self::clientRef($s, $therapist),
                     'focus' => self::focusFor($s),
                     'next_at' => $s->starts_at->toDateTimeString(),
                     'shared_note' => $last_completed
@@ -426,8 +429,13 @@ class TherapistDashboardService
 
         return [
             'id' => $session->id,
-            'client_ref' => self::clientRef($session->user_id),
+            'client_ref' => self::clientRef($session, $therapist),
             'starts_at' => $session->starts_at->toDateTimeString(),
+            // See SessionBookingService::detail()'s identical field — the
+            // real moment join() itself starts allowing entry.
+            'join_opens_at' => $session->starts_at->copy()
+                ->subMinutes((int) config('therapist.sessions.join_early_minutes'))
+                ->toDateTimeString(),
             'format' => $session->format,
             'duration_minutes' => $session->duration_minutes,
             'focus' => self::focusFor($session),
@@ -440,9 +448,25 @@ class TherapistDashboardService
     }
 
     /** Stable pseudonymous client ref — "#4021". */
-    private static function clientRef(?int $user_id): string
+    /**
+     * A business-covered booking (anything but "consumer"), or a client who
+     * simply shares an organization with this therapist (an "own therapist"
+     * relationship, or a colleague at the same company), is someone the
+     * therapist already knows through their employer — not a stranger, so
+     * showing their real name instead of an anonymized handle is safe. Same
+     * distinction SessionBookedNotification makes for the email/push path;
+     * this is the web dashboard's copy of it.
+     */
+    private static function clientRef(TherapySession $session, Therapist $therapist): string
     {
-        return '#' . (4000 + ((int) $user_id % 6000));
+        $known = ($session->coverage && $session->coverage !== SessionCoverageConstants::CONSUMER)
+            || CoverageResolver::shareOrganization($therapist->user_id, $session->user_id);
+
+        if ($known && $session->user?->full_name) {
+            return $session->user->full_name;
+        }
+
+        return SessionNotificationSupport::anonRef((int) $session->user_id);
     }
 
     /** The client's first interest topic, the deck's "focus" chip. */
