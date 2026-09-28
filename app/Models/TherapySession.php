@@ -56,8 +56,16 @@ class TherapySession extends Model
     }
 
     /**
-     * Statuses that hold a slot: an unexpired pending_payment or anything
-     * confirmed/underway.
+     * Statuses that hold a slot: an unexpired pending_payment, an org-covered
+     * pending_payment (SessionBookingService::create() deliberately leaves
+     * hold_expires_at null there — there's nothing to pay, so no expiry —
+     * meaning it holds the slot indefinitely until the therapist acts on
+     * it), or anything confirmed/underway. Before this null check, an
+     * org-covered booking sitting in pending_payment didn't occupy its slot
+     * at all: TherapistSlotService kept offering the same slot to other
+     * clients, and the transaction-level clash guard in
+     * SessionBookingService::create() (built on this same scope) didn't
+     * catch it either — a real double-booking, not just a display glitch.
      */
     public function scopeActive($query)
     {
@@ -68,7 +76,10 @@ class TherapySession extends Model
                 TherapistConstants::SESSION_COMPLETED,
             ])->orWhere(function ($hold) {
                 $hold->where('status', TherapistConstants::SESSION_PENDING_PAYMENT)
-                    ->where('hold_expires_at', '>', now());
+                    ->where(function ($expiry) {
+                        $expiry->whereNull('hold_expires_at')
+                            ->orWhere('hold_expires_at', '>', now());
+                    });
             });
         });
     }

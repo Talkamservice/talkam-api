@@ -2,12 +2,18 @@
 
 namespace App\Services\Therapist;
 
+use App\Constants\General\StatusConstants;
 use App\Constants\Post\PostCategoryConstants;
 use App\Exceptions\General\ModelNotFoundException;
 use App\Models\SessionNote;
 use App\Models\TherapySession;
 use App\Models\User;
+use App\Services\Media\FileService;
+use App\Services\Messaging\ConversationService;
+use App\Services\Messaging\V2\MessageActionService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -52,7 +58,12 @@ class SessionNoteService
 
         $validated = $validator->validated();
 
-        return SessionNote::updateOrCreate([
+        // Captured before the upsert so sharing only fires the chat delivery
+        // on the false→true transition — re-saving an already-shared note
+        // (e.g. a wording fix) must not re-send it as a new chat message.
+        $was_shared = SessionNote::where('session_id', $session->id)->value('shared_with_client');
+
+        $note = SessionNote::updateOrCreate([
             'session_id' => $session->id,
         ], [
             'therapist_id' => $session->therapist_id,
@@ -62,6 +73,67 @@ class SessionNoteService
             'status' => $validated['status'] ?? 'final',
             'tags' => $validated['tags'] ?? null,
         ]);
+
+        if ($note->shared_with_client && !$was_shared) {
+            self::deliverToChat($user, $session, $note);
+        }
+
+        return $note;
+    }
+
+    /**
+     * Drops a shared note into the therapist↔client conversation as a file
+     * attachment, reusing the same conversation-resolution the "Message"
+     * button on a booking already uses (SessionLifecycleService::
+     * startConversation) — safe to call from here because write() only
+     * ever runs inside the therapist's own authenticated request, so
+     * auth()->user() (which ConversationService::create() reads) is
+     * already this same $therapist. Delivery is best-effort: a messaging
+     * failure must never undo a clinical note that was already saved.
+     */
+    private static function deliverToChat(User $therapist, TherapySession $session, SessionNote $note): void
+    {
+        try {
+            $conversation = (new ConversationService)->create([
+                'receiver_id' => $session->user_id,
+            ]);
+
+            if ($conversation->status === StatusConstants::AWAITING_RESPONSE) {
+                $conversation->update(['status' => StatusConstants::ACTIVE]);
+            }
+
+            $body = trim(sprintf(
+                "%s\n\n%s\n\n— Shared by %s on %s",
+                $note->title,
+                $note->content ?: '(No additional details)',
+                $therapist->full_name,
+                now()->format('M j, Y')
+            ));
+
+            $dir = storage_path('app/tmp');
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+            $tmp_path = $dir . '/' . uniqid('session-note-') . '.txt';
+            file_put_contents($tmp_path, $body);
+
+            $file = (new FileService)
+                ->setFilename(Str::slug($note->title) . '.txt')
+                ->save($tmp_path, 'session-notes', null, $therapist->id);
+
+            (new MessageActionService)->sendFile(
+                $therapist,
+                $conversation->id,
+                $file->id,
+                "Shared their session notes: {$note->title}"
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Failed to deliver shared session note to chat', [
+                'session_id' => $session->id,
+                'note_id' => $note->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public static function view(User $user, $session_id): ?SessionNote

@@ -417,6 +417,14 @@ class SessionBookingService
             'therapist_id' => $session->therapist_id,
             'therapist_name' => $session->therapist?->user?->full_name,
             'starts_at' => $session->starts_at->toDateTimeString(),
+            // The exact moment SessionLifecycleService::join() itself starts
+            // allowing entry (starts_at minus the real configurable early-join
+            // window) — lets both dashboards disable their own "Join" button
+            // ahead of time instead of only finding out via a rejected join
+            // call.
+            'join_opens_at' => $session->starts_at->copy()
+                ->subMinutes((int) config('therapist.sessions.join_early_minutes'))
+                ->toDateTimeString(),
             'duration_minutes' => $session->duration_minutes,
             'format' => $session->format,
             'status' => $session->status,
