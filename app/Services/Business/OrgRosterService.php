@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Services\Therapist\TherapistSlotService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -82,7 +83,7 @@ class OrgRosterService
             ->map(fn ($v) => $v ? Carbon::parse($v)->toIso8601String() : null);
 
         $members = OrganizationMember::where('organization_id', $organization->id)
-            ->with('user:id,email,first_name,last_name')
+            ->with(['user:id,email,first_name,last_name', 'department:id,name'])
             ->get()
             ->map(function ($m) use ($cap, $used_by_user, $last_active_by_user) {
                 $is_employee = $m->role === OrganizationConstants::ROLE_EMPLOYEE;
@@ -91,7 +92,8 @@ class OrgRosterService
                     'id' => self::displayId($m->id),
                     'member_id' => $m->id,
                     'email' => $m->user?->email,
-                    'department' => $m->department,
+                    'department' => $m->department?->name,
+                    'department_id' => $m->department_id,
                     'role' => $m->role,
                     'status' => $m->status,
                     'activated_at' => $m->activated_at?->toDateString(),
@@ -107,13 +109,15 @@ class OrgRosterService
 
         $invites = Invitation::where('organization_id', $organization->id)
             ->where('status', StatusConstants::PENDING)
+            ->with('department:id,name')
             ->get()
             ->map(fn ($i) => [
                 'id' => 'INV-' . str_pad((string) $i->id, 4, '0', STR_PAD_LEFT),
                 'member_id' => null,
                 'invitation_id' => $i->id,
                 'email' => $i->invitee_email,
-                'department' => $i->department,
+                'department' => $i->department?->name,
+                'department_id' => $i->department_id,
                 'role' => $i->invite_role,
                 'status' => OrganizationConstants::MEMBER_INVITED,
                 'activated_at' => null,
@@ -144,15 +148,11 @@ class OrgRosterService
         return $rows->values()->all();
     }
 
-    /** The department filter's options, derived from what is actually in use. */
+    /** The department filter/edit dropdown's options — every real department
+     *  row the org has, not just the ones currently assigned to someone. */
     public static function departments(Organization $organization): array
     {
-        return OrganizationMember::where('organization_id', $organization->id)
-            ->whereNotNull('department')
-            ->distinct()
-            ->orderBy('department')
-            ->pluck('department')
-            ->all();
+        return DepartmentService::list($organization)->toArray();
     }
 
     public static function scopedMember(Organization $organization, $member_id): OrganizationMember
@@ -178,7 +178,7 @@ class OrgRosterService
     public static function employeeDetail(Organization $organization, $member_id): array
     {
         $member = self::scopedMember($organization, $member_id);
-        $member->loadMissing('user:id,email');
+        $member->loadMissing(['user:id,email', 'department:id,name']);
 
         $cap_status = $member->role === OrganizationConstants::ROLE_EMPLOYEE && $member->user
             ? SessionCapService::forOrganization($member->user, $organization)
@@ -192,15 +192,27 @@ class OrgRosterService
 
         $last_session = (clone $completed)->latest('ended_at')->first();
 
+        // Reconciled with SessionCapService::forOrganization()'s "used this
+        // cycle" figure: that one counts a session the moment it's booked and
+        // confirmed (TherapySession::scopeActive — confirmed/in_progress/
+        // completed, or a still-valid payment hold), not only once it's been
+        // sat through. Before this, the chart only counted `completed` rows
+        // by `ended_at`, so a member who'd genuinely booked and used their
+        // cap this cycle could show a flat, all-zero "engagement" history
+        // simply because none of those sessions had happened yet — two real
+        // numbers disagreeing about the same employee. Grouping by `starts_at`
+        // (the real calendar month the session belongs to) instead of
+        // `ended_at` keeps a session in the month it was actually for, not
+        // wherever it happened to be marked finished.
         $monthly_sessions = collect(range(5, 0))->map(function ($i) use ($member) {
             $month = now()->subMonths($i);
 
             return [
                 'label' => $month->format('M'),
                 'count' => TherapySession::where('user_id', $member->user_id)
-                    ->where('status', TherapistConstants::SESSION_COMPLETED)
-                    ->whereYear('ended_at', $month->year)
-                    ->whereMonth('ended_at', $month->month)
+                    ->active()
+                    ->whereYear('starts_at', $month->year)
+                    ->whereMonth('starts_at', $month->month)
                     ->count(),
             ];
         })->values()->all();
@@ -209,7 +221,8 @@ class OrgRosterService
             'id' => self::displayId($member->id),
             'member_id' => $member->id,
             'email' => $member->user?->email,
-            'department' => $member->department,
+            'department' => $member->department?->name,
+            'department_id' => $member->department_id,
             'role' => $member->role,
             'status' => $member->status,
             'activated_at' => $member->activated_at?->toDateString(),
@@ -277,7 +290,11 @@ class OrgRosterService
         $member = self::scopedMember($organization, $member_id);
 
         $validator = Validator::make($data, [
-            'department' => 'nullable|string|max:100',
+            'department_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('departments', 'id')->where('organization_id', $organization->id),
+            ],
         ]);
 
         if ($validator->fails()) {

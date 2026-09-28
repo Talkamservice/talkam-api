@@ -20,7 +20,7 @@ class OrganizationMemberResource extends JsonResource
             "id" => $this->id,
             "role" => $this->role,
             "status" => $this->status,
-            "department" => $this->department,
+            "department" => $this->department?->name,
             "activated_at" => $this->activated_at?->toDateTimeString(),
             "deactivated_at" => $this->deactivated_at?->toDateTimeString(),
             "user" => $this->whenLoaded("user", fn () => [

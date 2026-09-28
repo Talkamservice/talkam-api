@@ -39,6 +39,11 @@ class Invitation extends Model
         return $this->belongsTo(Organization::class, "organization_id");
     }
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     public function inviterName()
     {
         return  $this->inviter->name;

@@ -56,6 +56,18 @@ class OrganizationInviteService
 
         $invites = $validator->validated()["invites"];
 
+        // Invites only ever carry a typed department NAME (a bulk/CSV upload
+        // can't pre-select from a list of departments it doesn't know exist
+        // yet) — resolved to a real, org-scoped Department row here, once,
+        // rather than re-resolving per row inside the write transaction.
+        $department_ids = [];
+        foreach ($invites as $row) {
+            $name = $row["department"] ?? null;
+            if ($name !== null && !array_key_exists($name, $department_ids)) {
+                $department_ids[$name] = DepartmentService::findOrCreateByName($organization, $name)?->id;
+            }
+        }
+
         // De-duplicate within the request itself before any seat maths.
         $seen = [];
         foreach ($invites as $row) {
@@ -86,7 +98,7 @@ class OrganizationInviteService
                     "organization_id" => $organization->id,
                     "invitee_email" => $email,
                     "invite_role" => $row["role"],
-                    "department" => $row["department"] ?? null,
+                    "department_id" => $department_ids[$row["department"] ?? null] ?? null,
                     "user_id" => User::where("email", $email)->first()?->id,
                     "invite_expires_at" => now()->addDays($expiry_days),
                     "source" => OrganizationConstants::INVITE_SOURCE,
@@ -195,7 +207,7 @@ class OrganizationInviteService
     public static function roster(Organization $organization, array $filters = [])
     {
         $builder = Invitation::where("organization_id", $organization->id)
-            ->with("inviter:id,first_name,last_name,email")
+            ->with(["inviter:id,first_name,last_name,email", "department:id,name"])
             ->latest();
 
         if (!empty($role = $filters["role"] ?? null)) {
@@ -278,7 +290,7 @@ class OrganizationInviteService
             "organization_initial" => strtoupper(mb_substr((string) $organization?->name, 0, 1)),
             "email" => $invitation->invitee_email,
             "role" => $invitation->invite_role,
-            "department" => $invitation->department,
+            "department" => $invitation->department?->name,
             "status" => $invitation->status,
             "expires_at" => $invitation->invite_expires_at
                 ? Carbon::parse($invitation->invite_expires_at)->toDateTimeString()
@@ -369,7 +381,7 @@ class OrganizationInviteService
                 [
                     "role" => $invitation->invite_role,
                     "status" => OrganizationConstants::MEMBER_ACTIVE,
-                    "department" => $invitation->department,
+                    "department_id" => $invitation->department_id,
                     "billing_type" => $invitation->billing_type,
                     "invited_by" => $invitation->invited_by,
                     "activated_at" => now(),

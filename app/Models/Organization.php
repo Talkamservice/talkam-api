@@ -39,6 +39,11 @@ class Organization extends Model
         return $this->hasMany(Invitation::class);
     }
 
+    public function departments()
+    {
+        return $this->hasMany(Department::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, "created_by");

@@ -19,7 +19,7 @@ class OrganizationInvitationResource extends JsonResource
             "id" => $this->id,
             "email" => $this->invitee_email,
             "role" => $this->invite_role,
-            "department" => $this->department,
+            "department" => $this->department?->name,
             "status" => $this->status,
             "invited_by" => $this->whenLoaded("inviter", fn () => [
                 "id" => $this->inviter?->id,

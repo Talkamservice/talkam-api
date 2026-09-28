@@ -32,6 +32,11 @@ class OrganizationMember extends Model
         return $this->belongsTo(User::class, "invited_by");
     }
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === OrganizationConstants::MEMBER_ACTIVE;

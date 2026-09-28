@@ -282,18 +282,23 @@ class OrgAggregateService
         $members = OrganizationMember::where('organization_id', $organization->id)
             ->where('status', OrganizationConstants::MEMBER_ACTIVE)
             ->where('role', OrganizationConstants::ROLE_EMPLOYEE)
-            ->get(['user_id', 'department']);
+            ->with('department:id,name')
+            ->get(['user_id', 'department_id']);
 
         $month_start = now()->startOfMonth();
         $rollup = [];
 
-        foreach ($members->groupBy(fn ($m) => $m->department ?: 'Unassigned') as $department => $group) {
+        // Grouped by department_id (0 standing in for "no department" — a
+        // real id is never 0) rather than the display name directly, since
+        // the name now lives on the related row, not on the member itself.
+        foreach ($members->groupBy(fn ($m) => $m->department_id ?? 0) as $group) {
             $ids = $group->pluck('user_id')->all();
             $size = count($ids);
+            $label = $group->first()->department?->name ?? 'Unassigned';
 
             $rollup[] = array_merge(
                 self::suppress(self::sessionCount($ids, $month_start, now()), $size),
-                ['department' => $department, 'members' => $size]
+                ['department' => $label, 'members' => $size]
             );
         }
 

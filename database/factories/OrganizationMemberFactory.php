@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Constants\Business\OrganizationConstants;
+use App\Models\Department;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
 use App\Models\User;
@@ -19,9 +20,24 @@ class OrganizationMemberFactory extends Factory
             "user_id" => User::factory(),
             "role" => OrganizationConstants::ROLE_EMPLOYEE,
             "status" => OrganizationConstants::MEMBER_ACTIVE,
-            "department" => "Technology",
+            // No default department — unlike the old free-text column, a
+            // department here is a real row scoped to a specific org, so
+            // there's no name ("Technology") that's safe to conjure without
+            // knowing which org this member belongs to. Use inDepartment()
+            // to attach a real one once the org is known.
+            "department_id" => null,
             "activated_at" => now(),
         ];
+    }
+
+    /** Pin the member to an existing department (and, implicitly, its org) —
+     *  used by tests that assert on a specific department name/grouping. */
+    public function inDepartment(Department $department): static
+    {
+        return $this->state(fn () => [
+            "organization_id" => $department->organization_id,
+            "department_id" => $department->id,
+        ]);
     }
 
     public function admin(): static

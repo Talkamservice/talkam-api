@@ -109,7 +109,8 @@ class AdminWorkspaceController extends Controller
 
             return ApiHelper::validResponse("Employee updated successfully", [
                 "id" => OrgRosterService::displayId($row->id),
-                "department" => $row->department,
+                "department" => $row->department?->name,
+                "department_id" => $row->department_id,
             ]);
         } catch (Exception $e) {
             return $this->failure($e);

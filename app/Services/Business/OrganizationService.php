@@ -584,7 +584,7 @@ class OrganizationService
             "is_member" => true,
             "role" => $membership->role,
             "is_therapist" => $is_therapist,
-            "department" => $membership->department,
+            "department" => $membership->department?->name,
             "dashboard" => $membership->role,
             "organization" => [
                 "id" => $organization->id,
