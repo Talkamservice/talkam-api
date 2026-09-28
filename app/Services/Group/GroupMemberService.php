@@ -14,6 +14,7 @@ use App\Models\GroupMemberReport;
 use App\Models\User;
 use App\Notifications\Group\ChangedGroupMemberRoleNotification;
 use App\Notifications\Group\ChangedGroupMemberStatusNotification;
+use App\Notifications\Group\NewGroupMemberNotification;
 use App\Notifications\Group\RemoveGroupMemberNotification;
 use App\Notifications\Group\SuspendGroupMemberNotification;
 use App\Services\Group\GroupService;
@@ -94,13 +95,22 @@ class GroupMemberService
                 "status" => StatusConstants::ACTIVE,
             ]);
 
-            // Notification::send($user, new NewGroupAdminNotification($member, $password));
             DB::commit();
-            return $member;
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
+
+        // Best-effort, outside the transaction: a real membership row is
+        // already committed at this point, so a mail failure must never
+        // look like the add itself failed.
+        try {
+            Notification::send($member->user, new NewGroupMemberNotification($member));
+        } catch (\Throwable $th) {
+            Log::warning("Failed to send new-group-member notification for member {$member->id}: " . $th->getMessage());
+        }
+
+        return $member;
     }
 
     public static function removeByUserId(array $data)

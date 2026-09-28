@@ -43,6 +43,16 @@ class PlatformUserService
     {
         $query = self::scopeByType(UserQueryBuilder::filterList($request), $request->input('type'));
 
+        // Platform-admin "Create Group" member picker: once a category is
+        // chosen, surface real users who picked that same topic as an
+        // onboarding interest (user_interests.category_id — the identical
+        // post_categories row a group's own category_id points at, not a
+        // separate/fake taxonomy) instead of asking the admin to guess who
+        // might care about it.
+        if (!empty($category_id = $request->input('interest_category_id'))) {
+            $query = $query->whereHas('interests', fn ($q) => $q->where('category_id', $category_id));
+        }
+
         $users = $query
             ->with([
                 'organizationMemberships' => fn ($q) => $q->where('status', OrganizationConstants::MEMBER_ACTIVE),
