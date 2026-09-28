@@ -44,7 +44,7 @@ class PlatformTherapistVerificationService
     {
         $query = TherapistApplication::with([
             'user:id,first_name,last_name,email',
-            'documents.file:id,name,path',
+            'documents.file:id,name,path,mime_type',
             'specialties.category:id,name',
         ]);
 
@@ -78,7 +78,7 @@ class PlatformTherapistVerificationService
         }
 
         $application->update(['status' => TherapistConstants::STATUS_IN_REVIEW]);
-        return self::row($application->refresh()->load(['user:id,first_name,last_name,email', 'documents.file:id,name,path', 'specialties.category:id,name']));
+        return self::row($application->refresh()->load(['user:id,first_name,last_name,email', 'documents.file:id,name,path,mime_type', 'specialties.category:id,name']));
     }
 
     private static function row(TherapistApplication $a): array
@@ -104,6 +104,7 @@ class PlatformTherapistVerificationService
                 "rejection_reason" => $d->rejection_reason,
                 "file_name" => $d->file?->name,
                 "file_url" => $d->file?->url(),
+                "mime_type" => $d->file?->mime_type,
             ]),
         ];
     }
