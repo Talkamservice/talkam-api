@@ -315,6 +315,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::post("mark-all", [NotificationController::class, "markAll"])->name("mark-all");
             Route::get("{notification}/show", [NotificationController::class, "show"])->name("show");
             Route::get("get-notification-status", [NotificationController::class, "notificationStatus"])->name("get-notification-status");
+            Route::post("fcm-token", [\App\Http\Controllers\Api\V2\User\FcmTokenController::class, "update"])->name("fcm-token");
         });
 
         Route::post("user-reports", [UserReportController::class, "store"])->name("user-reports.store");
@@ -328,6 +329,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             Route::prefix("conversations")->as("conversations.")->group(function () {
                 Route::post("update-status", [V1ConversationController::class, "updateStatus"])->name("update-status");
                 Route::post("report", [V2ConversationController::class, "report"])->name("report");
+                Route::post("typing", [\App\Http\Controllers\Api\V2\Messaging\MessageController::class, "typing"])->name("typing");
                 Route::get("/current/fetch", [V1ConversationController::class, "currentConversation"])->name("current-conversation");
                 Route::get("/pending-requests", [V2ConversationController::class, "pendingRequests"])->name("pending-requests");
 
@@ -362,6 +364,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
             });
 
             Route::post("presence", [\App\Http\Controllers\Api\V2\Messaging\PresenceController::class, "update"])->name("presence");
+            Route::get("presence/{user}", [\App\Http\Controllers\Api\V2\Messaging\PresenceController::class, "show"])->whereNumber("user")->name("presence.show");
         });
 
         Route::prefix("onboarding")->as("onboarding.")->group(function () {
@@ -745,6 +748,13 @@ Route::prefix("platform-admin")->as("platform-admin.")->middleware(["auth:sanctu
             Route::get("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "show"])->name("show");
             Route::put("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "update"])->name("update");
             Route::delete("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformCmsController::class, "destroy"])->name("destroy");
+        });
+
+        Route::prefix("wellness-nudges")->as("wellness-nudges.")->group(function () {
+            Route::get("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformWellnessNudgeController::class, "index"])->name("index");
+            Route::post("/", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformWellnessNudgeController::class, "store"])->name("store");
+            Route::put("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformWellnessNudgeController::class, "update"])->name("update");
+            Route::delete("{id}", [\App\Http\Controllers\Api\V2\PlatformAdmin\PlatformWellnessNudgeController::class, "destroy"])->name("destroy");
         });
     });
 

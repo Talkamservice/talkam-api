@@ -224,6 +224,14 @@ class PostService
             $builder = $builder->where("is_anonymous", 0);
         }
 
+        // "My anonymous posts": the author is hidden on anonymous posts, so
+        // this is the only way to list them. Always scoped to the caller,
+        // so guests and other users' ids can never be used to unmask authors.
+        if (filter_var($data["only_anonymous"] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $builder = $builder->where("is_anonymous", 1)
+                ->where("user_id", auth("sanctum")->id() ?? 0);
+        }
+
         if (!empty($key = $data["target"] ?? null)) {
             if ($key == "group") {
                 $builder = $builder->whereRelation("group", "group_access", StatusConstants::OPENED);

@@ -157,6 +157,9 @@ class PostStatsService
 
     public function fetchStats(array $data)
     {
+        // Unknown ids are a 422, not a silent null.
+        $this->validate(array_intersect_key($data, array_flip(["post_id", "group_id"])));
+
         $builder = PostStat::query();
 
         if (!empty($key = $data["post_id"] ?? null)) {
@@ -168,6 +171,22 @@ class PostStatsService
         }
 
         $stats = $builder->latest()->first();
+
+        // Stat rows are only created lazily by PostStatsJob when something
+        // is recorded (impression, click, ...). A real post/group with no
+        // activity yet has no row, which used to come back as `data: null`
+        // — return zeroed stats instead (unsaved, nothing is written).
+        if (empty($stats) && (!empty($data["post_id"] ?? null) || !empty($data["group_id"] ?? null))) {
+            $stats = new PostStat([
+                "post_id" => $data["post_id"] ?? null,
+                "group_id" => $data["group_id"] ?? null,
+                "comments" => 0, "likes" => 0, "dislikes" => 0, "shares" => 0,
+                "impressions" => 0, "engagements" => 0, "followers" => 0,
+                "profile_visits" => 0, "clicks" => 0,
+                "min_time_spent" => 0, "max_time_spent" => 0,
+            ]);
+        }
+
         return $stats;
     }
 

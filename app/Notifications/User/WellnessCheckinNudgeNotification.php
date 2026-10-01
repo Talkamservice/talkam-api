@@ -3,6 +3,7 @@
 namespace App\Notifications\User;
 
 use App\Helpers\MethodsHelper;
+use App\Models\WellnessNudgeMessage;
 use App\Notifications\Concerns\SendsFirebasePush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,6 +12,21 @@ use Illuminate\Notifications\Notification;
 class WellnessCheckinNudgeNotification extends Notification
 {
     use Queueable, SendsFirebasePush;
+
+    // Picked once per notification so the mail, database and push copies
+    // of the same nudge all carry the same text.
+    private string $title = "TalkAM Wellness Check-in";
+    private string $message = "You haven't logged your mood today. How are you feeling?";
+
+    public function __construct()
+    {
+        // Random pick from the admin-managed pool; the fixed text above is
+        // the fallback when the pool is empty or has nothing active.
+        if ($picked = WellnessNudgeMessage::random()) {
+            $this->title = $picked->title;
+            $this->message = $picked->message;
+        }
+    }
 
     public function via(object $notifiable): array
     {
@@ -44,8 +60,8 @@ class WellnessCheckinNudgeNotification extends Notification
     {
         return [
             'data' => [],
-            'title' => "TalkAM Wellness Check-in",
-            'message' => "You haven't logged your mood today. How are you feeling?",
+            'title' => $this->title,
+            'message' => $this->message,
             'link' => config("app.web_url"),
             'type' => 'wellness_nudge',
             'batch_no' => null,

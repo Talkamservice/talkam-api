@@ -97,6 +97,15 @@ class PostController extends Controller
             $post = $this->post_service->getById($id);
             $this->recent_view_service->create(["post_id" => $post->id]);
             $this->post_stats_service->dispatch(["post_id" => $post->id, "clicks" => true]);
+
+            // posts.views_count was never incremented anywhere, so it was
+            // always 0. Count an open by anyone but the author. Base query
+            // builder on purpose: Eloquent's increment() would bump updated_at.
+            if (auth("sanctum")->id() != $post->user_id) {
+                $post->newQuery()->whereKey($post->id)->toBase()->increment("views_count");
+                $post->views_count = ($post->views_count ?? 0) + 1;
+            }
+
             $data = PostResource::make($post);
             return ApiHelper::validResponse("Post details returned successfully", $data);
         } catch (ModelNotFoundException $th) {

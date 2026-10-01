@@ -2,7 +2,7 @@
 
 namespace App\Events\Messaging;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -18,7 +18,7 @@ class UserPresenceChanged implements ShouldBroadcast
 
     public function broadcastOn(): array
     {
-        return [new Channel('presence-user.' . $this->userId)];
+        return [new PresenceChannel('user.' . $this->userId)];
     }
 
     public function broadcastAs()

@@ -40,13 +40,23 @@ class PostCommentResource extends JsonResource
             "post" => !empty($this->post) ? PostResource::custom($this->post) : null,
             "comment" => $this->comment,
             "is_anonymous" => $this->is_anonymous,
+            // `user` is hidden on anonymous comments; see PostResource.
+            "is_owner" => !empty(auth("sanctum")->id()) && auth("sanctum")->id() == $this->user_id,
             "likes" => $likes,
             "unlikes" => $unlikes,
             "is_reported" => $is_reported,
             "reply_to" => ($this->repliedComment?->is_anonymous != 1) ? $reply_to : null,
             "attachment" => $this->attachment,
             "enabled_notification" => !empty($enabled_notification),
-            "reaction" => !empty($user_reaction) ? PostReactionResource::make($user_reaction) : null,
+            // PostReactionResource looks the reaction up in user_post_reactions by
+            // post_id, which a comment reaction doesn't have, so status was always
+            // false here. A row existing for this user IS the active state.
+            "reaction" => !empty($user_reaction) ? [
+                "id" => $user_reaction->id,
+                "action" => $user_reaction->action,
+                "status" => true,
+                "created_at" => formatDate($user_reaction->created_at),
+            ] : null,
             "children" => self::collection($this->whenLoaded("children", $this->children)),
             "created_at" => formatDate($this->created_at),
             "updated_at" => formatDate($this->updated_at)

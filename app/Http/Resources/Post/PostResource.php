@@ -43,6 +43,9 @@ class PostResource extends JsonResource
             "group" => !empty($this->group) ? GroupResource::custom($this->group) : null,
             "can_comment" => $this->can_comment,
             "is_anonymous" => $this->is_anonymous,
+            // `user` is hidden on anonymous posts, so this is the only way the
+            // author's own client can tell the post is theirs (edit/delete).
+            "is_owner" => !empty(auth("sanctum")->id()) && auth("sanctum")->id() == $this->user_id,
             "tags" => is_string($this->tags) ? json_decode($this->tags, true) : $this->tags,
             "is_reported" => $is_reported,
             "views_count" => $this->views_count,
