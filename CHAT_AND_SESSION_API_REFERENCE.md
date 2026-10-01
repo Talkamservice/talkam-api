@@ -42,7 +42,7 @@ There is **no** per-booking/per-session channel today (e.g. `booking.{id}`) — 
 | `MessageReactionAdded` / `Removed` | `app/Events/Messaging/MessageReaction{Added,Removed}.php` | `ShouldBroadcast` | `conversation.{id}` |
 | `ConversationSeen` | `app/Events/Messaging/ConversationSeen.php` | `ShouldBroadcast` | `conversation.{id}` |
 | `UserTyping` | `app/Events/Messaging/UserTyping.php` | `ShouldBroadcast` | `conversation.{id}` |
-| `UserPresenceChanged` | `app/Events/Messaging/UserPresenceChanged.php` | `ShouldBroadcast` | `presence-user.{userId}` (PresenceChannel) |
+| `UserPresenceChanged` | `app/Events/Messaging/UserPresenceChanged.php` | `ShouldBroadcast` | `presence-user.{userId}` (PresenceChannel). Event name `user-presence-changed` (listen with `.user-presence-changed` in Echo); payload `{ "user_id": 34, "status": "online" }`, status is `online`/`away`/`offline` |
 | `RefreshNotification` | `app/Events/RefreshNotification.php` | `ShouldBroadcast` | `refresh-notification.{userId}` |
 
 **Practical consequence: to get real-time message delivery for ALL of a user's conversations, the client must subscribe to `conversation.{id}` for every conversation it cares about** — there is no single per-user firehose channel today. (Feasible to add — see the Q&A doc — but not implemented.)

@@ -20564,7 +20564,7 @@
         {
           "method": "POST",
           "path": "/presence",
-          "summary": "Set own presence {status: online|away|offline}; broadcasts UserPresenceChanged and caches status (5 min TTL); no-op when activity_status is off",
+          "summary": "Set own presence {status: online|away|offline}; broadcasts the 'user-presence-changed' event {user_id, status} on presence-user.{id} and caches status (5 min TTL); no-op when activity_status is off",
           "x-request": {
             "contentType": "application/json",
             "body": {
@@ -20610,7 +20610,16 @@
                   "error_code": 0
                 }
               }
-            ]
+            ],
+            "broadcasts": {
+              "event": "user-presence-changed",
+              "channel": "presence-user.{your user id}",
+              "payload": {
+                "user_id": 12,
+                "status": "online"
+              },
+              "see": "Real-Time Broadcasting -> x-events -> UserPresenceChanged"
+            }
           }
         },
         {
@@ -20659,7 +20668,7 @@
                 }
               }
             ],
-            "notes": "status is offline when nothing is cached (never posted, expired after 5 min, or posted offline)"
+            "notes": "status is offline when nothing is cached (never posted, expired after 5 min, or posted offline) Live updates arrive as the 'user-presence-changed' event on presence-user.{user} (payload {user_id, status})."
           }
         },
         {
@@ -41319,7 +41328,7 @@
     },
     {
       "name": "Real-Time Broadcasting",
-      "description": "Laravel Echo/Pusher channel authorization. Use the standard POST /broadcasting/auth (Sanctum bearer token) — NOT the deprecated /api/v1/broadcasting/auth (see that entry). Channels: App.Models.User.{id} (registered, currently unused by any event), presence-user.{id} (PresenceChannel; UserPresenceChanged only; auth allows the user or a conversation co-member while their activity_status is on), conversation.{conversationId} (all message-content events — requires ConversationMember membership), refresh-notification.{userId}. No booking/session-status channel exists yet — session state changes require polling.",
+      "description": "Laravel Echo/Pusher channel authorization. Use the standard POST /broadcasting/auth (Sanctum bearer token) — NOT the deprecated /api/v1/broadcasting/auth (see that entry). Channels: App.Models.User.{id} (registered, currently unused by any event), presence-user.{id} (PresenceChannel; UserPresenceChanged only; auth allows the user or a conversation co-member while their activity_status is on), conversation.{conversationId} (all message-content events — requires ConversationMember membership), refresh-notification.{userId}. No booking/session-status channel exists yet — session state changes require polling. Events broadcast on these channels are listed under x-events (name, channel, payload, example).",
       "humanURL": "https://staging.talkam.net",
       "baseURL": "https://staging.talkam.net/broadcasting/auth",
       "version": "v2",
@@ -41514,6 +41523,35 @@
             ],
             "notes": "Mounted at the site root (https://staging.talkam.net/broadcasting/auth), not under /api. Pusher driver; decoded JSON is returned as-is, NOT wrapped in the {message,data,success,code} envelope. Channel patterns in routes/channels.php are registered WITHOUT the private-/presence- prefix; clients always send the prefixed name here. Client setup (laravel-echo): authEndpoint = 'https://staging.talkam.net/broadcasting/auth' with auth.headers.Authorization = 'Bearer <token>'. Do not use POST /api/v1/broadcasting/auth: it signs any channel with no ownership check."
           }
+        }
+      ],
+      "x-events": [
+        {
+          "name": "UserPresenceChanged",
+          "class": "App\\Events\\Messaging\\UserPresenceChanged",
+          "channel": "presence-user.{userId}",
+          "channelType": "presence (auth: POST /broadcasting/auth, see that endpoint for who may subscribe)",
+          "eventName": "user-presence-changed",
+          "eventNameNote": "Set with broadcastAs(), so it is NOT namespaced. In Laravel Echo listen with a leading dot: channel.listen('.user-presence-changed', cb). With pusher-js bind 'user-presence-changed'.",
+          "triggeredBy": "POST /api/v2/user/messaging/presence {status}. Not sent when that user's activity_status privacy setting is off. Broadcast to everyone subscribed, including the sender's own socket (no toOthers()).",
+          "payload": {
+            "user_id": "integer, the user whose status changed (same id as in the channel name)",
+            "status": "string, one of: online | away | offline"
+          },
+          "example": {
+            "user_id": 34,
+            "status": "online"
+          },
+          "wireExample": {
+            "event": "user-presence-changed",
+            "channel": "presence-user.34",
+            "data": "{\"user_id\":34,\"status\":\"online\"}"
+          },
+          "clientExample": {
+            "laravel-echo": "Echo.join('user.34').listen('.user-presence-changed', (e) => { /* e = { user_id: 34, status: 'online' } */ })",
+            "pusher-js": "pusher.subscribe('presence-user.34').bind('user-presence-changed', (e) => { /* e = { user_id: 34, status: 'online' } */ })"
+          },
+          "notes": "This is the explicit status event. Pusher's own presence events (pusher:subscription_succeeded, pusher:member_added, pusher:member_removed on the same channel, with member info {id}) also tell you when a subscriber joins or leaves. To get a user's status at the moment you open a chat (before any event arrives), call GET /api/v2/user/messaging/presence/{user}. Statuses expire after 5 minutes without a POST, so clients should re-post presence periodically while active. Delivery goes through the queue (ShouldBroadcast), so it needs a running queue worker (QUEUE_CONNECTION is sync in .env.example)."
         }
       ]
     },
