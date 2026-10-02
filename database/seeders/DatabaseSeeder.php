@@ -21,6 +21,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             // CategoryTableSeeder::class,
+
+            // Roles first: UserTableSeeder assigns the Super Admin role, which
+            // must already exist on a freshly wiped database.
+            PlatformAdminRoleSeeder::class,
             UserTableSeeder::class,
             PermissionTableSeeder::class,
             // RapidUpdatesSeeder::class
